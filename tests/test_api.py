@@ -1,0 +1,107 @@
+"""
+Unit tests for FastAPI REST API endpoints.
+"""
+
+import unittest
+from unittest.mock import MagicMock, patch
+from fastapi.testclient import TestClient
+
+from src.duffel.api.app import app
+
+
+class TestDuffelAPI(unittest.TestCase):
+    """Test suite for Duffel REST API endpoints."""
+
+    def setUp(self):
+        self.client = TestClient(app)
+
+    def test_health_check_endpoint(self):
+        """Test GET /api/v1/health returns status ok."""
+        response = self.client.get("/api/v1/health")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["status"], "ok")
+        self.assertIn("duffel_token_configured", data)
+        self.assertIn("redis_cache_status", data)
+
+    @patch("src.duffel.api.routes.get_duffel_client")
+    def test_search_flights_endpoint(self, mock_get_client):
+        """Test POST /api/v1/flights/search standard search."""
+        mock_client = MagicMock()
+        mock_get_client.return_value = mock_client
+        mock_client.flights.search.return_value = []
+        mock_client.http_client.get_metrics_summary.return_value = {"total_calls": 1}
+        mock_client.cache.get_metrics_summary.return_value = {"hits": 0}
+
+        payload = {
+            "origin": "LHR",
+            "destination": "JFK",
+            "departure_date": "2026-09-22",
+            "passengers_count": 1,
+            "cabin_class": "economy"
+        }
+        response = self.client.post("/api/v1/flights/search", json=payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["status"], "success")
+        self.assertEqual(data["total_offers"], 0)
+
+    @patch("src.duffel.api.routes.get_duffel_client")
+    def test_analyze_queries_endpoint(self, mock_get_client):
+        """Test POST /api/v1/flights/analyze-queries endpoint."""
+        mock_client = MagicMock()
+        mock_get_client.return_value = mock_client
+        mock_client.flights.analyze_candidate_queries.return_value = {
+            "is_tier1_hit": True,
+            "tier1_cache_key": "duffel:flights:search_optimized:...",
+            "total_batches": 1,
+            "duffel_api_calls": 0,
+            "redis_cache_hits": 1,
+            "aggregated_cache_hits": 1,
+            "individual_cache_hits": 0,
+            "details": []
+        }
+
+        payload = {
+            "origin": "LHR",
+            "destination": "JFK",
+            "target_date": "2026-09-22",
+            "target_return_date": "2026-09-29",
+            "min_duration_days": 7,
+            "max_duration_days": 7,
+            "flex_days": 0
+        }
+        response = self.client.post("/api/v1/flights/analyze-queries", json=payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["is_tier1_hit"])
+        self.assertEqual(data["aggregated_cache_hits"], 1)
+
+    @patch("src.duffel.api.routes.get_duffel_client")
+    def test_search_optimized_endpoint(self, mock_get_client):
+        """Test POST /api/v1/flights/search-optimized endpoint."""
+        mock_client = MagicMock()
+        mock_get_client.return_value = mock_client
+        mock_client.flights.search_optimized.return_value = []
+        mock_client.flights.compute_category_highlights.return_value = {}
+        mock_client.http_client.get_metrics_summary.return_value = {}
+        mock_client.cache.get_metrics_summary.return_value = {}
+
+        payload = {
+            "origin": "LHR",
+            "destination": "JFK",
+            "target_date": "2026-09-22",
+            "target_return_date": "2026-09-29",
+            "min_duration_days": 7,
+            "max_duration_days": 7,
+            "flex_days": 0
+        }
+        response = self.client.post("/api/v1/flights/search-optimized", json=payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["search_params"]["origin"], "LHR")
+        self.assertEqual(data["search_params"]["destination"], "JFK")
+
+
+if __name__ == "__main__":
+    unittest.main()

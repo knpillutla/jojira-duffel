@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jajirallc-duffel"
+version = "1.0.0"
+description = "Modular Python SDK to integrate with Duffel REST API for Flights, Stays, and Cars searching and booking"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Jajira LLC" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests>=2.28.0",
+    "httpx>=0.23.0",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "redis>=4.5.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

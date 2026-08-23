@@ -1,0 +1,76 @@
+"""
+Configuration module for the Duffel API Python client.
+"""
+
+from dataclasses import dataclass
+import json
+import os
+from pathlib import Path
+from typing import Optional
+
+
+@dataclass
+class DuffelConfig:
+    """Configuration options for Duffel API client."""
+    api_token: str = ""
+    base_url: str = "https://api.duffel.com"
+    api_version: str = "v2"
+    timeout: float = 30.0
+    debug: bool = False
+    enable_cache: bool = True
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+    redis_db: int = 0
+    redis_password: Optional[str] = None
+    cache_ttl_seconds: int = 3600
+    max_cached_offers: int = 40
+    max_non_stop_offers: int = 10
+    config_file: str = "config.json"
+
+    def __post_init__(self):
+        # 1. Load from config.json if present
+        if Path(self.config_file).is_file():
+            try:
+                with open(self.config_file, "r", encoding="utf-8") as f:
+                    cfg_data = json.load(f)
+                    if not self.api_token:
+                        self.api_token = cfg_data.get("duffel_api_token") or cfg_data.get("api_token") or ""
+                    if "base_url" in cfg_data and cfg_data["base_url"]:
+                        self.base_url = cfg_data["base_url"]
+                    if "api_version" in cfg_data and cfg_data["api_version"]:
+                        self.api_version = cfg_data["api_version"]
+                    if "debug" in cfg_data:
+                        self.debug = bool(cfg_data["debug"])
+                    if "enable_cache" in cfg_data:
+                        self.enable_cache = bool(cfg_data["enable_cache"])
+                    if "redis_host" in cfg_data and cfg_data["redis_host"]:
+                        self.redis_host = str(cfg_data["redis_host"])
+                    if "redis_port" in cfg_data:
+                        self.redis_port = int(cfg_data["redis_port"])
+                    if "redis_db" in cfg_data:
+                        self.redis_db = int(cfg_data["redis_db"])
+                    if "redis_password" in cfg_data:
+                        self.redis_password = cfg_data["redis_password"]
+                    if "cache_ttl_seconds" in cfg_data:
+                        self.cache_ttl_seconds = int(cfg_data["cache_ttl_seconds"])
+                    if "max_cached_offers" in cfg_data:
+                        self.max_cached_offers = int(cfg_data["max_cached_offers"])
+                    if "max_non_stop_offers" in cfg_data:
+                        self.max_non_stop_offers = int(cfg_data["max_non_stop_offers"])
+            except Exception:
+                pass
+
+        # 2. Fall back to environment variable if token is still empty
+        if not self.api_token:
+            self.api_token = os.environ.get("DUFFEL_API_TOKEN", "")
+
+    @property
+    def headers(self) -> dict[str, str]:
+        """Generate standard HTTP headers required by Duffel REST API."""
+        return {
+            "Authorization": f"Bearer {self.api_token}",
+            "Duffel-Version": self.api_version,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": "DuffelPythonSDK/1.0.0",
+        }
