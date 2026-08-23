@@ -58,6 +58,18 @@ class FlightsService(BaseService):
         cache_key = f"duffel:flights:search:{json.dumps(payload, sort_keys=True)}"
         return cache_key, payload
 
+    def _parse_dt_parts(self, dt_val: Optional[str]) -> tuple[str, str, str]:
+        """Given ISO datetime string like '2026-10-01T17:40:00Z', return (iso_str, date_str, time_str)."""
+        if not dt_val or not isinstance(dt_val, str):
+            return "", "", ""
+        clean_dt = dt_val.strip()
+        if "T" in clean_dt:
+            parts = clean_dt.split("T", 1)
+            d_part = parts[0]
+            t_part = parts[1].replace("Z", "").split("+")[0].split("-")[0]
+            return clean_dt, d_part, t_part
+        return clean_dt, clean_dt, ""
+
     def _build_offer_summary(self, offer: Any) -> Optional[dict[str, Any]]:
         """Construct a standardized summary dict for a flight offer."""
         if not offer:
@@ -83,7 +95,19 @@ class FlightsService(BaseService):
         stop_names: list[str] = []
         leg_codes: list[str] = []
         departure_at = ""
+        departure_date = ""
+        departure_time = ""
         arrival_at = ""
+        arrival_date = ""
+        arrival_time = ""
+        return_departure_at = ""
+        return_departure_date = ""
+        return_departure_time = ""
+        return_arrival_at = ""
+        return_arrival_date = ""
+        return_arrival_time = ""
+        slices_detail: list[dict[str, Any]] = []
+
         origin_name = ""
         origin_code = ""
         destination_name = ""
@@ -120,12 +144,22 @@ class FlightsService(BaseService):
                 slice_origin = getattr(slc, "origin", {})
                 slice_destination = getattr(slc, "destination", {})
 
+            slc_orig_code = str(slice_origin.get("iata_code") or "") if isinstance(slice_origin, dict) else str(getattr(slice_origin, "iata_code", "") or "")
+            slc_dest_code = str(slice_destination.get("iata_code") or "") if isinstance(slice_destination, dict) else str(getattr(slice_destination, "iata_code", "") or "")
+
             if slice_index == 0:
                 if isinstance(slice_origin, dict):
                     origin_code = str(slice_origin.get("iata_code") or "")
                     origin_name = location_name(slice_origin, origin_code)
+                else:
+                    origin_code = str(getattr(slice_origin, "iata_code", "") or "")
+                    origin_name = location_name(slice_origin, origin_code)
+
                 if isinstance(slice_destination, dict):
                     destination_code = str(slice_destination.get("iata_code") or "")
+                    destination_name = location_name(slice_destination, destination_code)
+                else:
+                    destination_code = str(getattr(slice_destination, "iata_code", "") or "")
                     destination_name = location_name(slice_destination, destination_code)
 
             stops = max(0, len(segs) - 1)
@@ -147,27 +181,63 @@ class FlightsService(BaseService):
                 if leg_code:
                     leg_codes.append(str(leg_code))
 
+            s_dep_at = ""
+            s_dep_date = ""
+            s_dep_time = ""
+            s_arr_at = ""
+            s_arr_date = ""
+            s_arr_time = ""
+
             if segs:
                 first_segment = segs[0]
                 last_segment = segs[-1]
                 if isinstance(first_segment, dict):
-                    departure_at = departure_at or str(first_segment.get("departing_at") or first_segment.get("departure_time") or "")
+                    raw_dep = str(first_segment.get("departing_at") or first_segment.get("departure_time") or "")
                 else:
-                    departure_at = departure_at or str(getattr(first_segment, "departing_at", "") or getattr(first_segment, "departure_time", "") or "")
-                if isinstance(last_segment, dict):
-                    arrival_at = str(last_segment.get("arriving_at") or last_segment.get("arrival_time") or "")
-                else:
-                    arrival_at = str(getattr(last_segment, "arriving_at", "") or getattr(last_segment, "arrival_time", "") or "")
+                    raw_dep = str(getattr(first_segment, "departing_at", "") or getattr(first_segment, "departure_time", "") or "")
 
+                if isinstance(last_segment, dict):
+                    raw_arr = str(last_segment.get("arriving_at") or last_segment.get("arrival_time") or "")
+                else:
+                    raw_arr = str(getattr(last_segment, "arriving_at", "") or getattr(last_segment, "arrival_time", "") or "")
+
+                s_dep_at, s_dep_date, s_dep_time = self._parse_dt_parts(raw_dep)
+                s_arr_at, s_arr_date, s_arr_time = self._parse_dt_parts(raw_arr)
+
+                if slice_index == 0:
+                    departure_at, departure_date, departure_time = s_dep_at, s_dep_date, s_dep_time
+                    arrival_at, arrival_date, arrival_time = s_arr_at, s_arr_date, s_arr_time
+                elif slice_index == 1:
+                    return_departure_at, return_departure_date, return_departure_time = s_dep_at, s_dep_date, s_dep_time
+                    return_arrival_at, return_arrival_date, return_arrival_time = s_arr_at, s_arr_date, s_arr_time
+
+            slice_dur_min = 0
             if dur_str and isinstance(dur_str, str):
                 import re
                 h_match = re.search(r"(\d+)H", dur_str)
                 m_match = re.search(r"(\d+)M", dur_str)
                 hours = int(h_match.group(1)) if h_match else 0
                 mins = int(m_match.group(1)) if m_match else 0
-                parsed_min = hours * 60 + mins
-                if parsed_min > 0:
-                    total_dur_min += parsed_min
+                slice_dur_min = hours * 60 + mins
+                if slice_dur_min > 0:
+                    total_dur_min += slice_dur_min
+
+            s_dur_str = f"{slice_dur_min // 60}h {slice_dur_min % 60}m" if slice_dur_min > 0 else dur_str
+
+            slices_detail.append({
+                "slice_index": slice_index,
+                "type": "outbound" if slice_index == 0 else ("return" if slice_index == 1 else f"slice_{slice_index}"),
+                "origin_code": slc_orig_code,
+                "destination_code": slc_dest_code,
+                "departure_at": s_dep_at,
+                "departure_date": s_dep_date,
+                "departure_time": s_dep_time,
+                "arrival_at": s_arr_at,
+                "arrival_date": s_arr_date,
+                "arrival_time": s_arr_time,
+                "duration": s_dur_str,
+                "stops": stops,
+            })
 
         dur_str_formatted = "N/A"
         if total_dur_min > 0:
@@ -177,7 +247,7 @@ class FlightsService(BaseService):
 
         stop_type = "Non-stop" if max_stops == 0 else ("1 stop" if max_stops == 1 else "2 stops")
 
-        return {
+        res: dict[str, Any] = {
             "offer_id": o_id,
             "price": f"{curr} {amt}",
             "total_amount": float(amt or 0.0),
@@ -197,8 +267,22 @@ class FlightsService(BaseService):
             "duration_minutes": total_dur_min if total_dur_min > 0 else None,
             "duration_hours": round(total_dur_min / 60, 2) if total_dur_min > 0 else None,
             "departure_at": departure_at,
+            "departure_date": departure_date,
+            "departure_time": departure_time,
             "arrival_at": arrival_at,
+            "arrival_date": arrival_date,
+            "arrival_time": arrival_time,
+            "slice_details": slices_detail,
         }
+        if len(slices) > 1:
+            res["return_departure_at"] = return_departure_at
+            res["return_departure_date"] = return_departure_date
+            res["return_departure_time"] = return_departure_time
+            res["return_arrival_at"] = return_arrival_at
+            res["return_arrival_date"] = return_arrival_date
+            res["return_arrival_time"] = return_arrival_time
+
+        return res
 
     def _is_us_domestic(self, origin_code: str, dest_code: str) -> bool:
         """Check if both origin and destination are US domestic airport IATA codes."""

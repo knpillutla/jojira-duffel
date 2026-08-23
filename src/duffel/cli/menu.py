@@ -481,23 +481,9 @@ class DuffelCLI:
         def format_offer_summary(o):
             if not o:
                 return None
-            amt = getattr(o, "total_amount", "0.00")
-            curr = getattr(o, "total_currency", "USD")
-            owner = self._get_offer_owner_name(o)
-            dur_min = self._get_offer_total_duration_min(o)
-            dur_str = self._format_duration(dur_min)
-            stops = self._get_offer_max_stops(o)
-            o_id = getattr(o, "id", "")
-            return {
-                "offer_id": o_id,
-                "price": f"{curr} {amt}",
-                "total_amount": float(amt or 0.0),
-                "currency": curr,
-                "airline": owner,
-                "max_stops": stops,
-                "duration": dur_str,
-                "duration_minutes": dur_min if dur_min < 99999 else None,
-            }
+            if isinstance(o, dict) and "departure_date" in o and "departure_time" in o:
+                return o
+            return self.client.flights._build_offer_summary(o)
 
         output_json = getattr(offers, "output_json", None)
         request_metadata = {

@@ -83,9 +83,32 @@ class FlightOfferSummary(BaseModel):
     total_amount: float
     currency: str
     airline: str
+    origin: Optional[str] = None
+    origin_name: Optional[str] = None
+    origin_code: Optional[str] = None
+    destination: Optional[str] = None
+    destination_name: Optional[str] = None
+    destination_code: Optional[str] = None
     max_stops: int
+    legs: Optional[str] = None
+    leg_names: Optional[str] = None
+    leg_codes: Optional[str] = None
     duration: str
     duration_minutes: Optional[int] = None
+    duration_hours: Optional[float] = None
+    departure_at: Optional[str] = None
+    departure_date: Optional[str] = None
+    departure_time: Optional[str] = None
+    arrival_at: Optional[str] = None
+    arrival_date: Optional[str] = None
+    arrival_time: Optional[str] = None
+    return_departure_at: Optional[str] = None
+    return_departure_date: Optional[str] = None
+    return_departure_time: Optional[str] = None
+    return_arrival_at: Optional[str] = None
+    return_arrival_date: Optional[str] = None
+    return_arrival_time: Optional[str] = None
+    slice_details: Optional[list[dict[str, Any]]] = None
 
 
 class OptimizedFlightSearchResponse(BaseModel):

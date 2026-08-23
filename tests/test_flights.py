@@ -182,6 +182,59 @@ class TestFlightsService(unittest.TestCase):
         self.assertEqual(summary["leg_codes"], "KEF, CDG")
         self.assertEqual(summary["duration_hours"], 10.0)
 
+    def test_offer_summary_includes_departure_and_arrival_datetime(self):
+        """Verify offer summary extracts departure date/time and arrival date/time for outbound and return slices."""
+        offer = {
+            "id": "off_dt_test",
+            "total_amount": "750.00",
+            "total_currency": "USD",
+            "owner": {"name": "Delta Air Lines"},
+            "slices": [
+                {
+                    "origin": {"name": "Atlanta Airport", "iata_code": "ATL"},
+                    "destination": {"name": "Charles de Gaulle", "iata_code": "CDG"},
+                    "duration": "PT8H30M",
+                    "segments": [
+                        {
+                            "departing_at": "2026-10-01T17:40:00Z",
+                            "arriving_at": "2026-10-02T08:10:00Z",
+                            "destination": {"name": "Charles de Gaulle", "iata_code": "CDG"},
+                        }
+                    ],
+                },
+                {
+                    "origin": {"name": "Charles de Gaulle", "iata_code": "CDG"},
+                    "destination": {"name": "Atlanta Airport", "iata_code": "ATL"},
+                    "duration": "PT9H15M",
+                    "segments": [
+                        {
+                            "departing_at": "2026-10-22T11:30:00Z",
+                            "arriving_at": "2026-10-22T15:45:00Z",
+                            "destination": {"name": "Atlanta Airport", "iata_code": "ATL"},
+                        }
+                    ],
+                },
+            ],
+        }
+
+        summary = self.client.flights._build_offer_summary(offer)
+        self.assertIsNotNone(summary)
+        self.assertEqual(summary["departure_at"], "2026-10-01T17:40:00Z")
+        self.assertEqual(summary["departure_date"], "2026-10-01")
+        self.assertEqual(summary["departure_time"], "17:40:00")
+        self.assertEqual(summary["arrival_at"], "2026-10-02T08:10:00Z")
+        self.assertEqual(summary["arrival_date"], "2026-10-02")
+        self.assertEqual(summary["arrival_time"], "08:10:00")
+        self.assertEqual(summary["return_departure_at"], "2026-10-22T11:30:00Z")
+        self.assertEqual(summary["return_departure_date"], "2026-10-22")
+        self.assertEqual(summary["return_departure_time"], "11:30:00")
+        self.assertEqual(summary["return_arrival_at"], "2026-10-22T15:45:00Z")
+        self.assertEqual(summary["return_arrival_date"], "2026-10-22")
+        self.assertEqual(summary["return_arrival_time"], "15:45:00")
+        self.assertEqual(len(summary["slice_details"]), 2)
+        self.assertEqual(summary["slice_details"][0]["departure_date"], "2026-10-01")
+        self.assertEqual(summary["slice_details"][1]["departure_date"], "2026-10-22")
+
 
 if __name__ == "__main__":
     unittest.main()
