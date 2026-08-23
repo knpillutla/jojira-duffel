@@ -77,13 +77,19 @@ class Passenger:
 
 @dataclass
 class Payment:
-    type: str = "balance"  # balance, card, or arc_bsp
+    type: str = "balance"  # balance, card, or arc_bsp_one_step
     currency: str = "USD"
     amount: str = "0.00"
+    raw: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        d = {
             "type": self.type,
             "currency": self.currency,
             "amount": self.amount,
         }
+        if isinstance(self.raw, dict):
+            for k, v in self.raw.items():
+                if k not in d and v is not None:
+                    d[k] = v
+        return d

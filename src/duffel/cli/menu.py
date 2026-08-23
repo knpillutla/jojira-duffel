@@ -10,7 +10,7 @@ from typing import Any, Optional
 from ..client import DuffelClient
 from ..config import DuffelConfig
 from ..models.common import Passenger, Payment
-from .interactive import fill_car_slots, fill_optimized_flight_slots, fill_stay_slots, prompt_input
+from .interactive import fill_car_slots, fill_optimized_flight_slots, fill_standard_flight_slots, fill_stay_slots, prompt_input
 from .parser import PromptExtractor
 
 
@@ -26,30 +26,34 @@ class DuffelCLI:
         self._print_header()
         while True:
             self._print_menu()
-            choice = input("\n>> Enter menu option (0-9): ").strip()
+            choice = input("\n>> Enter menu option (0-11): ").strip()
             if choice == "1":
-                self._handle_optimized_flights_menu()
+                self._handle_standard_flights_menu()
             elif choice == "2":
-                self._handle_book_flight_menu()
+                self._handle_optimized_flights_menu()
             elif choice == "3":
-                self._handle_stays()
+                self._handle_natural_language_flights_menu()
             elif choice == "4":
-                self._handle_book_stay_menu()
+                self._handle_book_flight_menu()
             elif choice == "5":
-                self._handle_cars()
+                self._handle_stays()
             elif choice == "6":
-                self._handle_book_car_menu()
+                self._handle_book_stay_menu()
             elif choice == "7":
-                self._handle_config()
+                self._handle_cars()
             elif choice == "8":
-                self._handle_clear_redis_cache()
+                self._handle_book_car_menu()
             elif choice == "9":
+                self._handle_config()
+            elif choice == "10":
+                self._handle_clear_redis_cache()
+            elif choice == "11":
                 self._handle_launch_api_server()
             elif choice in ("0", "q", "exit", "quit"):
                 print("\nThank you for using Jajira LLC Duffel API Client. Goodbye!\n")
                 break
             else:
-                print("[!] Invalid selection. Please choose an option from 0 to 9.")
+                print("[!] Invalid selection. Please choose an option from 0 to 11.")
 
     def _print_header(self):
         print("=" * 65)
@@ -62,19 +66,21 @@ class DuffelCLI:
         print(f"Status: {token_status}")
         print("-" * 55)
         print(" --- FLIGHTS ---")
-        print(" [1] Optimized Flight Search (Find Cheapest Dates by Duration)")
-        print(" [2] Book Flight Offer")
+        print(" [1] Standard Flight Search (Exact Departure & Return Dates)")
+        print(" [2] Optimized Price Search (Find Cheapest Dates by Duration)")
+        print(" [3] Natural Language Flight Search (AI Prompt Resolution)")
+        print(" [4] Book Flight Offer")
         print("\n --- STAYS (HOTELS) ---")
-        print(" [3] Search Stays (Hotels)")
-        print(" [4] Book Stay Offer")
+        print(" [5] Search Stays (Hotels)")
+        print(" [6] Book Stay Offer")
         print("\n --- CARS (CAR RENTALS) ---")
-        print(" [5] Search Cars (Car Rentals)")
-        print(" [6] Book Car Offer")
+        print(" [7] Search Cars (Car Rentals)")
+        print(" [8] Book Car Offer")
         print("\n --- CONFIGURATION & CACHE ---")
-        print(" [7] Configure Duffel API Key")
-        print(" [8] Clear / Flush Redis Cache Database")
+        print(" [9] Configure Duffel API Key")
+        print(" [10] Clear / Flush Redis Cache Database")
         print("\n --- REST API WEB SERVER ---")
-        print(" [9] Launch REST API Web Server (FastAPI / Uvicorn)")
+        print(" [11] Launch REST API Web Server (FastAPI / Uvicorn)")
         print(" [0] Exit")
         print("-" * 55)
 
@@ -93,6 +99,74 @@ class DuffelCLI:
             print("\n[+] Redis cache database successfully cleared!")
         else:
             print("\nOperation cancelled. Cache intact.")
+
+    def _handle_standard_flights_menu(self):
+        print("\n--- [FLIGHTS] Standard Exact-Date Flight Search ---")
+        prompt = input("\nDescribe your flight request in natural language (e.g. 'JFK to LHR on Sept 22 returning Sept 29') or press Enter:\n> ").strip()
+        extracted = PromptExtractor.extract_flight_info(prompt) if prompt else {}
+        extracted["search_prompt"] = prompt
+        self._handle_standard_flights(extracted)
+
+    def _handle_standard_flights(self, extracted: dict):
+        slots = fill_standard_flight_slots(extracted)
+        passengers = [Passenger(type="adult") for _ in range(slots['passengers_count'])]
+
+        print(f"\n⏳ Executing exact-date flight search for {slots['origin']} -> {slots['destination']} on {slots['departure_date']}...")
+        try:
+            offers = self.client.flights.search_exact(
+                origin=slots['origin'],
+                destination=slots['destination'],
+                departure_date=slots['departure_date'],
+                return_date=slots['return_date'],
+                passengers=passengers,
+                cabin_class=slots['cabin_class'],
+                progress_callback=print
+            )
+            if hasattr(offers, "__dict__"):
+                setattr(offers, "search_prompt", extracted.get("search_prompt", ""))
+                setattr(offers, "search_params", dict(slots))
+
+            self._display_and_book_offers(offers)
+        except Exception as err:
+            print(f"\n[!] Error during Standard Exact-Date Flight search: {err}")
+
+    def _handle_natural_language_flights_menu(self):
+        print("\n--- [FLIGHTS] Natural Language AI Flight Search ---")
+        prompt = input("\nEnter your natural language flight request (e.g. 'Fly from JFK to LHR for 7 days in October'):\n> ").strip()
+        if not prompt:
+            print("Operation cancelled. Prompt cannot be empty.")
+            return
+
+        print(f"\n🧠 Resolving natural-language prompt with Gemini AI: '{prompt}'...")
+        extracted = PromptExtractor.extract_flight_info(prompt)
+        extracted["search_prompt"] = prompt
+
+        missing_fields = PromptExtractor.missing_flight_fields(extracted)
+        if missing_fields:
+            print("\n[!] Missing required flight information: " + ", ".join(missing_fields))
+            print("    Please provide a prompt with origin, destination, and departure date or travel month.")
+            return
+
+        fav_airline = extracted.get("favorite_airline", "")
+        print(f"\n[+] AI Successfully Parsed Flight Details:")
+        slices = extracted.get("slices", [{}])
+        s1 = slices[0] if slices else {}
+        print(f"  * Origin         : {s1.get('origin', 'N/A')}")
+        print(f"  * Destination    : {s1.get('destination', 'N/A')}")
+        print(f"  * Target Date    : {s1.get('departure_date', 'N/A')}")
+        if len(slices) > 1:
+            print(f"  * Return Date    : {slices[1].get('departure_date', 'N/A')}")
+        if extracted.get("duration_days"):
+            print(f"  * Duration       : {extracted['duration_days']} days")
+        if fav_airline:
+            print(f"  * Preferred      : {fav_airline}")
+
+        confirm = prompt_input("\nExecute search with these extracted parameters? (Y/n)", default="y", required=False).lower()
+        if confirm not in ("y", "yes"):
+            print("Operation cancelled.")
+            return
+
+        self._handle_optimized_flights(extracted)
 
     def _handle_optimized_flights_menu(self):
         print("\n--- [FLIGHTS] Optimized Price Search (Cheapest Dates by Duration) ---")
@@ -662,23 +736,63 @@ class DuffelCLI:
         return str(iso_str)
 
     def _book_flight(self, offer):
-        print(f"\n--- Booking Flight Offer {offer.id} ---")
-        given = prompt_input("  Passenger Given Name", default="John")
-        family = prompt_input("  Passenger Family Name", default="Doe")
+        off_id = getattr(offer, "id", "") or (offer.get("id") if isinstance(offer, dict) else "")
+        off_curr = getattr(offer, "total_currency", "USD") if hasattr(offer, "total_currency") else (offer.get("total_currency", "USD") if isinstance(offer, dict) else "USD")
+        off_amt = getattr(offer, "total_amount", "0.00") if hasattr(offer, "total_amount") else (offer.get("total_amount", "0.00") if isinstance(offer, dict) else "0.00")
+
+        print(f"\n--- Booking Flight Offer {off_id} ---")
+        given = prompt_input("  Passenger Given / First Name", default="John")
+        family = prompt_input("  Passenger Family / Last Name", default="Doe")
         email = prompt_input("  Passenger Email", default="john.doe@example.com")
         phone = prompt_input("  Passenger Phone Number (E.164 format)", default="+14155552671")
         title = prompt_input("  Passenger Title (mr, ms, mrs, dr)", default="mr").lower()
         gender = prompt_input("  Passenger Gender (m, f)", default="m").lower()
         born_on = prompt_input("  Passenger Date of Birth (YYYY-MM-DD)", default="1990-01-01")
 
-        print("\nSelect Order / Booking Type:")
+        print("\nSelect Order / Booking Payment Method & Type:")
         print("  [1] Hold Order (Reserve seats without immediate payment / No balance required)")
-        print("  [2] Instant Order (Pay with Duffel Account Balance)")
+        print("  [2] Instant Order - Balance Payment (Pay with Duffel Balance)")
+        print("  [3] Instant Order - Credit Card Payment (Card Token)")
+        print("  [4] Instant Order - Saved Customer Card (Customer Card ID)")
+        print("  [5] Instant Order - ARC / BSP One-Step Payment")
+        print("  [6] Instant Order - Bank Transfer Payment")
+        print("  [7] Instant Order - Instant Bank Transfer (Open Banking)")
         booking_type_choice = prompt_input("Choice [1]", default="1", required=False)
 
         if booking_type_choice == "2":
             order_type = "instant"
-            payments = [Payment(type="balance", currency=offer.total_currency, amount=offer.total_amount)]
+            pym_curr = prompt_input("  Payment Currency Code", default=off_curr, required=False)
+            pym_amt = prompt_input("  Payment Amount", default=str(off_amt), required=False)
+            payments = [Payment(type="balance", currency=pym_curr, amount=pym_amt)]
+        elif booking_type_choice == "3":
+            order_type = "instant"
+            pym_curr = prompt_input("  Payment Currency Code", default=off_curr, required=False)
+            pym_amt = prompt_input("  Payment Amount", default=str(off_amt), required=False)
+            card_token = prompt_input("  Duffel Credit Card Token (Optional)", default="", required=False)
+            raw_card = {"card_token": card_token} if card_token else {}
+            payments = [Payment(type="card", currency=pym_curr, amount=pym_amt, raw=raw_card)]
+        elif booking_type_choice == "4":
+            order_type = "instant"
+            pym_curr = prompt_input("  Payment Currency Code", default=off_curr, required=False)
+            pym_amt = prompt_input("  Payment Amount", default=str(off_amt), required=False)
+            cust_card_id = prompt_input("  Customer Card ID (e.g. 'ccrd_00001')", default="", required=False)
+            raw_card = {"customer_card_id": cust_card_id} if cust_card_id else {}
+            payments = [Payment(type="customer_card", currency=pym_curr, amount=pym_amt, raw=raw_card)]
+        elif booking_type_choice == "5":
+            order_type = "instant"
+            pym_curr = prompt_input("  Payment Currency Code", default=off_curr, required=False)
+            pym_amt = prompt_input("  Payment Amount", default=str(off_amt), required=False)
+            payments = [Payment(type="arc_bsp_one_step", currency=pym_curr, amount=pym_amt)]
+        elif booking_type_choice == "6":
+            order_type = "instant"
+            pym_curr = prompt_input("  Payment Currency Code", default=off_curr, required=False)
+            pym_amt = prompt_input("  Payment Amount", default=str(off_amt), required=False)
+            payments = [Payment(type="bank_transfer", currency=pym_curr, amount=pym_amt)]
+        elif booking_type_choice == "7":
+            order_type = "instant"
+            pym_curr = prompt_input("  Payment Currency Code", default=off_curr, required=False)
+            pym_amt = prompt_input("  Payment Amount", default=str(off_amt), required=False)
+            payments = [Payment(type="instant_bank_transfer", currency=pym_curr, amount=pym_amt)]
         else:
             order_type = "hold"
             payments = []
@@ -700,10 +814,10 @@ class DuffelCLI:
             born_on=born_on
         )
 
-        print(f"\nSubmitting {order_type.upper()} booking order to Duffel...")
+        print(f"\nSubmitting {order_type.upper()} booking order to Duffel API...")
         try:
             order = self.client.flights.create_order(
-                selected_offers=[offer.id],
+                selected_offers=[off_id],
                 passengers=[pax],
                 payments=payments,
                 type=order_type
@@ -721,7 +835,7 @@ class DuffelCLI:
                 print("    Retrying automatically with Hold Order (type='hold')...")
                 try:
                     order = self.client.flights.create_order(
-                        selected_offers=[offer.id],
+                        selected_offers=[off_id],
                         passengers=[pax],
                         payments=[],
                         type="hold"

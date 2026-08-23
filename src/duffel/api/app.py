@@ -2,7 +2,7 @@
 FastAPI Application Initialization and Middleware Setup.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
@@ -33,3 +33,17 @@ app.include_router(router)
 def root():
     """Redirect root path to interactive OpenAPI docs."""
     return RedirectResponse(url="/docs")
+
+
+@app.get("/health", summary="System Health Check (Root Alias)", tags=["System"])
+def root_health_check():
+    """System health check endpoint at root level."""
+    from .routes import health_check
+    return health_check()
+
+
+@app.get("/help", summary="API Help & Documentation Index (Root Alias)", tags=["System"])
+def root_api_help(request: Request):
+    """API documentation and schema index endpoint at root level."""
+    from .routes import get_api_help
+    return get_api_help(request)

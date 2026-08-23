@@ -210,3 +210,61 @@ def fill_car_slots(extracted: dict[str, Any]) -> dict[str, Any]:
     extracted["driver_age"] = int(prompt_input("  Enter Primary Driver Age", default=age, required=False))
 
     return extracted
+
+
+def fill_standard_flight_slots(extracted: dict[str, Any]) -> dict[str, Any]:
+    """
+    Prompt interactively for Standard Exact-Date Flight Search parameters:
+      - Origin & Destination
+      - Exact departure date
+      - Optional exact return date (for round-trip)
+      - Cabin class & Passenger count
+    """
+    extracted_slices = extracted.get("slices", [])
+    first_slice = extracted_slices[0] if extracted_slices else {}
+
+    orig = first_slice.get("origin") or ""
+    dest = first_slice.get("destination") or ""
+    dep_date = first_slice.get("departure_date") or ""
+
+    second_slice = extracted_slices[1] if len(extracted_slices) > 1 else {}
+    ret_date = extracted.get("target_return_date") or second_slice.get("departure_date") or ""
+
+    if orig:
+        print(f"  * Extracted Origin: {orig}")
+    if dest:
+        print(f"  * Extracted Destination: {dest}")
+    if dep_date:
+        print(f"  * Extracted Departure Date: {dep_date}")
+    if ret_date:
+        print(f"  * Extracted Return Date: {ret_date}")
+
+    orig = prompt_input("  Enter Origin Airport IATA Code (e.g. LHR, JFK, ATL)", default=orig or "ATL")
+    dest = prompt_input("  Enter Destination Airport IATA Code (e.g. JFK, SFO, CDG)", default=dest or "CDG")
+
+    if not dep_date:
+        default_dep = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
+        dep_date = prompt_input("  Enter Exact Departure Date (YYYY-MM-DD)", default=default_dep)
+
+    dep_dt = datetime.strptime(dep_date, "%Y-%m-%d")
+    default_ret = ret_date or (dep_dt + timedelta(days=7)).strftime("%Y-%m-%d")
+    ret_date = prompt_input("  Enter Exact Return Date (YYYY-MM-DD, or press Enter for one-way)", default=default_ret, required=False)
+
+    cabin = extracted.get("cabin_class") or "economy"
+    cabin_class = prompt_input(
+        "  Enter Cabin Class (economy, premium_economy, business, first)", default=cabin, required=False
+    ).lower()
+
+    pax_count = str(extracted.get("passengers_count") or 1)
+    passengers_count = int(
+        prompt_input("  Enter Number of Adult Passengers", default=pax_count, required=False)
+    )
+
+    return {
+        "origin": orig.upper(),
+        "destination": dest.upper(),
+        "departure_date": dep_date,
+        "return_date": ret_date.strip() if ret_date and ret_date.strip() else None,
+        "cabin_class": cabin_class,
+        "passengers_count": passengers_count,
+    }

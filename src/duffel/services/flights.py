@@ -671,16 +671,21 @@ class FlightsService(BaseService):
 
     def create_order(
         self,
-        selected_offers: list[str],
+        selected_offers: Union[str, list[str]],
         passengers: list[Union[Passenger, dict[str, Any]]],
-        payments: list[Union[Payment, dict[str, Any]]],
+        payments: Optional[list[Union[Payment, dict[str, Any]]]] = None,
         type: str = "instant",
     ) -> FlightOrder:
         """
-        Create a flight booking order.
+        Create a flight booking order with Duffel API.
 
         Endpoint: POST /air/orders
         """
+        if isinstance(selected_offers, str):
+            offer_ids = [selected_offers]
+        else:
+            offer_ids = list(selected_offers)
+
         formatted_passengers = []
         for p in passengers:
             if isinstance(p, Passenger):
@@ -688,16 +693,37 @@ class FlightsService(BaseService):
             else:
                 formatted_passengers.append(p)
 
+        # If payments is not passed or payment amount is '0.00' / empty, auto-fetch offer details
+        if not payments:
+            try:
+                offer = self.get_offer(offer_ids[0])
+                payments = [Payment(type="balance", currency=offer.total_currency or "USD", amount=offer.total_amount)]
+            except Exception:
+                payments = [Payment(type="balance", currency="USD", amount="0.00")]
+
         formatted_payments = []
         for pym in payments:
             if isinstance(pym, Payment):
-                formatted_payments.append(pym.to_dict())
+                pym_dict = pym.to_dict()
+            elif isinstance(pym, dict):
+                pym_dict = dict(pym)
             else:
-                formatted_payments.append(pym)
+                pym_dict = {"type": "balance", "currency": "USD", "amount": "0.00"}
+
+            # Auto-fill missing amount/currency if 0.00
+            if (not pym_dict.get("amount") or pym_dict.get("amount") == "0.00") and offer_ids:
+                try:
+                    off_obj = self.get_offer(offer_ids[0])
+                    pym_dict["amount"] = off_obj.total_amount
+                    pym_dict["currency"] = pym_dict.get("currency") or off_obj.total_currency or "USD"
+                except Exception:
+                    pass
+
+            formatted_payments.append(pym_dict)
 
         payload = {
             "type": type,
-            "selected_offers": selected_offers,
+            "selected_offers": offer_ids,
             "passengers": formatted_passengers,
             "payments": formatted_payments,
         }
@@ -911,6 +937,49 @@ class FlightsService(BaseService):
         }
         key_json = json.dumps(key_payload, sort_keys=True)
         return f"duffel:flights:search_optimized:{key_json}"
+
+    def search_exact(
+        self,
+        origin: str,
+        destination: str,
+        departure_date: str,
+        return_date: Optional[str] = None,
+        passengers: Optional[list[Union[Passenger, dict[str, Any]]]] = None,
+        cabin_class: Union[CabinClass, str] = CabinClass.ECONOMY,
+        force_refresh: bool = False,
+        progress_callback: Optional[Any] = None,
+    ) -> list[FlightOffer]:
+        """
+        Execute standard exact-date flight search for specific departure_date and optional return_date.
+        Calculates trip duration automatically if return_date is provided and calls search_optimized
+        with flex_days=0 and min_duration_days == max_duration_days.
+        """
+        from datetime import datetime
+        min_dur = 7
+        max_dur = 7
+        if return_date and return_date.strip():
+            try:
+                d1 = datetime.strptime(departure_date, "%Y-%m-%d")
+                d2 = datetime.strptime(return_date.strip(), "%Y-%m-%d")
+                dur = max(1, (d2 - d1).days)
+                min_dur = dur
+                max_dur = dur
+            except Exception:
+                pass
+
+        return self.search_optimized(
+            origin=origin,
+            destination=destination,
+            target_date=departure_date,
+            target_return_date=return_date.strip() if (return_date and return_date.strip()) else None,
+            min_duration_days=min_dur,
+            max_duration_days=max_dur,
+            flex_days=0,
+            passengers=passengers,
+            cabin_class=cabin_class,
+            force_refresh=force_refresh,
+            progress_callback=progress_callback,
+        )
 
     def search_optimized(
         self,
