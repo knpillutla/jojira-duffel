@@ -27,9 +27,10 @@ class PaymentInput(BaseModel):
 
 class OptimizedFlightSearchRequest(BaseModel):
     """Flexible multi-day flight search optimization request."""
-    origin: str = Field(..., description="Origin Airport IATA code e.g. LHR")
-    destination: str = Field(..., description="Destination Airport IATA code e.g. JFK")
-    target_date: str = Field(..., description="Target departure date in YYYY-MM-DD format")
+    prompt: Optional[str] = Field(None, description="Natural-language flight request")
+    origin: Optional[str] = Field(None, description="Origin Airport IATA code e.g. LHR")
+    destination: Optional[str] = Field(None, description="Destination Airport IATA code e.g. JFK")
+    target_date: Optional[str] = Field(None, description="Target departure date in YYYY-MM-DD format")
     target_return_date: Optional[str] = Field(None, description="Target return date in YYYY-MM-DD format")
     min_duration_days: int = Field(4, ge=1, le=30, description="Minimum trip duration in days")
     max_duration_days: int = Field(7, ge=1, le=30, description="Maximum trip duration in days")
@@ -37,6 +38,13 @@ class OptimizedFlightSearchRequest(BaseModel):
     passengers_count: int = Field(1, ge=1, le=9, description="Number of adult passengers")
     cabin_class: str = Field("economy", description="Cabin class: economy, premium_economy, business, first")
     favorite_airline: Optional[str] = Field(None, description="Preferred favorite airline (e.g. 'Virgin Atlantic', 'BA')")
+    force_refresh: bool = Field(False, description="Set true to bypass cache and query Duffel live")
+
+
+class NaturalLanguageFlightSearchRequest(BaseModel):
+    """Natural-language flight search request resolved by the configured Gemini model."""
+    prompt: str = Field(..., min_length=1, description="Natural-language flight request")
+    favorite_airline: Optional[str] = Field(None, description="Preferred favorite airline")
     force_refresh: bool = Field(False, description="Set true to bypass cache and query Duffel live")
 
 
@@ -83,6 +91,7 @@ class FlightOfferSummary(BaseModel):
 class OptimizedFlightSearchResponse(BaseModel):
     """Comprehensive flexible multi-day flight search response payload."""
     timestamp: str
+    search_prompt: str = ""
     search_params: dict[str, Any]
     category_highlights: dict[str, Any]
     total_offers_found: int

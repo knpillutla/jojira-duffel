@@ -1,0 +1,28 @@
+services:
+  api:
+    build: .
+    environment:
+      DUFFEL_API_TOKEN: ${DUFFEL_API_TOKEN:-}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - redis
+    expose:
+      - "8000"
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:

@@ -98,6 +98,12 @@ class DuffelCLI:
         print("\n--- [FLIGHTS] Optimized Price Search (Cheapest Dates by Duration) ---")
         prompt = input("\nDescribe your flight request in natural language (e.g. 'JFK to LHR for 7 days') or press Enter:\n> ").strip()
         extracted = PromptExtractor.extract_flight_info(prompt) if prompt else {}
+        extracted["search_prompt"] = prompt
+        if prompt:
+            missing_fields = PromptExtractor.missing_flight_fields(extracted)
+            if missing_fields:
+                print("\n[!] Missing required flight information: " + ", ".join(missing_fields))
+                return
         self._handle_optimized_flights(extracted)
 
     def _handle_optimized_flights(self, extracted: dict):
@@ -169,6 +175,9 @@ class DuffelCLI:
                 cabin_class=slots['cabin_class'],
                 progress_callback=print
             )
+            if hasattr(offers, "__dict__"):
+                setattr(offers, "search_prompt", extracted.get("search_prompt", ""))
+                setattr(offers, "search_params", dict(slots))
 
             self._display_and_book_offers(offers)
         except Exception as err:
@@ -447,12 +456,23 @@ class DuffelCLI:
 
         print("=" * 95)
 
-    def _export_search_results_json(self, offers: list, fav_airline: str = "") -> str:
+    def _export_search_results_json(
+        self,
+        offers: list,
+        fav_airline: str = "",
+        search_prompt: Optional[str] = None,
+        search_params: Optional[dict[str, Any]] = None,
+    ) -> str:
         """Export comprehensive search results and pre-calculated category breakdowns to a hashed JSON file."""
         if not offers:
             return ""
 
         from datetime import datetime
+
+        if search_prompt is None:
+            search_prompt = getattr(offers, "search_prompt", "")
+        if search_params is None:
+            search_params = getattr(offers, "search_params", {})
 
         highlights = getattr(offers, "category_highlights", None)
         if not highlights or fav_airline:
@@ -480,9 +500,14 @@ class DuffelCLI:
             }
 
         output_json = getattr(offers, "output_json", None)
+        request_metadata = {
+            "search_prompt": search_prompt or "",
+            "search_params": search_params or {},
+        }
         if output_json and not fav_airline:
             data = {
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                **request_metadata,
                 "category_highlights": output_json.get("category_highlights", highlights),
                 "performance_metrics": self.client.http_client.get_metrics_summary(),
                 "cache_metrics": self.client.cache.get_metrics_summary() if self.client.cache else {},
@@ -504,6 +529,7 @@ class DuffelCLI:
 
             data = {
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                **request_metadata,
                 "category_highlights": highlights,
                 "performance_metrics": self.client.http_client.get_metrics_summary(),
                 "cache_metrics": self.client.cache.get_metrics_summary() if self.client.cache else {},

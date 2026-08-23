@@ -82,14 +82,51 @@ class FlightsService(BaseService):
         total_dur_min = 0
         stop_names: list[str] = []
         leg_codes: list[str] = []
+        departure_at = ""
+        arrival_at = ""
+        origin_name = ""
+        origin_code = ""
+        destination_name = ""
+        destination_code = ""
+        city_by_code = {
+            "ATL": "Atlanta",
+            "OSL": "Oslo",
+            "LHR": "London",
+            "JFK": "New York",
+            "CDG": "Paris",
+            "KEF": "Reykjavik",
+        }
 
-        for slc in slices:
+        def location_name(location: Any, code: str) -> str:
+            if isinstance(location, dict):
+                return str(
+                    location.get("city_name")
+                    or location.get("city")
+                    or city_by_code.get(code)
+                    or location.get("name")
+                    or code
+                )
+            return city_by_code.get(code) or str(location or code)
+
+        for slice_index, slc in enumerate(slices):
             if isinstance(slc, dict):
                 segs = slc.get("segments", [])
                 dur_str = slc.get("duration", "")
+                slice_origin = slc.get("origin", {})
+                slice_destination = slc.get("destination", {})
             else:
                 segs = getattr(slc, "segments", [])
                 dur_str = getattr(slc, "duration", "")
+                slice_origin = getattr(slc, "origin", {})
+                slice_destination = getattr(slc, "destination", {})
+
+            if slice_index == 0:
+                if isinstance(slice_origin, dict):
+                    origin_code = str(slice_origin.get("iata_code") or "")
+                    origin_name = location_name(slice_origin, origin_code)
+                if isinstance(slice_destination, dict):
+                    destination_code = str(slice_destination.get("iata_code") or "")
+                    destination_name = location_name(slice_destination, destination_code)
 
             stops = max(0, len(segs) - 1)
             if stops > max_stops:
@@ -101,15 +138,26 @@ class FlightsService(BaseService):
                 else:
                     destination = getattr(segment, "destination", {})
                 if isinstance(destination, dict):
-                    stop_name = destination.get("name") or destination.get("iata_code")
                     leg_code = destination.get("iata_code")
                 else:
-                    stop_name = getattr(destination, "name", None) or getattr(destination, "iata_code", None)
                     leg_code = getattr(destination, "iata_code", None)
+                stop_name = location_name(destination, str(leg_code or ""))
                 if stop_name:
                     stop_names.append(str(stop_name))
                 if leg_code:
                     leg_codes.append(str(leg_code))
+
+            if segs:
+                first_segment = segs[0]
+                last_segment = segs[-1]
+                if isinstance(first_segment, dict):
+                    departure_at = departure_at or str(first_segment.get("departing_at") or first_segment.get("departure_time") or "")
+                else:
+                    departure_at = departure_at or str(getattr(first_segment, "departing_at", "") or getattr(first_segment, "departure_time", "") or "")
+                if isinstance(last_segment, dict):
+                    arrival_at = str(last_segment.get("arriving_at") or last_segment.get("arrival_time") or "")
+                else:
+                    arrival_at = str(getattr(last_segment, "arriving_at", "") or getattr(last_segment, "arrival_time", "") or "")
 
             if dur_str and isinstance(dur_str, str):
                 import re
@@ -135,6 +183,12 @@ class FlightsService(BaseService):
             "total_amount": float(amt or 0.0),
             "currency": curr,
             "airline": owner or "Airline",
+            "origin": f"{origin_name} ({origin_code})" if origin_code else origin_name,
+            "origin_name": origin_name or origin_code,
+            "origin_code": origin_code,
+            "destination": f"{destination_name} ({destination_code})" if destination_code else destination_name,
+            "destination_name": destination_name or destination_code,
+            "destination_code": destination_code,
             "max_stops": max_stops,
             "legs": stop_type,
             "leg_names": ", ".join(stop_names),
@@ -142,6 +196,8 @@ class FlightsService(BaseService):
             "duration": dur_str_formatted,
             "duration_minutes": total_dur_min if total_dur_min > 0 else None,
             "duration_hours": round(total_dur_min / 60, 2) if total_dur_min > 0 else None,
+            "departure_at": departure_at,
+            "arrival_at": arrival_at,
         }
 
     def _is_us_domestic(self, origin_code: str, dest_code: str) -> bool:

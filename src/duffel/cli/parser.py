@@ -3,13 +3,17 @@ Natural Language Prompt Extractor for Duffel CLI parameters.
 """
 
 from datetime import datetime, timedelta
+import calendar
 import re
 from typing import Any, Optional
+
+from ..config import DuffelConfig
 
 # Common airport/city IATA mapping for heuristic extraction
 CITY_IATA_MAP = {
     "london": "LHR",
     "lhr": "LHR",
+    "lon": "LHR",
     "lgw": "LGW",
     "new york": "JFK",
     "nyc": "JFK",
@@ -34,11 +38,31 @@ CITY_IATA_MAP = {
     "sin": "SIN",
     "sydney": "SYD",
     "syd": "SYD",
+    "atlanta": "ATL",
+    "atl": "ATL",
+    "oslo": "OSL",
+    "osl": "OSL",
 }
 
 
 class PromptExtractor:
     """Extracts structured search parameters from natural language prompts."""
+
+    @staticmethod
+    def missing_flight_fields(extracted: dict[str, Any]) -> list[str]:
+        """Return required optimized-search fields that extraction did not resolve."""
+        slices = extracted.get("slices") or []
+        first_slice = slices[0] if slices and isinstance(slices[0], dict) else {}
+        missing = []
+        if not first_slice.get("origin"):
+            missing.append("origin")
+        if not first_slice.get("destination"):
+            missing.append("destination")
+        if not first_slice.get("departure_date"):
+            missing.append("target_date")
+        if not extracted.get("duration_days"):
+            missing.append("duration_days")
+        return missing
 
     @staticmethod
     def extract_flight_info(prompt: str) -> dict[str, Any]:
@@ -47,6 +71,10 @@ class PromptExtractor:
 
         Returns dict with keys: trip_type, slices, cabin_class, passengers_count
         """
+        llm_result = PromptExtractor._extract_flight_info_with_llm(prompt)
+        if llm_result is not None:
+            return llm_result
+
         text = prompt.lower()
         extracted: dict[str, Any] = {
             "trip_type": None,  # "one_way", "round_trip", "multi_city"
@@ -63,8 +91,21 @@ class PromptExtractor:
         elif any(term in text for term in ["one way", "oneway", "single"]):
             extracted["trip_type"] = "one_way"
 
-        # 2. Extract Dates (YYYY-MM-DD or MM/DD/YYYY)
+        # 2. Extract Dates (YYYY-MM-DD or a named month)
         dates = re.findall(r"\b(20\d{2}-\d{2}-\d{2})\b", prompt)
+        if not dates:
+            month_match = re.search(
+                r"\b(january|february|march|april|may|june|july|august|september|october|november|december)"
+                r"(?:\s+(20\d{2}))?\b",
+                text,
+            )
+            if month_match:
+                month_number = datetime.strptime(month_match.group(1), "%B").month
+                year = int(month_match.group(2) or datetime.now().year)
+                dates = [f"{year:04d}-{month_number:02d}-01"]
+                extracted["target_return_date"] = (
+                    f"{year:04d}-{month_number:02d}-{calendar.monthrange(year, month_number)[1]:02d}"
+                )
 
         # 3. Extract IATA / Cities using "from X to Y" pattern
         from_to_matches = re.findall(r"from\s+([a-z\s]+?)\s+to\s+([a-z\s]+?)(?=\s+on|\s+for|\s+in|\s+and|\s*$)", text)
@@ -80,8 +121,42 @@ class PromptExtractor:
                     "departure_date": dep_date
                 })
         else:
+            route_match = re.search(
+                r"from\s+([a-z][a-z\s]*?)(?=\s+to\s+)"
+                r".*?to\s+([a-z][a-z\s]*?)(?=\s+(?:in|on|for|and)|\s*$)",
+                text,
+            )
+            if route_match:
+                orig = PromptExtractor._resolve_iata(route_match.group(1).strip())
+                dest = PromptExtractor._resolve_iata(route_match.group(2).strip())
+                extracted["slices"].append({
+                    "origin": orig,
+                    "destination": dest,
+                    "departure_date": dates[0] if dates else None,
+                })
+                return_dates = dates[1:] if len(dates) > 1 else []
+            else:
+                return_dates = []
+                origin_match = re.search(
+                    r"\bfrom\s+([a-z][a-z\s]*?)(?=\s+(?:to|in|on|for|and)|\s*$)", text
+                )
+                destination_match = re.search(
+                    r"\bto\s+([a-z][a-z\s]*?)(?=\s+(?:in|on|from|for|and)|\s*$)", text
+                )
+                if origin_match and destination_match:
+                    extracted["slices"].append({
+                        "origin": PromptExtractor._resolve_iata(origin_match.group(1).strip()),
+                        "destination": PromptExtractor._resolve_iata(destination_match.group(1).strip()),
+                        "departure_date": dates[0] if dates else None,
+                    })
+                elif destination_match:
+                    extracted["slices"].append({
+                        "origin": "",
+                        "destination": PromptExtractor._resolve_iata(destination_match.group(1).strip()),
+                        "departure_date": dates[0] if dates else None,
+                    })
             iata_codes = re.findall(r"\b[a-zA-Z]{3}\b", prompt)
-            if len(iata_codes) >= 2:
+            if not extracted["slices"] and len(iata_codes) >= 2:
                 orig = iata_codes[0].upper()
                 dest = iata_codes[1].upper()
                 dep_date = dates[0] if dates else None
@@ -129,6 +204,138 @@ class PromptExtractor:
             extracted["duration_days"] = None
 
         return extracted
+
+    @staticmethod
+    def _extract_flight_info_with_llm(prompt: str) -> Optional[dict[str, Any]]:
+        """Use the configured LLM provider, falling back to other providers when available."""
+        config = DuffelConfig()
+        if config.llm_provider == "openai" and config.openai_enabled and config.openai_api_key:
+            result = PromptExtractor._extract_flight_info_with_openai(prompt)
+            if result is not None:
+                return result
+        if config.gemini_enabled and config.gemini_api_key:
+            return PromptExtractor._extract_flight_info_with_gemini(prompt)
+        return None
+
+    @staticmethod
+    def _normalize_flight_result(result: dict[str, Any]) -> dict[str, Any]:
+        """Normalize provider output to the field names and enum values used by the CLI."""
+        normalized = dict(result)
+        trip_type = str(normalized.get("trip_type") or "").lower().replace("-", "_").replace(" ", "_")
+        normalized["trip_type"] = {
+            "oneway": "one_way",
+            "one_way": "one_way",
+            "roundtrip": "round_trip",
+            "round_trip": "round_trip",
+            "multicity": "multi_city",
+            "multi_city": "multi_city",
+        }.get(trip_type, normalized.get("trip_type"))
+        normalized.setdefault("cabin_class", "economy")
+        normalized.setdefault("passengers_count", 1)
+        for flight_slice in normalized.get("slices", []):
+            if isinstance(flight_slice, dict):
+                for field in ("origin", "destination"):
+                    value = flight_slice.get(field)
+                    if value:
+                        flight_slice[field] = PromptExtractor._resolve_iata(str(value))
+        return normalized
+
+    @staticmethod
+    def _extract_flight_info_with_openai(prompt: str) -> Optional[dict[str, Any]]:
+        """Ask OpenAI GPT-4.1-mini to normalize a flight request to JSON."""
+        config = DuffelConfig()
+        if not config.openai_enabled or not config.openai_api_key:
+            return None
+
+        import json
+        from urllib.request import Request, urlopen
+
+        today = datetime.now().strftime("%Y-%m-%d")
+        instruction = (
+            f"Today is {today}. Extract the flight request as JSON only. Resolve city names "
+            "to primary IATA airport codes. Resolve month names using the current year unless "
+            "a year is stated. A named month means target_date is its first day and "
+            "target_return_date is its last day. Extract requested trip duration separately. "
+            "Return exactly: trip_type, slices, target_return_date, cabin_class, "
+            "passengers_count, duration_days. Each slice has origin, destination, "
+            "departure_date. Use null for unknown values. User request: " + prompt
+        )
+        payload = {
+            "model": config.openai_model,
+            "messages": [
+                {"role": "system", "content": instruction},
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0,
+            "response_format": {"type": "json_object"},
+        }
+        try:
+            request = Request(
+                "https://api.openai.com/v1/chat/completions",
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {config.openai_api_key}",
+                    "Content-Type": "application/json",
+                },
+                method="POST",
+            )
+            with urlopen(request, timeout=15) as response:
+                response_data = json.loads(response.read().decode("utf-8"))
+            content = response_data["choices"][0]["message"]["content"]
+            result = json.loads(content)
+            if isinstance(result, dict) and isinstance(result.get("slices"), list):
+                return PromptExtractor._normalize_flight_result(result)
+        except Exception:
+            pass
+        return None
+
+    @staticmethod
+    def _extract_flight_info_with_gemini(prompt: str) -> Optional[dict[str, Any]]:
+        """Ask the configured Gemini model to normalize a flight request."""
+        config = DuffelConfig()
+        if not config.gemini_enabled or not config.gemini_api_key:
+            return None
+
+        import json
+        from urllib.parse import quote
+        from urllib.request import Request, urlopen
+
+        today = datetime.now().strftime("%Y-%m-%d")
+        instruction = (
+            f"Extract this flight request as JSON. Today is {today}. "
+            "Resolve city names to primary IATA airport codes. Resolve month names using "
+            "the current year unless a year is stated. For 'in October for 4 days', use "
+            "October 1 as target departure and October 31 as the target return boundary; use "
+            "the requested duration separately as the trip length. Return only these "
+            "keys: trip_type, slices, cabin_class, passengers_count, duration_days. "
+            "slices must contain origin, destination, and departure_date. Use null for unknown "
+            f"dates and one_way unless return travel is explicit. User request: {prompt}"
+        )
+        payload = {
+            "contents": [{"parts": [{"text": instruction}]}],
+            "generationConfig": {"responseMimeType": "application/json", "temperature": 0},
+        }
+        endpoint = (
+            "https://generativelanguage.googleapis.com/v1beta/models/"
+            f"{quote(config.gemini_model, safe='')}:generateContent"
+            f"?key={quote(config.gemini_api_key, safe='')}"
+        )
+        try:
+            request = Request(
+                endpoint,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urlopen(request, timeout=15) as response:
+                response_data = json.loads(response.read().decode("utf-8"))
+            response_text = response_data["candidates"][0]["content"]["parts"][0]["text"]
+            result = json.loads(response_text)
+            if isinstance(result, dict) and isinstance(result.get("slices"), list):
+                return PromptExtractor._normalize_flight_result(result)
+        except Exception:
+            pass
+        return None
 
     @staticmethod
     def extract_stay_info(prompt: str) -> dict[str, Any]:

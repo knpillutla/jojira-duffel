@@ -157,6 +157,8 @@ class TestFlightsService(unittest.TestCase):
             "total_currency": "USD",
             "owner": {"name": "Test Airline"},
             "slices": [{
+                "origin": {"name": "Hartsfield-Jackson Atlanta International Airport", "iata_code": "ATL"},
+                "destination": {"name": "Oslo Airport", "iata_code": "OSL"},
                 "duration": "PT10H",
                 "segments": [
                     {"destination": {"name": "Reykjavik Airport", "iata_code": "KEF"}},
@@ -169,8 +171,14 @@ class TestFlightsService(unittest.TestCase):
         highlights = self.client.flights.compute_category_highlights([offer])
 
         summary = highlights["cheapest_2_stop"]
+        self.assertEqual(summary["origin"], "Atlanta (ATL)")
+        self.assertEqual(summary["origin_name"], "Atlanta")
+        self.assertEqual(summary["origin_code"], "ATL")
+        self.assertEqual(summary["destination"], "Oslo (OSL)")
+        self.assertEqual(summary["destination_name"], "Oslo")
+        self.assertEqual(summary["destination_code"], "OSL")
         self.assertEqual(summary["legs"], "2 stops")
-        self.assertEqual(summary["leg_names"], "Reykjavik Airport, Paris Charles de Gaulle")
+        self.assertEqual(summary["leg_names"], "Reykjavik, Paris")
         self.assertEqual(summary["leg_codes"], "KEF, CDG")
         self.assertEqual(summary["duration_hours"], 10.0)
 

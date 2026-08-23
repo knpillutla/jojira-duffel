@@ -25,6 +25,13 @@ class DuffelConfig:
     cache_ttl_seconds: int = 3600
     max_cached_offers: int = 40
     max_non_stop_offers: int = 10
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-3.6-flash"
+    gemini_enabled: bool = True
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4.1-mini"
+    openai_enabled: bool = True
+    llm_provider: str = "openai"
     config_file: str = "config.json"
 
     def __post_init__(self):
@@ -57,12 +64,36 @@ class DuffelConfig:
                         self.max_cached_offers = int(cfg_data["max_cached_offers"])
                     if "max_non_stop_offers" in cfg_data:
                         self.max_non_stop_offers = int(cfg_data["max_non_stop_offers"])
+                    if "gemini_api_key" in cfg_data:
+                        self.gemini_api_key = str(cfg_data["gemini_api_key"] or "")
+                    if "gemini_model" in cfg_data and cfg_data["gemini_model"]:
+                        self.gemini_model = str(cfg_data["gemini_model"])
+                    if "gemini_enabled" in cfg_data:
+                        self.gemini_enabled = bool(cfg_data["gemini_enabled"])
+                    if "openai_api_key" in cfg_data:
+                        self.openai_api_key = str(cfg_data["openai_api_key"] or "")
+                    if "openai_model" in cfg_data and cfg_data["openai_model"]:
+                        self.openai_model = str(cfg_data["openai_model"])
+                    if "openai_enabled" in cfg_data:
+                        self.openai_enabled = bool(cfg_data["openai_enabled"])
+                    if "llm_provider" in cfg_data and cfg_data["llm_provider"]:
+                        self.llm_provider = str(cfg_data["llm_provider"]).lower()
             except Exception:
                 pass
 
         # 2. Fall back to environment variable if token is still empty
         if not self.api_token:
             self.api_token = os.environ.get("DUFFEL_API_TOKEN", "")
+        if not self.gemini_api_key:
+            self.gemini_api_key = os.environ.get("GEMINI_API_KEY", "")
+        if os.environ.get("GEMINI_MODEL"):
+            self.gemini_model = os.environ["GEMINI_MODEL"]
+        if not self.openai_api_key:
+            self.openai_api_key = os.environ.get("OPENAI_API_KEY", "")
+        if os.environ.get("OPENAI_MODEL"):
+            self.openai_model = os.environ["OPENAI_MODEL"]
+        if os.environ.get("LLM_PROVIDER"):
+            self.llm_provider = os.environ["LLM_PROVIDER"].lower()
 
     @property
     def headers(self) -> dict[str, str]:

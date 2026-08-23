@@ -18,6 +18,7 @@ from .schemas import (
     FlightBookingRequest,
     FlightBookingResponse,
     HealthCheckResponse,
+    NaturalLanguageFlightSearchRequest,
     OptimizedFlightSearchRequest,
     OptimizedFlightSearchResponse,
 )
@@ -89,16 +90,55 @@ def search_optimized_flights(req: OptimizedFlightSearchRequest):
     """
     client = get_duffel_client()
     try:
+        parsed_prompt = {}
+        parsed_slice = {}
+        if req.prompt:
+            from ..cli.parser import PromptExtractor
+            parsed_prompt = PromptExtractor.extract_flight_info(req.prompt)
+            missing_fields = PromptExtractor.missing_flight_fields(parsed_prompt)
+            if missing_fields:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={
+                        "message": "Natural-language flight request is missing required information.",
+                        "missing_fields": missing_fields,
+                    },
+                )
+            parsed_slice = (parsed_prompt.get("slices") or [{}])[0]
+
+        origin = req.origin or parsed_slice.get("origin")
+        destination = req.destination or parsed_slice.get("destination")
+        target_date = req.target_date or parsed_slice.get("departure_date")
+        if not origin or not destination or not target_date:
+            raise ValueError("prompt must include an origin, destination, and travel month or date")
+
+        target_return_date = req.target_return_date or parsed_prompt.get("target_return_date")
+        if not target_return_date and len(parsed_prompt.get("slices") or []) > 1:
+            target_return_date = parsed_prompt["slices"][1].get("departure_date")
+
+        duration_days = parsed_prompt.get("duration_days")
+        if not target_return_date and duration_days:
+            from datetime import timedelta
+            target_return_date = (
+                datetime.strptime(target_date, "%Y-%m-%d") + timedelta(days=duration_days)
+            ).strftime("%Y-%m-%d")
+        min_duration_days = req.min_duration_days
+        max_duration_days = req.max_duration_days
+        if req.prompt and duration_days and "min_duration_days" not in req.model_fields_set:
+            min_duration_days = duration_days
+        if req.prompt and duration_days and "max_duration_days" not in req.model_fields_set:
+            max_duration_days = duration_days
+
         passengers = [Passenger(type="adult") for _ in range(req.passengers_count)]
         cabin_enum = CabinClass(req.cabin_class.lower())
 
         offers = client.flights.search_optimized(
-            origin=req.origin,
-            destination=req.destination,
-            target_date=req.target_date,
-            target_return_date=req.target_return_date,
-            min_duration_days=req.min_duration_days,
-            max_duration_days=req.max_duration_days,
+            origin=origin,
+            destination=destination,
+            target_date=target_date,
+            target_return_date=target_return_date,
+            min_duration_days=min_duration_days,
+            max_duration_days=max_duration_days,
             flex_days=req.flex_days,
             passengers=passengers,
             cabin_class=cabin_enum,
@@ -108,7 +148,25 @@ def search_optimized_flights(req: OptimizedFlightSearchRequest):
         from ..cli.menu import DuffelCLI
         cli = DuffelCLI()
         cli.client = client
-        output_file = cli._export_search_results_json(offers, fav_airline=req.favorite_airline or "")
+        search_params = {
+            "origin": origin.upper(),
+            "destination": destination.upper(),
+            "target_date": target_date,
+            "target_return_date": target_return_date,
+            "min_duration_days": min_duration_days,
+            "max_duration_days": max_duration_days,
+            "flex_days": req.flex_days,
+            "cabin_class": req.cabin_class,
+            "passengers_count": req.passengers_count,
+            "favorite_airline": req.favorite_airline,
+            "force_refresh": req.force_refresh,
+        }
+        output_file = cli._export_search_results_json(
+            offers,
+            fav_airline=req.favorite_airline or "",
+            search_prompt=req.prompt or "",
+            search_params=search_params,
+        )
 
         output_json = getattr(offers, "output_json", {}) or {}
         highlights = getattr(offers, "category_highlights", None)
@@ -117,18 +175,8 @@ def search_optimized_flights(req: OptimizedFlightSearchRequest):
 
         return OptimizedFlightSearchResponse(
             timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            search_params={
-                "origin": req.origin.upper(),
-                "destination": req.destination.upper(),
-                "target_date": req.target_date,
-                "target_return_date": req.target_return_date,
-                "min_duration_days": req.min_duration_days,
-                "max_duration_days": req.max_duration_days,
-                "flex_days": req.flex_days,
-                "cabin_class": req.cabin_class,
-                "passengers_count": req.passengers_count,
-                "favorite_airline": req.favorite_airline,
-            },
+            search_prompt=req.prompt or "",
+            search_params=search_params,
             category_highlights=output_json.get("category_highlights", highlights),
             total_offers_found=len(offers),
             cheapest_non_stop_offers=output_json.get("cheapest_non_stop_offers", []),
@@ -138,11 +186,29 @@ def search_optimized_flights(req: OptimizedFlightSearchRequest):
             cache_metrics=client.cache.get_metrics_summary() if client.cache else {},
             output_file=output_file,
         )
+    except HTTPException:
+        raise
     except Exception as err:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error executing optimized flight search: {str(err)}"
         )
+
+
+@router.post(
+    "/flights/search-natural-language",
+    response_model=OptimizedFlightSearchResponse,
+    summary="Natural-Language Flight Search",
+)
+def search_natural_language_flights(req: NaturalLanguageFlightSearchRequest):
+    """Resolve a natural-language flight request with Gemini and run optimized search."""
+    return search_optimized_flights(
+        OptimizedFlightSearchRequest(
+            prompt=req.prompt,
+            favorite_airline=req.favorite_airline,
+            force_refresh=req.force_refresh,
+        )
+    )
 
 
 @router.get("/flights/results/{hash_id}", summary="Retrieve Saved JSON Search Report")

@@ -5,6 +5,7 @@ Unit tests for the CLI PromptExtractor natural language parser.
 import os
 import sys
 import unittest
+from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
@@ -12,7 +13,62 @@ from duffel.cli.parser import PromptExtractor
 
 
 class TestPromptExtractor(unittest.TestCase):
-    def test_extract_flight_one_way(self):
+    def test_missing_flight_fields_reports_unresolved_input(self):
+        missing = PromptExtractor.missing_flight_fields({"slices": [{"destination": "OSL"}]})
+
+        self.assertEqual(missing, ["origin", "target_date", "duration_days"])
+
+    @patch.dict("os.environ", {"OPENAI_API_KEY": "test-key", "LLM_PROVIDER": "openai"})
+    @patch("urllib.request.urlopen")
+    def test_extract_flight_info_uses_openai_option(self, mock_urlopen):
+        response = MagicMock()
+        response.read.return_value = (
+            '{"choices":[{"message":{"content":"'
+            '{\\"trip_type\\":\\"one_way\\",\\"slices\\":[{\\"origin\\":\\"ATL\\",'
+            '\\"destination\\":\\"OSL\\",\\"departure_date\\":\\"2026-10-01\\"}],'
+            '\\"target_return_date\\":\\"2026-10-31\\",\\"duration_days\\":21}"}}]}'
+        ).encode("utf-8")
+        response.__enter__.return_value = response
+        mock_urlopen.return_value = response
+
+        info = PromptExtractor.extract_flight_info(
+            "cheapest nonstop to oslo from atl in october for 21 days"
+        )
+
+        self.assertEqual(info["slices"][0]["origin"], "ATL")
+        self.assertEqual(info["slices"][0]["destination"], "OSL")
+        self.assertEqual(info["target_return_date"], "2026-10-31")
+        self.assertEqual(info["duration_days"], 21)
+        request = mock_urlopen.call_args.args[0]
+        self.assertEqual(__import__("json").loads(request.data)["model"], "gpt-4.1-mini")
+
+    @patch("duffel.cli.parser.PromptExtractor._extract_flight_info_with_llm", return_value=None)
+    def test_extract_destination_and_month_without_origin(self, _mock_llm):
+        info = PromptExtractor.extract_flight_info(
+            "cheapest nonstop to oslo in october for 7 days"
+        )
+
+        self.assertEqual(info["slices"][0]["origin"], "")
+        self.assertEqual(info["slices"][0]["destination"], "OSL")
+        self.assertEqual(info["slices"][0]["departure_date"], "2026-10-01")
+        self.assertEqual(info["target_return_date"], "2026-10-31")
+        self.assertEqual(info["duration_days"], 7)
+
+
+    @patch("duffel.cli.parser.PromptExtractor._extract_flight_info_with_llm", return_value=None)
+    def test_extract_flight_info_fallback_handles_month_and_city(self, _mock_llm):
+        info = PromptExtractor.extract_flight_info(
+            "cheapest nonstop to oslo in october from atl for 4 days"
+        )
+
+        self.assertEqual(info["slices"][0]["origin"], "ATL")
+        self.assertEqual(info["slices"][0]["destination"], "OSL")
+        self.assertEqual(info["slices"][0]["departure_date"], "2026-10-01")
+        self.assertEqual(info["target_return_date"], "2026-10-31")
+        self.assertEqual(info["duration_days"], 4)
+
+    @patch("duffel.cli.parser.PromptExtractor._extract_flight_info_with_llm", return_value=None)
+    def test_extract_flight_one_way(self, _mock_llm):
         prompt = "I want a one way flight from London to New York on 2026-11-15 for 2 adults in business class"
         info = PromptExtractor.extract_flight_info(prompt)
         self.assertEqual(info["trip_type"], "one_way")
@@ -23,7 +79,8 @@ class TestPromptExtractor(unittest.TestCase):
         self.assertEqual(info["cabin_class"], "business")
         self.assertEqual(info["passengers_count"], 2)
 
-    def test_extract_flight_round_trip(self):
+    @patch("duffel.cli.parser.PromptExtractor._extract_flight_info_with_llm", return_value=None)
+    def test_extract_flight_round_trip(self, _mock_llm):
         prompt = "Round trip flight from London to New York on 2026-11-15 and 2026-11-22"
         info = PromptExtractor.extract_flight_info(prompt)
         self.assertEqual(info["trip_type"], "round_trip")

@@ -43,7 +43,7 @@ def fill_optimized_flight_slots(extracted: dict[str, Any]) -> dict[str, Any]:
     target_date = first_slice.get("departure_date") or ""
 
     second_slice = extracted_slices[1] if len(extracted_slices) > 1 else {}
-    target_return_date = second_slice.get("departure_date") or ""
+    target_return_date = extracted.get("target_return_date") or second_slice.get("departure_date") or ""
 
     if orig:
         print(f"  * Extracted Origin: {orig}")
@@ -62,7 +62,10 @@ def fill_optimized_flight_slots(extracted: dict[str, Any]) -> dict[str, Any]:
         target_date = prompt_input("  Enter Target Departure Date (YYYY-MM-DD)", default=default_target)
 
     target_dep_dt = datetime.strptime(target_date, "%Y-%m-%d")
-    default_ret_date = target_return_date or (target_dep_dt + timedelta(days=7)).strftime("%Y-%m-%d")
+    duration_days = extracted.get("duration_days")
+    default_ret_date = target_return_date or (
+        target_dep_dt + timedelta(days=duration_days or 7)
+    ).strftime("%Y-%m-%d")
     target_return_date = prompt_input("  Enter Target Return Date (YYYY-MM-DD)", default=default_ret_date)
 
     target_ret_dt = datetime.strptime(target_return_date, "%Y-%m-%d")
@@ -76,12 +79,18 @@ def fill_optimized_flight_slots(extracted: dict[str, Any]) -> dict[str, Any]:
         max_allowed_duration = 1
 
     flex_days = 0
+    requested_duration = extracted.get("duration_days")
+    default_duration = (
+        int(requested_duration)
+        if isinstance(requested_duration, int) and 1 <= requested_duration <= max_allowed_duration
+        else max_allowed_duration
+    )
 
     # Prompt and validate MAXIMUM Trip Duration (must be <= max_allowed_duration)
     while True:
         max_dur_str = prompt_input(
             f"  Enter MAXIMUM Trip Duration in Days (1 to {max_allowed_duration})",
-            default=str(max_allowed_duration)
+            default=str(default_duration)
         )
         try:
             max_duration_days = int(max_dur_str)
@@ -96,7 +105,9 @@ def fill_optimized_flight_slots(extracted: dict[str, Any]) -> dict[str, Any]:
             print("  [!] Invalid number. Please enter an integer.")
 
     # Prompt and validate MINIMUM Trip Duration (must be 1 <= min <= max_duration_days)
-    default_min = max_duration_days
+    default_min = default_duration
+    if default_min > max_duration_days:
+        default_min = max_duration_days
     while True:
         min_dur_str = prompt_input(
             f"  Enter MINIMUM Trip Duration in Days (1 to {max_duration_days})",
