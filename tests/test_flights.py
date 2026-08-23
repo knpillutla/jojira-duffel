@@ -171,6 +171,8 @@ class TestFlightsService(unittest.TestCase):
         summary = highlights["cheapest_2_stop"]
         self.assertEqual(summary["legs"], "2 stops")
         self.assertEqual(summary["leg_names"], "Reykjavik Airport, Paris Charles de Gaulle")
+        self.assertEqual(summary["leg_codes"], "KEF, CDG")
+        self.assertEqual(summary["duration_hours"], 10.0)
 
 
 if __name__ == "__main__":

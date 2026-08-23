@@ -448,7 +448,7 @@ class DuffelCLI:
         print("=" * 95)
 
     def _export_search_results_json(self, offers: list, fav_airline: str = "") -> str:
-        """Export comprehensive search results and pre-calculated category breakdowns to search_results.json."""
+        """Export comprehensive search results and pre-calculated category breakdowns to a hashed JSON file."""
         if not offers:
             return ""
 
@@ -533,23 +533,23 @@ class DuffelCLI:
 
                 filename = f"{orig}_{dest}_{dep}_{ret}_{min_d}to{max_d}d_{cabin}_{hash_short}_search_results.json"
             except Exception:
-                filename = "search_results.json"
+                import hashlib
+                filename = f"{hashlib.md5(opt_key.encode('utf-8')).hexdigest()[:12]}_search_results.json"
         elif opt_key:
             import hashlib
             key_hash = hashlib.md5(opt_key.encode("utf-8")).hexdigest()[:12]
             filename = f"{key_hash}_search_results.json"
         else:
-            filename = "search_results.json"
+            import hashlib
+            data_hash = hashlib.md5(json.dumps(data, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:12]
+            filename = f"{data_hash}_search_results.json"
 
         output_file = os.path.join(output_dir, filename)
-        alias_file = os.path.join(output_dir, "search_results.json")
 
         try:
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
-            with open(alias_file, "w", encoding="utf-8") as f_alias:
-                json.dump(data, f_alias, indent=2)
-            print(f"\n[+] Full JSON search report saved to '{output_file}' (and '{alias_file}')")
+            print(f"\n[+] Full JSON search report saved to '{output_file}'")
         except Exception as err:
             print(f"\n[!] Error saving JSON search results: {err}")
 

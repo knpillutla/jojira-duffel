@@ -81,6 +81,7 @@ class FlightsService(BaseService):
         max_stops = 0
         total_dur_min = 0
         stop_names: list[str] = []
+        leg_codes: list[str] = []
 
         for slc in slices:
             if isinstance(slc, dict):
@@ -101,10 +102,14 @@ class FlightsService(BaseService):
                     destination = getattr(segment, "destination", {})
                 if isinstance(destination, dict):
                     stop_name = destination.get("name") or destination.get("iata_code")
+                    leg_code = destination.get("iata_code")
                 else:
                     stop_name = getattr(destination, "name", None) or getattr(destination, "iata_code", None)
+                    leg_code = getattr(destination, "iata_code", None)
                 if stop_name:
                     stop_names.append(str(stop_name))
+                if leg_code:
+                    leg_codes.append(str(leg_code))
 
             if dur_str and isinstance(dur_str, str):
                 import re
@@ -133,8 +138,10 @@ class FlightsService(BaseService):
             "max_stops": max_stops,
             "legs": stop_type,
             "leg_names": ", ".join(stop_names),
+            "leg_codes": ", ".join(leg_codes),
             "duration": dur_str_formatted,
             "duration_minutes": total_dur_min if total_dur_min > 0 else None,
+            "duration_hours": round(total_dur_min / 60, 2) if total_dur_min > 0 else None,
         }
 
     def _is_us_domestic(self, origin_code: str, dest_code: str) -> bool:
@@ -359,15 +366,21 @@ class FlightsService(BaseService):
                     if valid_raw_offers:
                         valid_raw_offers.sort(key=lambda o: float(o.get("total_amount") or 0.0))
                         all_airline_highlights = cached_data.get("airline_highlights", {})
+                        non_stop_cached = cached_data.get("non_stop_offers") or []
+                        highlight_offers = list(valid_raw_offers)
+                        highlight_ids = {o.get("id") for o in highlight_offers if isinstance(o, dict)}
+                        for non_stop_offer in non_stop_cached:
+                            if isinstance(non_stop_offer, dict) and non_stop_offer.get("id") not in highlight_ids:
+                                highlight_offers.append(non_stop_offer)
+                                highlight_ids.add(non_stop_offer.get("id"))
                         highlights = self.compute_category_highlights(
-                            valid_raw_offers[:max_offers],
+                            highlight_offers,
                             all_airline_highlights=all_airline_highlights
                         )
                         output_json = cached_data.get("output_json")
                         if isinstance(output_json, dict):
                             output_json = dict(output_json)
                             output_json["category_highlights"] = highlights
-                        non_stop_cached = cached_data.get("non_stop_offers")
                         offers = OfferList([FlightOffer.from_dict(o) for o in valid_raw_offers[:max_offers]], category_highlights=highlights)
                         setattr(offers, "airline_highlights", all_airline_highlights)
                         if output_json:
@@ -815,15 +828,20 @@ class FlightsService(BaseService):
                 if valid_raw_offers:
                     max_offers = getattr(self.client.config, "max_cached_offers", 40)
                     all_airline_highlights = cached_opt.get("airline_highlights", {})
+                    non_stop_cached = cached_opt.get("non_stop_offers") or []
+                    highlight_offers = list(valid_raw_offers)
+                    highlight_ids = {o.get("id") for o in highlight_offers if isinstance(o, dict)}
+                    for non_stop_offer in non_stop_cached:
+                        if isinstance(non_stop_offer, dict) and non_stop_offer.get("id") not in highlight_ids:
+                            highlight_offers.append(non_stop_offer)
+                            highlight_ids.add(non_stop_offer.get("id"))
                     highlights = self.compute_category_highlights(
-                        valid_raw_offers, all_airline_highlights=all_airline_highlights
+                        highlight_offers, all_airline_highlights=all_airline_highlights
                     )
                     output_json = cached_opt.get("output_json")
                     if isinstance(output_json, dict):
                         output_json = dict(output_json)
                         output_json["category_highlights"] = highlights
-                    non_stop_cached = cached_opt.get("non_stop_offers", [])
-
                     offers = OfferList([FlightOffer.from_dict(o) for o in valid_raw_offers[:max_offers]], category_highlights=highlights)
                     setattr(offers, "airline_highlights", all_airline_highlights)
                     setattr(offers, "opt_cache_key", opt_cache_key)

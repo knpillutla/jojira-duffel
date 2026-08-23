@@ -153,8 +153,14 @@ def get_search_result_file(
     Fetches pre-computed search results JSON report from the `outputs/` folder by hash ID or 'latest'.
     """
     output_dir = "outputs"
-    if hash_id == "latest" or hash_id == "search_results":
-        filepath = os.path.join(output_dir, "search_results.json")
+    if hash_id == "latest":
+        matches = glob.glob(os.path.join(output_dir, "*_search_results.json"))
+        if not matches:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No search results JSON report found."
+            )
+        filepath = max(matches, key=os.path.getmtime)
     else:
         pattern = os.path.join(output_dir, f"*{hash_id}*.json")
         matches = glob.glob(pattern)
