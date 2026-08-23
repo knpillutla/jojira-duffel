@@ -58,27 +58,6 @@ class FlightsService(BaseService):
         cache_key = f"duffel:flights:search:{json.dumps(payload, sort_keys=True)}"
         return cache_key, payload
 
-    def search(
-        self,
-        slices: list[Union[FlightSliceQuery, dict[str, Any]]],
-        passengers: list[Union[Passenger, dict[str, Any]]],
-        cabin_class: Union[CabinClass, str] = CabinClass.ECONOMY,
-        max_connections: Optional[int] = None,
-        return_offers: bool = True,
-        force_refresh: bool = False,
-    ) -> Union[list[FlightOffer], dict[str, Any]]:
-        """
-        Search for flight offers across given slices.
-
-        Endpoint: POST /air/offer_requests
-        """
-        cache_key, payload = self._build_cache_key(
-            slices=slices,
-            passengers=passengers,
-            cabin_class=cabin_class,
-            max_connections=max_connections,
-        )
-
     def _build_offer_summary(self, offer: Any) -> Optional[dict[str, Any]]:
         """Construct a standardized summary dict for a flight offer."""
         if not offer:
@@ -101,6 +80,7 @@ class FlightsService(BaseService):
 
         max_stops = 0
         total_dur_min = 0
+        stop_names: list[str] = []
 
         for slc in slices:
             if isinstance(slc, dict):
@@ -113,6 +93,18 @@ class FlightsService(BaseService):
             stops = max(0, len(segs) - 1)
             if stops > max_stops:
                 max_stops = stops
+
+            for segment in segs[:-1]:
+                if isinstance(segment, dict):
+                    destination = segment.get("destination", {})
+                else:
+                    destination = getattr(segment, "destination", {})
+                if isinstance(destination, dict):
+                    stop_name = destination.get("name") or destination.get("iata_code")
+                else:
+                    stop_name = getattr(destination, "name", None) or getattr(destination, "iata_code", None)
+                if stop_name:
+                    stop_names.append(str(stop_name))
 
             if dur_str and isinstance(dur_str, str):
                 import re
@@ -130,6 +122,8 @@ class FlightsService(BaseService):
             m = total_dur_min % 60
             dur_str_formatted = f"{h}h {m}m" if (h > 0 and m > 0) else (f"{h}h" if h > 0 else f"{m}m")
 
+        stop_type = "Non-stop" if max_stops == 0 else ("1 stop" if max_stops == 1 else "2 stops")
+
         return {
             "offer_id": o_id,
             "price": f"{curr} {amt}",
@@ -137,6 +131,8 @@ class FlightsService(BaseService):
             "currency": curr,
             "airline": owner or "Airline",
             "max_stops": max_stops,
+            "legs": stop_type,
+            "leg_names": ", ".join(stop_names),
             "duration": dur_str_formatted,
             "duration_minutes": total_dur_min if total_dur_min > 0 else None,
         }
@@ -363,11 +359,14 @@ class FlightsService(BaseService):
                     if valid_raw_offers:
                         valid_raw_offers.sort(key=lambda o: float(o.get("total_amount") or 0.0))
                         all_airline_highlights = cached_data.get("airline_highlights", {})
-                        highlights = cached_data.get("category_highlights") or self.compute_category_highlights(
+                        highlights = self.compute_category_highlights(
                             valid_raw_offers[:max_offers],
                             all_airline_highlights=all_airline_highlights
                         )
                         output_json = cached_data.get("output_json")
+                        if isinstance(output_json, dict):
+                            output_json = dict(output_json)
+                            output_json["category_highlights"] = highlights
                         non_stop_cached = cached_data.get("non_stop_offers")
                         offers = OfferList([FlightOffer.from_dict(o) for o in valid_raw_offers[:max_offers]], category_highlights=highlights)
                         setattr(offers, "airline_highlights", all_airline_highlights)
@@ -816,10 +815,13 @@ class FlightsService(BaseService):
                 if valid_raw_offers:
                     max_offers = getattr(self.client.config, "max_cached_offers", 40)
                     all_airline_highlights = cached_opt.get("airline_highlights", {})
-                    highlights = cached_opt.get("category_highlights") or self.compute_category_highlights(
+                    highlights = self.compute_category_highlights(
                         valid_raw_offers, all_airline_highlights=all_airline_highlights
                     )
                     output_json = cached_opt.get("output_json")
+                    if isinstance(output_json, dict):
+                        output_json = dict(output_json)
+                        output_json["category_highlights"] = highlights
                     non_stop_cached = cached_opt.get("non_stop_offers", [])
 
                     offers = OfferList([FlightOffer.from_dict(o) for o in valid_raw_offers[:max_offers]], category_highlights=highlights)

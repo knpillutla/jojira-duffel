@@ -42,7 +42,6 @@ def main():
 
         # In live sandbox with valid token this executes actual API call
         print("Submitting flight search query...")
-        # offers = client.flights.search(slices=slices, passengers=passengers, cabin_class=CabinClass.ECONOMY)
         # print(f"Found {len(offers)} flight offers.")
     except Exception as e:
         print(f"Flight search info/error: {e}")

@@ -25,16 +25,6 @@ class PaymentInput(BaseModel):
     amount: str = Field(..., description="Total payment amount string e.g. '613.33'")
 
 
-class FlightSearchRequest(BaseModel):
-    """Standard exact-dates flight search request."""
-    origin: str = Field(..., description="Origin Airport IATA code e.g. LHR")
-    destination: str = Field(..., description="Destination Airport IATA code e.g. JFK")
-    departure_date: str = Field(..., description="Departure date in YYYY-MM-DD format")
-    return_date: Optional[str] = Field(None, description="Return date in YYYY-MM-DD format for round trips")
-    passengers_count: int = Field(1, ge=1, le=9, description="Number of adult passengers")
-    cabin_class: str = Field("economy", description="Cabin class: economy, premium_economy, business, first")
-
-
 class OptimizedFlightSearchRequest(BaseModel):
     """Flexible multi-day flight search optimization request."""
     origin: str = Field(..., description="Origin Airport IATA code e.g. LHR")

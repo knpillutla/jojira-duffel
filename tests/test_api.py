@@ -25,28 +25,6 @@ class TestDuffelAPI(unittest.TestCase):
         self.assertIn("redis_cache_status", data)
 
     @patch("src.duffel.api.routes.get_duffel_client")
-    def test_search_flights_endpoint(self, mock_get_client):
-        """Test POST /api/v1/flights/search standard search."""
-        mock_client = MagicMock()
-        mock_get_client.return_value = mock_client
-        mock_client.flights.search.return_value = []
-        mock_client.http_client.get_metrics_summary.return_value = {"total_calls": 1}
-        mock_client.cache.get_metrics_summary.return_value = {"hits": 0}
-
-        payload = {
-            "origin": "LHR",
-            "destination": "JFK",
-            "departure_date": "2026-09-22",
-            "passengers_count": 1,
-            "cabin_class": "economy"
-        }
-        response = self.client.post("/api/v1/flights/search", json=payload)
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertEqual(data["status"], "success")
-        self.assertEqual(data["total_offers"], 0)
-
-    @patch("src.duffel.api.routes.get_duffel_client")
     def test_analyze_queries_endpoint(self, mock_get_client):
         """Test POST /api/v1/flights/analyze-queries endpoint."""
         mock_client = MagicMock()

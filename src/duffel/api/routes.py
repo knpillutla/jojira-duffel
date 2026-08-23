@@ -17,7 +17,6 @@ from .schemas import (
     AnalyzeQueriesResponse,
     FlightBookingRequest,
     FlightBookingResponse,
-    FlightSearchRequest,
     HealthCheckResponse,
     OptimizedFlightSearchRequest,
     OptimizedFlightSearchResponse,
@@ -48,65 +47,6 @@ def health_check():
         redis_cache_enabled=redis_enabled,
         redis_cache_status=redis_status,
     )
-
-
-@router.post("/flights/search", summary="Standard Flight Search (Exact Dates)")
-def search_flights(req: FlightSearchRequest):
-    """
-    Search for flights on exact departure and return dates.
-    Returns offers list sorted by price ascending.
-    """
-    client = get_duffel_client()
-    try:
-        slices = [
-            FlightSliceQuery(origin=req.origin, destination=req.destination, departure_date=req.departure_date)
-        ]
-        if req.return_date:
-            slices.append(
-                FlightSliceQuery(origin=req.destination, destination=req.origin, departure_date=req.return_date)
-            )
-
-        passengers = [Passenger(type="adult") for _ in range(req.passengers_count)]
-        cabin_enum = CabinClass(req.cabin_class.lower())
-
-        offers = client.flights.search(
-            slices=slices,
-            passengers=passengers,
-            cabin_class=cabin_enum,
-            return_offers=True
-        )
-
-        offers_list = []
-        for o in offers:
-            amt = getattr(o, "total_amount", "0.00")
-            curr = getattr(o, "total_currency", "USD")
-            owner_name = "Airline"
-            if hasattr(o, "owner") and isinstance(o.owner, dict):
-                owner_name = o.owner.get("name") or o.owner.get("iata_code") or "Airline"
-            elif hasattr(o, "owner") and hasattr(o.owner, "name"):
-                owner_name = o.owner.name
-
-            offers_list.append({
-                "offer_id": getattr(o, "id", ""),
-                "price": f"{curr} {amt}",
-                "total_amount": float(amt or 0.0),
-                "currency": curr,
-                "airline": owner_name,
-                "expires_at": getattr(o, "expires_at", None),
-            })
-
-        return {
-            "status": "success",
-            "total_offers": len(offers_list),
-            "offers": sorted(offers_list, key=lambda x: x["total_amount"]),
-            "performance_metrics": client.http_client.get_metrics_summary(),
-            "cache_metrics": client.cache.get_metrics_summary() if client.cache else {},
-        }
-    except Exception as err:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error executing flight search: {str(err)}"
-        )
 
 
 @router.post("/flights/analyze-queries", response_model=AnalyzeQueriesResponse, summary="Pre-Analyze Candidate Search Queries")

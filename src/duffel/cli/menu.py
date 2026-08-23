@@ -9,9 +9,8 @@ from typing import Any, Optional
 
 from ..client import DuffelClient
 from ..config import DuffelConfig
-from ..models.common import CabinClass, Passenger, Payment
-from ..models.flights import FlightSliceQuery
-from .interactive import fill_car_slots, fill_flight_slots, fill_optimized_flight_slots, fill_stay_slots, prompt_input
+from ..models.common import Passenger, Payment
+from .interactive import fill_car_slots, fill_optimized_flight_slots, fill_stay_slots, prompt_input
 from .parser import PromptExtractor
 
 
@@ -95,54 +94,11 @@ class DuffelCLI:
         else:
             print("\nOperation cancelled. Cache intact.")
 
-    def _handle_standard_flights_menu(self):
-        print("\n--- [FLIGHTS] Standard Flight Search & Booking ---")
-        prompt = input("\nDescribe your flight request in natural language (or press Enter for step-by-step):\n> ").strip()
-        extracted = PromptExtractor.extract_flight_info(prompt) if prompt else {}
-        self._handle_standard_flights(extracted)
-
     def _handle_optimized_flights_menu(self):
         print("\n--- [FLIGHTS] Optimized Price Search (Cheapest Dates by Duration) ---")
         prompt = input("\nDescribe your flight request in natural language (e.g. 'JFK to LHR for 7 days') or press Enter:\n> ").strip()
         extracted = PromptExtractor.extract_flight_info(prompt) if prompt else {}
         self._handle_optimized_flights(extracted)
-
-    def _handle_standard_flights(self, extracted: dict):
-        slots = fill_flight_slots(extracted)
-
-        print("\nFlight Search Summary:")
-        print(f"  * Trip Type: {slots.get('trip_type', 'one_way').replace('_', ' ').title()}")
-        for idx, slc in enumerate(slots.get("slices", []), 1):
-            print(f"  * Leg {idx}: {slc['origin']} -> {slc['destination']} on {slc['departure_date']}")
-        print(f"  * Cabin: {slots['cabin_class']}")
-        print(f"  * Passengers: {slots['passengers_count']}")
-
-        confirm = prompt_input("\nProceed with API Search?", default="y", required=False).lower()
-        if confirm not in ("y", "yes"):
-            print("Cancelled search.")
-            return
-
-        print("\nContacting Duffel API for flight offers...")
-        try:
-            slices = [
-                FlightSliceQuery(
-                    origin=s["origin"],
-                    destination=s["destination"],
-                    departure_date=s["departure_date"]
-                ) for s in slots.get("slices", [])
-            ]
-            passengers = [Passenger(type="adult") for _ in range(slots['passengers_count'])]
-
-            offers = self.client.flights.search(
-                slices=slices,
-                passengers=passengers,
-                cabin_class=slots['cabin_class'],
-                return_offers=True
-            )
-
-            self._display_and_book_offers(offers)
-        except Exception as err:
-            print(f"\n[!] Error during Flight search: {err}")
 
     def _handle_optimized_flights(self, extracted: dict):
         slots = fill_optimized_flight_slots(extracted)

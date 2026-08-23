@@ -22,58 +22,6 @@ class TestFlightsService(unittest.TestCase):
         self.client.cache.enabled = False
 
     @patch("urllib.request.urlopen")
-    def test_search_flights(self, mock_urlopen):
-        mock_response = MagicMock()
-        mock_response.read.return_value = json.dumps({
-            "data": {
-                "id": "orq_00001",
-                "offers": [
-                    {
-                        "id": "off_00001",
-                        "total_amount": "250.00",
-                        "total_currency": "USD",
-                        "owner": {"name": "British Airways", "iata_code": "BA"},
-                        "slices": [
-                            {
-                                "id": "sli_00001",
-                                "origin": {"iata_code": "LHR"},
-                                "destination": {"iata_code": "JFK"},
-                                "duration": "PT8H",
-                                "segments": [
-                                    {
-                                        "id": "seg_00001",
-                                        "origin": {"iata_code": "LHR"},
-                                        "destination": {"iata_code": "JFK"},
-                                        "departing_at": "2026-09-01T10:00:00Z",
-                                        "arriving_at": "2026-09-01T13:00:00Z",
-                                        "marketing_carrier": {"name": "British Airways"},
-                                        "operating_carrier": {"name": "British Airways"},
-                                        "flight_number": "BA175"
-                                    }
-                                ]
-                            }
-                        ],
-                        "passengers": [{"id": "pas_00001", "type": "adult"}],
-                        "expires_at": "2026-09-01T12:00:00Z",
-                        "created_at": "2026-08-23T10:00:00Z"
-                    }
-                ]
-            }
-        }).encode("utf-8")
-        mock_urlopen.return_value.__enter__.return_value = mock_response
-
-        slices = [FlightSliceQuery(origin="LHR", destination="JFK", departure_date="2026-09-01")]
-        passengers = [Passenger(type="adult", given_name="John", family_name="Doe")]
-
-        offers = self.client.flights.search(slices=slices, passengers=passengers, cabin_class=CabinClass.ECONOMY)
-
-        self.assertIsInstance(offers, list)
-        self.assertEqual(len(offers), 1)
-        self.assertEqual(offers[0].id, "off_00001")
-        self.assertEqual(offers[0].total_amount, "250.00")
-        self.assertEqual(offers[0].slices[0].segments[0].flight_number, "BA175")
-
-    @patch("urllib.request.urlopen")
     def test_create_order(self, mock_urlopen):
         mock_response = MagicMock()
         mock_response.read.return_value = json.dumps({
@@ -201,6 +149,28 @@ class TestFlightsService(unittest.TestCase):
         self.assertIn("min_ms", metrics)
         self.assertIn("max_ms", metrics)
         self.assertIn("avg_ms", metrics)
+
+    def test_category_highlight_includes_stop_details(self):
+        offer = {
+            "id": "off_two_stops",
+            "total_amount": "500.00",
+            "total_currency": "USD",
+            "owner": {"name": "Test Airline"},
+            "slices": [{
+                "duration": "PT10H",
+                "segments": [
+                    {"destination": {"name": "Reykjavik Airport", "iata_code": "KEF"}},
+                    {"destination": {"name": "Paris Charles de Gaulle", "iata_code": "CDG"}},
+                    {"destination": {"name": "John F. Kennedy International", "iata_code": "JFK"}},
+                ],
+            }],
+        }
+
+        highlights = self.client.flights.compute_category_highlights([offer])
+
+        summary = highlights["cheapest_2_stop"]
+        self.assertEqual(summary["legs"], "2 stops")
+        self.assertEqual(summary["leg_names"], "Reykjavik Airport, Paris Charles de Gaulle")
 
 
 if __name__ == "__main__":

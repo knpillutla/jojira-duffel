@@ -18,7 +18,7 @@ class DuffelClient:
 
     Usage:
         client = DuffelClient(api_token="duffel_test_...")
-        offers = client.flights.search(...)
+        offers = client.flights.search_optimized(...)
         stays = client.stays.search(...)
         cars = client.cars.search(...)
     """
