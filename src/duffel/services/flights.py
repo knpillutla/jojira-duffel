@@ -76,6 +76,8 @@ class FlightsService(BaseService):
             return None
 
         if isinstance(offer, dict):
+            if offer.get("is_external_web_fare") or "price" in offer or "offer_id" in offer:
+                return offer
             amt = offer.get("total_amount", "0.00")
             curr = offer.get("total_currency", "USD")
             owner_dict = offer.get("owner", {})
@@ -1278,18 +1280,42 @@ class FlightsService(BaseService):
                 except Exception:
                     pass
 
+        # Query Web Scraper Engine (e.g. Frontier, Spirit direct web fares)
+        try:
+            from .scrapers import ScraperRegistry
+            registry = ScraperRegistry(enabled=True)
+            scraped_fares = registry.search_all_scrapers(
+                origin=origin,
+                destination=destination,
+                departure_date=target_date,
+                return_date=target_return_date,
+            )
+            if scraped_fares:
+                for sf in scraped_fares:
+                    all_offers.append(sf)
+        except Exception as sc_err:
+            print(f"[!] Web Scraper Engine notice: {sc_err}")
+
         # Deduplicate and sort all offers by total price ascending
         seen_ids = set()
         unique_offers = []
         for o in all_offers:
-            o_id = getattr(o, "id", None)
+            if isinstance(o, dict):
+                o_id = o.get("id") or o.get("offer_id")
+            else:
+                o_id = getattr(o, "id", None)
             if o_id and o_id not in seen_ids:
                 seen_ids.add(o_id)
                 unique_offers.append(o)
             elif not o_id:
                 unique_offers.append(o)
 
-        unique_offers.sort(key=lambda o: float(getattr(o, "total_amount", 0.0) or 0.0))
+        def get_offer_amount(o):
+            if isinstance(o, dict):
+                return float(o.get("total_amount", 0.0) or 0.0)
+            return float(getattr(o, "total_amount", 0.0) or 0.0)
+
+        unique_offers.sort(key=get_offer_amount)
 
         # Metrics summary
         total_wall_sec = time.perf_counter() - search_start_time
@@ -1362,20 +1388,25 @@ class FlightsService(BaseService):
         max_offers = getattr(self.client.config, "max_cached_offers", 40)
         max_non_stop = getattr(self.client.config, "max_non_stop_offers", 10)
 
-        unique_offers.sort(key=lambda o: float(getattr(o, "total_amount", 0.0) or 0.0))
+        unique_offers.sort(key=get_offer_amount)
         non_stop_unique = [o for o in unique_offers if self._is_non_stop(o)]
-        non_stop_unique.sort(key=lambda o: float(getattr(o, "total_amount", 0.0) or 0.0))
+        non_stop_unique.sort(key=get_offer_amount)
         top_non_stop = non_stop_unique[:max_non_stop]
 
         combined_unique = list(unique_offers[:max_offers])
-        existing_ids = set(getattr(o, "id", "") for o in combined_unique)
+        def get_o_id(o):
+            if isinstance(o, dict):
+                return o.get("id") or o.get("offer_id") or ""
+            return getattr(o, "id", "") or ""
+
+        existing_ids = set(get_o_id(o) for o in combined_unique if get_o_id(o))
         for ns in top_non_stop:
-            ns_id = getattr(ns, "id", "")
+            ns_id = get_o_id(ns)
             if ns_id and ns_id not in existing_ids:
                 combined_unique.append(ns)
                 existing_ids.add(ns_id)
 
-        combined_unique.sort(key=lambda o: float(getattr(o, "total_amount", 0.0) or 0.0))
+        combined_unique.sort(key=get_offer_amount)
 
         combined_airline_highlights = self.compute_all_airline_highlights(all_offers)
         highlights = self.compute_category_highlights(combined_unique, all_airline_highlights=combined_airline_highlights)

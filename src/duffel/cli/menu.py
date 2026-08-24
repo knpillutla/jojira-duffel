@@ -603,9 +603,9 @@ class DuffelCLI:
         os.makedirs(output_dir, exist_ok=True)
 
         opt_key = getattr(offers, "opt_cache_key", None)
+        import hashlib
         if opt_key and "search_optimized:" in opt_key:
             try:
-                import hashlib
                 raw_json = opt_key.split("search_optimized:", 1)[1]
                 params = json.loads(raw_json)
                 orig = str(params.get("origin", "SEARCH")).upper()
@@ -619,14 +619,19 @@ class DuffelCLI:
 
                 filename = f"{orig}_{dest}_{dep}_{ret}_{min_d}to{max_d}d_{cabin}_{hash_short}_search_results.json"
             except Exception:
-                import hashlib
                 filename = f"{hashlib.md5(opt_key.encode('utf-8')).hexdigest()[:12]}_search_results.json"
+        elif search_params and isinstance(search_params, dict) and search_params.get("origin"):
+            orig = str(search_params.get("origin", "SEARCH")).upper()
+            dest = str(search_params.get("destination", "")).upper()
+            dep = str(search_params.get("departure_date") or search_params.get("target_date") or "")
+            ret = str(search_params.get("return_date") or search_params.get("target_return_date") or "oneway")
+            cabin = str(search_params.get("cabin_class", "economy")).lower()
+            data_hash = hashlib.md5(json.dumps(data, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:6]
+            filename = f"{orig}_{dest}_{dep}_{ret}_{cabin}_{data_hash}_search_results.json"
         elif opt_key:
-            import hashlib
             key_hash = hashlib.md5(opt_key.encode("utf-8")).hexdigest()[:12]
             filename = f"{key_hash}_search_results.json"
         else:
-            import hashlib
             data_hash = hashlib.md5(json.dumps(data, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:12]
             filename = f"{data_hash}_search_results.json"
 
