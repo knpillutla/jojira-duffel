@@ -187,6 +187,15 @@ class PaymentMethodsResponse(BaseModel):
     supported_payment_methods: list[PaymentMethodOption] = Field(..., description="Array of supported payment methods")
 
 
+class ComponentClientKeyResponse(BaseModel):
+    """Response payload containing generated Duffel Client Component Key for front-end Card Form."""
+    status: str = Field("ok", description="Response status")
+    client_key: str = Field(..., description="Short-lived Duffel Component Client Key JWT token")
+    component_client_key: Optional[str] = Field(None, description="Alias for client_key")
+    live_mode: bool = Field(True, description="Whether key is in live mode vs test mode")
+    created_at: Optional[str] = Field(None, description="ISO timestamp of key creation")
+
+
 class ApiEndpointHelp(BaseModel):
     """Help metadata for an API endpoint."""
     name: str = Field(..., description="API endpoint name / summary")

@@ -25,8 +25,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API Router
-app.include_router(router)
+# Include API Router for /api/v1, /api, and root path compatibility
+app.include_router(router, prefix="/api/v1")
+app.include_router(router, prefix="/api", include_in_schema=False)
+app.include_router(router, include_in_schema=False)
 
 
 @app.get("/", include_in_schema=False)

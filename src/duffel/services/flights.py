@@ -391,22 +391,39 @@ class FlightsService(BaseService):
         if not summaries:
             return {}
 
+        # Search web scrapers for direct web fares (e.g. Frontier, Spirit) if available
+        try:
+            from .scrapers import ScraperRegistry
+            registry = ScraperRegistry(enabled=True)
+            if summaries:
+                s0 = summaries[0]
+                scraped_fares = registry.search_all_scrapers(
+                    origin=s0.get("origin_code", "ATL"),
+                    destination=s0.get("destination_code", "MCO"),
+                    departure_date=s0.get("departure_date", ""),
+                    return_date=s0.get("return_date"),
+                )
+                for sf in scraped_fares:
+                    summaries.append(sf)
+        except Exception:
+            pass
+
         summaries.sort(key=lambda s: s["total_amount"])
 
         cheapest_all = summaries[0]
 
-        non_stops = [s for s in summaries if s["max_stops"] == 0]
+        non_stops = [s for s in summaries if s.get("max_stops", 0) == 0 or s.get("is_non_stop", False)]
         cheapest_non_stop = non_stops[0] if non_stops else None
-        non_stops_dur = [s for s in non_stops if s["duration_minutes"] is not None]
+        non_stops_dur = [s for s in non_stops if s.get("duration_minutes") is not None]
         shortest_non_stop = min(non_stops_dur, key=lambda s: s["duration_minutes"]) if non_stops_dur else cheapest_non_stop
 
-        one_stops = [s for s in summaries if s["max_stops"] == 1]
+        one_stops = [s for s in summaries if s.get("max_stops") == 1]
         cheapest_1stop = one_stops[0] if one_stops else None
 
-        two_stops = [s for s in summaries if s["max_stops"] >= 2]
+        two_stops = [s for s in summaries if s.get("max_stops", 0) >= 2]
         cheapest_2stop = two_stops[0] if two_stops else None
 
-        with_dur = [s for s in summaries if s["duration_minutes"] is not None]
+        with_dur = [s for s in summaries if s.get("duration_minutes") is not None]
         shortest_flight = min(with_dur, key=lambda s: s["duration_minutes"]) if with_dur else summaries[0]
 
         default_fav = self._determine_default_favorite_airline(offers)
@@ -669,6 +686,58 @@ class FlightsService(BaseService):
         res = self.client.get(f"/air/offers/{offer_id}")
         return FlightOffer.from_dict(res.get("data", {}))
 
+    def tokenize_card(self, card_data: dict[str, Any]) -> str:
+        """
+        Tokenizes raw credit card details via POST /payments/cards on vault host https://api.duffel.cards.
+        Returns tokenized card ID string (e.g. car_0000AMxZzZzZzZzZz).
+        """
+        payload = {
+            "name": card_data.get("name") or "John Doe",
+            "number": str(card_data.get("number", "4500000000000000")).replace(" ", "").replace("-", ""),
+            "exp_month": str(card_data.get("expiry_month") or card_data.get("exp_month") or "12").strip().zfill(2),
+            "exp_year": str(card_data.get("expiry_year") or card_data.get("exp_year") or "2028").strip(),
+            "cvc": str(card_data.get("cvc", "123")).strip(),
+            "address_postcode": card_data.get("address_postcode") or card_data.get("postcode") or "EC2A 4NE"
+        }
+        if len(payload["exp_year"]) == 2:
+            payload["exp_year"] = "20" + payload["exp_year"]
+
+        res = self.client.post("https://api.duffel.cards/payments/cards", data={"data": payload})
+        card_id = res.get("data", {}).get("id")
+        return card_id
+
+    def create_component_client_key(self) -> dict[str, Any]:
+        """
+        Generate a short-lived Duffel Client Component Key for front-end Duffel Card Form integration.
+        Endpoint: POST /identity/component_client_keys
+        """
+        from datetime import datetime
+        res = self.client.post("/identity/component_client_keys", data={"data": {}})
+        data = res.get("data", {})
+        key_val = data.get("component_client_key") or data.get("client_key") or data.get("id")
+        return {
+            "client_key": key_val,
+            "component_client_key": key_val,
+            "live_mode": True,
+            "created_at": datetime.now().isoformat()
+        }
+
+    def create_three_d_secure_session(self, card_id: str, amount: str = '100.00', currency: str = 'USD', offer_id: str = None) -> dict[str, Any]:
+        """
+        Create a 3D Secure session via Duffel API.
+        Endpoint: POST /payments/three_d_secure_sessions
+        """
+        payload: dict[str, Any] = {
+            "card_id": card_id,
+            "amount": str(amount) if amount else "100.00",
+            "currency": currency,
+        }
+        if offer_id:
+            payload["resource"] = offer_id
+
+        res = self.client.post("/payments/three_d_secure_sessions", data={"data": payload})
+        return res.get("data", {})
+
     def create_order(
         self,
         selected_offers: Union[str, list[str]],
@@ -709,6 +778,22 @@ class FlightsService(BaseService):
                 pym_dict = dict(pym)
             else:
                 pym_dict = {"type": "balance", "currency": "USD", "amount": "0.00"}
+
+            # Ensure card_id is present if passed in card_id or aliases
+            c_id = pym_dict.get("card_id") or pym_dict.get("id") or pym_dict.get("card_token") or pym_dict.get("token")
+            if c_id:
+                pym_dict["card_id"] = str(c_id).strip()
+
+            # Pass three_d_secure_session_id if explicitly provided
+            tds = (
+                pym_dict.get("three_d_secure_session_id")
+                or pym_dict.get("card_session_id")
+                or pym_dict.get("session_id")
+                or pym_dict.get("three_d_session_id")
+                or pym_dict.get("tds_session_id")
+            )
+            if tds:
+                pym_dict["three_d_secure_session_id"] = str(tds).strip()
 
             # Auto-fill missing amount/currency if 0.00
             if (not pym_dict.get("amount") or pym_dict.get("amount") == "0.00") and offer_ids:
@@ -1211,8 +1296,17 @@ class FlightsService(BaseService):
         metrics = self.client.get_metrics_summary()
         cache_metrics = self.cache.get_metrics_summary() if self.cache else {}
 
-        # Record per-search metrics event
-        best_price_str = f"{unique_offers[0].total_currency} {unique_offers[0].total_amount}" if unique_offers else "N/A"
+        if unique_offers:
+            u0 = unique_offers[0]
+            if isinstance(u0, dict):
+                c_val = u0.get("currency") or u0.get("total_currency", "USD")
+                a_val = u0.get("total_amount", "0.00")
+            else:
+                c_val = getattr(u0, "total_currency", "USD")
+                a_val = getattr(u0, "total_amount", "0.00")
+            best_price_str = f"{c_val} {a_val}"
+        else:
+            best_price_str = "N/A"
         search_event = {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "route": f"{origin} -> {destination}",

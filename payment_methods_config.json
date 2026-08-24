@@ -1,0 +1,77 @@
+{
+  "enabled_payment_methods": [
+    "card"
+  ],
+  "payment_methods": [
+    {
+      "id": "card",
+      "name": "Credit or Debit Card",
+      "enabled": true,
+      "description": "Pay instantly using credit or debit card details (number, MM/YY, cvc, cardholder name)",
+      "category": "card",
+      "requires_card_details": true,
+      "requires_customer_card_id": false,
+      "is_hold_option": false
+    },
+    {
+      "id": "balance",
+      "name": "Duffel Account Balance",
+      "enabled": false,
+      "description": "Pay directly from Duffel prepaid wallet balance",
+      "category": "account",
+      "requires_card_details": false,
+      "requires_customer_card_id": false,
+      "is_hold_option": false
+    },
+    {
+      "id": "customer_card",
+      "name": "Saved Customer Card",
+      "enabled": false,
+      "description": "Pay using a saved customer card on file",
+      "category": "card",
+      "requires_card_details": false,
+      "requires_customer_card_id": true,
+      "is_hold_option": false
+    },
+    {
+      "id": "arc_bsp_one_step",
+      "name": "ARC / BSP Settlement",
+      "enabled": false,
+      "description": "One-step settlement for ARC or BSP accredited travel agencies",
+      "category": "agency",
+      "requires_card_details": false,
+      "requires_customer_card_id": false,
+      "is_hold_option": false
+    },
+    {
+      "id": "bank_transfer",
+      "name": "Bank Transfer",
+      "enabled": false,
+      "description": "Pay via standard electronic bank transfer",
+      "category": "bank",
+      "requires_card_details": false,
+      "requires_customer_card_id": false,
+      "is_hold_option": false
+    },
+    {
+      "id": "instant_bank_transfer",
+      "name": "Instant Bank Transfer",
+      "enabled": false,
+      "description": "Pay via Open Banking instant bank transfer",
+      "category": "bank",
+      "requires_card_details": false,
+      "requires_customer_card_id": false,
+      "is_hold_option": false
+    },
+    {
+      "id": "hold",
+      "name": "Hold Reservation (Pay Later)",
+      "enabled": false,
+      "description": "Reserve flight seats now without immediate payment and pay before expiration",
+      "category": "reservation",
+      "requires_card_details": false,
+      "requires_customer_card_id": false,
+      "is_hold_option": true
+    }
+  ]
+}
