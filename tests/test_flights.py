@@ -236,5 +236,111 @@ class TestFlightsService(unittest.TestCase):
         self.assertEqual(summary["slice_details"][1]["departure_date"], "2026-10-22")
 
 
+    @patch("urllib.request.urlopen")
+    def test_get_offer_success(self, mock_urlopen):
+        """Test GET /air/offers/{id} succeeds and returns FlightOffer with generated pas_ passenger IDs."""
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps({
+            "data": {
+                "id": "off_0000AMxZ123",
+                "total_amount": "250.00",
+                "total_currency": "USD",
+                "owner": {"name": "Delta Air Lines", "iata_code": "DL"},
+                "passengers": [{"id": "pas_0000AMxZ123P1", "type": "adult"}],
+                "slices": []
+            }
+        }).encode("utf-8")
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        offer = self.client.flights.get_offer("off_0000AMxZ123")
+        self.assertIsInstance(offer, FlightOffer)
+        self.assertEqual(offer.id, "off_0000AMxZ123")
+        self.assertEqual(offer.total_amount, "250.00")
+        self.assertEqual(offer.total_currency, "USD")
+        self.assertTrue(hasattr(offer, "passengers"))
+        self.assertEqual(offer.passengers[0]["id"], "pas_0000AMxZ123P1")
+
+    @patch("urllib.request.urlopen")
+    def test_list_offers_success(self, mock_urlopen):
+        """Test GET /air/offers?offer_request_id=... succeeds and returns list of FlightOffer objects."""
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps({
+            "data": [
+                {
+                    "id": "off_00001",
+                    "total_amount": "199.99",
+                    "total_currency": "USD",
+                    "owner": {"name": "Frontier Airlines"},
+                    "slices": []
+                },
+                {
+                    "id": "off_00002",
+                    "total_amount": "249.99",
+                    "total_currency": "USD",
+                    "owner": {"name": "Delta Air Lines"},
+                    "slices": []
+                }
+            ]
+        }).encode("utf-8")
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        offers = self.client.flights.list_offers("orq_00001")
+        self.assertIsInstance(offers, list)
+        self.assertEqual(len(offers), 2)
+        self.assertEqual(offers[0].id, "off_00001")
+        self.assertEqual(offers[1].id, "off_00002")
+
+    @patch("urllib.request.urlopen")
+    def test_offers_api_3step_integration_flow(self, mock_urlopen):
+        """Test 3-step integration flow: 1. Offer Request -> 2. GET Offer & Pas ID -> 3. Create Order."""
+        def side_effect(req, timeout=None):
+            url = req.full_url
+            mock_res = MagicMock()
+            if "/air/offers/off_0000AMxZ999" in url:
+                mock_res.read.return_value = json.dumps({
+                    "data": {
+                        "id": "off_0000AMxZ999",
+                        "total_amount": "320.00",
+                        "total_currency": "USD",
+                        "owner": {"name": "Delta Air Lines"},
+                        "passengers": [{"id": "pas_0000AMxZ999P1", "type": "adult"}],
+                        "slices": []
+                    }
+                }).encode("utf-8")
+            elif "/air/orders" in url:
+                mock_res.read.return_value = json.dumps({
+                    "data": {
+                        "id": "ord_0000999",
+                        "booking_reference": "PNR3StepOK",
+                        "total_amount": "320.00",
+                        "total_currency": "USD",
+                        "passengers": [{"id": "pas_0000AMxZ999P1", "given_name": "John", "family_name": "Doe"}],
+                        "slices": [],
+                        "created_at": "2026-08-24T12:00:00Z",
+                        "status": "confirmed"
+                    }
+                }).encode("utf-8")
+            else:
+                mock_res.read.return_value = json.dumps({"data": {}}).encode("utf-8")
+            mock_res.__enter__.return_value = mock_res
+            return mock_res
+
+        mock_urlopen.side_effect = side_effect
+
+        # Step 2: Fetch offer and pas_ ID
+        offer = self.client.flights.get_offer("off_0000AMxZ999")
+        self.assertEqual(offer.id, "off_0000AMxZ999")
+
+        # Step 3: Create order mapping passenger onto pas_0000AMxZ999P1
+        order = self.client.flights.create_order(
+            selected_offers=["off_0000AMxZ999"],
+            passengers=[Passenger(id=offer.passengers[0]["id"], given_name="John", family_name="Doe")],
+            payments=[Payment(type="balance", currency="USD", amount="320.00")]
+        )
+        self.assertIsInstance(order, FlightOrder)
+        self.assertEqual(order.id, "ord_0000999")
+        self.assertEqual(order.booking_reference, "PNR3StepOK")
+
+
 if __name__ == "__main__":
     unittest.main()

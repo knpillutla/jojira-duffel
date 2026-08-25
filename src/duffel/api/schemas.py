@@ -81,6 +81,9 @@ class FlightBookingRequest(BaseModel):
     passengers: list[PassengerInput] = Field(..., min_length=1, description="List of passenger detail objects")
     payment: Optional[PaymentInput] = Field(None, description="Single payment object")
     payments: Optional[list[PaymentInput]] = Field(None, description="List of payment objects")
+    idempotency_key: Optional[str] = Field(None, description="Optional Duffel-Idempotency-Key header for safe request retries")
+    expected_price: Optional[str] = Field(None, description="Expected price user agreed to e.g. '47.96'. Raises 409 error if live price changed.")
+    allow_price_change: bool = Field(False, description="Set True to accept airline live price changes automatically")
 
 
 class HealthCheckResponse(BaseModel):

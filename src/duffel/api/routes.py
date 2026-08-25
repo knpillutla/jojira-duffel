@@ -11,6 +11,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, HTTPException, Path, Query, Request, status
 
 from ..client import DuffelClient
+from ..exceptions import DuffelAPIError, DuffelException
 from ..models.common import CabinClass, Passenger, Payment
 from ..models.flights import FlightSliceQuery
 from .schemas import (
@@ -508,15 +509,57 @@ def get_search_result_file(
         )
 
 
+@router.get("/flights/offers/{offer_id}", summary="Get Verified Live Offer Details")
+def get_flight_offer_details(offer_id: str = Path(..., description="Duffel offer ID e.g. off_0000...")):
+    """
+    Fetches verified live flight offer details from Duffel API (GET /air/offers/{id}).
+    Used by the UI booking wizard to verify live total price, taxes, and passenger requirements prior to payment.
+    """
+    if offer_id.startswith("off_duffel_") or offer_id.startswith("mock_"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Offer ID '{offer_id}' is a sample demo offer. Please execute a live flight search to view real Duffel offers."
+        )
+
+    client = get_duffel_client()
+    try:
+        real_offer = client.flights.get_offer(offer_id)
+        if not real_offer:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Offer '{offer_id}' not found on Duffel API."
+            )
+        
+        offer_dict = real_offer.to_dict() if hasattr(real_offer, "to_dict") else getattr(real_offer, "__dict__", {})
+        return {
+            "status": "success",
+            "offer_id": getattr(real_offer, "id", offer_id),
+            "total_amount": float(getattr(real_offer, "total_amount", 0.0) or 0.0),
+            "total_currency": getattr(real_offer, "total_currency", "USD"),
+            "base_amount": getattr(real_offer, "base_amount", "0.00"),
+            "tax_amount": getattr(real_offer, "tax_amount", "0.00"),
+            "expires_at": getattr(real_offer, "expires_at", None),
+            "offer_details": offer_dict
+        }
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Error fetching live Duffel offer '{offer_id}': {str(err)}"
+        )
+
+
 @router.post("/flights/book", response_model=FlightBookingResponse, summary="Book Flight Offer")
 @router.post("/orders", response_model=FlightBookingResponse, summary="Book Flight Offer (Orders Alias)")
-def book_flight(req: FlightBookingRequest):
+def book_flight(req: FlightBookingRequest, request: Request):
     """
     Books a flight offer on Duffel by offer_id or selected_offers list.
     Executes order creation with Duffel API (type: 'instant' or 'hold'), returning booking reference (PNR) and order confirmation.
-    Passes passenger and payment details directly to Duffel API.
+    Includes price protection verification against user expected price.
     """
     client = get_duffel_client()
+    idempotency_key = req.idempotency_key or request.headers.get("Duffel-Idempotency-Key") or request.headers.get("X-Idempotency-Key")
     try:
         offer_ids = req.selected_offers or ([req.offer_id] if req.offer_id else [])
         if not offer_ids:
@@ -525,11 +568,54 @@ def book_flight(req: FlightBookingRequest):
                 detail="Either offer_id or selected_offers list must be provided in request body."
             )
 
+        target_offer_id = offer_ids[0]
+        if target_offer_id.startswith("off_duffel_") or target_offer_id.startswith("mock_"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Offer ID '{target_offer_id}' is a sample demo offer. Please execute a live flight search to book real flights."
+            )
+
+        # 1. Price Protection Check: Verify live offer price against user expected price
+        try:
+            real_offer = client.flights.get_offer(offer_ids[0])
+            if real_offer and hasattr(real_offer, "total_amount") and real_offer.total_amount:
+                try:
+                    live_price = float(real_offer.total_amount)
+                    user_price = None
+                    if req.expected_price is not None:
+                        user_price = float(req.expected_price)
+                    elif req.payment and req.payment.amount and req.payment.amount not in ["0.00", "0"]:
+                        user_price = float(req.payment.amount)
+
+                    if user_price is not None and not req.allow_price_change:
+                        if abs(user_price - live_price) > 0.01:
+                            curr_str = getattr(real_offer, "total_currency", "USD") or "USD"
+                            if isinstance(curr_str, str):
+                                curr_display = curr_str
+                            else:
+                                curr_display = "USD"
+                            raise HTTPException(
+                                status_code=status.HTTP_409_CONFLICT,
+                                detail={
+                                    "error": "price_changed",
+                                    "message": f"The airline updated the price from {curr_display} {user_price:.2f} to {curr_display} {live_price:.2f}. Please confirm the updated price before completing booking.",
+                                    "old_price": f"{user_price:.2f}",
+                                    "new_price": f"{live_price:.2f}",
+                                    "currency": curr_display
+                                }
+                            )
+                except (ValueError, TypeError):
+                    pass
+        except HTTPException:
+            raise
+        except Exception:
+            pass
+
         passengers = []
         for i, p in enumerate(req.passengers):
             g_name = p.given_name or p.first_name or "John"
             f_name = p.family_name or p.last_name or "Doe"
-            pid = p.id or getattr(p, "passenger_id", None) or f"pas_00000000000000000{i+1}"
+            pid = p.id or getattr(p, "passenger_id", None) or None
             passengers.append(Passenger(
                 id=pid,
                 type=p.type or "adult",
@@ -566,7 +652,8 @@ def book_flight(req: FlightBookingRequest):
             selected_offers=offer_ids,
             passengers=passengers,
             payments=payment_objs if payment_objs else None,
-            type=req.type or "instant"
+            type=req.type or "instant",
+            idempotency_key=idempotency_key
         )
 
         passengers_summary = []
@@ -597,6 +684,19 @@ def book_flight(req: FlightBookingRequest):
             created_at=getattr(order, "created_at", datetime.now().isoformat()),
             passengers=passengers_summary,
             slices=slices_summary,
+        )
+    except HTTPException:
+        raise
+    except DuffelAPIError as err:
+        status_code = err.status_code if err.status_code in [400, 401, 403, 404, 409, 422, 429, 500, 502, 503, 504] else status.HTTP_400_BAD_REQUEST
+        raise HTTPException(
+            status_code=status_code,
+            detail=f"Flight booking failed: {str(err)}"
+        )
+    except DuffelException as err:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Flight booking failed: {str(err)}"
         )
     except Exception as err:
         raise HTTPException(

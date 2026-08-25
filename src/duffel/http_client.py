@@ -1,11 +1,18 @@
+"""
+REST Client executing HTTP requests against Duffel API endpoints.
+"""
+
 import json
 import logging
+import random
+import socket
 import threading
 import time
 from typing import Any, Optional, Union
 import urllib.error
 import urllib.parse
 import urllib.request
+import uuid
 
 from .config import DuffelConfig
 from .exceptions import (
@@ -57,79 +64,179 @@ class HTTPClient:
         path: str,
         params: Optional[dict[str, Any]] = None,
         data: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, str]] = None,
+        idempotency_key: Optional[str] = None,
+        timeout: Optional[float] = None,
     ) -> dict[str, Any]:
         """
-        Execute an HTTP request to the Duffel API.
+        Execute an HTTP request to the Duffel API with automatic retries for transient errors.
 
         :param method: HTTP method (GET, POST, PATCH, DELETE)
         :param path: API path starting with / (e.g. /air/offers)
         :param params: Optional query string parameters
         :param data: Optional JSON serializable body dictionary
+        :param headers: Optional custom HTTP headers
+        :param idempotency_key: Optional idempotency key for safe retries
+        :param timeout: Optional read timeout in seconds (defaults to 130.0s)
         :return: Decoded JSON response dictionary
         """
         url = self._build_url(path, params)
-        headers = self.config.headers
+        req_headers = dict(self.config.headers)
+        if headers:
+            req_headers.update(headers)
+
+        if idempotency_key:
+            req_headers["Duffel-Idempotency-Key"] = str(idempotency_key)
+        elif method.upper() in ["POST", "PATCH"] and "Duffel-Idempotency-Key" not in req_headers:
+            req_headers["Duffel-Idempotency-Key"] = str(uuid.uuid4())
+
         body_bytes: Optional[bytes] = None
 
         if data is not None:
             body_bytes = json.dumps(data).encode("utf-8")
 
-        if self.config.debug:
-            logger.debug("Executing Duffel Request: %s %s", method, url)
-            if data:
-                logger.debug("Request Payload: %s", data)
+        max_retries = getattr(self.config, "max_retries", 3)
+        backoff_factor = getattr(self.config, "retry_backoff_factor", 0.5)
+        backoff_max = getattr(self.config, "retry_backoff_max", 10.0)
+        retry_status_codes = set(getattr(self.config, "retry_status_codes", [500, 502, 503, 504, 429]) or [500, 502, 503, 504, 429])
 
-        req = urllib.request.Request(
-            url=url,
-            data=body_bytes,
-            headers=headers,
-            method=method.upper(),
-        )
+        req_timeout = timeout if timeout is not None else getattr(self.config, "timeout", 130.0)
+        if "/orders" in path or "/flights/book" in path or "/offer_requests" in path:
+            req_timeout = max(req_timeout, 130.0)
 
-        start_time = time.perf_counter()
-        try:
-            with urllib.request.urlopen(req, timeout=self.config.timeout) as response:
+        for attempt in range(1, max_retries + 2):
+            print("")
+            print("=" * 80)
+            if attempt > 1:
+                print(f"[DUFFEL API RETRY ATTEMPT {attempt}/{max_retries + 1}] {method.upper()} {url}")
+            else:
+                print(f"[DUFFEL API REQUEST] {method.upper()} {url}")
+            if "Duffel-Idempotency-Key" in req_headers:
+                print(f"   Duffel-Idempotency-Key: {req_headers['Duffel-Idempotency-Key']}")
+            if data and attempt == 1:
+                try:
+                    payload_str = json.dumps(data, indent=2)
+                    print(f"   Duffel Request Payload:\n{payload_str}")
+                except Exception:
+                    print(f"   Duffel Request Payload: {data}")
+            print("-" * 80)
+
+            req = urllib.request.Request(
+                url=url,
+                data=body_bytes,
+                headers=req_headers,
+                method=method.upper(),
+            )
+
+            start_time = time.perf_counter()
+            try:
+                with urllib.request.urlopen(req, timeout=req_timeout) as response:
+                    elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+                    with self._lock:
+                        self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": response.status})
+
+                    res_body = response.read().decode("utf-8")
+                    if not res_body.strip():
+                        print(f"[DUFFEL API RESPONSE] Status {response.status} ({elapsed_ms:.1f}ms) -> (Empty Body)")
+                        print("=" * 80 + "\n")
+                        return {}
+                    parsed = json.loads(res_body)
+                    try:
+                        formatted_p = json.dumps(parsed, indent=2)
+                        if len(formatted_p) > 2000:
+                            print(f"[DUFFEL API RESPONSE] Status {response.status} ({elapsed_ms:.1f}ms):\n{formatted_p[:2000]}...\n[Truncated total: {len(formatted_p)} chars]")
+                        else:
+                            print(f"[DUFFEL API RESPONSE] Status {response.status} ({elapsed_ms:.1f}ms):\n{formatted_p}")
+                    except Exception:
+                        print(f"[DUFFEL API RESPONSE] Status {response.status} ({elapsed_ms:.1f}ms): {res_body[:1000]}")
+                    print("=" * 80 + "\n")
+                    return parsed
+            except urllib.error.HTTPError as err:
                 elapsed_ms = (time.perf_counter() - start_time) * 1000.0
                 with self._lock:
-                    self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": response.status})
+                    self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": err.code})
 
-                res_body = response.read().decode("utf-8")
-                if not res_body.strip():
-                    return {}
-                parsed = json.loads(res_body)
-                if self.config.debug:
-                    logger.debug("Response Payload: %s", parsed)
-                return parsed
-        except urllib.error.HTTPError as err:
-            elapsed_ms = (time.perf_counter() - start_time) * 1000.0
-            with self._lock:
-                self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": err.code})
+                err_body = err.read().decode("utf-8")
 
-            err_body = err.read().decode("utf-8")
-            return self._handle_http_error(err.code, err_body)
-        except urllib.error.URLError as err:
-            elapsed_ms = (time.perf_counter() - start_time) * 1000.0
-            with self._lock:
-                self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": 0})
-            raise DuffelException(f"Network error communicating with Duffel API: {err.reason}") from err
-        except Exception as err:
-            raise DuffelException(f"Unexpected error: {str(err)}") from err
+                if err.code in retry_status_codes and attempt <= max_retries:
+                    retry_after = err.headers.get("Retry-After") if err.headers else None
+                    delay = None
+                    if retry_after:
+                        try:
+                            delay = float(retry_after)
+                        except ValueError:
+                            pass
+                    if delay is None:
+                        base_delay = min(backoff_max, backoff_factor * (2 ** (attempt - 1)))
+                        delay = random.uniform(0.5 * base_delay, base_delay)
 
-    def get(self, path: str, params: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+                    msg = (
+                        f"⚠️ [DUFFEL API RETRY] {method.upper()} {path} returned status {err.code}. "
+                        f"Retrying attempt {attempt}/{max_retries} in {delay:.2f}s... "
+                        f"(Idempotency Key: {req_headers.get('Duffel-Idempotency-Key', 'N/A')})"
+                    )
+                    logger.warning(msg)
+                    print(msg)
+                    time.sleep(delay)
+                    continue
+
+                print(f"[DUFFEL API ERROR] Status {err.code} ({elapsed_ms:.1f}ms):\n{err_body}")
+                print("=" * 80 + "\n")
+                return self._handle_http_error(err.code, err_body)
+
+            except (urllib.error.URLError, TimeoutError, socket.timeout) as err:
+                elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+                with self._lock:
+                    self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": 0})
+
+                if attempt <= max_retries:
+                    base_delay = min(backoff_max, backoff_factor * (2 ** (attempt - 1)))
+                    delay = random.uniform(0.5 * base_delay, base_delay)
+                    msg = (
+                        f"⚠️ [DUFFEL NETWORK RETRY] {method.upper()} {path} failed: {err}. "
+                        f"Retrying attempt {attempt}/{max_retries} in {delay:.2f}s..."
+                    )
+                    logger.warning(msg)
+                    print(msg)
+                    time.sleep(delay)
+                    continue
+
+                raise DuffelException(f"Network error communicating with Duffel API after {max_retries} retries: {err}") from err
+            except Exception as err:
+                raise DuffelException(f"Unexpected error: {str(err)}") from err
+
+        raise DuffelException("Unexpected error: Exhausted retries without returning or throwing.")
+
+    def get(self, path: str, params: Optional[dict[str, Any]] = None, headers: Optional[dict[str, str]] = None, timeout: Optional[float] = None) -> dict[str, Any]:
         """Shortcut for GET request."""
-        return self.request("GET", path, params=params)
+        return self.request("GET", path, params=params, headers=headers, timeout=timeout)
 
-    def post(self, path: str, data: Optional[dict[str, Any]] = None, params: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    def post(
+        self,
+        path: str,
+        data: Optional[dict[str, Any]] = None,
+        params: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, str]] = None,
+        idempotency_key: Optional[str] = None,
+        timeout: Optional[float] = None,
+    ) -> dict[str, Any]:
         """Shortcut for POST request."""
-        return self.request("POST", path, params=params, data=data)
+        return self.request("POST", path, params=params, data=data, headers=headers, idempotency_key=idempotency_key, timeout=timeout)
 
-    def patch(self, path: str, data: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    def patch(
+        self,
+        path: str,
+        data: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, str]] = None,
+        idempotency_key: Optional[str] = None,
+        timeout: Optional[float] = None,
+    ) -> dict[str, Any]:
         """Shortcut for PATCH request."""
-        return self.request("PATCH", path, data=data)
+        return self.request("PATCH", path, data=data, headers=headers, idempotency_key=idempotency_key, timeout=timeout)
 
-    def delete(self, path: str) -> dict[str, Any]:
+    def delete(self, path: str, headers: Optional[dict[str, str]] = None, timeout: Optional[float] = None) -> dict[str, Any]:
         """Shortcut for DELETE request."""
-        return self.request("DELETE", path)
+        return self.request("DELETE", path, headers=headers, timeout=timeout)
 
     def _build_url(self, path: str, params: Optional[dict[str, Any]] = None) -> str:
         base = self.config.base_url.rstrip("/")

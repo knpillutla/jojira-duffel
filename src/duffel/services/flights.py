@@ -487,6 +487,46 @@ class FlightsService(BaseService):
                 return False
         return True
 
+    def _calculate_earliest_ttl(self, offers: list, default_ttl: Optional[int] = None) -> int:
+        """
+        Calculates dynamic Redis cache TTL in seconds based on the earliest expiry date
+        among all offers combined in the search response.
+        """
+        from datetime import datetime, timezone
+        if default_ttl is None:
+            default_ttl = getattr(self.client.config, "cache_ttl_seconds", 3600)
+
+        now_utc = datetime.now(timezone.utc)
+        earliest_expiry: Optional[datetime] = None
+
+        for o in offers:
+            if not o:
+                continue
+            if isinstance(o, dict):
+                exp_str = o.get("expires_at") or (o.get("payment_requirements") or {}).get("price_guarantee_expires_at")
+            else:
+                exp_str = getattr(o, "expires_at", None)
+
+            if exp_str:
+                try:
+                    clean_str = str(exp_str).replace("Z", "+00:00")
+                    dt = datetime.fromisoformat(clean_str)
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=timezone.utc)
+                    if earliest_expiry is None or dt < earliest_expiry:
+                        earliest_expiry = dt
+                except Exception:
+                    pass
+
+        if earliest_expiry is not None:
+            remaining_seconds = int((earliest_expiry - now_utc).total_seconds())
+            if remaining_seconds > 0:
+                return min(remaining_seconds, default_ttl)
+            else:
+                return 1
+
+        return default_ttl
+
     def search(
         self,
         slices: list[Union[FlightSliceQuery, dict[str, Any]]],
@@ -513,16 +553,25 @@ class FlightsService(BaseService):
             cached_data = self.cache.get(cache_key)
             if cached_data is not None:
                 if return_offers and "offers" in cached_data:
-                    raw_offers = cached_data["offers"]
+                    raw_offers = cached_data.get("offers", [])
                     from datetime import datetime, timezone
                     now_iso = datetime.now(timezone.utc).isoformat()
-                    valid_raw_offers = []
-                    for o in raw_offers:
-                        exp = o.get("expires_at")
-                        if not exp or exp > now_iso:
-                            valid_raw_offers.append(o)
 
-                    if valid_raw_offers:
+                    # Check if ANY offer in cached response has expired
+                    any_expired = False
+                    for o in raw_offers:
+                        if isinstance(o, dict):
+                            exp = o.get("expires_at") or (o.get("payment_requirements") or {}).get("price_guarantee_expires_at")
+                            if exp and str(exp) <= now_iso:
+                                any_expired = True
+                                break
+
+                    if any_expired:
+                        # Evict stale cache key so fresh data will be fetched live from Duffel API
+                        print(f"[CACHE EVICTION] Expired offer detected in cache key '{cache_key}'. Evicting cache & re-executing search live.")
+                        self.cache.delete(cache_key)
+                    else:
+                        valid_raw_offers = list(raw_offers)
                         valid_raw_offers.sort(key=lambda o: float(o.get("total_amount") or 0.0))
                         all_airline_highlights = cached_data.get("airline_highlights", {})
                         non_stop_cached = cached_data.get("non_stop_offers") or []
@@ -567,7 +616,7 @@ class FlightsService(BaseService):
         max_offers = getattr(self.client.config, "max_cached_offers", 40)
         max_non_stop = getattr(self.client.config, "max_non_stop_offers", 10)
 
-        # 3. Create or replace updated response value in Redis cache to maintain fresh data
+        # 3. Create or replace updated response value in Redis cache with dynamic TTL based on earliest expiry date
         if self.cache and self.cache.enabled and data:
             if isinstance(data, dict) and "offers" in data and isinstance(data["offers"], list):
                 raw_offers = list(data["offers"])
@@ -615,9 +664,12 @@ class FlightsService(BaseService):
                     "airline_highlights": all_airline_highlights,
                     "output_json": output_json
                 }
+                dynamic_ttl = self._calculate_earliest_ttl(combined_raw)
             else:
                 data_to_cache = data
-            self.cache.set(cache_key, data_to_cache)
+                dynamic_ttl = getattr(self.client.config, "cache_ttl_seconds", 3600)
+
+            self.cache.set(cache_key, data_to_cache, ttl_seconds=dynamic_ttl)
 
         if return_offers and "offers" in data:
             raw_offers = list(data["offers"])
@@ -746,6 +798,7 @@ class FlightsService(BaseService):
         passengers: list[Union[Passenger, dict[str, Any]]],
         payments: Optional[list[Union[Payment, dict[str, Any]]]] = None,
         type: str = "instant",
+        idempotency_key: Optional[str] = None,
     ) -> FlightOrder:
         """
         Create a flight booking order with Duffel API.
@@ -757,20 +810,43 @@ class FlightsService(BaseService):
         else:
             offer_ids = list(selected_offers)
 
+        # Fetch actual offer from Duffel API to get valid passenger IDs
+        real_offer = self.get_offer(offer_ids[0])
+        offer_passenger_ids = []
+        if hasattr(real_offer, "passengers") and real_offer.passengers:
+            for op in real_offer.passengers:
+                op_id = getattr(op, "id", None) or (op.get("id") if isinstance(op, dict) else None)
+                if op_id:
+                    offer_passenger_ids.append(op_id)
+
         formatted_passengers = []
-        for p in passengers:
+        for i, p in enumerate(passengers):
             if isinstance(p, Passenger):
-                formatted_passengers.append(p.to_dict())
+                p_dict = p.to_dict()
+            elif isinstance(p, dict):
+                p_dict = dict(p)
             else:
-                formatted_passengers.append(p)
+                p_dict = {}
+
+            # Assign valid passenger ID from Duffel offer
+            pid = str(p_dict.get("id") or "").strip()
+            if i < len(offer_passenger_ids):
+                p_dict["id"] = offer_passenger_ids[i]
+            elif pid and pid.startswith("pas_"):
+                p_dict["id"] = pid
+            else:
+                p_dict.pop("id", None)
+
+            # Ensure title is populated as required by Duffel API
+            if not p_dict.get("title"):
+                gender_str = str(p_dict.get("gender") or "").lower()
+                p_dict["title"] = "ms" if gender_str in ["f", "female"] else "mr"
+
+            formatted_passengers.append(p_dict)
 
         # If payments is not passed or payment amount is '0.00' / empty, auto-fetch offer details
         if not payments:
-            try:
-                offer = self.get_offer(offer_ids[0])
-                payments = [Payment(type="balance", currency=offer.total_currency or "USD", amount=offer.total_amount)]
-            except Exception:
-                payments = [Payment(type="balance", currency="USD", amount="0.00")]
+            payments = [Payment(type="balance", currency=real_offer.total_currency or "USD", amount=real_offer.total_amount)]
 
         formatted_payments = []
         for pym in payments:
@@ -779,7 +855,12 @@ class FlightsService(BaseService):
             elif isinstance(pym, dict):
                 pym_dict = dict(pym)
             else:
-                pym_dict = {"type": "balance", "currency": "USD", "amount": "0.00"}
+                pym_dict = {"type": "balance"}
+
+            # Automatically match the exact offer total_amount and currency required by Duffel API
+            if hasattr(real_offer, "total_amount") and real_offer.total_amount:
+                pym_dict["amount"] = str(real_offer.total_amount)
+                pym_dict["currency"] = str(real_offer.total_currency or "USD")
 
             # Ensure card_id is present if passed in card_id or aliases
             c_id = pym_dict.get("card_id") or pym_dict.get("id") or pym_dict.get("card_token") or pym_dict.get("token")
@@ -797,15 +878,6 @@ class FlightsService(BaseService):
             if tds:
                 pym_dict["three_d_secure_session_id"] = str(tds).strip()
 
-            # Auto-fill missing amount/currency if 0.00
-            if (not pym_dict.get("amount") or pym_dict.get("amount") == "0.00") and offer_ids:
-                try:
-                    off_obj = self.get_offer(offer_ids[0])
-                    pym_dict["amount"] = off_obj.total_amount
-                    pym_dict["currency"] = pym_dict.get("currency") or off_obj.total_currency or "USD"
-                except Exception:
-                    pass
-
             formatted_payments.append(pym_dict)
 
         payload = {
@@ -815,7 +887,7 @@ class FlightsService(BaseService):
             "payments": formatted_payments,
         }
 
-        res = self.client.post("/air/orders", data={"data": payload})
+        res = self.client.post("/air/orders", data={"data": payload}, idempotency_key=idempotency_key)
         return FlightOrder.from_dict(res.get("data", {}))
 
     def get_order(self, order_id: str) -> FlightOrder:
@@ -1120,8 +1192,22 @@ class FlightsService(BaseService):
                 raw_offers = cached_opt["offers"]
                 from datetime import datetime, timezone
                 now_iso = datetime.now(timezone.utc).isoformat()
-                valid_raw_offers = [o for o in raw_offers if isinstance(o, dict) and (not o.get("expires_at") or o.get("expires_at") > now_iso)]
-                if valid_raw_offers:
+
+                # Check if ANY offer in cached response has expired
+                any_expired = False
+                for o in raw_offers:
+                    if isinstance(o, dict):
+                        exp = o.get("expires_at") or (o.get("payment_requirements") or {}).get("price_guarantee_expires_at")
+                        if exp and str(exp) <= now_iso:
+                            any_expired = True
+                            break
+
+                if any_expired:
+                    # Evict Tier-1 cache so a fresh search is executed live against Duffel API
+                    print(f"[TIER-1 CACHE EVICTION] Expired offer detected in aggregated key '{opt_cache_key}'. Evicting cache & re-executing search live.")
+                    self.cache.delete(opt_cache_key)
+                else:
+                    valid_raw_offers = list(raw_offers)
                     max_offers = getattr(self.client.config, "max_cached_offers", 40)
                     all_airline_highlights = cached_opt.get("airline_highlights", {})
                     non_stop_cached = cached_opt.get("non_stop_offers") or []
@@ -1444,7 +1530,8 @@ class FlightsService(BaseService):
                 "airline_highlights": combined_airline_highlights,
                 "output_json": output_json
             }
-            self.cache.set(opt_cache_key, opt_data_to_cache)
+            dynamic_ttl = self._calculate_earliest_ttl(cached_offers_raw)
+            self.cache.set(opt_cache_key, opt_data_to_cache, ttl_seconds=dynamic_ttl)
 
         res_list = OfferList(combined_unique, category_highlights=highlights)
         setattr(res_list, "airline_highlights", combined_airline_highlights)

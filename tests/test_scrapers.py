@@ -70,7 +70,9 @@ class TestFlightsServiceWithScrapers(unittest.TestCase):
     """Test integration of scrapers with FlightsService search and highlights."""
 
     def setUp(self):
-        self.client = DuffelClient(api_token="test_token", debug=False)
+        from src.duffel.config import DuffelConfig
+        cfg = DuffelConfig(enable_cache=False, config_file="")
+        self.client = DuffelClient(config=cfg, api_token="test_token", debug=False)
 
     @patch("src.duffel.services.scrapers.ScraperRegistry.search_all_scrapers")
     @patch("src.duffel.services.flights.FlightsService.search")

@@ -184,6 +184,56 @@ class TestDuffelCache(unittest.TestCase):
             self.assertEqual(cache_summary["misses"], 0)
             self.assertEqual(cache_summary["hit_percentage"], 100.0)
 
+    def test_cache_eviction_when_offer_expired(self):
+        """Verify cache key is evicted and search re-executed live if even 1 offer is expired."""
+        from unittest.mock import MagicMock, patch
+        from duffel import DuffelClient
+        from duffel.models.flights import FlightSliceQuery
+
+        cfg = DuffelConfig(enable_cache=True, config_file="")
+        client = DuffelClient(config=cfg)
+
+        expired_mock_response = {
+            "data": {
+                "id": "orq_expired_test",
+                "offers": [
+                    {
+                        "id": "off_expired_1",
+                        "total_amount": "150.00",
+                        "expires_at": "2020-01-01T00:00:00Z",  # Past expired date
+                        "slices": []
+                    }
+                ]
+            }
+        }
+        fresh_mock_response = {
+            "data": {
+                "id": "orq_fresh_test",
+                "offers": [
+                    {
+                        "id": "off_fresh_1",
+                        "total_amount": "140.00",
+                        "expires_at": "2030-01-01T00:00:00Z",
+                        "slices": []
+                    }
+                ]
+            }
+        }
+
+        from duffel.models.common import Passenger
+        passengers = [Passenger(type="adult")]
+        slices = [FlightSliceQuery(origin="ATL", destination="MCO", departure_date="2026-10-17")]
+        cache_key, _ = client.flights._build_cache_key(slices=slices, passengers=passengers)
+
+        # Pre-seed cache with expired offer response
+        client.cache.set(cache_key, {"id": "orq_expired_test", "offers": expired_mock_response["data"]["offers"]})
+
+        with patch.object(client.http_client, "post", return_value=fresh_mock_response) as mock_post:
+            # Execute search - expired offer in cache should trigger eviction and live Duffel API call!
+            offers = client.flights.search(slices=slices, passengers=passengers, return_offers=True)
+            self.assertEqual(mock_post.call_count, 1)
+            self.assertEqual(offers[0].id, "off_fresh_1")
+
 
 if __name__ == "__main__":
     unittest.main()

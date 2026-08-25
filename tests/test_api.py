@@ -182,6 +182,10 @@ class TestDuffelAPI(unittest.TestCase):
         mock_order.passengers = []
         mock_order.slices = []
 
+        mock_real_offer = MagicMock()
+        mock_real_offer.total_amount = "613.33"
+        mock_real_offer.total_currency = "USD"
+        mock_client.flights.get_offer.return_value = mock_real_offer
         mock_client.flights.create_order.return_value = mock_order
 
         payload = {

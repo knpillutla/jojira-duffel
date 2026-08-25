@@ -15,7 +15,7 @@ class DuffelConfig:
     api_token: str = ""
     base_url: str = "https://api.duffel.com"
     api_version: str = "v2"
-    timeout: float = 30.0
+    timeout: float = 130.0
     debug: bool = False
     enable_cache: bool = True
     redis_host: str = "localhost"
@@ -32,9 +32,15 @@ class DuffelConfig:
     openai_model: str = "gpt-4.1-mini"
     openai_enabled: bool = True
     llm_provider: str = "openai"
+    max_retries: int = 3
+    retry_backoff_factor: float = 0.5
+    retry_backoff_max: float = 10.0
+    retry_status_codes: Optional[list[int]] = None
     config_file: str = "config.json"
 
     def __post_init__(self):
+        if self.retry_status_codes is None:
+            self.retry_status_codes = [500, 502, 503, 504, 429]
         # 1. Load from config.json if present
         if Path(self.config_file).is_file():
             try:
@@ -46,6 +52,8 @@ class DuffelConfig:
                         self.base_url = cfg_data["base_url"]
                     if "api_version" in cfg_data and cfg_data["api_version"]:
                         self.api_version = cfg_data["api_version"]
+                    if "timeout" in cfg_data and cfg_data["timeout"]:
+                        self.timeout = float(cfg_data["timeout"])
                     if "debug" in cfg_data:
                         self.debug = bool(cfg_data["debug"])
                     if "enable_cache" in cfg_data:
@@ -78,6 +86,14 @@ class DuffelConfig:
                         self.openai_enabled = bool(cfg_data["openai_enabled"])
                     if "llm_provider" in cfg_data and cfg_data["llm_provider"]:
                         self.llm_provider = str(cfg_data["llm_provider"]).lower()
+                    if "max_retries" in cfg_data and cfg_data["max_retries"] is not None:
+                        self.max_retries = int(cfg_data["max_retries"])
+                    if "retry_backoff_factor" in cfg_data and cfg_data["retry_backoff_factor"] is not None:
+                        self.retry_backoff_factor = float(cfg_data["retry_backoff_factor"])
+                    if "retry_backoff_max" in cfg_data and cfg_data["retry_backoff_max"] is not None:
+                        self.retry_backoff_max = float(cfg_data["retry_backoff_max"])
+                    if "retry_status_codes" in cfg_data and isinstance(cfg_data["retry_status_codes"], list):
+                        self.retry_status_codes = [int(c) for c in cfg_data["retry_status_codes"]]
             except Exception:
                 pass
 
@@ -94,6 +110,8 @@ class DuffelConfig:
             self.openai_model = os.environ["OPENAI_MODEL"]
         if os.environ.get("LLM_PROVIDER"):
             self.llm_provider = os.environ["LLM_PROVIDER"].lower()
+        if os.environ.get("DUFFEL_MAX_RETRIES"):
+            self.max_retries = int(os.environ["DUFFEL_MAX_RETRIES"])
 
     @property
     def headers(self) -> dict[str, str]:

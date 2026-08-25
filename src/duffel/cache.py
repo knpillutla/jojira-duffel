@@ -211,6 +211,20 @@ class DuffelCache:
             self.writes_count += 1
             self.write_latencies.append(elapsed_ms)
 
+    def delete(self, key: str) -> None:
+        """Evict/delete a specific cache key from Redis and In-Memory store."""
+        if self.redis_client is not None:
+            try:
+                self.redis_client.delete(key)
+            except Exception as err:
+                if self.debug:
+                    print(f"\n[!] REDIS DELETE EXCEPTION: {type(err).__name__}: {err}\n")
+        self.in_memory_store.pop(key, None)
+
+    def evict(self, key: str) -> None:
+        """Alias for delete."""
+        self.delete(key)
+
     def clear(self) -> None:
         """Clear all cached entries."""
         if self.redis_client is not None:

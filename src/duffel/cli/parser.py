@@ -40,6 +40,8 @@ CITY_IATA_MAP = {
     "syd": "SYD",
     "atlanta": "ATL",
     "atl": "ATL",
+    "orlando": "MCO",
+    "mco": "MCO",
     "oslo": "OSL",
     "osl": "OSL",
 }
@@ -91,8 +93,22 @@ class PromptExtractor:
         elif any(term in text for term in ["one way", "oneway", "single"]):
             extracted["trip_type"] = "one_way"
 
-        # 2. Extract Dates (YYYY-MM-DD or a named month)
+        # 2. Extract Dates (YYYY-MM-DD, ordinal dates like 'oct 17th', or a named month)
         dates = re.findall(r"\b(20\d{2}-\d{2}-\d{2})\b", prompt)
+        if not dates:
+            ordinal_dates = re.findall(
+                r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+(\d{1,2})(?:st|nd|rd|th)?(?:\s+(20\d{2}))?\b",
+                text
+            )
+            if ordinal_dates:
+                for m_str, d_str, y_str in ordinal_dates:
+                    try:
+                        m_num = datetime.strptime(m_str[:3], "%b").month
+                        y_num = int(y_str) if y_str else datetime.now().year
+                        d_num = int(d_str)
+                        dates.append(f"{y_num:04d}-{m_num:02d}-{d_num:02d}")
+                    except Exception:
+                        pass
         if not dates:
             month_match = re.search(
                 r"\b(january|february|march|april|may|june|july|august|september|october|november|december)"
