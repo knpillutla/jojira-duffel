@@ -25,6 +25,7 @@ from .schemas import (
     NaturalLanguageFlightSearchRequest,
     OptimizedFlightSearchRequest,
     OptimizedFlightSearchResponse,
+    OrderPaymentRequest,
     PaymentMethodOption,
     PaymentMethodsResponse,
     StandardFlightSearchRequest,
@@ -575,41 +576,57 @@ def book_flight(req: FlightBookingRequest, request: Request):
                 detail=f"Offer ID '{target_offer_id}' is a sample demo offer. Please execute a live flight search to book real flights."
             )
 
-        # 1. Price Protection Check: Verify live offer price against user expected price
+        # 1. Price Protection Check & Strategy A vs B Determination
+        real_offer = None
+        requires_instant = False
         try:
             real_offer = client.flights.get_offer(offer_ids[0])
-            if real_offer and hasattr(real_offer, "total_amount") and real_offer.total_amount:
-                try:
-                    live_price = float(real_offer.total_amount)
-                    user_price = None
-                    if req.expected_price is not None:
-                        user_price = float(req.expected_price)
-                    elif req.payment and req.payment.amount and req.payment.amount not in ["0.00", "0"]:
-                        user_price = float(req.payment.amount)
+            if real_offer:
+                payment_req = getattr(real_offer, "payment_requirements", {}) if hasattr(real_offer, "payment_requirements") else (real_offer.raw.get("payment_requirements", {}) if isinstance(getattr(real_offer, "raw", None), dict) else {})
+                if isinstance(payment_req, dict):
+                    requires_instant = bool(payment_req.get("requires_instant_payment", False))
 
-                    if user_price is not None and not req.allow_price_change:
-                        if abs(user_price - live_price) > 0.01:
-                            curr_str = getattr(real_offer, "total_currency", "USD") or "USD"
-                            if isinstance(curr_str, str):
-                                curr_display = curr_str
-                            else:
-                                curr_display = "USD"
-                            raise HTTPException(
-                                status_code=status.HTTP_409_CONFLICT,
-                                detail={
-                                    "error": "price_changed",
-                                    "message": f"The airline updated the price from {curr_display} {user_price:.2f} to {curr_display} {live_price:.2f}. Please confirm the updated price before completing booking.",
-                                    "old_price": f"{user_price:.2f}",
-                                    "new_price": f"{live_price:.2f}",
-                                    "currency": curr_display
-                                }
-                            )
-                except (ValueError, TypeError):
-                    pass
+                if hasattr(real_offer, "total_amount") and real_offer.total_amount:
+                    try:
+                        live_price = float(real_offer.total_amount)
+                        user_price = None
+                        if req.expected_price is not None:
+                            user_price = float(req.expected_price)
+                        elif req.payment and req.payment.amount and req.payment.amount not in ["0.00", "0"]:
+                            user_price = float(req.payment.amount)
+
+                        if user_price is not None and not req.allow_price_change:
+                            if abs(user_price - live_price) > 0.01:
+                                curr_str = getattr(real_offer, "total_currency", "USD") or "USD"
+                                curr_display = curr_str if isinstance(curr_str, str) else "USD"
+                                raise HTTPException(
+                                    status_code=status.HTTP_409_CONFLICT,
+                                    detail={
+                                        "error": "price_changed",
+                                        "message": f"The airline updated the price from {curr_display} {user_price:.2f} to {curr_display} {live_price:.2f}. Please confirm the updated price before completing booking.",
+                                        "old_price": f"{user_price:.2f}",
+                                        "new_price": f"{live_price:.2f}",
+                                        "currency": curr_display
+                                    }
+                                )
+                    except (ValueError, TypeError):
+                        pass
         except HTTPException:
             raise
         except Exception:
             pass
+
+        # 2. Determine Order Strategy:
+        # If force_instant_booking is enabled in config.json, execute realtime instant booking.
+        # Otherwise, default to Strategy A ("hold") unless offer explicitly demands instant payment.
+        if getattr(client.config, "force_instant_booking", False):
+            order_type = "instant"  # Config override for realtime instant booking & payment
+        elif req.type and req.type.lower() == "instant":
+            order_type = "instant"  # Explicit payload override
+        elif requires_instant:
+            order_type = "instant"  # Budget carrier fallback requiring immediate ticketing
+        else:
+            order_type = "hold"     # Strategy A default hold process
 
         passengers = []
         for i, p in enumerate(req.passengers):
@@ -648,13 +665,29 @@ def book_flight(req: FlightBookingRequest, request: Request):
                 raw=raw_data
             ))
 
+        # Create Order via Duffel API (type="hold" or "instant")
         order = client.flights.create_order(
             selected_offers=offer_ids,
             passengers=passengers,
             payments=payment_objs if payment_objs else None,
-            type=req.type or "instant",
+            type=order_type,
             idempotency_key=idempotency_key
         )
+
+        # Strategy A Step 2: If created as hold order and user supplied payment info, trigger order payment
+        raw_status = getattr(order, "status", "confirmed")
+        order_status = str(raw_status) if isinstance(raw_status, str) else "confirmed"
+
+        if order_type == "hold" and payment_objs and getattr(order, "id", None):
+            try:
+                pay_res = client.flights.pay_order(
+                    order_id=order.id,
+                    payment=payment_objs[0]
+                )
+                if isinstance(pay_res, dict) and pay_res.get("status") and isinstance(pay_res["status"], str):
+                    order_status = pay_res["status"]
+            except Exception as pay_err:
+                print(f"[STRATEGY A PAYMENT NOTICE]: Created hold order '{order.id}', order payment attempt: {pay_err}")
 
         passengers_summary = []
         for p in getattr(order, "passengers", []):
@@ -674,9 +707,64 @@ def book_flight(req: FlightBookingRequest, request: Request):
 
         booking_ref = getattr(order, "booking_reference", "") or getattr(order, "id", "")
 
+        # Persist order to PostgreSQL / Database via OrderDAO
+        try:
+            from ..db.order_dao import OrderDAO
+            order_dao = OrderDAO(config=client.config)
+            payment_req_by = None
+            if real_offer and hasattr(real_offer, "payment_requirements") and isinstance(real_offer.payment_requirements, dict):
+                payment_req_by = real_offer.payment_requirements.get("payment_required_by")
+
+            cust_email = "customer@example.com"
+            if req.passengers:
+                cust_email = req.passengers[0].email or cust_email
+
+            order_dao.save_hold_order(
+                duffel_order_id=getattr(order, "id", ""),
+                booking_reference=booking_ref,
+                total_amount=str(getattr(order, "total_amount", "0.00")),
+                total_currency=getattr(order, "total_currency", "USD"),
+                order_type=order_type,
+                status=order_status,
+                payment_method=payment_objs[0].type if payment_objs else "balance",
+                payment_required_by=payment_req_by,
+                email_recipient=cust_email,
+                passengers=passengers_summary,
+                slices=slices_summary,
+                payment_status="paid" if order_status in ["confirmed", "paid"] else "pending",
+                email_confirmation_status="pending"
+            )
+        except Exception as db_err:
+            print(f"[ORDER DAO NOTICE] Failed saving order to database: {db_err}")
+
+        # Publish OrderHoldEvent to Azure Service Bus if order is in hold status
+        if order_type == "hold" or order_status == "hold":
+            try:
+                from ..services.service_bus import ServiceBusPublisher
+                publisher = ServiceBusPublisher(config=client.config)
+                payment_dict = payment_objs[0].to_dict() if payment_objs else {"type": "balance", "amount": str(getattr(order, "total_amount", "0.00")), "currency": str(getattr(order, "total_currency", "USD"))}
+                publisher.publish_order_hold_event(
+                    order_id=getattr(order, "id", ""),
+                    booking_reference=booking_ref,
+                    total_amount=str(getattr(order, "total_amount", "0.00")),
+                    total_currency=getattr(order, "total_currency", "USD"),
+                    passengers=passengers_summary,
+                    slices=slices_summary,
+                    payment=payment_dict,
+                    payment_required_by=payment_req_by
+                )
+            except Exception as sb_err:
+                print(f"[SERVICE BUS NOTICE] Failed to publish order hold event: {sb_err}")
+
+        msg = (
+            "Flight hold order created. Physical seats and price locked."
+            if order_type == "hold" and order_status == "hold"
+            else "Flight order successfully created and confirmed."
+        )
+
         return FlightBookingResponse(
-            status="confirmed",
-            message="Flight order successfully created and confirmed.",
+            status=order_status,
+            message=msg,
             order_id=getattr(order, "id", ""),
             booking_reference=booking_ref,
             total_amount=str(getattr(order, "total_amount", "0.00")),
@@ -688,20 +776,77 @@ def book_flight(req: FlightBookingRequest, request: Request):
     except HTTPException:
         raise
     except DuffelAPIError as err:
-        status_code = err.status_code if err.status_code in [400, 401, 403, 404, 409, 422, 429, 500, 502, 503, 504] else status.HTTP_400_BAD_REQUEST
+        status_code = err.status_code if (err.status_code and err.status_code >= 400 and err.status_code <= 599) else status.HTTP_400_BAD_REQUEST
+        if 500 <= status_code <= 599:
+            status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+            msg = "Airline reservation system experienced a temporary service disruption. No payment was charged. Please try booking again in a few moments."
+        else:
+            msg = f"Flight booking failed: {str(err)}"
         raise HTTPException(
             status_code=status_code,
-            detail=f"Flight booking failed: {str(err)}"
+            detail=msg
         )
     except DuffelException as err:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Flight booking failed: {str(err)}"
+            detail="Airline reservation system experienced a temporary service disruption. No payment was charged. Please try booking again in a few moments."
+        )
+    except Exception as err:
+        err_str = str(err)
+        if "timed out" in err_str.lower() or "timeout" in err_str.lower() or "connection" in err_str.lower() or "503" in err_str:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Airline reservation system experienced a temporary service disruption. No payment was charged. Please try booking again in a few moments."
+            )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Flight booking failed: {err_str}"
+        )
+
+
+@router.post("/air/orders/{order_id}/payments", summary="Pay Hold Order (Strategy A Step 2)")
+@router.post("/orders/{order_id}/payments", summary="Pay Hold Order Alias")
+def pay_hold_order(order_id: str, req: OrderPaymentRequest):
+    """
+    Executes payment for an existing Duffel hold order (POST /air/orders/{order_id}/payments).
+    Confirms seats and issues ticket for a hold order created via Strategy A.
+    """
+    client = get_duffel_client()
+    try:
+        payment_input = req.payment or (req.payments[0] if req.payments else None)
+        payment_obj = None
+        if payment_input:
+            raw_data = {}
+            token_val = payment_input.card_token or payment_input.token or payment_input.payment_method_id
+            if token_val:
+                raw_data["card_token"] = token_val
+            if payment_input.card_id:
+                raw_data["card_id"] = payment_input.card_id
+            payment_obj = Payment(
+                type=payment_input.type or "balance",
+                currency=payment_input.currency or "USD",
+                amount=payment_input.amount or "0.00",
+                raw=raw_data
+            )
+        res = client.flights.pay_order(order_id=order_id, payment=payment_obj)
+        return {
+            "status": "success",
+            "message": f"Payment successfully created for hold order '{order_id}'.",
+            "order_id": order_id,
+            "payment_details": res
+        }
+    except HTTPException:
+        raise
+    except DuffelAPIError as err:
+        status_code = err.status_code if err.status_code in [400, 401, 403, 404, 409, 422, 429, 500, 502, 503, 504] else status.HTTP_400_BAD_REQUEST
+        raise HTTPException(
+            status_code=status_code,
+            detail=f"Hold order payment failed: {str(err)}"
         )
     except Exception as err:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Flight booking failed: {str(err)}"
+            detail=f"Hold order payment failed: {str(err)}"
         )
 
 

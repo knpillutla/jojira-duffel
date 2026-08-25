@@ -100,9 +100,7 @@ class HTTPClient:
         backoff_max = getattr(self.config, "retry_backoff_max", 10.0)
         retry_status_codes = set(getattr(self.config, "retry_status_codes", [500, 502, 503, 504, 429]) or [500, 502, 503, 504, 429])
 
-        req_timeout = timeout if timeout is not None else getattr(self.config, "timeout", 130.0)
-        if "/orders" in path or "/flights/book" in path or "/offer_requests" in path:
-            req_timeout = max(req_timeout, 130.0)
+        req_timeout = timeout if timeout is not None else getattr(self.config, "timeout", 5.0)
 
         for attempt in range(1, max_retries + 2):
             print("")
@@ -171,7 +169,7 @@ class HTTPClient:
                         delay = random.uniform(0.5 * base_delay, base_delay)
 
                     msg = (
-                        f"⚠️ [DUFFEL API RETRY] {method.upper()} {path} returned status {err.code}. "
+                        f"[DUFFEL API RETRY] {method.upper()} {path} returned status {err.code}. "
                         f"Retrying attempt {attempt}/{max_retries} in {delay:.2f}s... "
                         f"(Idempotency Key: {req_headers.get('Duffel-Idempotency-Key', 'N/A')})"
                     )
@@ -193,7 +191,7 @@ class HTTPClient:
                     base_delay = min(backoff_max, backoff_factor * (2 ** (attempt - 1)))
                     delay = random.uniform(0.5 * base_delay, base_delay)
                     msg = (
-                        f"⚠️ [DUFFEL NETWORK RETRY] {method.upper()} {path} failed: {err}. "
+                        f"[DUFFEL NETWORK RETRY] {method.upper()} {path} failed: {err}. "
                         f"Retrying attempt {attempt}/{max_retries} in {delay:.2f}s..."
                     )
                     logger.warning(msg)

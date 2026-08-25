@@ -247,7 +247,14 @@ class FlightsService(BaseService):
             m = total_dur_min % 60
             dur_str_formatted = f"{h}h {m}m" if (h > 0 and m > 0) else (f"{h}h" if h > 0 else f"{m}m")
 
-        stop_type = "Non-stop" if max_stops == 0 else ("1 stop" if max_stops == 1 else "2 stops")
+        stop_type = "Non-stop" if max_stops == 0 else (f"{max_stops}-Stop" if max_stops == 1 else f"{max_stops}-Stops")
+
+        payment_req = getattr(offer, "payment_requirements", {}) if hasattr(offer, "payment_requirements") else (offer.get("payment_requirements", {}) if isinstance(offer, dict) else {})
+        if not isinstance(payment_req, dict):
+            payment_req = {}
+
+        requires_instant = bool(payment_req.get("requires_instant_payment", False))
+        payment_required_by = payment_req.get("payment_required_by")
 
         res: dict[str, Any] = {
             "offer_id": o_id,
@@ -274,6 +281,9 @@ class FlightsService(BaseService):
             "arrival_at": arrival_at,
             "arrival_date": arrival_date,
             "arrival_time": arrival_time,
+            "payment_requirements": payment_req,
+            "requires_instant_payment": requires_instant,
+            "payment_required_by": payment_required_by,
             "slice_details": slices_detail,
         }
         if len(slices) > 1:
@@ -797,7 +807,7 @@ class FlightsService(BaseService):
         selected_offers: Union[str, list[str]],
         passengers: list[Union[Passenger, dict[str, Any]]],
         payments: Optional[list[Union[Payment, dict[str, Any]]]] = None,
-        type: str = "instant",
+        type: str = "hold",
         idempotency_key: Optional[str] = None,
     ) -> FlightOrder:
         """
@@ -811,13 +821,17 @@ class FlightsService(BaseService):
             offer_ids = list(selected_offers)
 
         # Fetch actual offer from Duffel API to get valid passenger IDs
-        real_offer = self.get_offer(offer_ids[0])
+        real_offer = None
         offer_passenger_ids = []
-        if hasattr(real_offer, "passengers") and real_offer.passengers:
-            for op in real_offer.passengers:
-                op_id = getattr(op, "id", None) or (op.get("id") if isinstance(op, dict) else None)
-                if op_id:
-                    offer_passenger_ids.append(op_id)
+        try:
+            real_offer = self.get_offer(offer_ids[0])
+            if hasattr(real_offer, "passengers") and real_offer.passengers:
+                for op in real_offer.passengers:
+                    op_id = getattr(op, "id", None) or (op.get("id") if isinstance(op, dict) else None)
+                    if op_id:
+                        offer_passenger_ids.append(op_id)
+        except Exception:
+            pass
 
         formatted_passengers = []
         for i, p in enumerate(passengers):
@@ -844,51 +858,91 @@ class FlightsService(BaseService):
 
             formatted_passengers.append(p_dict)
 
-        # If payments is not passed or payment amount is '0.00' / empty, auto-fetch offer details
-        if not payments:
-            payments = [Payment(type="balance", currency=real_offer.total_currency or "USD", amount=real_offer.total_amount)]
-
-        formatted_payments = []
-        for pym in payments:
-            if isinstance(pym, Payment):
-                pym_dict = pym.to_dict()
-            elif isinstance(pym, dict):
-                pym_dict = dict(pym)
-            else:
-                pym_dict = {"type": "balance"}
-
-            # Automatically match the exact offer total_amount and currency required by Duffel API
-            if hasattr(real_offer, "total_amount") and real_offer.total_amount:
-                pym_dict["amount"] = str(real_offer.total_amount)
-                pym_dict["currency"] = str(real_offer.total_currency or "USD")
-
-            # Ensure card_id is present if passed in card_id or aliases
-            c_id = pym_dict.get("card_id") or pym_dict.get("id") or pym_dict.get("card_token") or pym_dict.get("token")
-            if c_id:
-                pym_dict["card_id"] = str(c_id).strip()
-
-            # Pass three_d_secure_session_id if explicitly provided
-            tds = (
-                pym_dict.get("three_d_secure_session_id")
-                or pym_dict.get("card_session_id")
-                or pym_dict.get("session_id")
-                or pym_dict.get("three_d_session_id")
-                or pym_dict.get("tds_session_id")
-            )
-            if tds:
-                pym_dict["three_d_secure_session_id"] = str(tds).strip()
-
-            formatted_payments.append(pym_dict)
-
         payload = {
             "type": type,
             "selected_offers": offer_ids,
             "passengers": formatted_passengers,
-            "payments": formatted_payments,
         }
+
+        # ONLY add payments array if order type is NOT "hold" (Strategy A hold orders omit payments on creation)
+        if type != "hold":
+            if not payments:
+                payments = [Payment(type="balance", currency=real_offer.total_currency or "USD", amount=real_offer.total_amount)]
+
+            formatted_payments = []
+            for pym in payments:
+                if isinstance(pym, Payment):
+                    pym_dict = pym.to_dict()
+                elif isinstance(pym, dict):
+                    pym_dict = dict(pym)
+                else:
+                    pym_dict = {"type": "balance"}
+
+                # Automatically match the exact offer total_amount and currency required by Duffel API
+                if hasattr(real_offer, "total_amount") and real_offer.total_amount:
+                    pym_dict["amount"] = str(real_offer.total_amount)
+                    pym_dict["currency"] = str(real_offer.total_currency or "USD")
+
+                # Ensure card_id is present if passed in card_id or aliases
+                c_id = pym_dict.get("card_id") or pym_dict.get("id") or pym_dict.get("card_token") or pym_dict.get("token")
+                if c_id:
+                    pym_dict["card_id"] = str(c_id).strip()
+
+                # Pass three_d_secure_session_id if explicitly provided
+                tds = (
+                    pym_dict.get("three_d_secure_session_id")
+                    or pym_dict.get("card_session_id")
+                    or pym_dict.get("session_id")
+                    or pym_dict.get("three_d_session_id")
+                    or pym_dict.get("tds_session_id")
+                )
+                if tds:
+                    pym_dict["three_d_secure_session_id"] = str(tds).strip()
+
+                formatted_payments.append(pym_dict)
+
+            payload["payments"] = formatted_payments
 
         res = self.client.post("/air/orders", data={"data": payload}, idempotency_key=idempotency_key)
         return FlightOrder.from_dict(res.get("data", {}))
+
+    def pay_order(
+        self,
+        order_id: str,
+        payment: Optional[Union[Payment, dict[str, Any]]] = None,
+        amount: Optional[str] = None,
+        currency: Optional[str] = None,
+        payment_type: str = "balance",
+    ) -> dict[str, Any]:
+        """
+        Create a payment for a hold order to ticket/confirm seats (Strategy A Step 2).
+
+        Endpoint: POST /air/orders/{order_id}/payments
+        """
+        if isinstance(payment, Payment):
+            pym_dict = payment.to_dict()
+        elif isinstance(payment, dict):
+            pym_dict = dict(payment)
+        else:
+            pym_dict = {}
+
+        if "type" not in pym_dict:
+            pym_dict["type"] = payment_type
+        if amount and "amount" not in pym_dict:
+            pym_dict["amount"] = str(amount)
+        if currency and "currency" not in pym_dict:
+            pym_dict["currency"] = str(currency)
+
+        # If amount/currency missing, fetch hold order details automatically
+        if "amount" not in pym_dict or "currency" not in pym_dict:
+            order_info = self.get_order(order_id)
+            if "amount" not in pym_dict:
+                pym_dict["amount"] = str(getattr(order_info, "total_amount", "0.00"))
+            if "currency" not in pym_dict:
+                pym_dict["currency"] = str(getattr(order_info, "total_currency", "USD"))
+
+        res = self.client.post(f"/air/orders/{order_id}/payments", data={"data": pym_dict})
+        return res.get("data", {})
 
     def get_order(self, order_id: str) -> FlightOrder:
         """

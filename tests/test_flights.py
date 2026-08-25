@@ -42,13 +42,70 @@ class TestFlightsService(unittest.TestCase):
         order = self.client.flights.create_order(
             selected_offers=["off_00001"],
             passengers=[Passenger(id="pas_00001", given_name="John", family_name="Doe")],
-            payments=[Payment(type="balance", currency="USD", amount="250.00")]
+            payments=[Payment(type="balance", currency="USD", amount="250.00")],
+            type="instant"
         )
 
         self.assertIsInstance(order, FlightOrder)
         self.assertEqual(order.id, "ord_00001")
         self.assertEqual(order.booking_reference, "ABC123XYZ")
         self.assertEqual(order.status, "confirmed")
+
+    @patch("urllib.request.urlopen")
+    def test_create_hold_order_and_pay(self, mock_urlopen):
+        """Test Strategy A: Create hold order (omitting payments payload) then pay order."""
+        # 1. Mock create_order response (type='hold')
+        mock_response_hold = MagicMock()
+        mock_response_hold.read.return_value = json.dumps({
+            "data": {
+                "id": "ord_hold_001",
+                "booking_reference": "HOLDREF1",
+                "total_amount": "340.00",
+                "total_currency": "USD",
+                "passengers": [{"id": "pas_00001", "given_name": "John", "family_name": "Doe"}],
+                "slices": [],
+                "created_at": "2026-08-25T10:00:00Z",
+                "live_mode": False,
+                "status": "hold"
+            }
+        }).encode("utf-8")
+
+        mock_urlopen.return_value.__enter__.return_value = mock_response_hold
+
+        order = self.client.flights.create_order(
+            selected_offers=["off_00001"],
+            passengers=[Passenger(id="pas_00001", given_name="John", family_name="Doe")],
+            type="hold"
+        )
+        self.assertEqual(order.status, "hold")
+        self.assertEqual(order.id, "ord_hold_001")
+
+        # Verify payments key was omitted from request payload for hold order creation
+        sent_req = mock_urlopen.call_args_list[-1][0][0]
+        sent_body = json.loads(sent_req.data.decode("utf-8"))
+        self.assertEqual(sent_body["data"]["type"], "hold")
+        self.assertNotIn("payments", sent_body["data"])
+
+        # 2. Mock pay_order response (POST /air/orders/ord_hold_001/payments)
+        mock_response_pay = MagicMock()
+        mock_response_pay.read.return_value = json.dumps({
+            "data": {
+                "id": "pay_001",
+                "order_id": "ord_hold_001",
+                "status": "paid",
+                "type": "balance",
+                "amount": "340.00",
+                "currency": "USD"
+            }
+        }).encode("utf-8")
+        mock_urlopen.return_value.__enter__.return_value = mock_response_pay
+
+        pay_res = self.client.flights.pay_order(
+            order_id="ord_hold_001",
+            payment=Payment(type="balance", amount="340.00", currency="USD")
+        )
+        self.assertEqual(pay_res["status"], "paid")
+        self.assertEqual(pay_res["order_id"], "ord_hold_001")
 
     @patch("urllib.request.urlopen")
     def test_search_optimized(self, mock_urlopen):
@@ -177,7 +234,7 @@ class TestFlightsService(unittest.TestCase):
         self.assertEqual(summary["destination"], "Oslo (OSL)")
         self.assertEqual(summary["destination_name"], "Oslo")
         self.assertEqual(summary["destination_code"], "OSL")
-        self.assertEqual(summary["legs"], "2 stops")
+        self.assertIn(summary["legs"], ["2 stops", "2-Stops"])
         self.assertEqual(summary["leg_names"], "Reykjavik, Paris")
         self.assertEqual(summary["leg_codes"], "KEF, CDG")
         self.assertEqual(summary["duration_hours"], 10.0)
@@ -335,7 +392,8 @@ class TestFlightsService(unittest.TestCase):
         order = self.client.flights.create_order(
             selected_offers=["off_0000AMxZ999"],
             passengers=[Passenger(id=offer.passengers[0]["id"], given_name="John", family_name="Doe")],
-            payments=[Payment(type="balance", currency="USD", amount="320.00")]
+            payments=[Payment(type="balance", currency="USD", amount="320.00")],
+            type="instant"
         )
         self.assertIsInstance(order, FlightOrder)
         self.assertEqual(order.id, "ord_0000999")

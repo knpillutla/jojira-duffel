@@ -98,6 +98,7 @@ class FlightOffer:
     passengers: list[dict[str, Any]]
     expires_at: str
     created_at: str
+    payment_requirements: dict[str, Any] = field(default_factory=dict)
     raw: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -114,6 +115,7 @@ class FlightOffer:
             passengers=data.get("passengers", []),
             expires_at=data.get("expires_at", ""),
             created_at=data.get("created_at", ""),
+            payment_requirements=data.get("payment_requirements", {}),
             raw=data,
         )
 
@@ -129,6 +131,7 @@ class FlightOrder:
     created_at: str
     live_mode: bool
     status: str
+    payment_status: Optional[dict[str, Any]] = field(default_factory=dict)
     documents: list[dict[str, Any]] = field(default_factory=list)
     raw: dict[str, Any] = field(default_factory=dict)
 
@@ -145,6 +148,7 @@ class FlightOrder:
             created_at=data.get("created_at", ""),
             live_mode=data.get("live_mode", False),
             status=data.get("status", "confirmed"),
+            payment_status=data.get("payment_status", {}),
             documents=data.get("documents", []),
             raw=data,
         )

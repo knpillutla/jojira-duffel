@@ -77,13 +77,19 @@ class FlightBookingRequest(BaseModel):
     """Flight offer booking request matching Duffel POST /air/orders schema."""
     offer_id: Optional[str] = Field(None, description="Duffel Flight Offer ID to book e.g. 'off_0000B9...'")
     selected_offers: Optional[list[str]] = Field(None, description="List of Duffel Flight Offer IDs (e.g. ['off_0000B9...'])")
-    type: str = Field("instant", description="Order type: 'instant' or 'hold'")
+    type: Optional[str] = Field(None, description="Order type: 'hold' (Strategy A, default if offer supports hold) or 'instant' (Strategy B, fallback for budget airlines)")
     passengers: list[PassengerInput] = Field(..., min_length=1, description="List of passenger detail objects")
     payment: Optional[PaymentInput] = Field(None, description="Single payment object")
     payments: Optional[list[PaymentInput]] = Field(None, description="List of payment objects")
     idempotency_key: Optional[str] = Field(None, description="Optional Duffel-Idempotency-Key header for safe request retries")
     expected_price: Optional[str] = Field(None, description="Expected price user agreed to e.g. '47.96'. Raises 409 error if live price changed.")
     allow_price_change: bool = Field(False, description="Set True to accept airline live price changes automatically")
+
+
+class OrderPaymentRequest(BaseModel):
+    """Request payload to pay for a hold order (POST /air/orders/{order_id}/payments)."""
+    payment: Optional[PaymentInput] = Field(None, description="Payment details object (type: 'balance', 'card', etc.)")
+    payments: Optional[list[PaymentInput]] = Field(None, description="List of payment objects")
 
 
 class HealthCheckResponse(BaseModel):
