@@ -1,5 +1,5 @@
 """
-Service for Duffel Car Rentals API.
+Service for Car Rentals API.
 """
 
 from typing import Any, Optional, Union
@@ -14,7 +14,7 @@ from .base import BaseService
 
 
 class CarsService(BaseService):
-    """Integrates with Duffel REST API Car Rental endpoints."""
+    """Integrates with Car Rental endpoints via Provider Adapter."""
 
     def search(
         self,
@@ -26,9 +26,20 @@ class CarsService(BaseService):
     ) -> list[CarOffer]:
         """
         Search for rental cars.
-
-        Endpoint: POST /cars/search_requests or GET /cars/offers
         """
+        import hashlib
+
+        # 2-Tier Redis Cache Lookup
+        hash_input = f"{pickup_location}_{dropoff_location}_{pickup_datetime}_{dropoff_datetime}_{driver_age}"
+        hash_key = hashlib.md5(hash_input.encode("utf-8")).hexdigest()[:6]
+        cache_key = f"duffel:cars:search:{hash_key}"
+
+        if self.cache and self.cache.enabled:
+            cached_res = self.cache.get(cache_key)
+            if cached_res and isinstance(cached_res, list):
+                print(f"[+] TIER-1 CARS CACHE HIT for key: {cache_key}")
+                return [CarOffer.from_dict(o) for o in cached_res]
+
         query = CarSearchQuery(
             pickup_location=pickup_location,
             dropoff_location=dropoff_location,
@@ -37,19 +48,30 @@ class CarsService(BaseService):
             driver_age=driver_age,
         )
 
-        res = self.client.post("/cars/search_requests", data={"data": query.to_dict()})
+        res = self.adapter.search_cars(query.to_dict())
         data = res.get("data", {})
-        raw_offers = data.get("offers", []) if isinstance(data, dict) else []
+        if isinstance(data, dict):
+            raw_offers = data.get("offers", [])
+        elif isinstance(data, list):
+            raw_offers = data
+        else:
+            raw_offers = []
+
+        raw_list = [o if isinstance(o, dict) else getattr(o, "__dict__", {}) for o in raw_offers]
+        if self.cache and self.cache.enabled:
+            # 1. Record-Level Redis Caching (individual offer key with individual TTL)
+            self.cache.set_records_batch("cars", raw_list, id_key="id")
+            # 2. Query Index Caching
+            dynamic_ttl = self.cache.calculate_earliest_ttl(raw_list)
+            self.cache.set(cache_key, raw_list, ttl_seconds=dynamic_ttl)
 
         return [CarOffer.from_dict(o) for o in raw_offers]
 
     def get_offer(self, offer_id: str) -> CarOffer:
         """
         Retrieve details of a car rental offer.
-
-        Endpoint: GET /cars/offers/{id}
         """
-        res = self.client.get(f"/cars/offers/{offer_id}")
+        res = self.adapter.get_car_offer(offer_id)
         return CarOffer.from_dict(res.get("data", {}))
 
     def create_order(
@@ -60,8 +82,6 @@ class CarsService(BaseService):
     ) -> CarOrder:
         """
         Create a car rental order.
-
-        Endpoint: POST /cars/orders
         """
         payload = {
             "offer_id": offer_id,
@@ -69,23 +89,19 @@ class CarsService(BaseService):
             "payments": payments,
         }
 
-        res = self.client.post("/cars/orders", data={"data": payload})
+        res = self.adapter.create_car_order(payload)
         return CarOrder.from_dict(res.get("data", {}))
 
     def get_order(self, order_id: str) -> CarOrder:
         """
         Retrieve car order details.
-
-        Endpoint: GET /cars/orders/{id}
         """
-        res = self.client.get(f"/cars/orders/{order_id}")
+        res = self.adapter.get_car_order(order_id)
         return CarOrder.from_dict(res.get("data", {}))
 
     def cancel_order(self, order_id: str) -> CarCancellation:
         """
         Cancel a car rental order.
-
-        Endpoint: POST /cars/orders/{id}/actions/cancel
         """
-        res = self.client.post(f"/cars/orders/{order_id}/actions/cancel")
+        res = self.adapter.cancel_car_order(order_id)
         return CarCancellation.from_dict(res.get("data", {}))

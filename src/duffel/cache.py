@@ -283,6 +283,81 @@ class DuffelCache:
             "ttl_seconds": self.ttl,
         }
 
+    def calculate_earliest_ttl(self, records: Any, default_ttl: Optional[int] = None) -> tuple[int, str]:
+        """
+        Calculates remaining TTL in seconds and ISO expiration timestamp based on the earliest expiry date
+        among all records (offers, stay quotes, car offers, package items).
+        Returns tuple: (ttl_seconds, expires_at_iso_string)
+        """
+        from datetime import datetime, timedelta, timezone
+
+        def_ttl = default_ttl if default_ttl is not None else self.ttl
+        now_utc = datetime.now(timezone.utc)
+        earliest_expiry: Optional[datetime] = None
+
+        raw_records = records or []
+        if isinstance(raw_records, dict):
+            raw_records = [raw_records]
+
+        for rec in raw_records:
+            if not rec:
+                continue
+            exp_str = None
+            if isinstance(rec, dict):
+                exp_str = (
+                    rec.get("expires_at")
+                    or rec.get("price_guarantee_expires_at")
+                    or (rec.get("payment_requirements") or {}).get("price_guarantee_expires_at")
+                )
+                if not exp_str and "flight_offer" in rec:
+                    exp_str = (rec.get("flight_offer") or {}).get("expires_at")
+            else:
+                exp_str = getattr(rec, "expires_at", None)
+
+            if exp_str:
+                try:
+                    clean_str = str(exp_str).replace("Z", "+00:00")
+                    dt = datetime.fromisoformat(clean_str)
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=timezone.utc)
+                    if earliest_expiry is None or dt < earliest_expiry:
+                        earliest_expiry = dt
+                except Exception:
+                    pass
+
+        if earliest_expiry is not None:
+            rem_sec = int((earliest_expiry - now_utc).total_seconds())
+            if rem_sec > 0:
+                final_ttl = min(rem_sec, def_ttl)
+                expires_at_dt = now_utc + timedelta(seconds=final_ttl)
+                return final_ttl, expires_at_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        expires_at_dt = now_utc + timedelta(seconds=def_ttl)
+        return def_ttl, expires_at_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+    
+    def set_records_batch(self, category_or_records: Any = None, records: Any = None, id_key: Optional[str] = None, ttl_seconds: Optional[int] = None, **kwargs) -> None:
+        """Store multiple key-value pairs in cache in a batch operation."""
+        if not self.enabled:
+            return
+        
+        target_records = records if records is not None else category_or_records
+        if not target_records:
+            return
+        
+        prefix = f"{category_or_records}:" if (records is not None and isinstance(category_or_records, str)) else ""
+
+        items = target_records.items() if isinstance(target_records, dict) else target_records
+        for item in items:
+            if isinstance(item, (tuple, list)) and len(item) == 2:
+                key, val = item
+                self.set(f"{prefix}{key}", val, ttl_seconds=ttl_seconds)
+            elif isinstance(item, str) and isinstance(target_records, dict):
+                self.set(f"{prefix}{item}", target_records[item], ttl_seconds=ttl_seconds)
+            elif isinstance(item, dict) and id_key and id_key in item:
+                self.set(f"{prefix}{item[id_key]}", item, ttl_seconds=ttl_seconds)
+
     def record_search_event(self, search_event: dict[str, Any]) -> None:
         """Record a search execution event with API vs Cache hit metrics."""
         history_key = "duffel:metrics:search_history"

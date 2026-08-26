@@ -227,7 +227,7 @@ class TestFlightsService(unittest.TestCase):
 
         highlights = self.client.flights.compute_category_highlights([offer])
 
-        summary = highlights["cheapest_2_stop"]
+        summary = highlights["lowest_2_stop"]
         self.assertEqual(summary["origin"], "Atlanta (ATL)")
         self.assertEqual(summary["origin_name"], "Atlanta")
         self.assertEqual(summary["origin_code"], "ATL")

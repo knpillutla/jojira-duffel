@@ -138,8 +138,8 @@ class TestFlightsServiceWithScrapers(unittest.TestCase):
 
         self.assertIsNotNone(offers)
         highlights = getattr(offers, "category_highlights", {})
-        self.assertIn("cheapest_non_stop", highlights)
-        cheapest = highlights["cheapest_non_stop"]
+        self.assertIn("lowest_non_stop", highlights)
+        cheapest = highlights["lowest_non_stop"]
 
         # Scraped $38.00 offer should be cheaper than $68.00 Duffel offer
         self.assertEqual(cheapest["total_amount"], 38.00)

@@ -24,7 +24,7 @@ class TestDuffelAPI(unittest.TestCase):
         self.assertIn("duffel_token_configured", data)
         self.assertIn("redis_cache_status", data)
 
-    @patch("src.duffel.api.routes.get_duffel_client")
+    @patch("src.duffel.api.routes.common.get_duffel_client")
     def test_analyze_queries_endpoint(self, mock_get_client):
         """Test POST /api/v1/flights/analyze-queries endpoint."""
         mock_client = MagicMock()
@@ -55,7 +55,7 @@ class TestDuffelAPI(unittest.TestCase):
         self.assertTrue(data["is_tier1_hit"])
         self.assertEqual(data["aggregated_cache_hits"], 1)
 
-    @patch("src.duffel.api.routes.get_duffel_client")
+    @patch("src.duffel.api.routes.common.get_duffel_client")
     def test_search_optimized_endpoint(self, mock_get_client):
         """Test POST /api/v1/flights/search-optimized endpoint."""
         mock_client = MagicMock()
@@ -82,7 +82,7 @@ class TestDuffelAPI(unittest.TestCase):
         self.assertEqual(data["search_params"]["destination"], "JFK")
         self.assertIn("force_refresh", data["search_params"])
 
-    @patch("src.duffel.api.routes.get_duffel_client")
+    @patch("src.duffel.api.routes.common.get_duffel_client")
     @patch("src.duffel.cli.parser.PromptExtractor.extract_flight_info")
     def test_natural_language_search_endpoint(self, mock_extract, mock_get_client):
         mock_client = MagicMock()
@@ -114,7 +114,7 @@ class TestDuffelAPI(unittest.TestCase):
         self.assertEqual(data["search_params"]["destination"], "OSL")
         self.assertEqual(data["search_params"]["target_date"], "2026-10-01")
 
-    @patch("src.duffel.api.routes.get_duffel_client")
+    @patch("src.duffel.api.routes.common.get_duffel_client")
     @patch("src.duffel.cli.parser.PromptExtractor.extract_flight_info")
     def test_natural_language_search_reports_missing_fields(self, mock_extract, mock_get_client):
         mock_extract.return_value = {
@@ -130,7 +130,7 @@ class TestDuffelAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()["detail"]["missing_fields"], ["origin"])
 
-    @patch("src.duffel.api.routes.get_duffel_client")
+    @patch("src.duffel.api.routes.common.get_duffel_client")
     @patch("src.duffel.cli.parser.PromptExtractor.extract_flight_info")
     def test_search_optimized_endpoint_accepts_natural_language(self, mock_extract, mock_get_client):
         mock_client = MagicMock()
@@ -167,7 +167,7 @@ class TestDuffelAPI(unittest.TestCase):
         mock_client.flights.search_optimized.assert_called_once()
         self.assertEqual(mock_client.flights.search_optimized.call_args.kwargs["target_return_date"], "2026-10-31")
 
-    @patch("src.duffel.api.routes.get_duffel_client")
+    @patch("src.duffel.api.routes.common.get_duffel_client")
     def test_book_flight_endpoint_with_payment(self, mock_get_client):
         """Test POST /api/v1/flights/book forwards passenger and payment info to create_order."""
         mock_client = MagicMock()
@@ -243,7 +243,7 @@ class TestDuffelAPI(unittest.TestCase):
         self.assertEqual(res2.status_code, 200)
         self.assertEqual(res2.json()["status"], "ok")
 
-    @patch("src.duffel.api.routes.get_duffel_client")
+    @patch("src.duffel.api.routes.common.get_duffel_client")
     def test_search_exact_flights_endpoint(self, mock_get_client):
         """Test POST /api/v1/flights/search exact date search endpoint."""
         mock_client = MagicMock()
@@ -255,13 +255,13 @@ class TestDuffelAPI(unittest.TestCase):
         mock_offer = MagicMock()
         mock_offers = OfferList([mock_offer])
         mock_offers.output_json = {
-            "category_highlights": {"cheapest_overall": {"total_amount": "250.00"}},
-            "cheapest_non_stop_offers": [],
+            "category_highlights": {"overall_lowest": {"total_amount": "250.00"}},
+            "lowest_non_stop_offers": [],
             "shortest_non_stop_offers": [],
             "top_offers": []
         }
         mock_client.flights.search_exact.return_value = mock_offers
-        mock_client.flights.compute_category_highlights.return_value = {"cheapest_overall": {"total_amount": "250.00"}}
+        mock_client.flights.compute_category_highlights.return_value = {"overall_lowest": {"total_amount": "250.00"}}
         mock_client.flights._build_offer_summary.return_value = {
             "id": "off_1",
             "total_amount": "250.00",
@@ -334,6 +334,114 @@ class TestDuffelAPI(unittest.TestCase):
         self.assertEqual(data["status"], "ok")
         self.assertEqual(data["total_offers_found"], 10)
 
+    @patch("src.duffel.api.routes.common.get_duffel_client")
+    def test_stays_search_and_book_endpoints(self, mock_get_client):
+        """Test POST /api/v1/stays/search and POST /api/v1/stays/book endpoints."""
+        mock_client = MagicMock()
+        mock_get_client.return_value = mock_client
+
+        mock_stay = MagicMock()
+        mock_stay.to_dict.return_value = {"id": "sres_123", "name": "Grand Hotel"}
+        mock_client.stays.search.return_value = [mock_stay]
+        mock_client.stays.get_search_result.return_value = mock_stay
+
+        mock_order = MagicMock()
+        mock_order.id = "ord_stay_999"
+        mock_order.booking_reference = "HOTEL123"
+        mock_order.total_amount = "250.00"
+        mock_order.total_currency = "USD"
+        mock_order.accommodation_name = "Grand Hotel"
+        mock_order.check_in_date = "2026-10-01"
+        mock_order.check_out_date = "2026-10-05"
+        mock_order.to_dict.return_value = {"id": "ord_stay_999"}
+        mock_client.stays.create_order.return_value = mock_order
+
+        # Test POST /stays/search
+        search_res = self.client.post(
+            "/api/v1/stays/search",
+            json={"check_in_date": "2026-10-01", "check_out_date": "2026-10-05", "rooms": 1},
+        )
+        self.assertEqual(search_res.status_code, 200)
+        self.assertEqual(search_res.json()["total_results"], 1)
+
+        # Test GET /stays/search
+        get_res = self.client.get("/api/v1/stays/search?check_in_date=2026-10-01&check_out_date=2026-10-05")
+        self.assertEqual(get_res.status_code, 200)
+
+        # Test GET /stays/search-results/{id}
+        det_res = self.client.get("/api/v1/stays/search-results/sres_123")
+        self.assertEqual(det_res.status_code, 200)
+
+        # Test POST /stays/book
+        book_payload = {
+            "quote_id": "quo_123",
+            "guests": [{"given_name": "Jane", "family_name": "Doe", "email": "jane@example.com"}],
+            "payment": {"type": "balance", "amount": "250.00"},
+        }
+        book_res = self.client.post("/api/v1/stays/book", json=book_payload)
+        self.assertEqual(book_res.status_code, 200)
+        b_data = book_res.json()
+        self.assertEqual(b_data["order_id"], "ord_stay_999")
+        self.assertEqual(b_data["booking_reference"], "HOTEL123")
+
+    @patch("src.duffel.api.routes.common.get_duffel_client")
+    def test_cars_search_and_book_endpoints(self, mock_get_client):
+        """Test POST /api/v1/cars/search and POST /api/v1/cars/book endpoints."""
+        mock_client = MagicMock()
+        mock_get_client.return_value = mock_client
+
+        mock_offer = MagicMock()
+        mock_offer.to_dict.return_value = {"id": "off_car_123", "vehicle": "Tesla Model 3"}
+        mock_client.cars.search.return_value = [mock_offer]
+        mock_client.cars.get_offer.return_value = mock_offer
+
+        mock_order = MagicMock()
+        mock_order.id = "ord_car_888"
+        mock_order.booking_reference = "CAR456"
+        mock_order.total_amount = "180.00"
+        mock_order.total_currency = "USD"
+        mock_order.vehicle_name = "Tesla Model 3"
+        mock_order.supplier_name = "Hertz"
+        mock_order.to_dict.return_value = {"id": "ord_car_888"}
+        mock_client.cars.create_order.return_value = mock_order
+
+        # Test POST /cars/search
+        search_res = self.client.post(
+            "/api/v1/cars/search",
+            json={
+                "pickup_location": "LHR",
+                "dropoff_location": "LHR",
+                "pickup_datetime": "2026-10-01T10:00:00Z",
+                "dropoff_datetime": "2026-10-05T10:00:00Z",
+                "driver_age": 30,
+            },
+        )
+        self.assertEqual(search_res.status_code, 200)
+        self.assertEqual(search_res.json()["total_offers"], 1)
+
+        # Test GET /cars/search
+        get_res = self.client.get(
+            "/api/v1/cars/search?pickup_location=LHR&dropoff_location=LHR&pickup_datetime=2026-10-01T10:00:00Z&dropoff_datetime=2026-10-05T10:00:00Z"
+        )
+        self.assertEqual(get_res.status_code, 200)
+
+        # Test GET /cars/offers/{id}
+        det_res = self.client.get("/api/v1/cars/offers/off_car_123")
+        self.assertEqual(det_res.status_code, 200)
+
+        # Test POST /cars/book
+        book_payload = {
+            "offer_id": "off_car_123",
+            "driver_details": {"given_name": "John", "family_name": "Smith", "email": "john@example.com"},
+            "payment": {"type": "balance", "amount": "180.00"},
+        }
+        book_res = self.client.post("/api/v1/cars/book", json=book_payload)
+        self.assertEqual(book_res.status_code, 200)
+        b_data = book_res.json()
+        self.assertEqual(b_data["order_id"], "ord_car_888")
+        self.assertEqual(b_data["booking_reference"], "CAR456")
+
 
 if __name__ == "__main__":
     unittest.main()
+

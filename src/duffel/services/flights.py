@@ -470,13 +470,30 @@ class FlightsService(BaseService):
                 )
 
         return {
+            # Premium Enterprise Keys
+            "lowest_fare_deal": cheapest_all,
+            "lowest_direct_flight": cheapest_non_stop,
+            "fastest_express_flight": shortest_non_stop,
+            "lowest_1_connection": cheapest_1stop,
+            "lowest_2_connection": cheapest_2stop,
+            "preferred_airline_lowest": {
+                "favorite_airline": fav_airline_display,
+                "offer": cheapest_fav
+            },
+            "preferred_airline_fastest": {
+                "favorite_airline": fav_airline_display,
+                "offer": shortest_fav
+            },
+            # Backward-Compatible Aliases
+            "overall_lowest": cheapest_all,
             "overall_cheapest": cheapest_all,
+            "lowest_non_stop": cheapest_non_stop,
             "cheapest_non_stop": cheapest_non_stop,
             "shortest_non_stop": shortest_non_stop,
-            "cheapest_1_stop": cheapest_1stop,
-            "cheapest_2_stop": cheapest_2stop,
+            "lowest_1_stop": cheapest_1stop,
+            "lowest_2_stop": cheapest_2stop,
             "shortest_flight": shortest_flight,
-            "favorite_airline_cheapest": {
+            "favorite_airline_lowest": {
                 "favorite_airline": fav_airline_display,
                 "offer": cheapest_fav
             },
@@ -609,17 +626,13 @@ class FlightsService(BaseService):
                 else:
                     return cached_data
 
-        # 2. Cache MISS / Force Refresh -> execute HTTP POST request to Duffel API
-        params = {"return_offers": "true" if return_offers else "false"}
-        response = self.client.post("/air/offer_requests", data={"data": payload}, params=params)
+        # 2. Cache MISS / Force Refresh -> execute provider adapter request
+        response = self.adapter.search_flights(payload)
         data = response.get("data", {})
 
         req_id = data.get("id")
         if return_offers and req_id and not data.get("offers"):
-            offers_res = self.client.get(
-                "/air/offers",
-                params={"offer_request_id": req_id, "sort": "total_amount", "limit": str(max_offers)}
-            )
+            offers_res = self.adapter.list_offers(req_id, params={"sort": "total_amount", "limit": str(max_offers)})
             if isinstance(offers_res, dict) and isinstance(offers_res.get("data"), list):
                 data["offers"] = offers_res["data"]
 
@@ -661,7 +674,7 @@ class FlightsService(BaseService):
                 output_json = {
                     "category_highlights": highlights,
                     "airline_highlights": all_airline_highlights,
-                    "cheapest_non_stop_offers": non_stop_summaries,
+                    "lowest_non_stop_offers": non_stop_summaries,
                     "shortest_non_stop_offers": shortest_non_stop_summaries,
                     "top_offers": [self._build_offer_summary(o) for o in combined_raw if o]
                 }
@@ -714,10 +727,8 @@ class FlightsService(BaseService):
     def get_offer_request(self, offer_request_id: str) -> dict[str, Any]:
         """
         Retrieve details of an offer request.
-
-        Endpoint: GET /air/offer_requests/{id}
         """
-        res = self.client.get(f"/air/offer_requests/{offer_request_id}")
+        res = self.adapter.get_offer_request(offer_request_id)
         return res.get("data", {})
 
     def list_offers(
@@ -728,32 +739,27 @@ class FlightsService(BaseService):
     ) -> list[FlightOffer]:
         """
         List offers associated with an offer request.
-
-        Endpoint: GET /air/offers
         """
-        params: dict[str, Any] = {"offer_request_id": offer_request_id}
+        params: dict[str, Any] = {}
         if sort:
             params["sort"] = sort
         if max_connections is not None:
             params["max_connections"] = max_connections
 
-        res = self.client.get("/air/offers", params=params)
+        res = self.adapter.list_offers(offer_request_id, params=params)
         raw_offers = res.get("data", [])
         return [FlightOffer.from_dict(o) for o in raw_offers]
 
     def get_offer(self, offer_id: str) -> FlightOffer:
         """
         Retrieve a single flight offer by ID.
-
-        Endpoint: GET /air/offers/{id}
         """
-        res = self.client.get(f"/air/offers/{offer_id}")
+        res = self.adapter.get_offer(offer_id)
         return FlightOffer.from_dict(res.get("data", {}))
 
     def tokenize_card(self, card_data: dict[str, Any]) -> str:
         """
-        Tokenizes raw credit card details via POST /payments/cards on vault host https://api.duffel.cards.
-        Returns tokenized card ID string (e.g. car_0000AMxZzZzZzZzZz).
+        Tokenizes raw credit card details.
         """
         payload = {
             "name": card_data.get("name") or "John Doe",
@@ -766,17 +772,16 @@ class FlightsService(BaseService):
         if len(payload["exp_year"]) == 2:
             payload["exp_year"] = "20" + payload["exp_year"]
 
-        res = self.client.post("https://api.duffel.cards/payments/cards", data={"data": payload})
+        res = self.adapter.tokenize_card(payload)
         card_id = res.get("data", {}).get("id")
         return card_id
 
     def create_component_client_key(self) -> dict[str, Any]:
         """
-        Generate a short-lived Duffel Client Component Key for front-end Duffel Card Form integration.
-        Endpoint: POST /identity/component_client_keys
+        Generate a short-lived Client Component Key.
         """
         from datetime import datetime
-        res = self.client.post("/identity/component_client_keys", data={"data": {}})
+        res = self.adapter.create_component_client_key()
         data = res.get("data", {})
         key_val = data.get("component_client_key") or data.get("client_key") or data.get("id")
         return {
@@ -788,8 +793,7 @@ class FlightsService(BaseService):
 
     def create_three_d_secure_session(self, card_id: str, amount: str = '100.00', currency: str = 'USD', offer_id: str = None) -> dict[str, Any]:
         """
-        Create a 3D Secure session via Duffel API.
-        Endpoint: POST /payments/three_d_secure_sessions
+        Create a 3D Secure session via Provider Adapter.
         """
         payload: dict[str, Any] = {
             "card_id": card_id,
@@ -799,7 +803,7 @@ class FlightsService(BaseService):
         if offer_id:
             payload["resource"] = offer_id
 
-        res = self.client.post("/payments/three_d_secure_sessions", data={"data": payload})
+        res = self.adapter.create_three_d_secure_session(payload)
         return res.get("data", {})
 
     def create_order(
@@ -903,7 +907,7 @@ class FlightsService(BaseService):
 
             payload["payments"] = formatted_payments
 
-        res = self.client.post("/air/orders", data={"data": payload}, idempotency_key=idempotency_key)
+        res = self.adapter.create_flight_order(payload)
         return FlightOrder.from_dict(res.get("data", {}))
 
     def pay_order(
@@ -941,36 +945,30 @@ class FlightsService(BaseService):
             if "currency" not in pym_dict:
                 pym_dict["currency"] = str(getattr(order_info, "total_currency", "USD"))
 
-        res = self.client.post(f"/air/orders/{order_id}/payments", data={"data": pym_dict})
+        res = self.adapter.pay_flight_order(order_id, pym_dict)
         return res.get("data", {})
 
     def get_order(self, order_id: str) -> FlightOrder:
         """
         Retrieve order details.
-
-        Endpoint: GET /air/orders/{id}
         """
-        res = self.client.get(f"/air/orders/{order_id}")
+        res = self.adapter.get_flight_order(order_id)
         return FlightOrder.from_dict(res.get("data", {}))
 
     def list_orders(self, limit: int = 50) -> list[FlightOrder]:
         """
         List booked flight orders.
-
-        Endpoint: GET /air/orders
         """
-        res = self.client.get("/air/orders", params={"limit": limit})
+        res = self.adapter.list_flight_orders(limit=limit)
         raw_orders = res.get("data", [])
         return [FlightOrder.from_dict(o) for o in raw_orders]
 
     def cancel_order(self, order_id: str) -> FlightCancellation:
         """
         Cancel a booked order.
-
-        Endpoint: POST /air/order_cancellations or POST /air/orders/{id}/actions/cancel
         """
         payload = {"order_id": order_id}
-        res = self.client.post("/air/order_cancellations", data={"data": payload})
+        res = self.adapter.cancel_flight_order(payload)
         return FlightCancellation.from_dict(res.get("data", {}))
 
     def calculate_candidate_queries(
@@ -1483,7 +1481,7 @@ class FlightsService(BaseService):
             "api_calls": metrics.get("total_calls", 0),
             "cache_hits": cache_metrics.get("hits", 0),
             "hit_percentage": cache_metrics.get("hit_percentage", 0.0),
-            "cheapest_price": best_price_str,
+            "lowest_price": best_price_str,
             "wall_clock_sec": round(total_wall_sec, 2),
         }
         if self.cache:
@@ -1558,7 +1556,7 @@ class FlightsService(BaseService):
         output_json = {
             "category_highlights": highlights,
             "airline_highlights": combined_airline_highlights,
-            "cheapest_non_stop_offers": non_stop_summaries,
+            "lowest_non_stop_offers": non_stop_summaries,
             "shortest_non_stop_offers": shortest_non_stop_summaries,
             "top_offers": [self._build_offer_summary(o) for o in combined_unique if o]
         }
@@ -1584,6 +1582,8 @@ class FlightsService(BaseService):
                 "airline_highlights": combined_airline_highlights,
                 "output_json": output_json
             }
+            # Record-Level Redis Caching for individual flight offers
+            self.cache.set_records_batch("flights", cached_offers_raw, id_key="id")
             dynamic_ttl = self._calculate_earliest_ttl(cached_offers_raw)
             self.cache.set(opt_cache_key, opt_data_to_cache, ttl_seconds=dynamic_ttl)
 

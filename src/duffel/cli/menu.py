@@ -459,16 +459,16 @@ class DuffelCLI:
                 offers, favorite_airline=fav_airline, all_airline_highlights=all_airline_highlights
             )
 
-        c_cheapest = highlights.get("overall_cheapest")
-        c_ns = highlights.get("cheapest_non_stop")
-        c_sns = highlights.get("shortest_non_stop")
-        c_1s = highlights.get("cheapest_1_stop")
-        c_2s = highlights.get("cheapest_2_stop")
+        c_cheapest = highlights.get("lowest_fare_deal") or highlights.get("overall_lowest") or highlights.get("overall_cheapest")
+        c_ns = highlights.get("lowest_direct_flight") or highlights.get("lowest_non_stop") or highlights.get("cheapest_non_stop")
+        c_sns = highlights.get("fastest_express_flight") or highlights.get("shortest_non_stop")
+        c_1s = highlights.get("lowest_1_connection") or highlights.get("lowest_1_stop") or highlights.get("cheapest_1_stop")
+        c_2s = highlights.get("lowest_2_connection") or highlights.get("lowest_2_stop") or highlights.get("cheapest_2_stop")
         c_sh = highlights.get("shortest_flight")
-        fav_cheap_entry = highlights.get("favorite_airline_cheapest", {})
-        fav_short_entry = highlights.get("favorite_airline_shortest", {})
+        fav_cheap_entry = highlights.get("preferred_airline_lowest") or highlights.get("favorite_airline_lowest") or highlights.get("favorite_airline_cheapest", {})
+        fav_short_entry = highlights.get("preferred_airline_fastest") or highlights.get("favorite_airline_shortest", {})
 
-        fav_query = fav_cheap_entry.get("favorite_airline", "Favorite Airline")
+        fav_query = fav_cheap_entry.get("favorite_airline", "Preferred Airline")
         c_fav = fav_cheap_entry.get("offer")
         s_fav = fav_short_entry.get("offer")
 
@@ -476,38 +476,38 @@ class DuffelCLI:
         print("[+] COMPREHENSIVE FLIGHT CATEGORY HIGHLIGHTS & PRICING BREAKDOWN")
         print("=" * 95)
 
-        # 1. Overall Cheapest
+        # 1. Overall Lowest Fare Deal
         if c_cheapest:
             dur = c_cheapest.get('duration', 'N/A')
-            print(f"  [1] Overall Cheapest Deal        : {c_cheapest['price']:<12} | Airline: {c_cheapest['airline']:<20} | Duration: {dur:<7} | Offer ID: {c_cheapest['offer_id']}")
+            print(f"  [1] Lowest Fare Package Deal     : {c_cheapest['price']:<12} | Airline: {c_cheapest['airline']:<20} | Duration: {dur:<7} | Offer ID: {c_cheapest['offer_id']}")
 
-        # 2. Cheapest Non-Stop
+        # 2. Lowest Direct Non-Stop
         if c_ns:
             dur = c_ns.get('duration', 'N/A')
-            print(f"  [2] Cheapest Non-Stop (0 Stops)  : {c_ns['price']:<12} | Airline: {c_ns['airline']:<20} | Duration: {dur:<7} | Offer ID: {c_ns['offer_id']}")
+            print(f"  [2] Lowest Direct Non-Stop       : {c_ns['price']:<12} | Airline: {c_ns['airline']:<20} | Duration: {dur:<7} | Offer ID: {c_ns['offer_id']}")
         else:
-            print("  [2] Cheapest Non-Stop (0 Stops)  : N/A (No Non-Stop flights found for this route)")
+            print("  [2] Lowest Direct Non-Stop       : N/A (No Direct flights found for this route)")
 
-        # 3. Shortest Non-Stop
+        # 3. Fastest Express Non-Stop
         if c_sns:
             dur = c_sns.get('duration', 'N/A')
-            print(f"  [3] Shortest Non-Stop Flight     : {c_sns['price']:<12} | Airline: {c_sns['airline']:<20} | Duration: {dur:<7} | Offer ID: {c_sns['offer_id']}")
+            print(f"  [3] Fastest Express Non-Stop     : {c_sns['price']:<12} | Airline: {c_sns['airline']:<20} | Duration: {dur:<7} | Offer ID: {c_sns['offer_id']}")
         else:
-            print("  [3] Shortest Non-Stop Flight     : N/A (No Non-Stop flights found for this route)")
+            print("  [3] Fastest Express Non-Stop     : N/A (No Direct flights found for this route)")
 
-        # 4. 1 Stop
+        # 4. Lowest 1-Connection
         if c_1s:
             dur = c_1s.get('duration', 'N/A')
-            print(f"  [4] Cheapest 1-Stop Flight       : {c_1s['price']:<12} | Airline: {c_1s['airline']:<20} | Duration: {dur:<7} | Offer ID: {c_1s['offer_id']}")
+            print(f"  [4] Lowest 1-Connection Flight   : {c_1s['price']:<12} | Airline: {c_1s['airline']:<20} | Duration: {dur:<7} | Offer ID: {c_1s['offer_id']}")
         else:
-            print("  [4] Cheapest 1-Stop Flight       : N/A (No 1-Stop flights found for this route)")
+            print("  [4] Lowest 1-Connection Flight   : N/A (No 1-Connection flights found for this route)")
 
-        # 5. 2 Stops
+        # 5. Lowest 2-Connection
         if c_2s:
             dur = c_2s.get('duration', 'N/A')
-            print(f"  [5] Cheapest 2-Stop Flight       : {c_2s['price']:<12} | Airline: {c_2s['airline']:<20} | Duration: {dur:<7} | Offer ID: {c_2s['offer_id']}")
+            print(f"  [5] Lowest 2-Connection Flight   : {c_2s['price']:<12} | Airline: {c_2s['airline']:<20} | Duration: {dur:<7} | Offer ID: {c_2s['offer_id']}")
         else:
-            print("  [5] Cheapest 2-Stop Flight       : N/A (No 2-Stop flights found for this route)")
+            print("  [5] Lowest 2-Connection Flight   : N/A (No 2-Connection flights found for this route)")
 
         # 6. Shortest Overall Flight
         if c_sh:

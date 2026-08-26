@@ -51,6 +51,68 @@ class PromptExtractor:
     """Extracts structured search parameters from natural language prompts."""
 
     @staticmethod
+    def extract_natural_intent(prompt: str) -> dict[str, Any]:
+        """
+        Extract multi-category natural language search intent and parameters.
+        Returns dict containing selected_types (list of 'flights', 'hotels', 'cars', 'attractions')
+        and extracted search criteria.
+        """
+        text = prompt.lower()
+        selected_types: list[str] = []
+
+        if any(w in text for w in ["flight", "flights", "fly", "flying", "airline", "plane", "nonstop", "one way", "round trip", "from "]):
+            selected_types.append("flights")
+        if any(w in text for w in ["hotel", "hotels", "stay", "stays", "resort", "resorts", "accommodation", "lodging", "room", "rooms"]):
+            selected_types.append("hotels")
+        if any(w in text for w in ["car", "cars", "rental car", "car rental", "drive", "vehicle", "hertz", "suv", "auto"]):
+            selected_types.append("cars")
+        if any(w in text for w in ["attraction", "attractions", "things to do", "sightseeing", "tour", "tours", "activities", "visit", "museum", "landmarks", "itinerary", "places to see"]):
+            selected_types.append("attractions")
+
+        flight_info = PromptExtractor.extract_flight_info(prompt)
+        stay_info = PromptExtractor.extract_stay_info(prompt)
+        car_info = PromptExtractor.extract_car_info(prompt)
+
+        slices = flight_info.get("slices") or []
+        first_slice = slices[0] if slices and isinstance(slices[0], dict) else {}
+        origin = first_slice.get("origin") or car_info.get("pickup_location")
+        destination = first_slice.get("destination") or stay_info.get("location") or car_info.get("dropoff_location")
+        
+        dep_date = first_slice.get("departure_date") or stay_info.get("check_in_date")
+        ret_date = flight_info.get("target_return_date") or stay_info.get("check_out_date")
+        if not ret_date and len(slices) > 1:
+            ret_date = slices[1].get("departure_date")
+
+        if not selected_types:
+            if origin and destination:
+                selected_types = ["flights"]
+            elif destination:
+                selected_types = ["hotels"]
+            else:
+                selected_types = ["flights"]
+
+        # Deduplicate types while preserving order
+        unique_types = []
+        for t in selected_types:
+            if t not in unique_types:
+                unique_types.append(t)
+
+        return {
+            "selected_types": unique_types,
+            "origin": origin,
+            "destination": destination,
+            "departure_date": dep_date,
+            "return_date": ret_date,
+            "passengers_count": flight_info.get("passengers_count", 1),
+            "cabin_class": flight_info.get("cabin_class", "economy"),
+            "rooms": stay_info.get("rooms", 1),
+            "driver_age": car_info.get("driver_age", 30),
+            "interests": [],
+            "duration_days": flight_info.get("duration_days"),
+            "slices": slices,
+        }
+
+    @staticmethod
     def missing_flight_fields(extracted: dict[str, Any]) -> list[str]:
         """Return required optimized-search fields that extraction did not resolve."""
         slices = extracted.get("slices") or []
@@ -65,6 +127,7 @@ class PromptExtractor:
         if not extracted.get("duration_days"):
             missing.append("duration_days")
         return missing
+
 
     @staticmethod
     def extract_flight_info(prompt: str) -> dict[str, Any]:
