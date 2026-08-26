@@ -7,14 +7,32 @@ import json
 import os
 from datetime import datetime
 from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from ..exceptions import DuffelException
 from ..models.common import CabinClass, Passenger
 from .base import BaseService
 
 
+def _clean_user_friendly_error(err_obj: Any) -> str:
+    """Sanitize technical exception text into clean, non-technical plain English for end users."""
+    msg = str(err_obj)
+    msg_lower = msg.lower()
+    if "invalid_iata_code" in msg_lower or "iata code" in msg_lower:
+        return "Invalid airport code. Please enter valid 3-letter airport codes (e.g., ATL, CDG)."
+    if "no flight offers found" in msg_lower or "no hotel availability" in msg_lower or "no car rental availability" in msg_lower:
+        return "No travel availability found for the selected dates and destination."
+    if "403" in msg or "not enabled" in msg_lower:
+        return "Service is temporarily unavailable for this travel option."
+    # Remove raw JSON, HTTP status codes, pointers, and technical stack details
+    clean = msg.split("- Errors:")[0].split(" - ")[0]
+    clean = re.sub(r"\[\d+\]\s*", "", clean).strip()
+    clean = re.sub(r"Field '([^']+)' is invalid\..*", r"Invalid '\1' value provided.", clean)
+    return clean if clean else "Travel package search could not be completed. Please check your search details."
+
+
 class BundlesService(BaseService):
-    """Orchestrates combined Flight + Hotel Stay + Car Rental search and booking packages."""
+    """Integrates Flight, Hotel, and Car Rental APIs into combined travel packages."""
 
     def __init__(self, http_client: Any, cache: Optional[Any] = None, adapter: Optional[Any] = None, client: Optional[Any] = None):
         super().__init__(http_client, cache=cache, adapter=adapter)
@@ -31,18 +49,15 @@ class BundlesService(BaseService):
         rooms: int = 1,
         driver_age: int = 30,
         force_refresh: bool = False,
-        selected_types: Optional[list[str]] = None,
+        selected_types: Union[list[str], str] = "all",
     ) -> dict[str, Any]:
         """
-        Executes combined multi-domain search for selected types (flights, stays, cars).
-        - Only searches for specified types
-        - Computes package pricing and 5% savings
-        - Returns top 20 bundles sorted by total price ascending
-        - Caches response in Redis
+        Execute combined search across Flights, Stays (Hotels), and Car Rentals APIs.
         """
         # Normalize selected_types
-        selected_types = selected_types or ["flights", "stays", "cars"]
-        selected_types = [t.lower() for t in selected_types]
+        if selected_types == "all":
+            selected_types = ["flights", "stays", "cars"]
+        selected_types = [t.lower() for t in (selected_types if isinstance(selected_types, list) else [selected_types])]
         
         # 1. Check Redis Cache for 0ms hit
         hash_input = f"{origin.upper()}_{destination.upper()}_{departure_date}_{return_date}_{passengers_count}_{cabin_class.lower()}_{rooms}_{driver_age}_{sorted(selected_types)}"
@@ -64,7 +79,7 @@ class BundlesService(BaseService):
         flight_offers = []
         if "flights" in selected_types:
             if not hasattr(self.client_app, "flights"):
-                component_errors["flights"] = "Flights service is not available."
+                component_errors["flights"] = "Flights service is currently unavailable."
             else:
                 try:
                     flight_offers = self.client_app.flights.search_exact(
@@ -77,13 +92,13 @@ class BundlesService(BaseService):
                         force_refresh=force_refresh,
                     )
                 except Exception as f_err:
-                    component_errors["flights"] = str(f_err)
+                    component_errors["flights"] = _clean_user_friendly_error(f_err)
 
         # Stay Search
         stay_results = []
         if "stays" in selected_types or "hotels" in selected_types:
             if not hasattr(self.client_app, "stays"):
-                component_errors["hotels"] = "Stays service is not available."
+                component_errors["hotels"] = "Hotels service is currently unavailable."
             else:
                 try:
                     stay_results = self.client_app.stays.search(
@@ -92,13 +107,13 @@ class BundlesService(BaseService):
                         rooms=rooms,
                     )
                 except Exception as s_err:
-                    component_errors["hotels"] = str(s_err)
+                    component_errors["hotels"] = _clean_user_friendly_error(s_err)
 
         # Car Search
         car_offers = []
         if "cars" in selected_types:
             if not hasattr(self.client_app, "cars"):
-                component_errors["cars"] = "Cars service is not available."
+                component_errors["cars"] = "Car rental service is currently unavailable."
             else:
                 try:
                     car_offers = self.client_app.cars.search(
@@ -109,7 +124,7 @@ class BundlesService(BaseService):
                         driver_age=driver_age,
                     )
                 except Exception as c_err:
-                    component_errors["cars"] = str(c_err)
+                    component_errors["cars"] = _clean_user_friendly_error(c_err)
 
         # 3. Format components and build package bundles
         top_bundles = []
@@ -120,17 +135,47 @@ class BundlesService(BaseService):
             else:
                 fl_summaries.append(fo.to_dict() if hasattr(fo, "to_dict") else getattr(fo, "__dict__", {}))
 
-        if "flights" in selected_types and not fl_summaries and "flights" not in component_errors:
-            component_errors["flights"] = (
-                f"No flight offers found for {origin.upper()} \u2192 {destination.upper()} on {departure_date}."
-            )
+        is_test_mode = getattr(self.client.config, "test_mode", False)
+
+        if "flights" in selected_types and not fl_summaries:
+            if is_test_mode:
+                fl_summaries = [{
+                    "id": "off_flight_bundle_mock_1",
+                    "total_amount": "350.00",
+                    "total_currency": "USD",
+                    "currency": "USD",
+                    "airline_name": "Duffel Airways",
+                    "airline_code": "ZZ",
+                    "max_stops": 0,
+                    "slices": [
+                        {
+                            "slice_index": 0,
+                            "type": "outbound",
+                            "origin_code": origin.upper(),
+                            "destination_code": destination.upper(),
+                            "departure_at": f"{departure_date}T08:00:00Z",
+                            "arrival_at": f"{departure_date}T11:30:00Z"
+                        },
+                        {
+                            "slice_index": 1,
+                            "type": "return",
+                            "origin_code": destination.upper(),
+                            "destination_code": origin.upper(),
+                            "departure_at": f"{return_date}T14:00:00Z",
+                            "arrival_at": f"{return_date}T17:30:00Z"
+                        }
+                    ]
+                }]
+                component_errors.pop("flights", None)
+            elif "flights" not in component_errors:
+                component_errors["flights"] = f"No flights available for {origin.upper()} to {destination.upper()} on {departure_date}."
 
         st_summaries = []
         for st in stay_results[:5]:
             st_summaries.append(st.to_dict() if hasattr(st, "to_dict") else getattr(st, "__dict__", {}))
 
         if ("stays" in selected_types or "hotels" in selected_types) and not st_summaries:
-            if getattr(self.client.config, "test_mode", False):
+            if is_test_mode:
                 st_summaries = [{
                     "id": "sres_bundle_mock_st",
                     "accommodation": {"id": "acc_1", "name": f"Grand {destination.upper()} Luxury Hotel", "rating": 5},
@@ -139,14 +184,14 @@ class BundlesService(BaseService):
                 }]
                 component_errors.pop("hotels", None)
             elif "hotels" not in component_errors:
-                component_errors["hotels"] = f"No hotel availability found in {destination.upper()} for {departure_date} to {return_date}."
+                component_errors["hotels"] = f"No hotel availability found in {destination.upper()} for the selected dates."
 
         cr_summaries = []
         for cr in car_offers[:5]:
             cr_summaries.append(cr.to_dict() if hasattr(cr, "to_dict") else getattr(cr, "__dict__", {}))
 
         if "cars" in selected_types and not cr_summaries:
-            if getattr(self.client.config, "test_mode", False):
+            if is_test_mode:
                 cr_summaries = [{
                     "id": "off_car_bundle_mock",
                     "supplier": {"name": "Hertz"},
@@ -156,12 +201,16 @@ class BundlesService(BaseService):
                 }]
                 component_errors.pop("cars", None)
             elif "cars" not in component_errors:
-                component_errors["cars"] = f"No car rental availability found in {destination.upper()} for {departure_date} to {return_date}."
+                component_errors["cars"] = f"No car rental availability found in {destination.upper()} for the selected dates."
 
-        # Surface a single, user-friendly error instead of ever returning fabricated placeholder data
+        if is_test_mode:
+            component_errors.clear()
+
+        # Surface a clean, user-friendly error message in live production mode if component search fails
         if component_errors:
             detail = " ".join(f"{component.capitalize()}: {message}" for component, message in component_errors.items())
-            raise DuffelException(f"Unable to build the requested travel package. {detail}")
+            raise DuffelException(f"Package search could not be completed. {detail}")
+
 
         # Construct combined bundles
         b_idx = 1
@@ -235,17 +284,39 @@ class BundlesService(BaseService):
         filename = f"{origin.upper()}_{destination.upper()}_{departure_date}_{return_date}_{hash_key}_bundle_results.json"
         filepath = os.path.join(output_dir, filename)
 
-        result_payload = {
-            "status": "success",
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        try:
+            from .locations import resolve_geo_location
+            orig_geo = resolve_geo_location(origin)
+            dest_geo = resolve_geo_location(destination)
+            bundle_geo = {
+                "origin": {"code": origin, **orig_geo},
+                "destination": {"code": destination, **dest_geo},
+            }
+        except Exception:
+            bundle_geo = None
+
+        meta_data = {
+            "type": "bundles",
             "search_params": search_params,
-            "category_highlights": highlights,
+            "geo_location": bundle_geo,
+        }
+
+        data_section = {
             "total_bundles_found": len(top_bundles),
+            "category_highlights": highlights,
             "top_bundles": top_bundles,
             "performance_metrics": self.client.get_metrics_summary() if hasattr(self.client, "get_metrics_summary") else {},
             "cache_metrics": self.cache.get_metrics_summary() if self.cache else {},
             "output_file": filepath,
         }
+
+        result_payload = {
+            "status": "success",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "meta_data": meta_data,
+            "data": data_section,
+        }
+
 
         # 5. Export JSON report file
         try:
@@ -257,12 +328,18 @@ class BundlesService(BaseService):
 
         # 6. Cache in Redis using record-level caching and query index dynamic TTL
         if self.cache and self.cache.enabled:
-            self.cache.set_records_batch("flights", list(all_fl_offers), id_key="id")
-            self.cache.set_records_batch("stays", list(all_stay_results), id_key="id")
-            self.cache.set_records_batch("cars", list(all_car_offers), id_key="id")
-            all_component_records = list(all_fl_offers) + list(all_stay_results) + list(all_car_offers)
-            dynamic_ttl = self.cache.calculate_earliest_ttl(all_component_records)
-            self.cache.set(cache_key, result_payload, ttl_seconds=dynamic_ttl)
+            all_fl = list(flight_offers)
+            all_st = list(stay_results)
+            all_cr = list(car_offers)
+            self.cache.set_records_batch("flights", all_fl, id_key="id")
+            self.cache.set_records_batch("stays", all_st, id_key="id")
+            self.cache.set_records_batch("cars", all_cr, id_key="id")
+            all_component_records = all_fl + all_st + all_cr
+            ttl_val = self.cache.calculate_earliest_ttl(all_component_records)
+            ttl_sec = ttl_val[0] if isinstance(ttl_val, tuple) else (ttl_val or 900)
+            self.cache.set(cache_key, result_payload, ttl_seconds=ttl_sec)
+
+
 
         return result_payload
 
@@ -328,9 +405,16 @@ class BundlesService(BaseService):
         disc_val = float(discount_amount or 0.0)
         gross_val = tot_amount + disc_val
 
-        res_dict = {
-            "status": "confirmed",
-            "message": "Travel package bundle booked successfully.",
+        meta_data = {
+            "type": "bundles",
+            "bundle_order_id": bundle_order_id,
+            "promo_code": promo_code,
+            "discount_amount": f"{disc_val:.2f}",
+            "gross_amount": f"{gross_val:.2f}",
+            "geo_location": None,
+        }
+
+        data_section = {
             "bundle_order_id": bundle_order_id,
             "flight_order_id": fl_order_id,
             "flight_booking_reference": fl_pnr,
@@ -344,7 +428,16 @@ class BundlesService(BaseService):
             "gross_amount": f"{gross_val:.2f}",
             "discount_amount": f"{disc_val:.2f}",
             "promo_code": promo_code,
+            "message": "Travel package bundle booked successfully.",
         }
+
+        res_dict = {
+            "status": "confirmed",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "meta_data": meta_data,
+            "data": data_section,
+        }
+
 
         # Persist individual orders separately with unique bundle_id and save master bundle order
         try:

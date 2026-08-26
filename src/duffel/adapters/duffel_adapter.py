@@ -103,3 +103,15 @@ class DuffelProviderAdapter(BaseProviderAdapter):
 
     def cancel_car_order(self, offer_id_or_order_id: str) -> dict[str, Any]:
         return self.http_client.request("POST", f"/cars/bookings/{offer_id_or_order_id}/actions/cancel")
+
+    # --- Places & Airports Operations ---
+
+    def list_airports(self, limit: int = 200) -> dict[str, Any]:
+        return self.http_client.request("GET", "/air/airports", params={"limit": limit})
+
+    def list_cities(self, limit: int = 200) -> dict[str, Any]:
+        return self.http_client.request("GET", "/air/cities", params={"limit": limit})
+
+    def search_places(self, query: str) -> dict[str, Any]:
+        return self.http_client.request("GET", "/places/suggestions", params={"query": query})
+

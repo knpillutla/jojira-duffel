@@ -51,13 +51,9 @@ class BundleSearchResponse(BaseModel):
     """Bundled travel search response."""
     status: str = Field("success", description="Response status")
     timestamp: str = Field(..., description="Search execution timestamp")
-    search_params: dict[str, Any] = Field(..., description="Search parameter criteria")
-    category_highlights: dict[str, Any] = Field(..., description="Category highlights dict")
-    total_bundles_found: int = Field(..., description="Total bundled packages created")
-    top_bundles: list[dict[str, Any]] = Field(..., description="List of top package bundles")
-    performance_metrics: Optional[dict[str, Any]] = Field(None, description="Latency metrics")
-    cache_metrics: Optional[dict[str, Any]] = Field(None, description="Redis cache metrics")
-    output_file: str = Field(..., description="Path to generated JSON search report file")
+    meta_data: dict[str, Any] = Field(..., description="Metadata section with type=bundles, search_params, and geo_location")
+    data: dict[str, Any] = Field(..., description="Data section containing top_bundles, total_bundles_found, category_highlights, metrics")
+
 
 
 class BundleBookingRequest(BaseModel):
@@ -75,19 +71,9 @@ class BundleBookingRequest(BaseModel):
 
 
 class BundleBookingResponse(BaseModel):
-    """Bundled travel package booking confirmation response."""
+    """Bundled travel package booking confirmation response envelope."""
     status: str = Field("confirmed", description="Bundle order status")
-    message: str = Field("Travel package bundle booked successfully.", description="Status message")
-    bundle_order_id: str = Field(..., description="Unique combined bundle order ID")
-    flight_order_id: str = Field(..., description="Flight order ID")
-    flight_booking_reference: str = Field(..., description="Flight PNR booking reference")
-    stay_order_id: str = Field(..., description="Stay order ID")
-    stay_booking_reference: str = Field(..., description="Hotel confirmation code")
-    car_order_id: str = Field(..., description="Car order ID")
-    car_booking_reference: str = Field(..., description="Car rental confirmation code")
-    combined_total_amount: str = Field(..., description="Combined net total price string")
-    total_currency: str = Field("USD", description="Currency code")
-    created_at: str = Field(..., description="ISO creation timestamp")
-    gross_amount: Optional[str] = Field(None, description="Combined gross amount before discount")
-    discount_amount: Optional[str] = Field(None, description="Combined discount amount applied")
-    promo_code: Optional[str] = Field(None, description="Promo code applied")
+    timestamp: str = Field(..., description="Booking execution timestamp")
+    meta_data: dict[str, Any] = Field(..., description="Booking metadata section with input details, type=bundles, promo_code, and geo_location")
+    data: dict[str, Any] = Field(..., description="Booking confirmation details section containing bundle_order_id, component order IDs, and totals")
+

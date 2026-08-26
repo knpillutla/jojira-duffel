@@ -137,3 +137,21 @@ class BaseProviderAdapter(ABC):
     def cancel_car_order(self, order_id: str) -> dict[str, Any]:
         """Cancel a car rental order."""
         pass
+
+    # --- Places & Airports Operations ---
+
+    @abstractmethod
+    def list_airports(self, limit: int = 200) -> dict[str, Any]:
+        """Fetch list of airports with geolocations."""
+        pass
+
+    @abstractmethod
+    def list_cities(self, limit: int = 200) -> dict[str, Any]:
+        """Fetch list of cities with geolocations."""
+        pass
+
+    @abstractmethod
+    def search_places(self, query: str) -> dict[str, Any]:
+        """Search places/suggestions by name or code."""
+        pass
+

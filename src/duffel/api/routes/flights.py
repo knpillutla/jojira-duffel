@@ -125,10 +125,21 @@ def search_optimized_flights(req: OptimizedFlightSearchRequest):
             force_refresh=req.force_refresh,
         )
 
+        # Determine trip_type
+        if req.trip_type and str(req.trip_type).lower() in ["one_way", "oneway", "one-way"]:
+            target_return_date = None
+            trip_type_val = "one_way"
+        elif not target_return_date:
+            target_return_date = None
+            trip_type_val = "one_way"
+        else:
+            trip_type_val = "round_trip"
+
         from ...cli.menu import DuffelCLI
         cli = DuffelCLI()
         cli.client = client
         search_params = {
+            "trip_type": trip_type_val,
             "origin": origin.upper(),
             "destination": destination.upper(),
             "target_date": target_date,
@@ -153,19 +164,45 @@ def search_optimized_flights(req: OptimizedFlightSearchRequest):
         if not highlights:
             highlights = client.flights.compute_category_highlights(offers, favorite_airline=req.favorite_airline or "")
 
+        try:
+            from ...services.locations import resolve_geo_location
+            orig_geo = resolve_geo_location(origin)
+            dest_geo = resolve_geo_location(destination)
+            flight_geo = {
+                "origin": {"code": origin, **orig_geo},
+                "destination": {"code": destination, **dest_geo},
+            }
+        except Exception:
+            flight_geo = None
+
+        meta_data = {
+            "type": "flights",
+            "trip_type": trip_type_val,
+            "search_prompt": req.prompt or "",
+            "search_params": search_params,
+            "geo_location": flight_geo,
+        }
+
+
+        data_section = {
+            "total_offers_found": len(offers),
+            "category_highlights": output_json.get("category_highlights", highlights),
+            "lowest_non_stop_offers": output_json.get("lowest_non_stop_offers", output_json.get("cheapest_non_stop_offers", [])),
+            "shortest_non_stop_offers": output_json.get("shortest_non_stop_offers", []),
+            "top_offers": output_json.get("top_offers", []),
+            "performance_metrics": client.http_client.get_metrics_summary(),
+            "cache_metrics": client.cache.get_metrics_summary() if client.cache else {},
+            "output_file": output_file,
+        }
+
         return OptimizedFlightSearchResponse(
+            status="success",
             timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            search_prompt=req.prompt or "",
-            search_params=search_params,
-            category_highlights=output_json.get("category_highlights", highlights),
-            total_offers_found=len(offers),
-            lowest_non_stop_offers=output_json.get("lowest_non_stop_offers", output_json.get("cheapest_non_stop_offers", [])),
-            shortest_non_stop_offers=output_json.get("shortest_non_stop_offers", []),
-            top_offers=output_json.get("top_offers", []),
-            performance_metrics=client.http_client.get_metrics_summary(),
-            cache_metrics=client.cache.get_metrics_summary() if client.cache else {},
-            output_file=output_file,
+            meta_data=meta_data,
+            data=data_section,
         )
+
+
     except HTTPException:
         raise
     except Exception as err:
@@ -195,6 +232,16 @@ def search_exact_flights(req: StandardFlightSearchRequest):
         destination = req.destination or parsed_slice.get("destination")
         dep_date = req.departure_date or req.target_date or parsed_slice.get("departure_date")
         ret_date = req.return_date or req.target_return_date or parsed_prompt.get("target_return_date")
+
+        # Determine trip_type
+        if req.trip_type and str(req.trip_type).lower() in ["one_way", "oneway", "one-way"]:
+            ret_date = None
+            trip_type_val = "one_way"
+        elif not ret_date:
+            ret_date = None
+            trip_type_val = "one_way"
+        else:
+            trip_type_val = "round_trip"
 
         missing = []
         if not origin:
@@ -227,6 +274,7 @@ def search_exact_flights(req: StandardFlightSearchRequest):
         cli = DuffelCLI()
         cli.client = client
         search_params = {
+            "trip_type": trip_type_val,
             "origin": origin.upper(),
             "destination": destination.upper(),
             "departure_date": dep_date,
@@ -236,6 +284,7 @@ def search_exact_flights(req: StandardFlightSearchRequest):
             "favorite_airline": req.favorite_airline,
             "force_refresh": req.force_refresh,
         }
+
         output_file = cli._export_search_results_json(
             offers,
             fav_airline=req.favorite_airline or "",
@@ -264,22 +313,51 @@ def search_exact_flights(req: StandardFlightSearchRequest):
             sorted_shortest = sorted(non_stop_offers, key=lambda o: getattr(o, "duration_minutes", 99999))[:10]
             shortest_non_stop = [client.flights._build_offer_summary(o) for o in sorted_shortest if o]
 
-        return OptimizedFlightSearchResponse(
-            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            search_prompt=req.prompt or f"{origin} -> {destination} ({dep_date})",
-            search_params=search_params,
-            category_highlights=output_json.get("category_highlights", highlights),
-            total_offers_found=len(offers),
-            lowest_non_stop_offers=cheapest_non_stop,
-            shortest_non_stop_offers=shortest_non_stop,
-            top_offers=top_offers,
-            performance_metrics=(
+        try:
+            from ...services.locations import resolve_geo_location
+            orig_geo = resolve_geo_location(origin)
+            dest_geo = resolve_geo_location(destination)
+            flight_geo = {
+                "origin": {"code": origin, **orig_geo},
+                "destination": {"code": destination, **dest_geo},
+            }
+        except Exception:
+            flight_geo = None
+
+        meta_data = {
+            "type": "flights",
+            "trip_type": trip_type_val,
+            "search_prompt": req.prompt or f"{origin} -> {destination} ({dep_date})",
+            "search_params": search_params,
+            "geo_location": flight_geo,
+        }
+
+
+        raw_offers = [o.to_dict() if hasattr(o, "to_dict") else getattr(o, "__dict__", {}) for o in offers[:50]]
+
+        data_section = {
+            "total_offers_found": len(offers),
+            "offers": top_offers,
+            "category_highlights": output_json.get("category_highlights", highlights),
+            "lowest_non_stop_offers": cheapest_non_stop,
+            "shortest_non_stop_offers": shortest_non_stop,
+            "top_offers": top_offers,
+            "raw_offers": raw_offers,
+            "performance_metrics": (
                 client.http_client.get_metrics_summary() if hasattr(client, "http_client") and hasattr(client.http_client, "get_metrics_summary")
                 else (client.get_metrics_summary() if hasattr(client, "get_metrics_summary") else {})
             ),
-            cache_metrics=getattr(client.cache, "get_metrics_summary", lambda: {})() if getattr(client, "cache", None) else {},
-            output_file=output_file,
+            "cache_metrics": getattr(client.cache, "get_metrics_summary", lambda: {})() if getattr(client, "cache", None) else {},
+            "output_file": output_file,
+        }
+
+        return OptimizedFlightSearchResponse(
+            status="success",
+            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            meta_data=meta_data,
+            data=data_section,
         )
+
     except HTTPException:
         raise
     except Exception as err:
@@ -428,10 +506,11 @@ def get_flight_offer_details(offer_id: str = Path(..., description="Duffel offer
 
 @router.post("/flights/book", response_model=FlightBookingResponse, summary="Book Flight Offer")
 @router.post("/orders", response_model=FlightBookingResponse, summary="Book Flight Offer (Orders Alias)")
-def book_flight(req: FlightBookingRequest, request: Request):
+def book_flight(req: FlightBookingRequest, request: Request = None):
     """Books a flight offer on Duffel by offer_id or selected_offers list."""
     client = common.get_duffel_client()
-    idempotency_key = req.idempotency_key or request.headers.get("Duffel-Idempotency-Key") or request.headers.get("X-Idempotency-Key")
+    idempotency_key = req.idempotency_key or (request.headers.get("Duffel-Idempotency-Key") if request else None) or (request.headers.get("X-Idempotency-Key") if request else None)
+
     try:
         offer_ids = req.selected_offers or ([req.offer_id] if req.offer_id else [])
         if not offer_ids:
@@ -636,20 +715,43 @@ def book_flight(req: FlightBookingRequest, request: Request):
         disc_val = float(req.discount_amount or 0.0)
         gross_val = tot_val + disc_val
 
+        meta_data = {
+            "type": "flights",
+            "order_id": getattr(order, "id", ""),
+            "booking_reference": booking_ref,
+            "promo_code": req.promo_code,
+            "discount_amount": f"{disc_val:.2f}",
+            "gross_amount": f"{gross_val:.2f}",
+            "geo_location": None,
+        }
+
+        ord_dict = order.to_dict() if hasattr(order, "to_dict") else getattr(order, "__dict__", {})
+        raw_order = getattr(order, "raw", None) or ord_dict.get("raw") or ord_dict
+
+        data_section = {
+            **ord_dict,
+            "order_id": getattr(order, "id", ""),
+            "booking_reference": booking_ref,
+            "message": msg,
+            "total_amount": str(getattr(order, "total_amount", "0.00")),
+            "total_currency": getattr(order, "total_currency", "USD"),
+            "created_at": getattr(order, "created_at", datetime.now().isoformat()),
+            "passengers": passengers_summary,
+            "slices": slices_summary,
+            "gross_amount": f"{gross_val:.2f}",
+            "discount_amount": f"{disc_val:.2f}",
+            "promo_code": req.promo_code,
+            "raw_order": raw_order,
+        }
+
+
         return FlightBookingResponse(
             status=order_status,
-            message=msg,
-            order_id=getattr(order, "id", ""),
-            booking_reference=booking_ref,
-            total_amount=str(getattr(order, "total_amount", "0.00")),
-            total_currency=getattr(order, "total_currency", "USD"),
-            created_at=getattr(order, "created_at", datetime.now().isoformat()),
-            passengers=passengers_summary,
-            slices=slices_summary,
-            gross_amount=f"{gross_val:.2f}",
-            discount_amount=f"{disc_val:.2f}",
-            promo_code=req.promo_code,
+            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            meta_data=meta_data,
+            data=data_section,
         )
+
     except HTTPException:
         raise
     except DuffelAPIError as err:

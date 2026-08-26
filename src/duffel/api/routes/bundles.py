@@ -68,16 +68,13 @@ def search_bundles_endpoint(req: BundleSearchRequest):
         return BundleSearchResponse(**result)
     except HTTPException:
         raise
-    except DuffelException as err:
-        raise HTTPException(
-            status_code=status.HTTP_424_FAILED_DEPENDENCY,
-            detail=str(err)
-        )
-    except Exception as err:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Bundled search failed: {str(err)}"
+            detail="Bundle search failed: Package search could not be completed."
         )
+
+
 
 
 @router.get("/bundles/search", response_model=BundleSearchResponse, summary="Search Bundled Travel Packages (GET)")

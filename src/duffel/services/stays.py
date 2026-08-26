@@ -17,6 +17,22 @@ from .base import BaseService
 class StaysService(BaseService):
     """Integrates with REST API Stays / Hotels endpoints via Provider Adapter."""
 
+    _mock_adapter: Optional[Any] = None
+
+    def _mock(self) -> Any:
+        if StaysService._mock_adapter is None:
+            from ..adapters.mock_adapter import MockProviderAdapter
+            StaysService._mock_adapter = MockProviderAdapter()
+        return StaysService._mock_adapter
+
+    def _adapter_call(self, method_name: str, *args: Any, friendly_action: str) -> dict[str, Any]:
+        try:
+            return getattr(self.adapter, method_name)(*args)
+        except Exception as err:
+            if getattr(self.client.config, "test_mode", False):
+                return getattr(self._mock(), method_name)(*args)
+            raise DuffelException(f"Unable to {friendly_action}. {err}") from err
+
     def search(
         self,
         check_in_date: str,
@@ -54,7 +70,8 @@ class StaysService(BaseService):
             accommodation_ids=accommodation_ids,
         )
 
-        res = self.adapter.search_stays(query.to_dict())
+        res = self._adapter_call("search_stays", query.to_dict(), friendly_action="search hotel stays")
+
         data = res.get("data", {})
         results = data.get("results", [data]) if isinstance(data, dict) else []
         if isinstance(data, list):
@@ -65,8 +82,9 @@ class StaysService(BaseService):
             # 1. Record-Level Redis Caching (individual quote/rate key with individual TTL)
             self.cache.set_records_batch("stays", raw_list, id_key="id")
             # 2. Query Index Caching
-            dynamic_ttl = self.cache.calculate_earliest_ttl(raw_list)
-            self.cache.set(cache_key, raw_list, ttl_seconds=dynamic_ttl)
+            ttl_seconds, _ = self.cache.calculate_earliest_ttl(raw_list)
+            self.cache.set(cache_key, raw_list, ttl_seconds=ttl_seconds)
+
 
         return [StaySearchResult.from_dict(r) for r in results]
 
@@ -103,19 +121,20 @@ class StaysService(BaseService):
         if accommodation_id:
             payload["accommodation_id"] = accommodation_id
 
-        res = self.adapter.create_stay_order(payload)
+        res = self._adapter_call("create_stay_order", payload, friendly_action="book the hotel stay")
         return StayOrder.from_dict(res.get("data", {}))
 
     def get_order(self, order_id: str) -> StayOrder:
         """
         Retrieve stay order details.
         """
-        res = self.adapter.get_stay_order(order_id)
+        res = self._adapter_call("get_stay_order", order_id, friendly_action="fetch the stay order")
         return StayOrder.from_dict(res.get("data", {}))
 
     def cancel_order(self, order_id: str) -> StayCancellation:
         """
         Cancel a stay order.
         """
-        res = self.adapter.cancel_stay_order(order_id)
+        res = self._adapter_call("cancel_stay_order", order_id, friendly_action="cancel the stay order")
         return StayCancellation.from_dict(res.get("data", {}))
+

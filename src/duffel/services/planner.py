@@ -10,23 +10,8 @@ from typing import Any, Optional, Union
 from .base import BaseService
 
 
-DESTINATION_GEO_MAP = {
-    "PARIS": {"latitude": 48.8566, "longitude": 2.3522, "address": "Paris, France", "name": "Paris City Centre"},
-    "LONDON": {"latitude": 51.5074, "longitude": -0.1278, "address": "London, UK", "name": "Central London"},
-    "NEW YORK": {"latitude": 40.7128, "longitude": -74.0060, "address": "New York, NY, USA", "name": "Manhattan"},
-    "TOKYO": {"latitude": 35.6762, "longitude": 139.6503, "address": "Tokyo, Japan", "name": "Tokyo Central"},
-    "ROME": {"latitude": 41.9028, "longitude": 12.4964, "address": "Rome, Italy", "name": "Rome Historical Center"},
-    "BARCELONA": {"latitude": 41.3851, "longitude": 2.1734, "address": "Barcelona, Spain", "name": "Barcelona Center"},
-    # Common airport IATA codes, for lookups against pickup/dropoff location strings like "LAX" or "Paris CDG Airport"
-    "CDG": {"latitude": 49.0097, "longitude": 2.5479, "address": "Paris CDG Airport, France", "name": "Paris CDG Airport"},
-    "LHR": {"latitude": 51.4700, "longitude": -0.4543, "address": "London Heathrow Airport, UK", "name": "London Heathrow Airport"},
-    "JFK": {"latitude": 40.6413, "longitude": -73.7781, "address": "New York JFK Airport, USA", "name": "New York JFK Airport"},
-    "LAX": {"latitude": 33.9416, "longitude": -118.4085, "address": "Los Angeles LAX Airport, USA", "name": "Los Angeles LAX Airport"},
-    "ATL": {"latitude": 33.6407, "longitude": -84.4277, "address": "Atlanta ATL Airport, USA", "name": "Atlanta ATL Airport"},
-    "ORD": {"latitude": 41.9742, "longitude": -87.9073, "address": "Chicago O'Hare Airport, USA", "name": "Chicago O'Hare Airport"},
-    "MCO": {"latitude": 28.4312, "longitude": -81.3081, "address": "Orlando MCO Airport, USA", "name": "Orlando MCO Airport"},
-    "HNL": {"latitude": 21.3245, "longitude": -157.9251, "address": "Honolulu HNL Airport, USA", "name": "Honolulu HNL Airport"},
-}
+from .locations import GEO_LOCATIONS as DESTINATION_GEO_MAP
+
 
 
 class TravelPlannerService(BaseService):
@@ -206,18 +191,33 @@ class TravelPlannerService(BaseService):
                 },
             ]
 
-        res_payload = {
-            "status": "success",
-            "message": "Hybrid AI Itinerary and top 3 package bundles generated successfully.",
+        meta_data = {
+            "type": "planner",
             "destination": dest_clean,
-            "trip_duration_days": duration_days,
+            "origin": origin,
             "start_date": start_date,
             "end_date": end_date,
+            "trip_duration_days": duration_days,
+            "passengers_count": passengers_count,
+            "interests": interests,
+            "geo_location": map_center,
+        }
+
+        data_section = {
+            "message": "Hybrid AI Itinerary and top 3 package bundles generated successfully.",
             "map_center": map_center,
             "itinerary": bound_itinerary,
             "top_3_bundles": top_3_bundles,
             "performance_metrics": {"template_lookup_time_ms": 5.0, "live_pricing_time_ms": 115.0},
         }
+
+        res_payload = {
+            "status": "success",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "meta_data": meta_data,
+            "data": data_section,
+        }
+
 
         # Cache response in Redis
         if self.cache and self.cache.enabled:

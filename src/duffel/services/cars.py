@@ -30,17 +30,10 @@ def _split_iso_datetime(iso_str: str) -> tuple[str, str]:
 
 
 def _resolve_geo(location: str) -> dict[str, float]:
-    """Resolves a free-text location (e.g. 'Paris CDG Airport') to geographic coordinates via known city lookup."""
-    key = location.strip().upper()
-    geo = DESTINATION_GEO_MAP.get(key)
-    if not geo:
-        geo = next((data for city, data in DESTINATION_GEO_MAP.items() if city in key or key in city), None)
-    if not geo:
-        raise DuffelException(
-            f"Unable to resolve location '{location}' to coordinates. Duffel requires geographic_coordinates. "
-            f"Supported city names: {sorted(DESTINATION_GEO_MAP.keys())}."
-        )
-    return {"latitude": geo["latitude"], "longitude": geo["longitude"]}
+    """Resolves a free-text location (e.g. 'Paris CDG Airport') to geographic coordinates via location service."""
+    from .locations import resolve_geo_location
+    return resolve_geo_location(location)
+
 
 
 class CarsService(BaseService):
@@ -130,8 +123,9 @@ class CarsService(BaseService):
             # 1. Record-Level Redis Caching (individual offer key with individual TTL)
             self.cache.set_records_batch("cars", raw_list, id_key="id")
             # 2. Query Index Caching
-            dynamic_ttl = self.cache.calculate_earliest_ttl(raw_list)
-            self.cache.set(cache_key, raw_list, ttl_seconds=dynamic_ttl)
+            ttl_seconds, _ = self.cache.calculate_earliest_ttl(raw_list)
+            self.cache.set(cache_key, raw_list, ttl_seconds=ttl_seconds)
+
 
         return [CarOffer.from_dict(o) for o in raw_offers]
 
@@ -155,17 +149,30 @@ class CarsService(BaseService):
         driver_details: dict[str, Any],
         payments: list[dict[str, Any]],
     ) -> CarOrder:
-        """
-        Create a car rental order.
-        """
+        formatted_payments = []
+        for pym in (payments or []):
+            p_dict = dict(pym) if isinstance(pym, dict) else (pym.to_dict() if hasattr(pym, "to_dict") else {})
+            p_type = p_dict.get("type", "balance")
+            item = {
+                "type": p_type,
+                "amount": str(p_dict.get("amount", "0.00")),
+                "currency": str(p_dict.get("currency", "USD")),
+            }
+            c_id = p_dict.get("card_id") or p_dict.get("card_token") or p_dict.get("token") or p_dict.get("customer_card_id")
+            if c_id:
+                item["card_id"] = str(c_id).strip()
+
+            formatted_payments.append(item)
+
         payload = {
             "offer_id": offer_id,
             "driver_details": driver_details,
-            "payments": payments,
+            "payments": formatted_payments if formatted_payments else [{"type": "balance"}],
         }
 
         res = self._adapter_call("create_car_order", payload, friendly_action="book the car rental")
         return CarOrder.from_dict(res.get("data", {}))
+
 
     def get_order(self, order_id: str) -> CarOrder:
         """

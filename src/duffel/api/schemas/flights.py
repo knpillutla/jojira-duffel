@@ -11,6 +11,7 @@ from .common import PassengerInput, PaymentInput
 class StandardFlightSearchRequest(BaseModel):
     """Standard flight search request for exact departure and optional return dates."""
     prompt: Optional[str] = Field(None, description="Natural-language flight request")
+    trip_type: Optional[str] = Field("round_trip", description="Trip type: 'one_way' or 'round_trip'")
     origin: Optional[str] = Field(None, description="Origin Airport IATA code e.g. LHR or ATL")
     destination: Optional[str] = Field(None, description="Destination Airport IATA code e.g. JFK or CDG")
     departure_date: Optional[str] = Field(None, description="Exact departure date in YYYY-MM-DD format (alias for target_date)")
@@ -27,6 +28,7 @@ class StandardFlightSearchRequest(BaseModel):
 class OptimizedFlightSearchRequest(BaseModel):
     """Flexible multi-day flight search optimization request."""
     prompt: Optional[str] = Field(None, description="Natural-language flight request")
+    trip_type: Optional[str] = Field("round_trip", description="Trip type: 'one_way' or 'round_trip'")
     origin: Optional[str] = Field(None, description="Origin Airport IATA code e.g. LHR")
     destination: Optional[str] = Field(None, description="Destination Airport IATA code e.g. JFK")
     target_date: Optional[str] = Field(None, description="Target departure date in YYYY-MM-DD format")
@@ -39,6 +41,7 @@ class OptimizedFlightSearchRequest(BaseModel):
     max_connections: Optional[int] = Field(None, description="Maximum connections / stops allowed")
     favorite_airline: Optional[str] = Field(None, description="Preferred favorite airline (e.g. 'Virgin Atlantic', 'BA')")
     force_refresh: bool = Field(False, description="Set true to bypass cache and query Duffel live")
+
 
 
 class NaturalLanguageFlightSearchRequest(BaseModel):
@@ -108,34 +111,23 @@ class FlightOfferSummary(BaseModel):
     return_arrival_date: Optional[str] = None
     return_arrival_time: Optional[str] = None
     slice_details: Optional[list[dict[str, Any]]] = None
+    geo_location: Optional[dict[str, Any]] = None
 
 
 class OptimizedFlightSearchResponse(BaseModel):
     """Comprehensive flexible multi-day flight search response payload."""
-    timestamp: str
-    search_prompt: str = ""
-    search_params: dict[str, Any]
-    category_highlights: dict[str, Any]
-    total_offers_found: int
-    lowest_non_stop_offers: list[dict[str, Any]]
-    shortest_non_stop_offers: list[dict[str, Any]]
-    top_offers: list[dict[str, Any]]
-    performance_metrics: dict[str, Any]
-    cache_metrics: dict[str, Any]
-    output_file: str
+    status: str = Field("success", description="Response status")
+    timestamp: str = Field(..., description="Search execution timestamp")
+    meta_data: dict[str, Any] = Field(..., description="Search metadata including search_params, type=flights, and geo_location")
+    data: dict[str, Any] = Field(..., description="Data section containing search results and metrics")
+
 
 
 class FlightBookingResponse(BaseModel):
-    """Flight booking order confirmation response."""
-    status: str
-    message: str
-    order_id: str
-    booking_reference: str
-    total_amount: str
-    total_currency: str
-    created_at: str
-    passengers: list[dict[str, Any]]
-    slices: list[dict[str, Any]]
-    gross_amount: Optional[str] = None
-    discount_amount: Optional[str] = None
-    promo_code: Optional[str] = None
+    """Flight booking order confirmation response envelope."""
+    status: str = Field("confirmed", description="Flight order status e.g. confirmed")
+    timestamp: str = Field(..., description="Booking execution timestamp")
+    meta_data: dict[str, Any] = Field(..., description="Booking metadata section with input details, type=flights, promo_code, and geo_location")
+    data: dict[str, Any] = Field(..., description="Booking confirmation details section containing order_id, booking_reference, passengers, slices")
+
+

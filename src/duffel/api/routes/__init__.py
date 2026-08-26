@@ -34,6 +34,7 @@ from .flights import (
 )
 from .ai_search import router as ai_search_router
 from .natural_search import router as natural_search_router
+from .places import router as places_router
 from .planner import router as planner_router
 from .stays import router as stays_router
 
@@ -47,6 +48,8 @@ router.include_router(stays_router)
 router.include_router(cars_router)
 router.include_router(bundles_router)
 router.include_router(planner_router)
+router.include_router(places_router)
+
 
 
 __all__ = [

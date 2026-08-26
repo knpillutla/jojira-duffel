@@ -1,0 +1,5655 @@
+{
+  "PARIS": {
+    "latitude": 48.8566,
+    "longitude": 2.3522,
+    "address": "Paris, France",
+    "name": "Paris City Centre"
+  },
+  "LONDON": {
+    "latitude": 51.5074,
+    "longitude": -0.1278,
+    "address": "London, UK",
+    "name": "Central London"
+  },
+  "NEW YORK": {
+    "latitude": 40.7128,
+    "longitude": -74.006,
+    "address": "New York, NY, USA",
+    "name": "Manhattan"
+  },
+  "TOKYO": {
+    "latitude": 35.6762,
+    "longitude": 139.6503,
+    "address": "Tokyo, Japan",
+    "name": "Tokyo Central"
+  },
+  "ROME": {
+    "latitude": 41.9028,
+    "longitude": 12.4964,
+    "address": "Rome, Italy",
+    "name": "Rome Historical Center"
+  },
+  "BARCELONA": {
+    "latitude": 41.3851,
+    "longitude": 2.1734,
+    "address": "Barcelona, Spain",
+    "name": "Barcelona Center"
+  },
+  "CDG": {
+    "latitude": 49.0097,
+    "longitude": 2.5479,
+    "address": "Paris CDG Airport, France",
+    "name": "Paris CDG Airport"
+  },
+  "LHR": {
+    "latitude": 51.47,
+    "longitude": -0.4543,
+    "address": "London Heathrow Airport, UK",
+    "name": "London Heathrow Airport"
+  },
+  "JFK": {
+    "latitude": 40.6413,
+    "longitude": -73.7781,
+    "address": "New York JFK Airport, USA",
+    "name": "New York JFK Airport"
+  },
+  "LAX": {
+    "latitude": 33.9416,
+    "longitude": -118.4085,
+    "address": "Los Angeles LAX Airport, USA",
+    "name": "Los Angeles LAX Airport"
+  },
+  "ATL": {
+    "latitude": 33.6407,
+    "longitude": -84.4277,
+    "address": "Atlanta ATL Airport, USA",
+    "name": "Atlanta ATL Airport"
+  },
+  "ORD": {
+    "latitude": 41.9742,
+    "longitude": -87.9073,
+    "address": "Chicago O'Hare Airport, USA",
+    "name": "Chicago O'Hare Airport"
+  },
+  "MCO": {
+    "latitude": 28.4312,
+    "longitude": -81.3081,
+    "address": "Orlando MCO Airport, USA",
+    "name": "Orlando MCO Airport"
+  },
+  "HNL": {
+    "latitude": 21.3245,
+    "longitude": -157.9251,
+    "address": "Honolulu HNL Airport, USA",
+    "name": "Honolulu HNL Airport"
+  },
+  "ALB": {
+    "latitude": 42.748505,
+    "longitude": -73.803597,
+    "address": "Albany International Airport, Albany",
+    "name": "Albany International Airport",
+    "iata": "ALB"
+  },
+  "ALBANY": {
+    "latitude": 42.748505,
+    "longitude": -73.803597,
+    "address": "Albany International Airport, Albany",
+    "name": "Albany International Airport",
+    "iata": "ALB"
+  },
+  "AAH": {
+    "latitude": 50.823345,
+    "longitude": 6.186722,
+    "address": "Aachen Merzbrück Airfield, Aachen",
+    "name": "Aachen Merzbrück Airfield",
+    "iata": "AAH"
+  },
+  "AACHEN": {
+    "latitude": 50.823345,
+    "longitude": 6.186722,
+    "address": "Aachen Merzbrück Airfield, Aachen",
+    "name": "Aachen Merzbrück Airfield",
+    "iata": "AAH"
+  },
+  "AACHEN (AAH)": {
+    "latitude": 50.823345,
+    "longitude": 6.186722,
+    "address": "Aachen Merzbrück Airfield, Aachen",
+    "name": "Aachen Merzbrück Airfield",
+    "iata": "AAH"
+  },
+  "AACHEN MERZBRÜCK AIRFIELD": {
+    "latitude": 50.823345,
+    "longitude": 6.186722,
+    "address": "Aachen Merzbrück Airfield, Aachen",
+    "name": "Aachen Merzbrück Airfield",
+    "iata": "AAH"
+  },
+  "AAL": {
+    "latitude": 57.094838,
+    "longitude": 9.852853,
+    "address": "Aalborg Airport, Aalborg",
+    "name": "Aalborg Airport",
+    "iata": "AAL"
+  },
+  "AALBORG": {
+    "latitude": 57.094838,
+    "longitude": 9.852853,
+    "address": "Aalborg Airport, Aalborg",
+    "name": "Aalborg Airport",
+    "iata": "AAL"
+  },
+  "AALBORG (AAL)": {
+    "latitude": 57.094838,
+    "longitude": 9.852853,
+    "address": "Aalborg Airport, Aalborg",
+    "name": "Aalborg Airport",
+    "iata": "AAL"
+  },
+  "AALBORG AIRPORT": {
+    "latitude": 57.094838,
+    "longitude": 9.852853,
+    "address": "Aalborg Airport, Aalborg",
+    "name": "Aalborg Airport",
+    "iata": "AAL"
+  },
+  "AAR": {
+    "latitude": 56.307566,
+    "longitude": 10.624079,
+    "address": "Aarhus Airport, Aarhus",
+    "name": "Aarhus Airport",
+    "iata": "AAR"
+  },
+  "AARHUS": {
+    "latitude": 56.307566,
+    "longitude": 10.624079,
+    "address": "Aarhus Airport, Aarhus",
+    "name": "Aarhus Airport",
+    "iata": "AAR"
+  },
+  "AARHUS (AAR)": {
+    "latitude": 56.307566,
+    "longitude": 10.624079,
+    "address": "Aarhus Airport, Aarhus",
+    "name": "Aarhus Airport",
+    "iata": "AAR"
+  },
+  "AARHUS AIRPORT": {
+    "latitude": 56.307566,
+    "longitude": 10.624079,
+    "address": "Aarhus Airport, Aarhus",
+    "name": "Aarhus Airport",
+    "iata": "AAR"
+  },
+  "JEG": {
+    "latitude": 68.721719,
+    "longitude": -52.785546,
+    "address": "Aasiaat Airport, Aasiaat",
+    "name": "Aasiaat Airport",
+    "iata": "JEG"
+  },
+  "AASIAAT": {
+    "latitude": 68.721719,
+    "longitude": -52.785546,
+    "address": "Aasiaat Airport, Aasiaat",
+    "name": "Aasiaat Airport",
+    "iata": "JEG"
+  },
+  "AASIAAT (JEG)": {
+    "latitude": 68.721719,
+    "longitude": -52.785546,
+    "address": "Aasiaat Airport, Aasiaat",
+    "name": "Aasiaat Airport",
+    "iata": "JEG"
+  },
+  "AASIAAT AIRPORT": {
+    "latitude": 68.721719,
+    "longitude": -52.785546,
+    "address": "Aasiaat Airport, Aasiaat",
+    "name": "Aasiaat Airport",
+    "iata": "JEG"
+  },
+  "ABD": {
+    "latitude": 30.367608,
+    "longitude": 48.227605,
+    "address": "Abadan Airport, Abadan",
+    "name": "Abadan Airport",
+    "iata": "ABD"
+  },
+  "ABADAN": {
+    "latitude": 30.367608,
+    "longitude": 48.227605,
+    "address": "Abadan Airport, Abadan",
+    "name": "Abadan Airport",
+    "iata": "ABD"
+  },
+  "ABADAN (ABD)": {
+    "latitude": 30.367608,
+    "longitude": 48.227605,
+    "address": "Abadan Airport, Abadan",
+    "name": "Abadan Airport",
+    "iata": "ABD"
+  },
+  "ABADAN AIRPORT": {
+    "latitude": 30.367608,
+    "longitude": 48.227605,
+    "address": "Abadan Airport, Abadan",
+    "name": "Abadan Airport",
+    "iata": "ABD"
+  },
+  "AHJ": {
+    "latitude": 32.530255,
+    "longitude": 102.35379,
+    "address": "Aba Hongyuan Airport, Aba",
+    "name": "Aba Hongyuan Airport",
+    "iata": "AHJ"
+  },
+  "ABA": {
+    "latitude": 53.75095,
+    "longitude": 91.399502,
+    "address": "Abakan Airport, Abakan",
+    "name": "Abakan Airport",
+    "iata": "ABA"
+  },
+  "ABA (AHJ)": {
+    "latitude": 32.530255,
+    "longitude": 102.35379,
+    "address": "Aba Hongyuan Airport, Aba",
+    "name": "Aba Hongyuan Airport",
+    "iata": "AHJ"
+  },
+  "ABA HONGYUAN AIRPORT": {
+    "latitude": 32.530255,
+    "longitude": 102.35379,
+    "address": "Aba Hongyuan Airport, Aba",
+    "name": "Aba Hongyuan Airport",
+    "iata": "AHJ"
+  },
+  "ABF": {
+    "latitude": 1.798609,
+    "longitude": 173.041,
+    "address": "Abaiang Airport, Abaiang",
+    "name": "Abaiang Airport",
+    "iata": "ABF"
+  },
+  "ABAIANG": {
+    "latitude": 1.798609,
+    "longitude": 173.041,
+    "address": "Abaiang Airport, Abaiang",
+    "name": "Abaiang Airport",
+    "iata": "ABF"
+  },
+  "ABAIANG (ABF)": {
+    "latitude": 1.798609,
+    "longitude": 173.041,
+    "address": "Abaiang Airport, Abaiang",
+    "name": "Abaiang Airport",
+    "iata": "ABF"
+  },
+  "ABAIANG AIRPORT": {
+    "latitude": 1.798609,
+    "longitude": 173.041,
+    "address": "Abaiang Airport, Abaiang",
+    "name": "Abaiang Airport",
+    "iata": "ABF"
+  },
+  "ABAKAN": {
+    "latitude": 53.75095,
+    "longitude": 91.399502,
+    "address": "Abakan Airport, Abakan",
+    "name": "Abakan Airport",
+    "iata": "ABA"
+  },
+  "ABAKAN (ABA)": {
+    "latitude": 53.75095,
+    "longitude": 91.399502,
+    "address": "Abakan Airport, Abakan",
+    "name": "Abakan Airport",
+    "iata": "ABA"
+  },
+  "ABAKAN AIRPORT": {
+    "latitude": 53.75095,
+    "longitude": 91.399502,
+    "address": "Abakan Airport, Abakan",
+    "name": "Abakan Airport",
+    "iata": "ABA"
+  },
+  "DIR": {
+    "latitude": 9.624085,
+    "longitude": 41.854186,
+    "address": "Aba Tenna Dejazmach Yilma International Airport, Dire Dawa",
+    "name": "Aba Tenna Dejazmach Yilma International Airport",
+    "iata": "DIR"
+  },
+  "DIRE DAWA": {
+    "latitude": 9.624085,
+    "longitude": 41.854186,
+    "address": "Aba Tenna Dejazmach Yilma International Airport, Dire Dawa",
+    "name": "Aba Tenna Dejazmach Yilma International Airport",
+    "iata": "DIR"
+  },
+  "DIRE DAWA (DIR)": {
+    "latitude": 9.624085,
+    "longitude": 41.854186,
+    "address": "Aba Tenna Dejazmach Yilma International Airport, Dire Dawa",
+    "name": "Aba Tenna Dejazmach Yilma International Airport",
+    "iata": "DIR"
+  },
+  "ABA TENNA DEJAZMACH YILMA INTERNATIONAL AIRPORT": {
+    "latitude": 9.624085,
+    "longitude": 41.854186,
+    "address": "Aba Tenna Dejazmach Yilma International Airport, Dire Dawa",
+    "name": "Aba Tenna Dejazmach Yilma International Airport",
+    "iata": "DIR"
+  },
+  "ABW": {
+    "latitude": -10.1617,
+    "longitude": 148.691,
+    "address": "Abau Airport, Abau",
+    "name": "Abau Airport",
+    "iata": "ABW"
+  },
+  "ABAU": {
+    "latitude": -10.1617,
+    "longitude": 148.691,
+    "address": "Abau Airport, Abau",
+    "name": "Abau Airport",
+    "iata": "ABW"
+  },
+  "ABAU (ABW)": {
+    "latitude": -10.1617,
+    "longitude": 148.691,
+    "address": "Abau Airport, Abau",
+    "name": "Abau Airport",
+    "iata": "ABW"
+  },
+  "ABAU AIRPORT": {
+    "latitude": -10.1617,
+    "longitude": 148.691,
+    "address": "Abau Airport, Abau",
+    "name": "Abau Airport",
+    "iata": "ABW"
+  },
+  "BGH": {
+    "latitude": 16.633314,
+    "longitude": -14.200001,
+    "address": "Abbaye Airport, Bogue",
+    "name": "Abbaye Airport",
+    "iata": "BGH"
+  },
+  "BOGUE": {
+    "latitude": 16.633314,
+    "longitude": -14.200001,
+    "address": "Abbaye Airport, Bogue",
+    "name": "Abbaye Airport",
+    "iata": "BGH"
+  },
+  "BOGUE (BGH)": {
+    "latitude": 16.633314,
+    "longitude": -14.200001,
+    "address": "Abbaye Airport, Bogue",
+    "name": "Abbaye Airport",
+    "iata": "BGH"
+  },
+  "ABBAYE AIRPORT": {
+    "latitude": 16.633314,
+    "longitude": -14.200001,
+    "address": "Abbaye Airport, Bogue",
+    "name": "Abbaye Airport",
+    "iata": "BGH"
+  },
+  "YXX": {
+    "latitude": 49.024209,
+    "longitude": -122.367777,
+    "address": "Abbotsford International Airport, Abbotsford",
+    "name": "Abbotsford International Airport",
+    "iata": "YXX"
+  },
+  "ABBOTSFORD": {
+    "latitude": 49.024209,
+    "longitude": -122.367777,
+    "address": "Abbotsford International Airport, Abbotsford",
+    "name": "Abbotsford International Airport",
+    "iata": "YXX"
+  },
+  "ABBOTSFORD (YXX)": {
+    "latitude": 49.024209,
+    "longitude": -122.367777,
+    "address": "Abbotsford International Airport, Abbotsford",
+    "name": "Abbotsford International Airport",
+    "iata": "YXX"
+  },
+  "ABBOTSFORD INTERNATIONAL AIRPORT": {
+    "latitude": 49.024209,
+    "longitude": -122.367777,
+    "address": "Abbotsford International Airport, Abbotsford",
+    "name": "Abbotsford International Airport",
+    "iata": "YXX"
+  },
+  "EAB": {
+    "latitude": 16.011094,
+    "longitude": 43.175057,
+    "address": "Abbse Airport, Abbs",
+    "name": "Abbse Airport",
+    "iata": "EAB"
+  },
+  "ABBS": {
+    "latitude": 16.011094,
+    "longitude": 43.175057,
+    "address": "Abbse Airport, Abbs",
+    "name": "Abbse Airport",
+    "iata": "EAB"
+  },
+  "ABBS (EAB)": {
+    "latitude": 16.011094,
+    "longitude": 43.175057,
+    "address": "Abbse Airport, Abbs",
+    "name": "Abbse Airport",
+    "iata": "EAB"
+  },
+  "ABBSE AIRPORT": {
+    "latitude": 16.011094,
+    "longitude": 43.175057,
+    "address": "Abbse Airport, Abbs",
+    "name": "Abbse Airport",
+    "iata": "EAB"
+  },
+  "TID": {
+    "latitude": 35.340761,
+    "longitude": 1.463628,
+    "address": "Abdelhafid Boussouf Bou Chekif Airport, Tiaret",
+    "name": "Abdelhafid Boussouf Bou Chekif Airport",
+    "iata": "TID"
+  },
+  "TIARET": {
+    "latitude": 35.340761,
+    "longitude": 1.463628,
+    "address": "Abdelhafid Boussouf Bou Chekif Airport, Tiaret",
+    "name": "Abdelhafid Boussouf Bou Chekif Airport",
+    "iata": "TID"
+  },
+  "TIARET (TID)": {
+    "latitude": 35.340761,
+    "longitude": 1.463628,
+    "address": "Abdelhafid Boussouf Bou Chekif Airport, Tiaret",
+    "name": "Abdelhafid Boussouf Bou Chekif Airport",
+    "iata": "TID"
+  },
+  "ABDELHAFID BOUSSOUF BOU CHEKIF AIRPORT": {
+    "latitude": 35.340761,
+    "longitude": 1.463628,
+    "address": "Abdelhafid Boussouf Bou Chekif Airport, Tiaret",
+    "name": "Abdelhafid Boussouf Bou Chekif Airport",
+    "iata": "TID"
+  },
+  "MLG": {
+    "latitude": -7.930832,
+    "longitude": 112.71332,
+    "address": "Abdul Rachman Saleh Airport, Malang",
+    "name": "Abdul Rachman Saleh Airport",
+    "iata": "MLG"
+  },
+  "MALANG": {
+    "latitude": -7.930832,
+    "longitude": 112.71332,
+    "address": "Abdul Rachman Saleh Airport, Malang",
+    "name": "Abdul Rachman Saleh Airport",
+    "iata": "MLG"
+  },
+  "MALANG (MLG)": {
+    "latitude": -7.930832,
+    "longitude": 112.71332,
+    "address": "Abdul Rachman Saleh Airport, Malang",
+    "name": "Abdul Rachman Saleh Airport",
+    "iata": "MLG"
+  },
+  "ABDUL RACHMAN SALEH AIRPORT": {
+    "latitude": -7.930832,
+    "longitude": 112.71332,
+    "address": "Abdul Rachman Saleh Airport, Malang",
+    "name": "Abdul Rachman Saleh Airport",
+    "iata": "MLG"
+  },
+  "AEH": {
+    "latitude": 13.847093,
+    "longitude": 20.84618,
+    "address": "Abeche Airport, Abeche",
+    "name": "Abeche Airport",
+    "iata": "AEH"
+  },
+  "ABECHE": {
+    "latitude": 13.847093,
+    "longitude": 20.84618,
+    "address": "Abeche Airport, Abeche",
+    "name": "Abeche Airport",
+    "iata": "AEH"
+  },
+  "ABECHE (AEH)": {
+    "latitude": 13.847093,
+    "longitude": 20.84618,
+    "address": "Abeche Airport, Abeche",
+    "name": "Abeche Airport",
+    "iata": "AEH"
+  },
+  "ABECHE AIRPORT": {
+    "latitude": 13.847093,
+    "longitude": 20.84618,
+    "address": "Abeche Airport, Abeche",
+    "name": "Abeche Airport",
+    "iata": "AEH"
+  },
+  "ZNZ": {
+    "latitude": -6.220056,
+    "longitude": 39.222999,
+    "address": "Abeid Amani Karume International Airport, Zanzibar",
+    "name": "Abeid Amani Karume International Airport",
+    "iata": "ZNZ"
+  },
+  "ZANZIBAR": {
+    "latitude": -6.220056,
+    "longitude": 39.222999,
+    "address": "Abeid Amani Karume International Airport, Zanzibar",
+    "name": "Abeid Amani Karume International Airport",
+    "iata": "ZNZ"
+  },
+  "ZANZIBAR (ZNZ)": {
+    "latitude": -6.220056,
+    "longitude": 39.222999,
+    "address": "Abeid Amani Karume International Airport, Zanzibar",
+    "name": "Abeid Amani Karume International Airport",
+    "iata": "ZNZ"
+  },
+  "ABEID AMANI KARUME INTERNATIONAL AIRPORT": {
+    "latitude": -6.220056,
+    "longitude": 39.222999,
+    "address": "Abeid Amani Karume International Airport, Zanzibar",
+    "name": "Abeid Amani Karume International Airport",
+    "iata": "ZNZ"
+  },
+  "SNU": {
+    "latitude": 22.492177,
+    "longitude": -79.943793,
+    "address": "Abel Santamaria Airport, Santa Clara",
+    "name": "Abel Santamaria Airport",
+    "iata": "SNU"
+  },
+  "SANTA CLARA": {
+    "latitude": 22.492177,
+    "longitude": -79.943793,
+    "address": "Abel Santamaria Airport, Santa Clara",
+    "name": "Abel Santamaria Airport",
+    "iata": "SNU"
+  },
+  "SANTA CLARA (SNU)": {
+    "latitude": 22.492177,
+    "longitude": -79.943793,
+    "address": "Abel Santamaria Airport, Santa Clara",
+    "name": "Abel Santamaria Airport",
+    "iata": "SNU"
+  },
+  "ABEL SANTAMARIA AIRPORT": {
+    "latitude": 22.492177,
+    "longitude": -79.943793,
+    "address": "Abel Santamaria Airport, Santa Clara",
+    "name": "Abel Santamaria Airport",
+    "iata": "SNU"
+  },
+  "AEA": {
+    "latitude": 0.490786,
+    "longitude": 173.830027,
+    "address": "Abemama Atoll Airport, Abemama Atoll",
+    "name": "Abemama Atoll Airport",
+    "iata": "AEA"
+  },
+  "ABEMAMA ATOLL": {
+    "latitude": 0.490786,
+    "longitude": 173.830027,
+    "address": "Abemama Atoll Airport, Abemama Atoll",
+    "name": "Abemama Atoll Airport",
+    "iata": "AEA"
+  },
+  "ABEMAMA ATOLL (AEA)": {
+    "latitude": 0.490786,
+    "longitude": 173.830027,
+    "address": "Abemama Atoll Airport, Abemama Atoll",
+    "name": "Abemama Atoll Airport",
+    "iata": "AEA"
+  },
+  "ABEMAMA ATOLL AIRPORT": {
+    "latitude": 0.490786,
+    "longitude": 173.830027,
+    "address": "Abemama Atoll Airport, Abemama Atoll",
+    "name": "Abemama Atoll Airport",
+    "iata": "AEA"
+  },
+  "OGO": {
+    "latitude": 6.715113,
+    "longitude": -3.470309,
+    "address": "Abengourou Airport, Abengourou",
+    "name": "Abengourou Airport",
+    "iata": "OGO"
+  },
+  "ABENGOUROU": {
+    "latitude": 6.715113,
+    "longitude": -3.470309,
+    "address": "Abengourou Airport, Abengourou",
+    "name": "Abengourou Airport",
+    "iata": "OGO"
+  },
+  "ABENGOUROU (OGO)": {
+    "latitude": 6.715113,
+    "longitude": -3.470309,
+    "address": "Abengourou Airport, Abengourou",
+    "name": "Abengourou Airport",
+    "iata": "OGO"
+  },
+  "ABENGOUROU AIRPORT": {
+    "latitude": 6.715113,
+    "longitude": -3.470309,
+    "address": "Abengourou Airport, Abengourou",
+    "name": "Abengourou Airport",
+    "iata": "OGO"
+  },
+  "ABZ": {
+    "latitude": 57.202799,
+    "longitude": -2.198971,
+    "address": "Aberdeen International Airport, Aberdeen",
+    "name": "Aberdeen International Airport",
+    "iata": "ABZ"
+  },
+  "ABERDEEN": {
+    "latitude": 45.451279,
+    "longitude": -98.419762,
+    "address": "Aberdeen Regional Airport, Aberdeen",
+    "name": "Aberdeen Regional Airport",
+    "iata": "ABR"
+  },
+  "ABERDEEN (ABZ)": {
+    "latitude": 57.202799,
+    "longitude": -2.198971,
+    "address": "Aberdeen International Airport, Aberdeen",
+    "name": "Aberdeen International Airport",
+    "iata": "ABZ"
+  },
+  "ABERDEEN INTERNATIONAL AIRPORT": {
+    "latitude": 57.202799,
+    "longitude": -2.198971,
+    "address": "Aberdeen International Airport, Aberdeen",
+    "name": "Aberdeen International Airport",
+    "iata": "ABZ"
+  },
+  "ABR": {
+    "latitude": 45.451279,
+    "longitude": -98.419762,
+    "address": "Aberdeen Regional Airport, Aberdeen",
+    "name": "Aberdeen Regional Airport",
+    "iata": "ABR"
+  },
+  "ABERDEEN (ABR)": {
+    "latitude": 45.451279,
+    "longitude": -98.419762,
+    "address": "Aberdeen Regional Airport, Aberdeen",
+    "name": "Aberdeen Regional Airport",
+    "iata": "ABR"
+  },
+  "ABERDEEN REGIONAL AIRPORT": {
+    "latitude": 45.451279,
+    "longitude": -98.419762,
+    "address": "Aberdeen Regional Airport, Aberdeen",
+    "name": "Aberdeen Regional Airport",
+    "iata": "ABR"
+  },
+  "AHB": {
+    "latitude": 18.237476,
+    "longitude": 42.657127,
+    "address": "Abha Regional Airport, Abha",
+    "name": "Abha Regional Airport",
+    "iata": "AHB"
+  },
+  "ABHA": {
+    "latitude": 18.237476,
+    "longitude": 42.657127,
+    "address": "Abha Regional Airport, Abha",
+    "name": "Abha Regional Airport",
+    "iata": "AHB"
+  },
+  "ABHA (AHB)": {
+    "latitude": 18.237476,
+    "longitude": 42.657127,
+    "address": "Abha Regional Airport, Abha",
+    "name": "Abha Regional Airport",
+    "iata": "AHB"
+  },
+  "ABHA REGIONAL AIRPORT": {
+    "latitude": 18.237476,
+    "longitude": 42.657127,
+    "address": "Abha Regional Airport, Abha",
+    "name": "Abha Regional Airport",
+    "iata": "AHB"
+  },
+  "ABI": {
+    "latitude": 32.411237,
+    "longitude": -99.681822,
+    "address": "Abilene Regional Airport, Abilene",
+    "name": "Abilene Regional Airport",
+    "iata": "ABI"
+  },
+  "ABILENE": {
+    "latitude": 32.411237,
+    "longitude": -99.681822,
+    "address": "Abilene Regional Airport, Abilene",
+    "name": "Abilene Regional Airport",
+    "iata": "ABI"
+  },
+  "ABILENE (ABI)": {
+    "latitude": 32.411237,
+    "longitude": -99.681822,
+    "address": "Abilene Regional Airport, Abilene",
+    "name": "Abilene Regional Airport",
+    "iata": "ABI"
+  },
+  "ABILENE REGIONAL AIRPORT": {
+    "latitude": 32.411237,
+    "longitude": -99.681822,
+    "address": "Abilene Regional Airport, Abilene",
+    "name": "Abilene Regional Airport",
+    "iata": "ABI"
+  },
+  "ABG": {
+    "latitude": -17.616699,
+    "longitude": 143.167007,
+    "address": "Abingdon Downs Airport, Abingdon Downs",
+    "name": "Abingdon Downs Airport",
+    "iata": "ABG"
+  },
+  "ABINGDON DOWNS": {
+    "latitude": -17.616699,
+    "longitude": 143.167007,
+    "address": "Abingdon Downs Airport, Abingdon Downs",
+    "name": "Abingdon Downs Airport",
+    "iata": "ABG"
+  },
+  "ABINGDON DOWNS (ABG)": {
+    "latitude": -17.616699,
+    "longitude": 143.167007,
+    "address": "Abingdon Downs Airport, Abingdon Downs",
+    "name": "Abingdon Downs Airport",
+    "iata": "ABG"
+  },
+  "ABINGDON DOWNS AIRPORT": {
+    "latitude": -17.616699,
+    "longitude": 143.167007,
+    "address": "Abingdon Downs Airport, Abingdon Downs",
+    "name": "Abingdon Downs Airport",
+    "iata": "ABG"
+  },
+  "ABO": {
+    "latitude": 5.46667,
+    "longitude": -3.2,
+    "address": "Aboisso Airport, Aboisso",
+    "name": "Aboisso Airport",
+    "iata": "ABO"
+  },
+  "ABOISSO": {
+    "latitude": 5.46667,
+    "longitude": -3.2,
+    "address": "Aboisso Airport, Aboisso",
+    "name": "Aboisso Airport",
+    "iata": "ABO"
+  },
+  "ABOISSO (ABO)": {
+    "latitude": 5.46667,
+    "longitude": -3.2,
+    "address": "Aboisso Airport, Aboisso",
+    "name": "Aboisso Airport",
+    "iata": "ABO"
+  },
+  "ABOISSO AIRPORT": {
+    "latitude": 5.46667,
+    "longitude": -3.2,
+    "address": "Aboisso Airport, Aboisso",
+    "name": "Aboisso Airport",
+    "iata": "ABO"
+  },
+  "AOD": {
+    "latitude": 11.466667,
+    "longitude": 19.283333,
+    "address": "Abou-Deïa Airport, Abou-Deïa",
+    "name": "Abou-Deïa Airport",
+    "iata": "AOD"
+  },
+  "ABOU-DEÏA": {
+    "latitude": 11.466667,
+    "longitude": 19.283333,
+    "address": "Abou-Deïa Airport, Abou-Deïa",
+    "name": "Abou-Deïa Airport",
+    "iata": "AOD"
+  },
+  "ABOU-DEÏA (AOD)": {
+    "latitude": 11.466667,
+    "longitude": 19.283333,
+    "address": "Abou-Deïa Airport, Abou-Deïa",
+    "name": "Abou-Deïa Airport",
+    "iata": "AOD"
+  },
+  "ABOU-DEÏA AIRPORT": {
+    "latitude": 11.466667,
+    "longitude": 19.283333,
+    "address": "Abou-Deïa Airport, Abou-Deïa",
+    "name": "Abou-Deïa Airport",
+    "iata": "AOD"
+  },
+  "SPI": {
+    "latitude": 39.8439,
+    "longitude": -89.677919,
+    "address": "Abraham Lincoln Capital Airport, Springfield",
+    "name": "Abraham Lincoln Capital Airport",
+    "iata": "SPI"
+  },
+  "SPRINGFIELD": {
+    "latitude": 39.8439,
+    "longitude": -89.677919,
+    "address": "Abraham Lincoln Capital Airport, Springfield",
+    "name": "Abraham Lincoln Capital Airport",
+    "iata": "SPI"
+  },
+  "SPRINGFIELD (SPI)": {
+    "latitude": 39.8439,
+    "longitude": -89.677919,
+    "address": "Abraham Lincoln Capital Airport, Springfield",
+    "name": "Abraham Lincoln Capital Airport",
+    "iata": "SPI"
+  },
+  "ABRAHAM LINCOLN CAPITAL AIRPORT": {
+    "latitude": 39.8439,
+    "longitude": -89.677919,
+    "address": "Abraham Lincoln Capital Airport, Springfield",
+    "name": "Abraham Lincoln Capital Airport",
+    "iata": "SPI"
+  },
+  "RSK": {
+    "latitude": 45.535978,
+    "longitude": 9.199833,
+    "address": "Abresso Airport, Ransiki",
+    "name": "Abresso Airport",
+    "iata": "RSK"
+  },
+  "RANSIKI": {
+    "latitude": 45.535978,
+    "longitude": 9.199833,
+    "address": "Abresso Airport, Ransiki",
+    "name": "Abresso Airport",
+    "iata": "RSK"
+  },
+  "RANSIKI (RSK)": {
+    "latitude": 45.535978,
+    "longitude": 9.199833,
+    "address": "Abresso Airport, Ransiki",
+    "name": "Abresso Airport",
+    "iata": "RSK"
+  },
+  "ABRESSO AIRPORT": {
+    "latitude": 45.535978,
+    "longitude": 9.199833,
+    "address": "Abresso Airport, Ransiki",
+    "name": "Abresso Airport",
+    "iata": "RSK"
+  },
+  "PSR": {
+    "latitude": 42.431276,
+    "longitude": 14.183883,
+    "address": "Abruzzo Airport, Pescara",
+    "name": "Abruzzo Airport",
+    "iata": "PSR"
+  },
+  "PESCARA": {
+    "latitude": 42.431276,
+    "longitude": 14.183883,
+    "address": "Abruzzo Airport, Pescara",
+    "name": "Abruzzo Airport",
+    "iata": "PSR"
+  },
+  "PESCARA (PSR)": {
+    "latitude": 42.431276,
+    "longitude": 14.183883,
+    "address": "Abruzzo Airport, Pescara",
+    "name": "Abruzzo Airport",
+    "iata": "PSR"
+  },
+  "ABRUZZO AIRPORT": {
+    "latitude": 42.431276,
+    "longitude": 14.183883,
+    "address": "Abruzzo Airport, Pescara",
+    "name": "Abruzzo Airport",
+    "iata": "PSR"
+  },
+  "AUH": {
+    "latitude": 24.437469,
+    "longitude": 54.650586,
+    "address": "Abu Dhabi International Airport, Abu Dhabi",
+    "name": "Abu Dhabi International Airport",
+    "iata": "AUH"
+  },
+  "ABU DHABI": {
+    "latitude": 24.249302,
+    "longitude": 54.548251,
+    "address": "Al Dhafra Air Base, Abu Dhabi",
+    "name": "Al Dhafra Air Base",
+    "iata": "DHF"
+  },
+  "ABU DHABI (AUH)": {
+    "latitude": 24.437469,
+    "longitude": 54.650586,
+    "address": "Abu Dhabi International Airport, Abu Dhabi",
+    "name": "Abu Dhabi International Airport",
+    "iata": "AUH"
+  },
+  "ABU DHABI INTERNATIONAL AIRPORT": {
+    "latitude": 24.437469,
+    "longitude": 54.650586,
+    "address": "Abu Dhabi International Airport, Abu Dhabi",
+    "name": "Abu Dhabi International Airport",
+    "iata": "AUH"
+  },
+  "AEU": {
+    "latitude": 25.876502,
+    "longitude": 55.031069,
+    "address": "Abu Musa Island Airport, Abu Musa Island",
+    "name": "Abu Musa Island Airport",
+    "iata": "AEU"
+  },
+  "ABU MUSA ISLAND": {
+    "latitude": 25.876502,
+    "longitude": 55.031069,
+    "address": "Abu Musa Island Airport, Abu Musa Island",
+    "name": "Abu Musa Island Airport",
+    "iata": "AEU"
+  },
+  "ABU MUSA ISLAND (AEU)": {
+    "latitude": 25.876502,
+    "longitude": 55.031069,
+    "address": "Abu Musa Island Airport, Abu Musa Island",
+    "name": "Abu Musa Island Airport",
+    "iata": "AEU"
+  },
+  "ABU MUSA ISLAND AIRPORT": {
+    "latitude": 25.876502,
+    "longitude": 55.031069,
+    "address": "Abu Musa Island Airport, Abu Musa Island",
+    "name": "Abu Musa Island Airport",
+    "iata": "AEU"
+  },
+  "AUE": {
+    "latitude": 28.901826,
+    "longitude": 33.198663,
+    "address": "Abu Rudeis Airport, Abu Rudeis",
+    "name": "Abu Rudeis Airport",
+    "iata": "AUE"
+  },
+  "ABU RUDEIS": {
+    "latitude": 28.901826,
+    "longitude": 33.198663,
+    "address": "Abu Rudeis Airport, Abu Rudeis",
+    "name": "Abu Rudeis Airport",
+    "iata": "AUE"
+  },
+  "ABU RUDEIS (AUE)": {
+    "latitude": 28.901826,
+    "longitude": 33.198663,
+    "address": "Abu Rudeis Airport, Abu Rudeis",
+    "name": "Abu Rudeis Airport",
+    "iata": "AUE"
+  },
+  "ABU RUDEIS AIRPORT": {
+    "latitude": 28.901826,
+    "longitude": 33.198663,
+    "address": "Abu Rudeis Airport, Abu Rudeis",
+    "name": "Abu Rudeis Airport",
+    "iata": "AUE"
+  },
+  "ABS": {
+    "latitude": 22.373083,
+    "longitude": 31.611245,
+    "address": "Abu Simbel Airport, Abu Simbel",
+    "name": "Abu Simbel Airport",
+    "iata": "ABS"
+  },
+  "ABU SIMBEL": {
+    "latitude": 22.373083,
+    "longitude": 31.611245,
+    "address": "Abu Simbel Airport, Abu Simbel",
+    "name": "Abu Simbel Airport",
+    "iata": "ABS"
+  },
+  "ABU SIMBEL (ABS)": {
+    "latitude": 22.373083,
+    "longitude": 31.611245,
+    "address": "Abu Simbel Airport, Abu Simbel",
+    "name": "Abu Simbel Airport",
+    "iata": "ABS"
+  },
+  "ABU SIMBEL AIRPORT": {
+    "latitude": 22.373083,
+    "longitude": 31.611245,
+    "address": "Abu Simbel Airport, Abu Simbel",
+    "name": "Abu Simbel Airport",
+    "iata": "ABS"
+  },
+  "ARA": {
+    "latitude": 30.037854,
+    "longitude": -91.883189,
+    "address": "Acadiana Regional Airport, New Iberia",
+    "name": "Acadiana Regional Airport",
+    "iata": "ARA"
+  },
+  "NEW IBERIA": {
+    "latitude": 30.037854,
+    "longitude": -91.883189,
+    "address": "Acadiana Regional Airport, New Iberia",
+    "name": "Acadiana Regional Airport",
+    "iata": "ARA"
+  },
+  "NEW IBERIA (ARA)": {
+    "latitude": 30.037854,
+    "longitude": -91.883189,
+    "address": "Acadiana Regional Airport, New Iberia",
+    "name": "Acadiana Regional Airport",
+    "iata": "ARA"
+  },
+  "ACADIANA REGIONAL AIRPORT": {
+    "latitude": 30.037854,
+    "longitude": -91.883189,
+    "address": "Acadiana Regional Airport, New Iberia",
+    "name": "Acadiana Regional Airport",
+    "iata": "ARA"
+  },
+  "ARF": {
+    "latitude": 0.53333,
+    "longitude": -70.1333,
+    "address": "Acaricuara Airport, Acaricuara",
+    "name": "Acaricuara Airport",
+    "iata": "ARF"
+  },
+  "ACARICUARA": {
+    "latitude": 0.53333,
+    "longitude": -70.1333,
+    "address": "Acaricuara Airport, Acaricuara",
+    "name": "Acaricuara Airport",
+    "iata": "ARF"
+  },
+  "ACARICUARA (ARF)": {
+    "latitude": 0.53333,
+    "longitude": -70.1333,
+    "address": "Acaricuara Airport, Acaricuara",
+    "name": "Acaricuara Airport",
+    "iata": "ARF"
+  },
+  "ACARICUARA AIRPORT": {
+    "latitude": 0.53333,
+    "longitude": -70.1333,
+    "address": "Acaricuara Airport, Acaricuara",
+    "name": "Acaricuara Airport",
+    "iata": "ARF"
+  },
+  "MFV": {
+    "latitude": 37.644864,
+    "longitude": -75.761117,
+    "address": "Accomack County Airport, Melfa",
+    "name": "Accomack County Airport",
+    "iata": "MFV"
+  },
+  "MELFA": {
+    "latitude": 37.644864,
+    "longitude": -75.761117,
+    "address": "Accomack County Airport, Melfa",
+    "name": "Accomack County Airport",
+    "iata": "MFV"
+  },
+  "MELFA (MFV)": {
+    "latitude": 37.644864,
+    "longitude": -75.761117,
+    "address": "Accomack County Airport, Melfa",
+    "name": "Accomack County Airport",
+    "iata": "MFV"
+  },
+  "ACCOMACK COUNTY AIRPORT": {
+    "latitude": 37.644864,
+    "longitude": -75.761117,
+    "address": "Accomack County Airport, Melfa",
+    "name": "Accomack County Airport",
+    "iata": "MFV"
+  },
+  "ACS": {
+    "latitude": 56.269088,
+    "longitude": 90.570617,
+    "address": "Achinsk Airport, Achinsk",
+    "name": "Achinsk Airport",
+    "iata": "ACS"
+  },
+  "ACHINSK": {
+    "latitude": 56.269088,
+    "longitude": 90.570617,
+    "address": "Achinsk Airport, Achinsk",
+    "name": "Achinsk Airport",
+    "iata": "ACS"
+  },
+  "ACHINSK (ACS)": {
+    "latitude": 56.269088,
+    "longitude": 90.570617,
+    "address": "Achinsk Airport, Achinsk",
+    "name": "Achinsk Airport",
+    "iata": "ACS"
+  },
+  "ACHINSK AIRPORT": {
+    "latitude": 56.269088,
+    "longitude": 90.570617,
+    "address": "Achinsk Airport, Achinsk",
+    "name": "Achinsk Airport",
+    "iata": "ACS"
+  },
+  "ACU": {
+    "latitude": 9.188728,
+    "longitude": -77.994073,
+    "address": "Achutupo Airport, Achutupo",
+    "name": "Achutupo Airport",
+    "iata": "ACU"
+  },
+  "ACHUTUPO": {
+    "latitude": 9.188728,
+    "longitude": -77.994073,
+    "address": "Achutupo Airport, Achutupo",
+    "name": "Achutupo Airport",
+    "iata": "ACU"
+  },
+  "ACHUTUPO (ACU)": {
+    "latitude": 9.188728,
+    "longitude": -77.994073,
+    "address": "Achutupo Airport, Achutupo",
+    "name": "Achutupo Airport",
+    "iata": "ACU"
+  },
+  "ACHUTUPO AIRPORT": {
+    "latitude": 9.188728,
+    "longitude": -77.994073,
+    "address": "Achutupo Airport, Achutupo",
+    "name": "Achutupo Airport",
+    "iata": "ACU"
+  },
+  "LCG": {
+    "latitude": 43.301777,
+    "longitude": -8.378186,
+    "address": "A Coruña Airport, A Coruña",
+    "name": "A Coruña Airport",
+    "iata": "LCG"
+  },
+  "A CORUÑA": {
+    "latitude": 43.301777,
+    "longitude": -8.378186,
+    "address": "A Coruña Airport, A Coruña",
+    "name": "A Coruña Airport",
+    "iata": "LCG"
+  },
+  "A CORUÑA (LCG)": {
+    "latitude": 43.301777,
+    "longitude": -8.378186,
+    "address": "A Coruña Airport, A Coruña",
+    "name": "A Coruña Airport",
+    "iata": "LCG"
+  },
+  "A CORUÑA AIRPORT": {
+    "latitude": 43.301777,
+    "longitude": -8.378186,
+    "address": "A Coruña Airport, A Coruña",
+    "name": "A Coruña Airport",
+    "iata": "LCG"
+  },
+  "AAD": {
+    "latitude": 6.096533,
+    "longitude": 46.637562,
+    "address": "Adado Airport, Adado",
+    "name": "Adado Airport",
+    "iata": "AAD"
+  },
+  "ADADO": {
+    "latitude": 6.096533,
+    "longitude": 46.637562,
+    "address": "Adado Airport, Adado",
+    "name": "Adado Airport",
+    "iata": "AAD"
+  },
+  "ADADO (AAD)": {
+    "latitude": 6.096533,
+    "longitude": 46.637562,
+    "address": "Adado Airport, Adado",
+    "name": "Adado Airport",
+    "iata": "AAD"
+  },
+  "ADADO AIRPORT": {
+    "latitude": 6.096533,
+    "longitude": 46.637562,
+    "address": "Adado Airport, Adado",
+    "name": "Adado Airport",
+    "iata": "AAD"
+  },
+  "ADK": {
+    "latitude": 51.877998,
+    "longitude": -176.645996,
+    "address": "Adak Airport, Adak Island",
+    "name": "Adak Airport",
+    "iata": "ADK"
+  },
+  "ADAK ISLAND": {
+    "latitude": 51.877998,
+    "longitude": -176.645996,
+    "address": "Adak Airport, Adak Island",
+    "name": "Adak Airport",
+    "iata": "ADK"
+  },
+  "ADAK ISLAND (ADK)": {
+    "latitude": 51.877998,
+    "longitude": -176.645996,
+    "address": "Adak Airport, Adak Island",
+    "name": "Adak Airport",
+    "iata": "ADK"
+  },
+  "ADAK AIRPORT": {
+    "latitude": 51.877998,
+    "longitude": -176.645996,
+    "address": "Adak Airport, Adak Island",
+    "name": "Adak Airport",
+    "iata": "ADK"
+  },
+  "AOM": {
+    "latitude": 22.492155,
+    "longitude": 57.42781,
+    "address": "Adam Airport, Adam",
+    "name": "Adam Airport",
+    "iata": "AOM"
+  },
+  "ADAM": {
+    "latitude": 22.492155,
+    "longitude": 57.42781,
+    "address": "Adam Airport, Adam",
+    "name": "Adam Airport",
+    "iata": "AOM"
+  },
+  "ADAM (AOM)": {
+    "latitude": 22.492155,
+    "longitude": 57.42781,
+    "address": "Adam Airport, Adam",
+    "name": "Adam Airport",
+    "iata": "AOM"
+  },
+  "ADAM AIRPORT": {
+    "latitude": 22.492155,
+    "longitude": 57.42781,
+    "address": "Adam Airport, Adam",
+    "name": "Adam Airport",
+    "iata": "AOM"
+  },
+  "AIP": {
+    "latitude": 31.424348,
+    "longitude": 75.765892,
+    "address": "Adampur Airport, Adampur",
+    "name": "Adampur Airport",
+    "iata": "AIP"
+  },
+  "ADAMPUR": {
+    "latitude": 31.424348,
+    "longitude": 75.765892,
+    "address": "Adampur Airport, Adampur",
+    "name": "Adampur Airport",
+    "iata": "AIP"
+  },
+  "ADAMPUR (AIP)": {
+    "latitude": 31.424348,
+    "longitude": 75.765892,
+    "address": "Adampur Airport, Adampur",
+    "name": "Adampur Airport",
+    "iata": "AIP"
+  },
+  "ADAMPUR AIRPORT": {
+    "latitude": 31.424348,
+    "longitude": 75.765892,
+    "address": "Adampur Airport, Adampur",
+    "name": "Adampur Airport",
+    "iata": "AIP"
+  },
+  "ADT": {
+    "latitude": 34.803321,
+    "longitude": -96.670995,
+    "address": "Ada Municipal Airport, Ada",
+    "name": "Ada Municipal Airport",
+    "iata": "ADT"
+  },
+  "ADA": {
+    "latitude": 36.983457,
+    "longitude": 35.286266,
+    "address": "Adana Şakirpaşa Airport, Adana",
+    "name": "Adana Şakirpaşa Airport",
+    "iata": "ADA"
+  },
+  "ADA (ADT)": {
+    "latitude": 34.803321,
+    "longitude": -96.670995,
+    "address": "Ada Municipal Airport, Ada",
+    "name": "Ada Municipal Airport",
+    "iata": "ADT"
+  },
+  "ADA MUNICIPAL AIRPORT": {
+    "latitude": 34.803321,
+    "longitude": -96.670995,
+    "address": "Ada Municipal Airport, Ada",
+    "name": "Ada Municipal Airport",
+    "iata": "ADT"
+  },
+  "ADANA": {
+    "latitude": 36.983457,
+    "longitude": 35.286266,
+    "address": "Adana Şakirpaşa Airport, Adana",
+    "name": "Adana Şakirpaşa Airport",
+    "iata": "ADA"
+  },
+  "ADANA (ADA)": {
+    "latitude": 36.983457,
+    "longitude": 35.286266,
+    "address": "Adana Şakirpaşa Airport, Adana",
+    "name": "Adana Şakirpaşa Airport",
+    "iata": "ADA"
+  },
+  "ADANA ŞAKIRPAŞA AIRPORT": {
+    "latitude": 36.983457,
+    "longitude": 35.286266,
+    "address": "Adana Şakirpaşa Airport, Adana",
+    "name": "Adana Şakirpaşa Airport",
+    "iata": "ADA"
+  },
+  "AEE": {
+    "latitude": 10.053341,
+    "longitude": 32.959623,
+    "address": "Adareil Airport, Adareil",
+    "name": "Adareil Airport",
+    "iata": "AEE"
+  },
+  "ADAREIL": {
+    "latitude": 10.053341,
+    "longitude": 32.959623,
+    "address": "Adareil Airport, Adareil",
+    "name": "Adareil Airport",
+    "iata": "AEE"
+  },
+  "ADAREIL (AEE)": {
+    "latitude": 10.053341,
+    "longitude": 32.959623,
+    "address": "Adareil Airport, Adareil",
+    "name": "Adareil Airport",
+    "iata": "AEE"
+  },
+  "ADAREIL AIRPORT": {
+    "latitude": 10.053341,
+    "longitude": 32.959623,
+    "address": "Adareil Airport, Adareil",
+    "name": "Adareil Airport",
+    "iata": "AEE"
+  },
+  "ADD": {
+    "latitude": 8.979022,
+    "longitude": 38.798719,
+    "address": "Addis Ababa Bole International Airport, Addis Ababa",
+    "name": "Addis Ababa Bole International Airport",
+    "iata": "ADD"
+  },
+  "ADDIS ABABA": {
+    "latitude": 8.979022,
+    "longitude": 38.798719,
+    "address": "Addis Ababa Bole International Airport, Addis Ababa",
+    "name": "Addis Ababa Bole International Airport",
+    "iata": "ADD"
+  },
+  "ADDIS ABABA (ADD)": {
+    "latitude": 8.979022,
+    "longitude": 38.798719,
+    "address": "Addis Ababa Bole International Airport, Addis Ababa",
+    "name": "Addis Ababa Bole International Airport",
+    "iata": "ADD"
+  },
+  "ADDIS ABABA BOLE INTERNATIONAL AIRPORT": {
+    "latitude": 8.979022,
+    "longitude": 38.798719,
+    "address": "Addis Ababa Bole International Airport, Addis Ababa",
+    "name": "Addis Ababa Bole International Airport",
+    "iata": "ADD"
+  },
+  "ADS": {
+    "latitude": 32.969286,
+    "longitude": -96.836434,
+    "address": "Addison Airport, Dallas",
+    "name": "Addison Airport",
+    "iata": "ADS"
+  },
+  "DALLAS": {
+    "latitude": 32.969286,
+    "longitude": -96.836434,
+    "address": "Addison Airport, Dallas",
+    "name": "Addison Airport",
+    "iata": "ADS"
+  },
+  "DALLAS (ADS)": {
+    "latitude": 32.969286,
+    "longitude": -96.836434,
+    "address": "Addison Airport, Dallas",
+    "name": "Addison Airport",
+    "iata": "ADS"
+  },
+  "ADDISON AIRPORT": {
+    "latitude": 32.969286,
+    "longitude": -96.836434,
+    "address": "Addison Airport, Dallas",
+    "name": "Addison Airport",
+    "iata": "ADS"
+  },
+  "ADL": {
+    "latitude": -34.945578,
+    "longitude": 138.532122,
+    "address": "Adelaide Airport, Adelaide",
+    "name": "Adelaide Airport",
+    "iata": "ADL"
+  },
+  "ADELAIDE": {
+    "latitude": -34.945578,
+    "longitude": 138.532122,
+    "address": "Adelaide Airport, Adelaide",
+    "name": "Adelaide Airport",
+    "iata": "ADL"
+  },
+  "ADELAIDE (ADL)": {
+    "latitude": -34.945578,
+    "longitude": 138.532122,
+    "address": "Adelaide Airport, Adelaide",
+    "name": "Adelaide Airport",
+    "iata": "ADL"
+  },
+  "ADELAIDE AIRPORT": {
+    "latitude": -34.945578,
+    "longitude": 138.532122,
+    "address": "Adelaide Airport, Adelaide",
+    "name": "Adelaide Airport",
+    "iata": "ADL"
+  },
+  "MGQ": {
+    "latitude": 2.015817,
+    "longitude": 45.304832,
+    "address": "Aden Adde International Airport, Mogadishu",
+    "name": "Aden Adde International Airport",
+    "iata": "MGQ"
+  },
+  "MOGADISHU": {
+    "latitude": 2.015817,
+    "longitude": 45.304832,
+    "address": "Aden Adde International Airport, Mogadishu",
+    "name": "Aden Adde International Airport",
+    "iata": "MGQ"
+  },
+  "MOGADISHU (MGQ)": {
+    "latitude": 2.015817,
+    "longitude": 45.304832,
+    "address": "Aden Adde International Airport, Mogadishu",
+    "name": "Aden Adde International Airport",
+    "iata": "MGQ"
+  },
+  "ADEN ADDE INTERNATIONAL AIRPORT": {
+    "latitude": 2.015817,
+    "longitude": 45.304832,
+    "address": "Aden Adde International Airport, Mogadishu",
+    "name": "Aden Adde International Airport",
+    "iata": "MGQ"
+  },
+  "ADE": {
+    "latitude": 12.825875,
+    "longitude": 45.037201,
+    "address": "Aden International Airport, Aden",
+    "name": "Aden International Airport",
+    "iata": "ADE"
+  },
+  "ADEN": {
+    "latitude": 12.825875,
+    "longitude": 45.037201,
+    "address": "Aden International Airport, Aden",
+    "name": "Aden International Airport",
+    "iata": "ADE"
+  },
+  "ADEN (ADE)": {
+    "latitude": 12.825875,
+    "longitude": 45.037201,
+    "address": "Aden International Airport, Aden",
+    "name": "Aden International Airport",
+    "iata": "ADE"
+  },
+  "ADEN INTERNATIONAL AIRPORT": {
+    "latitude": 12.825875,
+    "longitude": 45.037201,
+    "address": "Aden International Airport, Aden",
+    "name": "Aden International Airport",
+    "iata": "ADE"
+  },
+  "SLK": {
+    "latitude": 44.384525,
+    "longitude": -74.20532,
+    "address": "Adirondack Regional Airport, Saranac Lake",
+    "name": "Adirondack Regional Airport",
+    "iata": "SLK"
+  },
+  "SARANAC LAKE": {
+    "latitude": 44.384525,
+    "longitude": -74.20532,
+    "address": "Adirondack Regional Airport, Saranac Lake",
+    "name": "Adirondack Regional Airport",
+    "iata": "SLK"
+  },
+  "SARANAC LAKE (SLK)": {
+    "latitude": 44.384525,
+    "longitude": -74.20532,
+    "address": "Adirondack Regional Airport, Saranac Lake",
+    "name": "Adirondack Regional Airport",
+    "iata": "SLK"
+  },
+  "ADIRONDACK REGIONAL AIRPORT": {
+    "latitude": 44.384525,
+    "longitude": -74.20532,
+    "address": "Adirondack Regional Airport, Saranac Lake",
+    "name": "Adirondack Regional Airport",
+    "iata": "SLK"
+  },
+  "SOC": {
+    "latitude": -7.515231,
+    "longitude": 110.754856,
+    "address": "Adisumarmo International Airport, Surakarta",
+    "name": "Adisumarmo International Airport",
+    "iata": "SOC"
+  },
+  "SURAKARTA": {
+    "latitude": -7.515231,
+    "longitude": 110.754856,
+    "address": "Adisumarmo International Airport, Surakarta",
+    "name": "Adisumarmo International Airport",
+    "iata": "SOC"
+  },
+  "SURAKARTA (SOC)": {
+    "latitude": -7.515231,
+    "longitude": 110.754856,
+    "address": "Adisumarmo International Airport, Surakarta",
+    "name": "Adisumarmo International Airport",
+    "iata": "SOC"
+  },
+  "ADISUMARMO INTERNATIONAL AIRPORT": {
+    "latitude": -7.515231,
+    "longitude": 110.754856,
+    "address": "Adisumarmo International Airport, Surakarta",
+    "name": "Adisumarmo International Airport",
+    "iata": "SOC"
+  },
+  "ADF": {
+    "latitude": 37.732834,
+    "longitude": 38.470447,
+    "address": "Adıyaman Airport, Adıyaman",
+    "name": "Adıyaman Airport",
+    "iata": "ADF"
+  },
+  "ADIYAMAN": {
+    "latitude": 37.732834,
+    "longitude": 38.470447,
+    "address": "Adıyaman Airport, Adıyaman",
+    "name": "Adıyaman Airport",
+    "iata": "ADF"
+  },
+  "ADIYAMAN (ADF)": {
+    "latitude": 37.732834,
+    "longitude": 38.470447,
+    "address": "Adıyaman Airport, Adıyaman",
+    "name": "Adıyaman Airport",
+    "iata": "ADF"
+  },
+  "ADIYAMAN AIRPORT": {
+    "latitude": 37.732834,
+    "longitude": 38.470447,
+    "address": "Adıyaman Airport, Adıyaman",
+    "name": "Adıyaman Airport",
+    "iata": "ADF"
+  },
+  "ADB": {
+    "latitude": 38.293081,
+    "longitude": 27.154514,
+    "address": "Adnan Menderes Airport, İzmir",
+    "name": "Adnan Menderes Airport",
+    "iata": "ADB"
+  },
+  "İZMIR": {
+    "latitude": 38.293081,
+    "longitude": 27.154514,
+    "address": "Adnan Menderes Airport, İzmir",
+    "name": "Adnan Menderes Airport",
+    "iata": "ADB"
+  },
+  "İZMIR (ADB)": {
+    "latitude": 38.293081,
+    "longitude": 27.154514,
+    "address": "Adnan Menderes Airport, İzmir",
+    "name": "Adnan Menderes Airport",
+    "iata": "ADB"
+  },
+  "ADNAN MENDERES AIRPORT": {
+    "latitude": 38.293081,
+    "longitude": 27.154514,
+    "address": "Adnan Menderes Airport, İzmir",
+    "name": "Adnan Menderes Airport",
+    "iata": "ADB"
+  },
+  "MAD": {
+    "latitude": 40.49923,
+    "longitude": -3.567169,
+    "address": "Adolfo Suárez Madrid-Barajas Airport, Madrid",
+    "name": "Adolfo Suárez Madrid-Barajas Airport",
+    "iata": "MAD"
+  },
+  "MADRID": {
+    "latitude": 40.49923,
+    "longitude": -3.567169,
+    "address": "Adolfo Suárez Madrid-Barajas Airport, Madrid",
+    "name": "Adolfo Suárez Madrid-Barajas Airport",
+    "iata": "MAD"
+  },
+  "MADRID (MAD)": {
+    "latitude": 40.49923,
+    "longitude": -3.567169,
+    "address": "Adolfo Suárez Madrid-Barajas Airport, Madrid",
+    "name": "Adolfo Suárez Madrid-Barajas Airport",
+    "iata": "MAD"
+  },
+  "ADOLFO SUÁREZ MADRID-BARAJAS AIRPORT": {
+    "latitude": 40.49923,
+    "longitude": -3.567169,
+    "address": "Adolfo Suárez Madrid-Barajas Airport, Madrid",
+    "name": "Adolfo Suárez Madrid-Barajas Airport",
+    "iata": "MAD"
+  },
+  "AEG": {
+    "latitude": 1.4,
+    "longitude": 99.430648,
+    "address": "Aek Godang Airport, Aek Godang",
+    "name": "Aek Godang Airport",
+    "iata": "AEG"
+  },
+  "AEK GODANG": {
+    "latitude": 1.4,
+    "longitude": 99.430648,
+    "address": "Aek Godang Airport, Aek Godang",
+    "name": "Aek Godang Airport",
+    "iata": "AEG"
+  },
+  "AEK GODANG (AEG)": {
+    "latitude": 1.4,
+    "longitude": 99.430648,
+    "address": "Aek Godang Airport, Aek Godang",
+    "name": "Aek Godang Airport",
+    "iata": "AEG"
+  },
+  "AEK GODANG AIRPORT": {
+    "latitude": 1.4,
+    "longitude": 99.430648,
+    "address": "Aek Godang Airport, Aek Godang",
+    "name": "Aek Godang Airport",
+    "iata": "AEG"
+  },
+  "CWB": {
+    "latitude": -25.530606,
+    "longitude": -49.17414,
+    "address": "Afonso Pena International Airport, Curitiba",
+    "name": "Afonso Pena International Airport",
+    "iata": "CWB"
+  },
+  "CURITIBA": {
+    "latitude": -25.530606,
+    "longitude": -49.17414,
+    "address": "Afonso Pena International Airport, Curitiba",
+    "name": "Afonso Pena International Airport",
+    "iata": "CWB"
+  },
+  "CURITIBA (CWB)": {
+    "latitude": -25.530606,
+    "longitude": -49.17414,
+    "address": "Afonso Pena International Airport, Curitiba",
+    "name": "Afonso Pena International Airport",
+    "iata": "CWB"
+  },
+  "AFONSO PENA INTERNATIONAL AIRPORT": {
+    "latitude": -25.530606,
+    "longitude": -49.17414,
+    "address": "Afonso Pena International Airport, Curitiba",
+    "name": "Afonso Pena International Airport",
+    "iata": "CWB"
+  },
+  "AFR": {
+    "latitude": -9.133021,
+    "longitude": 148.383719,
+    "address": "Afore Airport, Afore",
+    "name": "Afore Airport",
+    "iata": "AFR"
+  },
+  "AFORE": {
+    "latitude": -9.133021,
+    "longitude": 148.383719,
+    "address": "Afore Airport, Afore",
+    "name": "Afore Airport",
+    "iata": "AFR"
+  },
+  "AFORE (AFR)": {
+    "latitude": -9.133021,
+    "longitude": 148.383719,
+    "address": "Afore Airport, Afore",
+    "name": "Afore Airport",
+    "iata": "AFR"
+  },
+  "AFORE AIRPORT": {
+    "latitude": -9.133021,
+    "longitude": 148.383719,
+    "address": "Afore Airport, Afore",
+    "name": "Afore Airport",
+    "iata": "AFR"
+  },
+  "AFO": {
+    "latitude": 42.712406,
+    "longitude": -110.940863,
+    "address": "Afton Municipal Airport, Afton",
+    "name": "Afton Municipal Airport",
+    "iata": "AFO"
+  },
+  "AFTON": {
+    "latitude": 42.712406,
+    "longitude": -110.940863,
+    "address": "Afton Municipal Airport, Afton",
+    "name": "Afton Municipal Airport",
+    "iata": "AFO"
+  },
+  "AFTON (AFO)": {
+    "latitude": 42.712406,
+    "longitude": -110.940863,
+    "address": "Afton Municipal Airport, Afton",
+    "name": "Afton Municipal Airport",
+    "iata": "AFO"
+  },
+  "AFTON MUNICIPAL AIRPORT": {
+    "latitude": 42.712406,
+    "longitude": -110.940863,
+    "address": "Afton Municipal Airport, Afton",
+    "name": "Afton Municipal Airport",
+    "iata": "AFO"
+  },
+  "AFT": {
+    "latitude": -9.191388,
+    "longitude": 160.948611,
+    "address": "Afutara Aerodrome, Afutara",
+    "name": "Afutara Aerodrome",
+    "iata": "AFT"
+  },
+  "AFUTARA": {
+    "latitude": -9.191388,
+    "longitude": 160.948611,
+    "address": "Afutara Aerodrome, Afutara",
+    "name": "Afutara Aerodrome",
+    "iata": "AFT"
+  },
+  "AFUTARA (AFT)": {
+    "latitude": -9.191388,
+    "longitude": 160.948611,
+    "address": "Afutara Aerodrome, Afutara",
+    "name": "Afutara Aerodrome",
+    "iata": "AFT"
+  },
+  "AFUTARA AERODROME": {
+    "latitude": -9.191388,
+    "longitude": 160.948611,
+    "address": "Afutara Aerodrome, Afutara",
+    "name": "Afutara Aerodrome",
+    "iata": "AFT"
+  },
+  "AFY": {
+    "latitude": 38.726398,
+    "longitude": 30.6011,
+    "address": "Afyon Airport, Afyon",
+    "name": "Afyon Airport",
+    "iata": "AFY"
+  },
+  "AFYON": {
+    "latitude": 38.726398,
+    "longitude": 30.6011,
+    "address": "Afyon Airport, Afyon",
+    "name": "Afyon Airport",
+    "iata": "AFY"
+  },
+  "AFYON (AFY)": {
+    "latitude": 38.726398,
+    "longitude": 30.6011,
+    "address": "Afyon Airport, Afyon",
+    "name": "Afyon Airport",
+    "iata": "AFY"
+  },
+  "AFYON AIRPORT": {
+    "latitude": 38.726398,
+    "longitude": 30.6011,
+    "address": "Afyon Airport, Afyon",
+    "name": "Afyon Airport",
+    "iata": "AFY"
+  },
+  "AGA": {
+    "latitude": 30.327806,
+    "longitude": -9.411614,
+    "address": "Agadir – Al Massira Airport, Agadir",
+    "name": "Agadir – Al Massira Airport",
+    "iata": "AGA"
+  },
+  "AGADIR": {
+    "latitude": 30.327806,
+    "longitude": -9.411614,
+    "address": "Agadir – Al Massira Airport, Agadir",
+    "name": "Agadir – Al Massira Airport",
+    "iata": "AGA"
+  },
+  "AGADIR (AGA)": {
+    "latitude": 30.327806,
+    "longitude": -9.411614,
+    "address": "Agadir – Al Massira Airport, Agadir",
+    "name": "Agadir – Al Massira Airport",
+    "iata": "AGA"
+  },
+  "AGADIR – AL MASSIRA AIRPORT": {
+    "latitude": 30.327806,
+    "longitude": -9.411614,
+    "address": "Agadir – Al Massira Airport, Agadir",
+    "name": "Agadir – Al Massira Airport",
+    "iata": "AGA"
+  },
+  "IXA": {
+    "latitude": 23.88987,
+    "longitude": 91.242226,
+    "address": "Agartala Airport, Agartala",
+    "name": "Agartala Airport",
+    "iata": "IXA"
+  },
+  "AGARTALA": {
+    "latitude": 23.88987,
+    "longitude": 91.242226,
+    "address": "Agartala Airport, Agartala",
+    "name": "Agartala Airport",
+    "iata": "IXA"
+  },
+  "AGARTALA (IXA)": {
+    "latitude": 23.88987,
+    "longitude": 91.242226,
+    "address": "Agartala Airport, Agartala",
+    "name": "Agartala Airport",
+    "iata": "IXA"
+  },
+  "AGARTALA AIRPORT": {
+    "latitude": 23.88987,
+    "longitude": 91.242226,
+    "address": "Agartala Airport, Agartala",
+    "name": "Agartala Airport",
+    "iata": "IXA"
+  },
+  "AGX": {
+    "latitude": 10.824963,
+    "longitude": 72.176839,
+    "address": "Agatti Airport, Agatti Island",
+    "name": "Agatti Airport",
+    "iata": "AGX"
+  },
+  "AGATTI ISLAND": {
+    "latitude": 10.824963,
+    "longitude": 72.176839,
+    "address": "Agatti Airport, Agatti Island",
+    "name": "Agatti Airport",
+    "iata": "AGX"
+  },
+  "AGATTI ISLAND (AGX)": {
+    "latitude": 10.824963,
+    "longitude": 72.176839,
+    "address": "Agatti Airport, Agatti Island",
+    "name": "Agatti Airport",
+    "iata": "AGX"
+  },
+  "AGATTI AIRPORT": {
+    "latitude": 10.824963,
+    "longitude": 72.176839,
+    "address": "Agatti Airport, Agatti Island",
+    "name": "Agatti Airport",
+    "iata": "AGX"
+  },
+  "AUP": {
+    "latitude": -9.928599,
+    "longitude": 149.387745,
+    "address": "Agaun Airport, Agaun",
+    "name": "Agaun Airport",
+    "iata": "AUP"
+  },
+  "AGAUN": {
+    "latitude": -9.928599,
+    "longitude": 149.387745,
+    "address": "Agaun Airport, Agaun",
+    "name": "Agaun Airport",
+    "iata": "AUP"
+  },
+  "AGAUN (AUP)": {
+    "latitude": -9.928599,
+    "longitude": 149.387745,
+    "address": "Agaun Airport, Agaun",
+    "name": "Agaun Airport",
+    "iata": "AUP"
+  },
+  "AGAUN AIRPORT": {
+    "latitude": -9.928599,
+    "longitude": 149.387745,
+    "address": "Agaun Airport, Agaun",
+    "name": "Agaun Airport",
+    "iata": "AUP"
+  },
+  "AGF": {
+    "latitude": 44.174811,
+    "longitude": 0.59355,
+    "address": "Agen La Garenne Airport, Agen",
+    "name": "Agen La Garenne Airport",
+    "iata": "AGF"
+  },
+  "AGEN": {
+    "latitude": 44.174811,
+    "longitude": 0.59355,
+    "address": "Agen La Garenne Airport, Agen",
+    "name": "Agen La Garenne Airport",
+    "iata": "AGF"
+  },
+  "AGEN (AGF)": {
+    "latitude": 44.174811,
+    "longitude": 0.59355,
+    "address": "Agen La Garenne Airport, Agen",
+    "name": "Agen La Garenne Airport",
+    "iata": "AGF"
+  },
+  "AGEN LA GARENNE AIRPORT": {
+    "latitude": 44.174811,
+    "longitude": 0.59355,
+    "address": "Agen La Garenne Airport, Agen",
+    "name": "Agen La Garenne Airport",
+    "iata": "AGF"
+  },
+  "AGZ": {
+    "latitude": -29.280287,
+    "longitude": 18.814436,
+    "address": "Aggeneys Airport, Aggeneys",
+    "name": "Aggeneys Airport",
+    "iata": "AGZ"
+  },
+  "AGGENEYS": {
+    "latitude": -29.280287,
+    "longitude": 18.814436,
+    "address": "Aggeneys Airport, Aggeneys",
+    "name": "Aggeneys Airport",
+    "iata": "AGZ"
+  },
+  "AGGENEYS (AGZ)": {
+    "latitude": -29.280287,
+    "longitude": 18.814436,
+    "address": "Aggeneys Airport, Aggeneys",
+    "name": "Aggeneys Airport",
+    "iata": "AGZ"
+  },
+  "AGGENEYS AIRPORT": {
+    "latitude": -29.280287,
+    "longitude": 18.814436,
+    "address": "Aggeneys Airport, Aggeneys",
+    "name": "Aggeneys Airport",
+    "iata": "AGZ"
+  },
+  "AKW": {
+    "latitude": 30.74497,
+    "longitude": 49.676282,
+    "address": "Aghajari Airport, Aghajari",
+    "name": "Aghajari Airport",
+    "iata": "AKW"
+  },
+  "AGHAJARI": {
+    "latitude": 30.74497,
+    "longitude": 49.676282,
+    "address": "Aghajari Airport, Aghajari",
+    "name": "Aghajari Airport",
+    "iata": "AKW"
+  },
+  "AGHAJARI (AKW)": {
+    "latitude": 30.74497,
+    "longitude": 49.676282,
+    "address": "Aghajari Airport, Aghajari",
+    "name": "Aghajari Airport",
+    "iata": "AKW"
+  },
+  "AGHAJARI AIRPORT": {
+    "latitude": 30.74497,
+    "longitude": 49.676282,
+    "address": "Aghajari Airport, Aghajari",
+    "name": "Aghajari Airport",
+    "iata": "AKW"
+  },
+  "AGW": {
+    "latitude": -12.14565,
+    "longitude": 142.149318,
+    "address": "Agnew Airport, Agnew",
+    "name": "Agnew Airport",
+    "iata": "AGW"
+  },
+  "AGNEW": {
+    "latitude": -12.14565,
+    "longitude": 142.149318,
+    "address": "Agnew Airport, Agnew",
+    "name": "Agnew Airport",
+    "iata": "AGW"
+  },
+  "AGNEW (AGW)": {
+    "latitude": -12.14565,
+    "longitude": 142.149318,
+    "address": "Agnew Airport, Agnew",
+    "name": "Agnew Airport",
+    "iata": "AGW"
+  },
+  "AGNEW AIRPORT": {
+    "latitude": -12.14565,
+    "longitude": 142.149318,
+    "address": "Agnew Airport, Agnew",
+    "name": "Agnew Airport",
+    "iata": "AGW"
+  },
+  "NTO": {
+    "latitude": 17.2028,
+    "longitude": -25.090589,
+    "address": "Agostinho Neto Airport, Ponta do Sol",
+    "name": "Agostinho Neto Airport",
+    "iata": "NTO"
+  },
+  "PONTA DO SOL": {
+    "latitude": 17.2028,
+    "longitude": -25.090589,
+    "address": "Agostinho Neto Airport, Ponta do Sol",
+    "name": "Agostinho Neto Airport",
+    "iata": "NTO"
+  },
+  "PONTA DO SOL (NTO)": {
+    "latitude": 17.2028,
+    "longitude": -25.090589,
+    "address": "Agostinho Neto Airport, Ponta do Sol",
+    "name": "Agostinho Neto Airport",
+    "iata": "NTO"
+  },
+  "AGOSTINHO NETO AIRPORT": {
+    "latitude": 17.2028,
+    "longitude": -25.090589,
+    "address": "Agostinho Neto Airport, Ponta do Sol",
+    "name": "Agostinho Neto Airport",
+    "iata": "NTO"
+  },
+  "AGR": {
+    "latitude": 27.155886,
+    "longitude": 77.960784,
+    "address": "Agra Airport, Agra",
+    "name": "Agra Airport",
+    "iata": "AGR"
+  },
+  "AGRA": {
+    "latitude": 27.155886,
+    "longitude": 77.960784,
+    "address": "Agra Airport, Agra",
+    "name": "Agra Airport",
+    "iata": "AGR"
+  },
+  "AGRA (AGR)": {
+    "latitude": 27.155886,
+    "longitude": 77.960784,
+    "address": "Agra Airport, Agra",
+    "name": "Agra Airport",
+    "iata": "AGR"
+  },
+  "AGRA AIRPORT": {
+    "latitude": 27.155886,
+    "longitude": 77.960784,
+    "address": "Agra Airport, Agra",
+    "name": "Agra Airport",
+    "iata": "AGR"
+  },
+  "AJI": {
+    "latitude": 39.654845,
+    "longitude": 43.024649,
+    "address": "Ağrı Airport, Agri",
+    "name": "Ağrı Airport",
+    "iata": "AJI"
+  },
+  "AGRI": {
+    "latitude": 39.654845,
+    "longitude": 43.024649,
+    "address": "Ağrı Airport, Agri",
+    "name": "Ağrı Airport",
+    "iata": "AJI"
+  },
+  "AGRI (AJI)": {
+    "latitude": 39.654845,
+    "longitude": 43.024649,
+    "address": "Ağrı Airport, Agri",
+    "name": "Ağrı Airport",
+    "iata": "AJI"
+  },
+  "AĞRI AIRPORT": {
+    "latitude": 39.654845,
+    "longitude": 43.024649,
+    "address": "Ağrı Airport, Agri",
+    "name": "Ağrı Airport",
+    "iata": "AJI"
+  },
+  "AGQ": {
+    "latitude": 38.602207,
+    "longitude": 21.351387,
+    "address": "Agrinio Airport, Agrinion",
+    "name": "Agrinio Airport",
+    "iata": "AGQ"
+  },
+  "AGRINION": {
+    "latitude": 38.602207,
+    "longitude": 21.351387,
+    "address": "Agrinio Airport, Agrinion",
+    "name": "Agrinio Airport",
+    "iata": "AGQ"
+  },
+  "AGRINION (AGQ)": {
+    "latitude": 38.602207,
+    "longitude": 21.351387,
+    "address": "Agrinio Airport, Agrinion",
+    "name": "Agrinio Airport",
+    "iata": "AGQ"
+  },
+  "AGRINIO AIRPORT": {
+    "latitude": 38.602207,
+    "longitude": 21.351387,
+    "address": "Agrinio Airport, Agrinion",
+    "name": "Agrinio Airport",
+    "iata": "AGQ"
+  },
+  "ITI": {
+    "latitude": -8.7,
+    "longitude": -51.174168,
+    "address": "Agropecuária Castanhais Airport, Itambacuri",
+    "name": "Agropecuária Castanhais Airport",
+    "iata": "ITI"
+  },
+  "ITAMBACURI": {
+    "latitude": -8.7,
+    "longitude": -51.174168,
+    "address": "Agropecuária Castanhais Airport, Itambacuri",
+    "name": "Agropecuária Castanhais Airport",
+    "iata": "ITI"
+  },
+  "ITAMBACURI (ITI)": {
+    "latitude": -8.7,
+    "longitude": -51.174168,
+    "address": "Agropecuária Castanhais Airport, Itambacuri",
+    "name": "Agropecuária Castanhais Airport",
+    "iata": "ITI"
+  },
+  "AGROPECUÁRIA CASTANHAIS AIRPORT": {
+    "latitude": -8.7,
+    "longitude": -51.174168,
+    "address": "Agropecuária Castanhais Airport, Itambacuri",
+    "name": "Agropecuária Castanhais Airport",
+    "iata": "ITI"
+  },
+  "ACL": {
+    "latitude": 4.753611,
+    "longitude": -73.002778,
+    "address": "Aguaclara Airport, Aguaclara",
+    "name": "Aguaclara Airport",
+    "iata": "ACL"
+  },
+  "AGUACLARA": {
+    "latitude": 4.753611,
+    "longitude": -73.002778,
+    "address": "Aguaclara Airport, Aguaclara",
+    "name": "Aguaclara Airport",
+    "iata": "ACL"
+  },
+  "AGUACLARA (ACL)": {
+    "latitude": 4.753611,
+    "longitude": -73.002778,
+    "address": "Aguaclara Airport, Aguaclara",
+    "name": "Aguaclara Airport",
+    "iata": "ACL"
+  },
+  "AGUACLARA AIRPORT": {
+    "latitude": 4.753611,
+    "longitude": -73.002778,
+    "address": "Aguaclara Airport, Aguaclara",
+    "name": "Aguaclara Airport",
+    "iata": "ACL"
+  },
+  "BQN": {
+    "latitude": 18.495148,
+    "longitude": -67.13249,
+    "address": "Aguadilla Rafael Hernandez Airport, Aguadilla",
+    "name": "Aguadilla Rafael Hernandez Airport",
+    "iata": "BQN"
+  },
+  "AGUADILLA": {
+    "latitude": 18.495148,
+    "longitude": -67.13249,
+    "address": "Aguadilla Rafael Hernandez Airport, Aguadilla",
+    "name": "Aguadilla Rafael Hernandez Airport",
+    "iata": "BQN"
+  },
+  "AGUADILLA (BQN)": {
+    "latitude": 18.495148,
+    "longitude": -67.13249,
+    "address": "Aguadilla Rafael Hernandez Airport, Aguadilla",
+    "name": "Aguadilla Rafael Hernandez Airport",
+    "iata": "BQN"
+  },
+  "AGUADILLA RAFAEL HERNANDEZ AIRPORT": {
+    "latitude": 18.495148,
+    "longitude": -67.13249,
+    "address": "Aguadilla Rafael Hernandez Airport, Aguadilla",
+    "name": "Aguadilla Rafael Hernandez Airport",
+    "iata": "BQN"
+  },
+  "AGU": {
+    "latitude": 21.702446,
+    "longitude": -102.317022,
+    "address": "Aguascalientes International Airport, Aguascalientes",
+    "name": "Aguascalientes International Airport",
+    "iata": "AGU"
+  },
+  "AGUASCALIENTES": {
+    "latitude": 21.702446,
+    "longitude": -102.317022,
+    "address": "Aguascalientes International Airport, Aguascalientes",
+    "name": "Aguascalientes International Airport",
+    "iata": "AGU"
+  },
+  "AGUASCALIENTES (AGU)": {
+    "latitude": 21.702446,
+    "longitude": -102.317022,
+    "address": "Aguascalientes International Airport, Aguascalientes",
+    "name": "Aguascalientes International Airport",
+    "iata": "AGU"
+  },
+  "AGUASCALIENTES INTERNATIONAL AIRPORT": {
+    "latitude": 21.702446,
+    "longitude": -102.317022,
+    "address": "Aguascalientes International Airport, Aguascalientes",
+    "name": "Aguascalientes International Airport",
+    "iata": "AGU"
+  },
+  "OCV": {
+    "latitude": 8.315046,
+    "longitude": -73.357942,
+    "address": "Aguas Claras Airport, Ocaña",
+    "name": "Aguas Claras Airport",
+    "iata": "OCV"
+  },
+  "OCAÑA": {
+    "latitude": 8.315046,
+    "longitude": -73.357942,
+    "address": "Aguas Claras Airport, Ocaña",
+    "name": "Aguas Claras Airport",
+    "iata": "OCV"
+  },
+  "OCAÑA (OCV)": {
+    "latitude": 8.315046,
+    "longitude": -73.357942,
+    "address": "Aguas Claras Airport, Ocaña",
+    "name": "Aguas Claras Airport",
+    "iata": "OCV"
+  },
+  "AGUAS CLARAS AIRPORT": {
+    "latitude": 8.315046,
+    "longitude": -73.357942,
+    "address": "Aguas Claras Airport, Ocaña",
+    "name": "Aguas Claras Airport",
+    "iata": "OCV"
+  },
+  "TMR": {
+    "latitude": 22.811305,
+    "longitude": 5.450956,
+    "address": "Aguenar - Hadj Bey Akhamok Airport, Tamanrasset",
+    "name": "Aguenar - Hadj Bey Akhamok Airport",
+    "iata": "TMR"
+  },
+  "TAMANRASSET": {
+    "latitude": 22.811305,
+    "longitude": 5.450956,
+    "address": "Aguenar - Hadj Bey Akhamok Airport, Tamanrasset",
+    "name": "Aguenar - Hadj Bey Akhamok Airport",
+    "iata": "TMR"
+  },
+  "TAMANRASSET (TMR)": {
+    "latitude": 22.811305,
+    "longitude": 5.450956,
+    "address": "Aguenar - Hadj Bey Akhamok Airport, Tamanrasset",
+    "name": "Aguenar - Hadj Bey Akhamok Airport",
+    "iata": "TMR"
+  },
+  "AGUENAR - HADJ BEY AKHAMOK AIRPORT": {
+    "latitude": 22.811305,
+    "longitude": 5.450956,
+    "address": "Aguenar - Hadj Bey Akhamok Airport, Tamanrasset",
+    "name": "Aguenar - Hadj Bey Akhamok Airport",
+    "iata": "TMR"
+  },
+  "AGJ": {
+    "latitude": 26.592664,
+    "longitude": 127.24013,
+    "address": "Aguni Airport, Aguni",
+    "name": "Aguni Airport",
+    "iata": "AGJ"
+  },
+  "AGUNI": {
+    "latitude": 26.592664,
+    "longitude": 127.24013,
+    "address": "Aguni Airport, Aguni",
+    "name": "Aguni Airport",
+    "iata": "AGJ"
+  },
+  "AGUNI (AGJ)": {
+    "latitude": 26.592664,
+    "longitude": 127.24013,
+    "address": "Aguni Airport, Aguni",
+    "name": "Aguni Airport",
+    "iata": "AGJ"
+  },
+  "AGUNI AIRPORT": {
+    "latitude": 26.592664,
+    "longitude": 127.24013,
+    "address": "Aguni Airport, Aguni",
+    "name": "Aguni Airport",
+    "iata": "AGJ"
+  },
+  "AHE": {
+    "latitude": -14.427824,
+    "longitude": -146.256631,
+    "address": "Ahe Airport, Ahe",
+    "name": "Ahe Airport",
+    "iata": "AHE"
+  },
+  "AHE (AHE)": {
+    "latitude": -14.427824,
+    "longitude": -146.256631,
+    "address": "Ahe Airport, Ahe",
+    "name": "Ahe Airport",
+    "iata": "AHE"
+  },
+  "AHE AIRPORT": {
+    "latitude": -14.427824,
+    "longitude": -146.256631,
+    "address": "Ahe Airport, Ahe",
+    "name": "Ahe Airport",
+    "iata": "AHE"
+  },
+  "XIJ": {
+    "latitude": 28.934799,
+    "longitude": 47.791901,
+    "address": "Ahmed Al Jaber Air Base, Ahmed Al Jaber AB",
+    "name": "Ahmed Al Jaber Air Base",
+    "iata": "XIJ"
+  },
+  "AHMED AL JABER AB": {
+    "latitude": 28.934799,
+    "longitude": 47.791901,
+    "address": "Ahmed Al Jaber Air Base, Ahmed Al Jaber AB",
+    "name": "Ahmed Al Jaber Air Base",
+    "iata": "XIJ"
+  },
+  "AHMED AL JABER AB (XIJ)": {
+    "latitude": 28.934799,
+    "longitude": 47.791901,
+    "address": "Ahmed Al Jaber Air Base, Ahmed Al Jaber AB",
+    "name": "Ahmed Al Jaber Air Base",
+    "iata": "XIJ"
+  },
+  "AHMED AL JABER AIR BASE": {
+    "latitude": 28.934799,
+    "longitude": 47.791901,
+    "address": "Ahmed Al Jaber Air Base, Ahmed Al Jaber AB",
+    "name": "Ahmed Al Jaber Air Base",
+    "iata": "XIJ"
+  },
+  "AHS": {
+    "latitude": 15.761554,
+    "longitude": -84.541913,
+    "address": "Ahuas Airport, Ahuas",
+    "name": "Ahuas Airport",
+    "iata": "AHS"
+  },
+  "AHUAS": {
+    "latitude": 15.761554,
+    "longitude": -84.541913,
+    "address": "Ahuas Airport, Ahuas",
+    "name": "Ahuas Airport",
+    "iata": "AHS"
+  },
+  "AHUAS (AHS)": {
+    "latitude": 15.761554,
+    "longitude": -84.541913,
+    "address": "Ahuas Airport, Ahuas",
+    "name": "Ahuas Airport",
+    "iata": "AHS"
+  },
+  "AHUAS AIRPORT": {
+    "latitude": 15.761554,
+    "longitude": -84.541913,
+    "address": "Ahuas Airport, Ahuas",
+    "name": "Ahuas Airport",
+    "iata": "AHS"
+  },
+  "AWZ": {
+    "latitude": 31.341581,
+    "longitude": 48.746267,
+    "address": "Ahwaz Airport, Ahwaz",
+    "name": "Ahwaz Airport",
+    "iata": "AWZ"
+  },
+  "AHWAZ": {
+    "latitude": 31.341581,
+    "longitude": 48.746267,
+    "address": "Ahwaz Airport, Ahwaz",
+    "name": "Ahwaz Airport",
+    "iata": "AWZ"
+  },
+  "AHWAZ (AWZ)": {
+    "latitude": 31.341581,
+    "longitude": 48.746267,
+    "address": "Ahwaz Airport, Ahwaz",
+    "name": "Ahwaz Airport",
+    "iata": "AWZ"
+  },
+  "AHWAZ AIRPORT": {
+    "latitude": 31.341581,
+    "longitude": 48.746267,
+    "address": "Ahwaz Airport, Ahwaz",
+    "name": "Ahwaz Airport",
+    "iata": "AWZ"
+  },
+  "AIW": {
+    "latitude": -27.995442,
+    "longitude": 17.596082,
+    "address": "Ai-Ais Airport, Ai-Ais",
+    "name": "Ai-Ais Airport",
+    "iata": "AIW"
+  },
+  "AI-AIS": {
+    "latitude": -27.995442,
+    "longitude": 17.596082,
+    "address": "Ai-Ais Airport, Ai-Ais",
+    "name": "Ai-Ais Airport",
+    "iata": "AIW"
+  },
+  "AI-AIS (AIW)": {
+    "latitude": -27.995442,
+    "longitude": 17.596082,
+    "address": "Ai-Ais Airport, Ai-Ais",
+    "name": "Ai-Ais Airport",
+    "iata": "AIW"
+  },
+  "AI-AIS AIRPORT": {
+    "latitude": -27.995442,
+    "longitude": 17.596082,
+    "address": "Ai-Ais Airport, Ai-Ais",
+    "name": "Ai-Ais Airport",
+    "iata": "AIW"
+  },
+  "AIH": {
+    "latitude": -7.343129,
+    "longitude": 141.267371,
+    "address": "Aiambak Airport, Aiambak",
+    "name": "Aiambak Airport",
+    "iata": "AIH"
+  },
+  "AIAMBAK": {
+    "latitude": -7.343129,
+    "longitude": 141.267371,
+    "address": "Aiambak Airport, Aiambak",
+    "name": "Aiambak Airport",
+    "iata": "AIH"
+  },
+  "AIAMBAK (AIH)": {
+    "latitude": -7.343129,
+    "longitude": 141.267371,
+    "address": "Aiambak Airport, Aiambak",
+    "name": "Aiambak Airport",
+    "iata": "AIH"
+  },
+  "AIAMBAK AIRPORT": {
+    "latitude": -7.343129,
+    "longitude": 141.267371,
+    "address": "Aiambak Airport, Aiambak",
+    "name": "Aiambak Airport",
+    "iata": "AIH"
+  },
+  "AIK": {
+    "latitude": 33.649429,
+    "longitude": -81.681462,
+    "address": "Aiken Regional Airport, Aiken",
+    "name": "Aiken Regional Airport",
+    "iata": "AIK"
+  },
+  "AIKEN": {
+    "latitude": 33.649429,
+    "longitude": -81.681462,
+    "address": "Aiken Regional Airport, Aiken",
+    "name": "Aiken Regional Airport",
+    "iata": "AIK"
+  },
+  "AIKEN (AIK)": {
+    "latitude": 33.649429,
+    "longitude": -81.681462,
+    "address": "Aiken Regional Airport, Aiken",
+    "name": "Aiken Regional Airport",
+    "iata": "AIK"
+  },
+  "AIKEN REGIONAL AIRPORT": {
+    "latitude": 33.649429,
+    "longitude": -81.681462,
+    "address": "Aiken Regional Airport, Aiken",
+    "name": "Aiken Regional Airport",
+    "iata": "AIK"
+  },
+  "AIL": {
+    "latitude": 9.222328,
+    "longitude": -78.023289,
+    "address": "Ailigandí Airport, Ailigandi",
+    "name": "Ailigandí Airport",
+    "iata": "AIL"
+  },
+  "AILIGANDI": {
+    "latitude": 9.222328,
+    "longitude": -78.023289,
+    "address": "Ailigandí Airport, Ailigandi",
+    "name": "Ailigandí Airport",
+    "iata": "AIL"
+  },
+  "AILIGANDI (AIL)": {
+    "latitude": 9.222328,
+    "longitude": -78.023289,
+    "address": "Ailigandí Airport, Ailigandi",
+    "name": "Ailigandí Airport",
+    "iata": "AIL"
+  },
+  "AILIGANDÍ AIRPORT": {
+    "latitude": 9.222328,
+    "longitude": -78.023289,
+    "address": "Ailigandí Airport, Ailigandi",
+    "name": "Ailigandí Airport",
+    "iata": "AIL"
+  },
+  "AIC": {
+    "latitude": 7.278975,
+    "longitude": 168.825405,
+    "address": "Ailinglaplap Airok Airport, Airok",
+    "name": "Ailinglaplap Airok Airport",
+    "iata": "AIC"
+  },
+  "AIROK": {
+    "latitude": 7.278975,
+    "longitude": 168.825405,
+    "address": "Ailinglaplap Airok Airport, Airok",
+    "name": "Ailinglaplap Airok Airport",
+    "iata": "AIC"
+  },
+  "AIROK (AIC)": {
+    "latitude": 7.278975,
+    "longitude": 168.825405,
+    "address": "Ailinglaplap Airok Airport, Airok",
+    "name": "Ailinglaplap Airok Airport",
+    "iata": "AIC"
+  },
+  "AILINGLAPLAP AIROK AIRPORT": {
+    "latitude": 7.278975,
+    "longitude": 168.825405,
+    "address": "Ailinglaplap Airok Airport, Airok",
+    "name": "Ailinglaplap Airok Airport",
+    "iata": "AIC"
+  },
+  "AIM": {
+    "latitude": 10.216293,
+    "longitude": 169.982347,
+    "address": "Ailuk Airport, Ailuk Island",
+    "name": "Ailuk Airport",
+    "iata": "AIM"
+  },
+  "AILUK ISLAND": {
+    "latitude": 10.216293,
+    "longitude": 169.982347,
+    "address": "Ailuk Airport, Ailuk Island",
+    "name": "Ailuk Airport",
+    "iata": "AIM"
+  },
+  "AILUK ISLAND (AIM)": {
+    "latitude": 10.216293,
+    "longitude": 169.982347,
+    "address": "Ailuk Airport, Ailuk Island",
+    "name": "Ailuk Airport",
+    "iata": "AIM"
+  },
+  "AILUK AIRPORT": {
+    "latitude": 10.216293,
+    "longitude": 169.982347,
+    "address": "Ailuk Airport, Ailuk Island",
+    "name": "Ailuk Airport",
+    "iata": "AIM"
+  },
+  "QSF": {
+    "latitude": 36.176826,
+    "longitude": 5.327391,
+    "address": "Ain Arnat Airport, Sétif",
+    "name": "Ain Arnat Airport",
+    "iata": "QSF"
+  },
+  "SÉTIF": {
+    "latitude": 36.176826,
+    "longitude": 5.327391,
+    "address": "Ain Arnat Airport, Sétif",
+    "name": "Ain Arnat Airport",
+    "iata": "QSF"
+  },
+  "SÉTIF (QSF)": {
+    "latitude": 36.176826,
+    "longitude": 5.327391,
+    "address": "Ain Arnat Airport, Sétif",
+    "name": "Ain Arnat Airport",
+    "iata": "QSF"
+  },
+  "AIN ARNAT AIRPORT": {
+    "latitude": 36.176826,
+    "longitude": 5.327391,
+    "address": "Ain Arnat Airport, Sétif",
+    "name": "Ain Arnat Airport",
+    "iata": "QSF"
+  },
+  "OGX": {
+    "latitude": 31.9172,
+    "longitude": 5.41278,
+    "address": "Ain el Beida Airport, Ouargla",
+    "name": "Ain el Beida Airport",
+    "iata": "OGX"
+  },
+  "OUARGLA": {
+    "latitude": 31.9172,
+    "longitude": 5.41278,
+    "address": "Ain el Beida Airport, Ouargla",
+    "name": "Ain el Beida Airport",
+    "iata": "OGX"
+  },
+  "OUARGLA (OGX)": {
+    "latitude": 31.9172,
+    "longitude": 5.41278,
+    "address": "Ain el Beida Airport, Ouargla",
+    "name": "Ain el Beida Airport",
+    "iata": "OGX"
+  },
+  "AIN EL BEIDA AIRPORT": {
+    "latitude": 31.9172,
+    "longitude": 5.41278,
+    "address": "Ain el Beida Airport, Ouargla",
+    "name": "Ain el Beida Airport",
+    "iata": "OGX"
+  },
+  "ANW": {
+    "latitude": 42.577185,
+    "longitude": -99.997975,
+    "address": "Ainsworth Regional Airport, Ainsworth",
+    "name": "Ainsworth Regional Airport",
+    "iata": "ANW"
+  },
+  "AINSWORTH": {
+    "latitude": 42.577185,
+    "longitude": -99.997975,
+    "address": "Ainsworth Regional Airport, Ainsworth",
+    "name": "Ainsworth Regional Airport",
+    "iata": "ANW"
+  },
+  "AINSWORTH (ANW)": {
+    "latitude": 42.577185,
+    "longitude": -99.997975,
+    "address": "Ainsworth Regional Airport, Ainsworth",
+    "name": "Ainsworth Regional Airport",
+    "iata": "ANW"
+  },
+  "AINSWORTH REGIONAL AIRPORT": {
+    "latitude": 42.577185,
+    "longitude": -99.997975,
+    "address": "Ainsworth Regional Airport, Ainsworth",
+    "name": "Ainsworth Regional Airport",
+    "iata": "ANW"
+  },
+  "AIE": {
+    "latitude": -5.142607,
+    "longitude": 144.731612,
+    "address": "Aiome Airport, Aiome",
+    "name": "Aiome Airport",
+    "iata": "AIE"
+  },
+  "AIOME": {
+    "latitude": -5.142607,
+    "longitude": 144.731612,
+    "address": "Aiome Airport, Aiome",
+    "name": "Aiome Airport",
+    "iata": "AIE"
+  },
+  "AIOME (AIE)": {
+    "latitude": -5.142607,
+    "longitude": 144.731612,
+    "address": "Aiome Airport, Aiome",
+    "name": "Aiome Airport",
+    "iata": "AIE"
+  },
+  "AIOME AIRPORT": {
+    "latitude": -5.142607,
+    "longitude": 144.731612,
+    "address": "Aiome Airport, Aiome",
+    "name": "Aiome Airport",
+    "iata": "AIE"
+  },
+  "AEO": {
+    "latitude": 16.712056,
+    "longitude": -9.637573,
+    "address": "Aioun el Atrouss Airport, Aioun El Atrouss",
+    "name": "Aioun el Atrouss Airport",
+    "iata": "AEO"
+  },
+  "AIOUN EL ATROUSS": {
+    "latitude": 16.712056,
+    "longitude": -9.637573,
+    "address": "Aioun el Atrouss Airport, Aioun El Atrouss",
+    "name": "Aioun el Atrouss Airport",
+    "iata": "AEO"
+  },
+  "AIOUN EL ATROUSS (AEO)": {
+    "latitude": 16.712056,
+    "longitude": -9.637573,
+    "address": "Aioun el Atrouss Airport, Aioun El Atrouss",
+    "name": "Aioun el Atrouss Airport",
+    "iata": "AEO"
+  },
+  "AIOUN EL ATROUSS AIRPORT": {
+    "latitude": 16.712056,
+    "longitude": -9.637573,
+    "address": "Aioun el Atrouss Airport, Aioun El Atrouss",
+    "name": "Aioun el Atrouss Airport",
+    "iata": "AEO"
+  },
+  "QLR": {
+    "latitude": 39.828335,
+    "longitude": -8.8875,
+    "address": "Air Force Base No. 5 Airport, Leiria",
+    "name": "Air Force Base No. 5 Airport",
+    "iata": "QLR"
+  },
+  "LEIRIA": {
+    "latitude": 39.828335,
+    "longitude": -8.8875,
+    "address": "Air Force Base No. 5 Airport, Leiria",
+    "name": "Air Force Base No. 5 Airport",
+    "iata": "QLR"
+  },
+  "LEIRIA (QLR)": {
+    "latitude": 39.828335,
+    "longitude": -8.8875,
+    "address": "Air Force Base No. 5 Airport, Leiria",
+    "name": "Air Force Base No. 5 Airport",
+    "iata": "QLR"
+  },
+  "AIR FORCE BASE NO. 5 AIRPORT": {
+    "latitude": 39.828335,
+    "longitude": -8.8875,
+    "address": "Air Force Base No. 5 Airport, Leiria",
+    "name": "Air Force Base No. 5 Airport",
+    "iata": "QLR"
+  },
+  "AHL": {
+    "latitude": 2.472585,
+    "longitude": -59.322245,
+    "address": "Aishalton Airport, Aishalton",
+    "name": "Aishalton Airport",
+    "iata": "AHL"
+  },
+  "AISHALTON": {
+    "latitude": 2.472585,
+    "longitude": -59.322245,
+    "address": "Aishalton Airport, Aishalton",
+    "name": "Aishalton Airport",
+    "iata": "AHL"
+  },
+  "AISHALTON (AHL)": {
+    "latitude": 2.472585,
+    "longitude": -59.322245,
+    "address": "Aishalton Airport, Aishalton",
+    "name": "Aishalton Airport",
+    "iata": "AHL"
+  },
+  "AISHALTON AIRPORT": {
+    "latitude": 2.472585,
+    "longitude": -59.322245,
+    "address": "Aishalton Airport, Aishalton",
+    "name": "Aishalton Airport",
+    "iata": "AHL"
+  },
+  "ATP": {
+    "latitude": -3.143579,
+    "longitude": 142.346516,
+    "address": "Aitape Airport, Aitape",
+    "name": "Aitape Airport",
+    "iata": "ATP"
+  },
+  "AITAPE": {
+    "latitude": -3.143579,
+    "longitude": 142.346516,
+    "address": "Aitape Airport, Aitape",
+    "name": "Aitape Airport",
+    "iata": "ATP"
+  },
+  "AITAPE (ATP)": {
+    "latitude": -3.143579,
+    "longitude": 142.346516,
+    "address": "Aitape Airport, Aitape",
+    "name": "Aitape Airport",
+    "iata": "ATP"
+  },
+  "AITAPE AIRPORT": {
+    "latitude": -3.143579,
+    "longitude": 142.346516,
+    "address": "Aitape Airport, Aitape",
+    "name": "Aitape Airport",
+    "iata": "ATP"
+  },
+  "AIT": {
+    "latitude": -18.830215,
+    "longitude": -159.765361,
+    "address": "Aitutaki Airport, Aitutaki",
+    "name": "Aitutaki Airport",
+    "iata": "AIT"
+  },
+  "AITUTAKI": {
+    "latitude": -18.830215,
+    "longitude": -159.765361,
+    "address": "Aitutaki Airport, Aitutaki",
+    "name": "Aitutaki Airport",
+    "iata": "AIT"
+  },
+  "AITUTAKI (AIT)": {
+    "latitude": -18.830215,
+    "longitude": -159.765361,
+    "address": "Aitutaki Airport, Aitutaki",
+    "name": "Aitutaki Airport",
+    "iata": "AIT"
+  },
+  "AITUTAKI AIRPORT": {
+    "latitude": -18.830215,
+    "longitude": -159.765361,
+    "address": "Aitutaki Airport, Aitutaki",
+    "name": "Aitutaki Airport",
+    "iata": "AIT"
+  },
+  "AYU": {
+    "latitude": -6.339403,
+    "longitude": 145.904741,
+    "address": "Aiyura Airport, Aiyura",
+    "name": "Aiyura Airport",
+    "iata": "AYU"
+  },
+  "AIYURA": {
+    "latitude": -6.339403,
+    "longitude": 145.904741,
+    "address": "Aiyura Airport, Aiyura",
+    "name": "Aiyura Airport",
+    "iata": "AYU"
+  },
+  "AIYURA (AYU)": {
+    "latitude": -6.339403,
+    "longitude": 145.904741,
+    "address": "Aiyura Airport, Aiyura",
+    "name": "Aiyura Airport",
+    "iata": "AYU"
+  },
+  "AIYURA AIRPORT": {
+    "latitude": -6.339403,
+    "longitude": 145.904741,
+    "address": "Aiyura Airport, Aiyura",
+    "name": "Aiyura Airport",
+    "iata": "AYU"
+  },
+  "AJA": {
+    "latitude": 41.921966,
+    "longitude": 8.798781,
+    "address": "Ajaccio Napoleon Bonaparte Airport, Ajaccio",
+    "name": "Ajaccio Napoleon Bonaparte Airport",
+    "iata": "AJA"
+  },
+  "AJACCIO": {
+    "latitude": 41.921966,
+    "longitude": 8.798781,
+    "address": "Ajaccio Napoleon Bonaparte Airport, Ajaccio",
+    "name": "Ajaccio Napoleon Bonaparte Airport",
+    "iata": "AJA"
+  },
+  "AJACCIO (AJA)": {
+    "latitude": 41.921966,
+    "longitude": 8.798781,
+    "address": "Ajaccio Napoleon Bonaparte Airport, Ajaccio",
+    "name": "Ajaccio Napoleon Bonaparte Airport",
+    "iata": "AJA"
+  },
+  "AJACCIO NAPOLEON BONAPARTE AIRPORT": {
+    "latitude": 41.921966,
+    "longitude": 8.798781,
+    "address": "Ajaccio Napoleon Bonaparte Airport, Ajaccio",
+    "name": "Ajaccio Napoleon Bonaparte Airport",
+    "iata": "AJA"
+  },
+  "ODW": {
+    "latitude": 48.251239,
+    "longitude": -122.67502,
+    "address": "A.J. Eisenberg Airport, Oak Harbor",
+    "name": "A.J. Eisenberg Airport",
+    "iata": "ODW"
+  },
+  "OAK HARBOR": {
+    "latitude": 48.251239,
+    "longitude": -122.67502,
+    "address": "A.J. Eisenberg Airport, Oak Harbor",
+    "name": "A.J. Eisenberg Airport",
+    "iata": "ODW"
+  },
+  "OAK HARBOR (ODW)": {
+    "latitude": 48.251239,
+    "longitude": -122.67502,
+    "address": "A.J. Eisenberg Airport, Oak Harbor",
+    "name": "A.J. Eisenberg Airport",
+    "iata": "ODW"
+  },
+  "A.J. EISENBERG AIRPORT": {
+    "latitude": 48.251239,
+    "longitude": -122.67502,
+    "address": "A.J. Eisenberg Airport, Oak Harbor",
+    "name": "A.J. Eisenberg Airport",
+    "iata": "ODW"
+  },
+  "ENU": {
+    "latitude": 6.473126,
+    "longitude": 7.564842,
+    "address": "Akanu Ibiam International Airport, Enugu",
+    "name": "Akanu Ibiam International Airport",
+    "iata": "ENU"
+  },
+  "ENUGU": {
+    "latitude": 6.473126,
+    "longitude": 7.564842,
+    "address": "Akanu Ibiam International Airport, Enugu",
+    "name": "Akanu Ibiam International Airport",
+    "iata": "ENU"
+  },
+  "ENUGU (ENU)": {
+    "latitude": 6.473126,
+    "longitude": 7.564842,
+    "address": "Akanu Ibiam International Airport, Enugu",
+    "name": "Akanu Ibiam International Airport",
+    "iata": "ENU"
+  },
+  "AKANU IBIAM INTERNATIONAL AIRPORT": {
+    "latitude": 6.473126,
+    "longitude": 7.564842,
+    "address": "Akanu Ibiam International Airport, Enugu",
+    "name": "Akanu Ibiam International Airport",
+    "iata": "ENU"
+  },
+  "AKK": {
+    "latitude": 56.938695,
+    "longitude": -154.182777,
+    "address": "Akhiok Airport, Akhiok",
+    "name": "Akhiok Airport",
+    "iata": "AKK"
+  },
+  "AKHIOK": {
+    "latitude": 56.938695,
+    "longitude": -154.182777,
+    "address": "Akhiok Airport, Akhiok",
+    "name": "Akhiok Airport",
+    "iata": "AKK"
+  },
+  "AKHIOK (AKK)": {
+    "latitude": 56.938695,
+    "longitude": -154.182777,
+    "address": "Akhiok Airport, Akhiok",
+    "name": "Akhiok Airport",
+    "iata": "AKK"
+  },
+  "AKHIOK AIRPORT": {
+    "latitude": 56.938695,
+    "longitude": -154.182777,
+    "address": "Akhiok Airport, Akhiok",
+    "name": "Akhiok Airport",
+    "iata": "AKK"
+  },
+  "KKI": {
+    "latitude": 60.905759,
+    "longitude": -161.425832,
+    "address": "Akiachak Airport, Akiachak",
+    "name": "Akiachak Airport",
+    "iata": "KKI"
+  },
+  "AKIACHAK": {
+    "latitude": 60.905759,
+    "longitude": -161.425832,
+    "address": "Akiachak Airport, Akiachak",
+    "name": "Akiachak Airport",
+    "iata": "KKI"
+  },
+  "AKIACHAK (KKI)": {
+    "latitude": 60.905759,
+    "longitude": -161.425832,
+    "address": "Akiachak Airport, Akiachak",
+    "name": "Akiachak Airport",
+    "iata": "KKI"
+  },
+  "AKIACHAK AIRPORT": {
+    "latitude": 60.905759,
+    "longitude": -161.425832,
+    "address": "Akiachak Airport, Akiachak",
+    "name": "Akiachak Airport",
+    "iata": "KKI"
+  },
+  "AKI": {
+    "latitude": 60.902758,
+    "longitude": -161.231073,
+    "address": "Akiak Airport, Akiak",
+    "name": "Akiak Airport",
+    "iata": "AKI"
+  },
+  "AKIAK": {
+    "latitude": 60.902758,
+    "longitude": -161.231073,
+    "address": "Akiak Airport, Akiak",
+    "name": "Akiak Airport",
+    "iata": "AKI"
+  },
+  "AKIAK (AKI)": {
+    "latitude": 60.902758,
+    "longitude": -161.231073,
+    "address": "Akiak Airport, Akiak",
+    "name": "Akiak Airport",
+    "iata": "AKI"
+  },
+  "AKIAK AIRPORT": {
+    "latitude": 60.902758,
+    "longitude": -161.231073,
+    "address": "Akiak Airport, Akiak",
+    "name": "Akiak Airport",
+    "iata": "AKI"
+  },
+  "AKE": {
+    "latitude": -1.139696,
+    "longitude": 13.903466,
+    "address": "Akieni Airport, Akieni",
+    "name": "Akieni Airport",
+    "iata": "AKE"
+  },
+  "AKIENI": {
+    "latitude": -1.139696,
+    "longitude": 13.903466,
+    "address": "Akieni Airport, Akieni",
+    "name": "Akieni Airport",
+    "iata": "AKE"
+  },
+  "AKIENI (AKE)": {
+    "latitude": -1.139696,
+    "longitude": 13.903466,
+    "address": "Akieni Airport, Akieni",
+    "name": "Akieni Airport",
+    "iata": "AKE"
+  },
+  "AKIENI AIRPORT": {
+    "latitude": -1.139696,
+    "longitude": 13.903466,
+    "address": "Akieni Airport, Akieni",
+    "name": "Akieni Airport",
+    "iata": "AKE"
+  },
+  "AXT": {
+    "latitude": 39.614474,
+    "longitude": 140.218864,
+    "address": "Akita Airport, Akita",
+    "name": "Akita Airport",
+    "iata": "AXT"
+  },
+  "AKITA": {
+    "latitude": 39.614474,
+    "longitude": 140.218864,
+    "address": "Akita Airport, Akita",
+    "name": "Akita Airport",
+    "iata": "AXT"
+  },
+  "AKITA (AXT)": {
+    "latitude": 39.614474,
+    "longitude": 140.218864,
+    "address": "Akita Airport, Akita",
+    "name": "Akita Airport",
+    "iata": "AXT"
+  },
+  "AKITA AIRPORT": {
+    "latitude": 39.614474,
+    "longitude": 140.218864,
+    "address": "Akita Airport, Akita",
+    "name": "Akita Airport",
+    "iata": "AXT"
+  },
+  "AJJ": {
+    "latitude": 19.728303,
+    "longitude": -14.378679,
+    "address": "Akjoujt Airport, Akjoujt",
+    "name": "Akjoujt Airport",
+    "iata": "AJJ"
+  },
+  "AKJOUJT": {
+    "latitude": 19.728303,
+    "longitude": -14.378679,
+    "address": "Akjoujt Airport, Akjoujt",
+    "name": "Akjoujt Airport",
+    "iata": "AJJ"
+  },
+  "AKJOUJT (AJJ)": {
+    "latitude": 19.728303,
+    "longitude": -14.378679,
+    "address": "Akjoujt Airport, Akjoujt",
+    "name": "Akjoujt Airport",
+    "iata": "AJJ"
+  },
+  "AKJOUJT AIRPORT": {
+    "latitude": 19.728303,
+    "longitude": -14.378679,
+    "address": "Akjoujt Airport, Akjoujt",
+    "name": "Akjoujt Airport",
+    "iata": "AJJ"
+  },
+  "LAK": {
+    "latitude": 68.223214,
+    "longitude": -135.005973,
+    "address": "Aklavik/Freddie Carmichael Airport, Aklavik",
+    "name": "Aklavik/Freddie Carmichael Airport",
+    "iata": "LAK"
+  },
+  "AKLAVIK": {
+    "latitude": 68.223214,
+    "longitude": -135.005973,
+    "address": "Aklavik/Freddie Carmichael Airport, Aklavik",
+    "name": "Aklavik/Freddie Carmichael Airport",
+    "iata": "LAK"
+  },
+  "AKLAVIK (LAK)": {
+    "latitude": 68.223214,
+    "longitude": -135.005973,
+    "address": "Aklavik/Freddie Carmichael Airport, Aklavik",
+    "name": "Aklavik/Freddie Carmichael Airport",
+    "iata": "LAK"
+  },
+  "AKLAVIK/FREDDIE CARMICHAEL AIRPORT": {
+    "latitude": 68.223214,
+    "longitude": -135.005973,
+    "address": "Aklavik/Freddie Carmichael Airport, Aklavik",
+    "name": "Aklavik/Freddie Carmichael Airport",
+    "iata": "LAK"
+  },
+  "AKD": {
+    "latitude": 20.697524,
+    "longitude": 77.058814,
+    "address": "Akola Airport, Akola",
+    "name": "Akola Airport",
+    "iata": "AKD"
+  },
+  "AKOLA": {
+    "latitude": 20.697524,
+    "longitude": 77.058814,
+    "address": "Akola Airport, Akola",
+    "name": "Akola Airport",
+    "iata": "AKD"
+  },
+  "AKOLA (AKD)": {
+    "latitude": 20.697524,
+    "longitude": 77.058814,
+    "address": "Akola Airport, Akola",
+    "name": "Akola Airport",
+    "iata": "AKD"
+  },
+  "AKOLA AIRPORT": {
+    "latitude": 20.697524,
+    "longitude": 77.058814,
+    "address": "Akola Airport, Akola",
+    "name": "Akola Airport",
+    "iata": "AKD"
+  },
+  "CAK": {
+    "latitude": 40.915548,
+    "longitude": -81.440739,
+    "address": "Akron–Canton Airport, Akron",
+    "name": "Akron–Canton Airport",
+    "iata": "CAK"
+  },
+  "AKRON": {
+    "latitude": 41.035888,
+    "longitude": -81.467633,
+    "address": "Akron Fulton International Airport, Akron",
+    "name": "Akron Fulton International Airport",
+    "iata": "AKC"
+  },
+  "AKRON (CAK)": {
+    "latitude": 40.915548,
+    "longitude": -81.440739,
+    "address": "Akron–Canton Airport, Akron",
+    "name": "Akron–Canton Airport",
+    "iata": "CAK"
+  },
+  "AKRON–CANTON AIRPORT": {
+    "latitude": 40.915548,
+    "longitude": -81.440739,
+    "address": "Akron–Canton Airport, Akron",
+    "name": "Akron–Canton Airport",
+    "iata": "CAK"
+  },
+  "AKC": {
+    "latitude": 41.035888,
+    "longitude": -81.467633,
+    "address": "Akron Fulton International Airport, Akron",
+    "name": "Akron Fulton International Airport",
+    "iata": "AKC"
+  },
+  "AKRON (AKC)": {
+    "latitude": 41.035888,
+    "longitude": -81.467633,
+    "address": "Akron Fulton International Airport, Akron",
+    "name": "Akron Fulton International Airport",
+    "iata": "AKC"
+  },
+  "AKRON FULTON INTERNATIONAL AIRPORT": {
+    "latitude": 41.035888,
+    "longitude": -81.467633,
+    "address": "Akron Fulton International Airport, Akron",
+    "name": "Akron Fulton International Airport",
+    "iata": "AKC"
+  },
+  "AKU": {
+    "latitude": 41.261871,
+    "longitude": 80.291922,
+    "address": "Aksu Airport, Aksu",
+    "name": "Aksu Airport",
+    "iata": "AKU"
+  },
+  "AKSU": {
+    "latitude": 41.261871,
+    "longitude": 80.291922,
+    "address": "Aksu Airport, Aksu",
+    "name": "Aksu Airport",
+    "iata": "AKU"
+  },
+  "AKSU (AKU)": {
+    "latitude": 41.261871,
+    "longitude": 80.291922,
+    "address": "Aksu Airport, Aksu",
+    "name": "Aksu Airport",
+    "iata": "AKU"
+  },
+  "AKSU AIRPORT": {
+    "latitude": 41.261871,
+    "longitude": 80.291922,
+    "address": "Aksu Airport, Aksu",
+    "name": "Aksu Airport",
+    "iata": "AKU"
+  },
+  "SCO": {
+    "latitude": 43.858315,
+    "longitude": 51.089813,
+    "address": "Aktau Airport, Aktau",
+    "name": "Aktau Airport",
+    "iata": "SCO"
+  },
+  "AKTAU": {
+    "latitude": 43.858315,
+    "longitude": 51.089813,
+    "address": "Aktau Airport, Aktau",
+    "name": "Aktau Airport",
+    "iata": "SCO"
+  },
+  "AKTAU (SCO)": {
+    "latitude": 43.858315,
+    "longitude": 51.089813,
+    "address": "Aktau Airport, Aktau",
+    "name": "Aktau Airport",
+    "iata": "SCO"
+  },
+  "AKTAU AIRPORT": {
+    "latitude": 43.858315,
+    "longitude": 51.089813,
+    "address": "Aktau Airport, Aktau",
+    "name": "Aktau Airport",
+    "iata": "SCO"
+  },
+  "PVK": {
+    "latitude": 38.925703,
+    "longitude": 20.765756,
+    "address": "Aktion National Airport, Preveza",
+    "name": "Aktion National Airport",
+    "iata": "PVK"
+  },
+  "PREVEZA": {
+    "latitude": 38.925703,
+    "longitude": 20.765756,
+    "address": "Aktion National Airport, Preveza",
+    "name": "Aktion National Airport",
+    "iata": "PVK"
+  },
+  "PREVEZA (PVK)": {
+    "latitude": 38.925703,
+    "longitude": 20.765756,
+    "address": "Aktion National Airport, Preveza",
+    "name": "Aktion National Airport",
+    "iata": "PVK"
+  },
+  "AKTION NATIONAL AIRPORT": {
+    "latitude": 38.925703,
+    "longitude": 20.765756,
+    "address": "Aktion National Airport, Preveza",
+    "name": "Aktion National Airport",
+    "iata": "PVK"
+  },
+  "AKX": {
+    "latitude": 50.246914,
+    "longitude": 57.208112,
+    "address": "Aktobe Airport, Aktobe",
+    "name": "Aktobe Airport",
+    "iata": "AKX"
+  },
+  "AKTOBE": {
+    "latitude": 50.246914,
+    "longitude": 57.208112,
+    "address": "Aktobe Airport, Aktobe",
+    "name": "Aktobe Airport",
+    "iata": "AKX"
+  },
+  "AKTOBE (AKX)": {
+    "latitude": 50.246914,
+    "longitude": 57.208112,
+    "address": "Aktobe Airport, Aktobe",
+    "name": "Aktobe Airport",
+    "iata": "AKX"
+  },
+  "AKTOBE AIRPORT": {
+    "latitude": 50.246914,
+    "longitude": 57.208112,
+    "address": "Aktobe Airport, Aktobe",
+    "name": "Aktobe Airport",
+    "iata": "AKX"
+  },
+  "AKV": {
+    "latitude": 60.818473,
+    "longitude": -78.150566,
+    "address": "Akulivik Airport, Akulivik",
+    "name": "Akulivik Airport",
+    "iata": "AKV"
+  },
+  "AKULIVIK": {
+    "latitude": 60.818473,
+    "longitude": -78.150566,
+    "address": "Akulivik Airport, Akulivik",
+    "name": "Akulivik Airport",
+    "iata": "AKV"
+  },
+  "AKULIVIK (AKV)": {
+    "latitude": 60.818473,
+    "longitude": -78.150566,
+    "address": "Akulivik Airport, Akulivik",
+    "name": "Akulivik Airport",
+    "iata": "AKV"
+  },
+  "AKULIVIK AIRPORT": {
+    "latitude": 60.818473,
+    "longitude": -78.150566,
+    "address": "Akulivik Airport, Akulivik",
+    "name": "Akulivik Airport",
+    "iata": "AKV"
+  },
+  "AKR": {
+    "latitude": 7.248162,
+    "longitude": 5.300582,
+    "address": "Akure Airport, Akure",
+    "name": "Akure Airport",
+    "iata": "AKR"
+  },
+  "AKURE": {
+    "latitude": 7.248162,
+    "longitude": 5.300582,
+    "address": "Akure Airport, Akure",
+    "name": "Akure Airport",
+    "iata": "AKR"
+  },
+  "AKURE (AKR)": {
+    "latitude": 7.248162,
+    "longitude": 5.300582,
+    "address": "Akure Airport, Akure",
+    "name": "Akure Airport",
+    "iata": "AKR"
+  },
+  "AKURE AIRPORT": {
+    "latitude": 7.248162,
+    "longitude": 5.300582,
+    "address": "Akure Airport, Akure",
+    "name": "Akure Airport",
+    "iata": "AKR"
+  },
+  "AEY": {
+    "latitude": 65.658308,
+    "longitude": -18.073304,
+    "address": "Akureyri Airport, Akureyri",
+    "name": "Akureyri Airport",
+    "iata": "AEY"
+  },
+  "AKUREYRI": {
+    "latitude": 65.658308,
+    "longitude": -18.073304,
+    "address": "Akureyri Airport, Akureyri",
+    "name": "Akureyri Airport",
+    "iata": "AEY"
+  },
+  "AKUREYRI (AEY)": {
+    "latitude": 65.658308,
+    "longitude": -18.073304,
+    "address": "Akureyri Airport, Akureyri",
+    "name": "Akureyri Airport",
+    "iata": "AEY"
+  },
+  "AKUREYRI AIRPORT": {
+    "latitude": 65.658308,
+    "longitude": -18.073304,
+    "address": "Akureyri Airport, Akureyri",
+    "name": "Akureyri Airport",
+    "iata": "AEY"
+  },
+  "KQA": {
+    "latitude": 54.13387,
+    "longitude": -165.778807,
+    "address": "Akutan Seaplane Base, Akutan",
+    "name": "Akutan Seaplane Base",
+    "iata": "KQA"
+  },
+  "AKUTAN": {
+    "latitude": 54.13387,
+    "longitude": -165.778807,
+    "address": "Akutan Seaplane Base, Akutan",
+    "name": "Akutan Seaplane Base",
+    "iata": "KQA"
+  },
+  "AKUTAN (KQA)": {
+    "latitude": 54.13387,
+    "longitude": -165.778807,
+    "address": "Akutan Seaplane Base, Akutan",
+    "name": "Akutan Seaplane Base",
+    "iata": "KQA"
+  },
+  "AKUTAN SEAPLANE BASE": {
+    "latitude": 54.13387,
+    "longitude": -165.778807,
+    "address": "Akutan Seaplane Base, Akutan",
+    "name": "Akutan Seaplane Base",
+    "iata": "KQA"
+  },
+  "QUO": {
+    "latitude": 4.8731,
+    "longitude": 8.093215,
+    "address": "Akwa Ibom International Airport, Uyo",
+    "name": "Akwa Ibom International Airport",
+    "iata": "QUO"
+  },
+  "UYO": {
+    "latitude": 4.8731,
+    "longitude": 8.093215,
+    "address": "Akwa Ibom International Airport, Uyo",
+    "name": "Akwa Ibom International Airport",
+    "iata": "QUO"
+  },
+  "UYO (QUO)": {
+    "latitude": 4.8731,
+    "longitude": 8.093215,
+    "address": "Akwa Ibom International Airport, Uyo",
+    "name": "Akwa Ibom International Airport",
+    "iata": "QUO"
+  },
+  "AKWA IBOM INTERNATIONAL AIRPORT": {
+    "latitude": 4.8731,
+    "longitude": 8.093215,
+    "address": "Akwa Ibom International Airport, Uyo",
+    "name": "Akwa Ibom International Airport",
+    "iata": "QUO"
+  },
+  "LAQ": {
+    "latitude": 32.791035,
+    "longitude": 21.96525,
+    "address": "Al Abraq International Airport, Beida",
+    "name": "Al Abraq International Airport",
+    "iata": "LAQ"
+  },
+  "BEIDA": {
+    "latitude": 32.791035,
+    "longitude": 21.96525,
+    "address": "Al Abraq International Airport, Beida",
+    "name": "Al Abraq International Airport",
+    "iata": "LAQ"
+  },
+  "BEIDA (LAQ)": {
+    "latitude": 32.791035,
+    "longitude": 21.96525,
+    "address": "Al Abraq International Airport, Beida",
+    "name": "Al Abraq International Airport",
+    "iata": "LAQ"
+  },
+  "AL ABRAQ INTERNATIONAL AIRPORT": {
+    "latitude": 32.791035,
+    "longitude": 21.96525,
+    "address": "Al Abraq International Airport, Beida",
+    "name": "Al Abraq International Airport",
+    "iata": "LAQ"
+  },
+  "HOF": {
+    "latitude": 25.288535,
+    "longitude": 49.485621,
+    "address": "Al-Ahsa International Airport, Hofuf",
+    "name": "Al-Ahsa International Airport",
+    "iata": "HOF"
+  },
+  "HOFUF": {
+    "latitude": 25.288535,
+    "longitude": 49.485621,
+    "address": "Al-Ahsa International Airport, Hofuf",
+    "name": "Al-Ahsa International Airport",
+    "iata": "HOF"
+  },
+  "HOFUF (HOF)": {
+    "latitude": 25.288535,
+    "longitude": 49.485621,
+    "address": "Al-Ahsa International Airport, Hofuf",
+    "name": "Al-Ahsa International Airport",
+    "iata": "HOF"
+  },
+  "AL-AHSA INTERNATIONAL AIRPORT": {
+    "latitude": 25.288535,
+    "longitude": 49.485621,
+    "address": "Al-Ahsa International Airport, Hofuf",
+    "name": "Al-Ahsa International Airport",
+    "iata": "HOF"
+  },
+  "AAN": {
+    "latitude": 24.25964,
+    "longitude": 55.614771,
+    "address": "Al Ain International Airport, Al Ain",
+    "name": "Al Ain International Airport",
+    "iata": "AAN"
+  },
+  "AL AIN": {
+    "latitude": 24.25964,
+    "longitude": 55.614771,
+    "address": "Al Ain International Airport, Al Ain",
+    "name": "Al Ain International Airport",
+    "iata": "AAN"
+  },
+  "AL AIN (AAN)": {
+    "latitude": 24.25964,
+    "longitude": 55.614771,
+    "address": "Al Ain International Airport, Al Ain",
+    "name": "Al Ain International Airport",
+    "iata": "AAN"
+  },
+  "AL AIN INTERNATIONAL AIRPORT": {
+    "latitude": 24.25964,
+    "longitude": 55.614771,
+    "address": "Al Ain International Airport, Al Ain",
+    "name": "Al Ain International Airport",
+    "iata": "AAN"
+  },
+  "AUK": {
+    "latitude": 62.680021,
+    "longitude": -164.659963,
+    "address": "Alakanuk Airport, Alakanuk",
+    "name": "Alakanuk Airport",
+    "iata": "AUK"
+  },
+  "ALAKANUK": {
+    "latitude": 62.680021,
+    "longitude": -164.659963,
+    "address": "Alakanuk Airport, Alakanuk",
+    "name": "Alakanuk Airport",
+    "iata": "AUK"
+  },
+  "ALAKANUK (AUK)": {
+    "latitude": 62.680021,
+    "longitude": -164.659963,
+    "address": "Alakanuk Airport, Alakanuk",
+    "name": "Alakanuk Airport",
+    "iata": "AUK"
+  },
+  "ALAKANUK AIRPORT": {
+    "latitude": 62.680021,
+    "longitude": -164.659963,
+    "address": "Alakanuk Airport, Alakanuk",
+    "name": "Alakanuk Airport",
+    "iata": "AUK"
+  },
+  "ALM": {
+    "latitude": 32.840108,
+    "longitude": -105.9919,
+    "address": "Alamogordo White Sands Regional Airport, Alamogordo",
+    "name": "Alamogordo White Sands Regional Airport",
+    "iata": "ALM"
+  },
+  "ALAMOGORDO": {
+    "latitude": 32.840108,
+    "longitude": -105.9919,
+    "address": "Alamogordo White Sands Regional Airport, Alamogordo",
+    "name": "Alamogordo White Sands Regional Airport",
+    "iata": "ALM"
+  },
+  "ALAMOGORDO (ALM)": {
+    "latitude": 32.840108,
+    "longitude": -105.9919,
+    "address": "Alamogordo White Sands Regional Airport, Alamogordo",
+    "name": "Alamogordo White Sands Regional Airport",
+    "iata": "ALM"
+  },
+  "ALAMOGORDO WHITE SANDS REGIONAL AIRPORT": {
+    "latitude": 32.840108,
+    "longitude": -105.9919,
+    "address": "Alamogordo White Sands Regional Airport, Alamogordo",
+    "name": "Alamogordo White Sands Regional Airport",
+    "iata": "ALM"
+  },
+  "XAL": {
+    "latitude": 27.036724,
+    "longitude": -108.947399,
+    "address": "Álamos Airport, Álamos",
+    "name": "Álamos Airport",
+    "iata": "XAL"
+  },
+  "ÁLAMOS": {
+    "latitude": 27.036724,
+    "longitude": -108.947399,
+    "address": "Álamos Airport, Álamos",
+    "name": "Álamos Airport",
+    "iata": "XAL"
+  },
+  "ÁLAMOS (XAL)": {
+    "latitude": 27.036724,
+    "longitude": -108.947399,
+    "address": "Álamos Airport, Álamos",
+    "name": "Álamos Airport",
+    "iata": "XAL"
+  },
+  "ÁLAMOS AIRPORT": {
+    "latitude": 27.036724,
+    "longitude": -108.947399,
+    "address": "Álamos Airport, Álamos",
+    "name": "Álamos Airport",
+    "iata": "XAL"
+  },
+  "IQA": {
+    "latitude": 33.785599,
+    "longitude": 42.4412,
+    "address": "Al Asad Airbase Airport, Al Asad",
+    "name": "Al Asad Airbase Airport",
+    "iata": "IQA"
+  },
+  "AL ASAD": {
+    "latitude": 33.785599,
+    "longitude": 42.4412,
+    "address": "Al Asad Airbase Airport, Al Asad",
+    "name": "Al Asad Airbase Airport",
+    "iata": "IQA"
+  },
+  "AL ASAD (IQA)": {
+    "latitude": 33.785599,
+    "longitude": 42.4412,
+    "address": "Al Asad Airbase Airport, Al Asad",
+    "name": "Al Asad Airbase Airport",
+    "iata": "IQA"
+  },
+  "AL ASAD AIRBASE AIRPORT": {
+    "latitude": 33.785599,
+    "longitude": 42.4412,
+    "address": "Al Asad Airbase Airport, Al Asad",
+    "name": "Al Asad Airbase Airport",
+    "iata": "IQA"
+  },
+  "ABC": {
+    "latitude": 38.949313,
+    "longitude": -1.863229,
+    "address": "Albacete Airport, Albacete",
+    "name": "Albacete Airport",
+    "iata": "ABC"
+  },
+  "ALBACETE": {
+    "latitude": 38.949313,
+    "longitude": -1.863229,
+    "address": "Albacete Airport, Albacete",
+    "name": "Albacete Airport",
+    "iata": "ABC"
+  },
+  "ALBACETE (ABC)": {
+    "latitude": 38.949313,
+    "longitude": -1.863229,
+    "address": "Albacete Airport, Albacete",
+    "name": "Albacete Airport",
+    "iata": "ABC"
+  },
+  "ALBACETE AIRPORT": {
+    "latitude": 38.949313,
+    "longitude": -1.863229,
+    "address": "Albacete Airport, Albacete",
+    "name": "Albacete Airport",
+    "iata": "ABC"
+  },
+  "ABT": {
+    "latitude": 20.29742,
+    "longitude": 41.635733,
+    "address": "Al-Baha Domestic Airport, Al Baha",
+    "name": "Al-Baha Domestic Airport",
+    "iata": "ABT"
+  },
+  "AL BAHA": {
+    "latitude": 20.29742,
+    "longitude": 41.635733,
+    "address": "Al-Baha Domestic Airport, Al Baha",
+    "name": "Al-Baha Domestic Airport",
+    "iata": "ABT"
+  },
+  "AL BAHA (ABT)": {
+    "latitude": 20.29742,
+    "longitude": 41.635733,
+    "address": "Al-Baha Domestic Airport, Al Baha",
+    "name": "Al-Baha Domestic Airport",
+    "iata": "ABT"
+  },
+  "AL-BAHA DOMESTIC AIRPORT": {
+    "latitude": 20.29742,
+    "longitude": 41.635733,
+    "address": "Al-Baha Domestic Airport, Al Baha",
+    "name": "Al-Baha Domestic Airport",
+    "iata": "ABT"
+  },
+  "NOV": {
+    "latitude": -12.803306,
+    "longitude": 15.749861,
+    "address": "Albano Machado Airport, Huambo",
+    "name": "Albano Machado Airport",
+    "iata": "NOV"
+  },
+  "HUAMBO": {
+    "latitude": -12.803306,
+    "longitude": 15.749861,
+    "address": "Albano Machado Airport, Huambo",
+    "name": "Albano Machado Airport",
+    "iata": "NOV"
+  },
+  "HUAMBO (NOV)": {
+    "latitude": -12.803306,
+    "longitude": 15.749861,
+    "address": "Albano Machado Airport, Huambo",
+    "name": "Albano Machado Airport",
+    "iata": "NOV"
+  },
+  "ALBANO MACHADO AIRPORT": {
+    "latitude": -12.803306,
+    "longitude": 15.749861,
+    "address": "Albano Machado Airport, Huambo",
+    "name": "Albano Machado Airport",
+    "iata": "NOV"
+  },
+  "ALH": {
+    "latitude": -34.944183,
+    "longitude": 117.806392,
+    "address": "Albany Airport, Albany",
+    "name": "Albany Airport",
+    "iata": "ALH"
+  },
+  "ALBANY (ALH)": {
+    "latitude": -34.944183,
+    "longitude": 117.806392,
+    "address": "Albany Airport, Albany",
+    "name": "Albany Airport",
+    "iata": "ALH"
+  },
+  "ALBANY AIRPORT": {
+    "latitude": -34.944183,
+    "longitude": 117.806392,
+    "address": "Albany Airport, Albany",
+    "name": "Albany Airport",
+    "iata": "ALH"
+  },
+  "ALBANY (ALB)": {
+    "latitude": 42.748505,
+    "longitude": -73.803597,
+    "address": "Albany International Airport, Albany",
+    "name": "Albany International Airport",
+    "iata": "ALB"
+  },
+  "ALBANY INTERNATIONAL AIRPORT": {
+    "latitude": 42.748505,
+    "longitude": -73.803597,
+    "address": "Albany International Airport, Albany",
+    "name": "Albany International Airport",
+    "iata": "ALB"
+  },
+  "BYD": {
+    "latitude": 14.105087,
+    "longitude": 45.440507,
+    "address": "Al Bayda Airport, Al Bayda",
+    "name": "Al Bayda Airport",
+    "iata": "BYD"
+  },
+  "AL BAYDA": {
+    "latitude": 14.105087,
+    "longitude": 45.440507,
+    "address": "Al Bayda Airport, Al Bayda",
+    "name": "Al Bayda Airport",
+    "iata": "BYD"
+  },
+  "AL BAYDA (BYD)": {
+    "latitude": 14.105087,
+    "longitude": 45.440507,
+    "address": "Al Bayda Airport, Al Bayda",
+    "name": "Al Bayda Airport",
+    "iata": "BYD"
+  },
+  "AL BAYDA AIRPORT": {
+    "latitude": 14.105087,
+    "longitude": 45.440507,
+    "address": "Al Bayda Airport, Al Bayda",
+    "name": "Al Bayda Airport",
+    "iata": "BYD"
+  },
+  "YPB": {
+    "latitude": 49.320792,
+    "longitude": -124.930258,
+    "address": "Alberni Valley Regional Airport, Port Alberni",
+    "name": "Alberni Valley Regional Airport",
+    "iata": "YPB"
+  },
+  "PORT ALBERNI": {
+    "latitude": 49.320792,
+    "longitude": -124.930258,
+    "address": "Alberni Valley Regional Airport, Port Alberni",
+    "name": "Alberni Valley Regional Airport",
+    "iata": "YPB"
+  },
+  "PORT ALBERNI (YPB)": {
+    "latitude": 49.320792,
+    "longitude": -124.930258,
+    "address": "Alberni Valley Regional Airport, Port Alberni",
+    "name": "Alberni Valley Regional Airport",
+    "iata": "YPB"
+  },
+  "ALBERNI VALLEY REGIONAL AIRPORT": {
+    "latitude": 49.320792,
+    "longitude": -124.930258,
+    "address": "Alberni Valley Regional Airport, Port Alberni",
+    "name": "Alberni Valley Regional Airport",
+    "iata": "YPB"
+  },
+  "OAJ": {
+    "latitude": 34.829271,
+    "longitude": -77.610497,
+    "address": "Albert J. Ellis Airport, Jacksonville",
+    "name": "Albert J. Ellis Airport",
+    "iata": "OAJ"
+  },
+  "JACKSONVILLE": {
+    "latitude": 34.829271,
+    "longitude": -77.610497,
+    "address": "Albert J. Ellis Airport, Jacksonville",
+    "name": "Albert J. Ellis Airport",
+    "iata": "OAJ"
+  },
+  "JACKSONVILLE (OAJ)": {
+    "latitude": 34.829271,
+    "longitude": -77.610497,
+    "address": "Albert J. Ellis Airport, Jacksonville",
+    "name": "Albert J. Ellis Airport",
+    "iata": "OAJ"
+  },
+  "ALBERT J. ELLIS AIRPORT": {
+    "latitude": 34.829271,
+    "longitude": -77.610497,
+    "address": "Albert J. Ellis Airport, Jacksonville",
+    "name": "Albert J. Ellis Airport",
+    "iata": "OAJ"
+  },
+  "AEL": {
+    "latitude": 43.681444,
+    "longitude": -93.367214,
+    "address": "Albert Lea Municipal Airport, Albert Lea",
+    "name": "Albert Lea Municipal Airport",
+    "iata": "AEL"
+  },
+  "ALBERT LEA": {
+    "latitude": 43.681444,
+    "longitude": -93.367214,
+    "address": "Albert Lea Municipal Airport, Albert Lea",
+    "name": "Albert Lea Municipal Airport",
+    "iata": "AEL"
+  },
+  "ALBERT LEA (AEL)": {
+    "latitude": 43.681444,
+    "longitude": -93.367214,
+    "address": "Albert Lea Municipal Airport, Albert Lea",
+    "name": "Albert Lea Municipal Airport",
+    "iata": "AEL"
+  },
+  "ALBERT LEA MUNICIPAL AIRPORT": {
+    "latitude": 43.681444,
+    "longitude": -93.367214,
+    "address": "Albert Lea Municipal Airport, Albert Lea",
+    "name": "Albert Lea Municipal Airport",
+    "iata": "AEL"
+  },
+  "MRD": {
+    "latitude": 8.582406,
+    "longitude": -71.161444,
+    "address": "Alberto Carnevalli Airport, Mérida",
+    "name": "Alberto Carnevalli Airport",
+    "iata": "MRD"
+  },
+  "MÉRIDA": {
+    "latitude": 8.582406,
+    "longitude": -71.161444,
+    "address": "Alberto Carnevalli Airport, Mérida",
+    "name": "Alberto Carnevalli Airport",
+    "iata": "MRD"
+  },
+  "MÉRIDA (MRD)": {
+    "latitude": 8.582406,
+    "longitude": -71.161444,
+    "address": "Alberto Carnevalli Airport, Mérida",
+    "name": "Alberto Carnevalli Airport",
+    "iata": "MRD"
+  },
+  "ALBERTO CARNEVALLI AIRPORT": {
+    "latitude": 8.582406,
+    "longitude": -71.161444,
+    "address": "Alberto Carnevalli Airport, Mérida",
+    "name": "Alberto Carnevalli Airport",
+    "iata": "MRD"
+  },
+  "TND": {
+    "latitude": 21.78831,
+    "longitude": -79.997207,
+    "address": "Alberto Delgado Airport, Trinidad",
+    "name": "Alberto Delgado Airport",
+    "iata": "TND"
+  },
+  "TRINIDAD": {
+    "latitude": 21.78831,
+    "longitude": -79.997207,
+    "address": "Alberto Delgado Airport, Trinidad",
+    "name": "Alberto Delgado Airport",
+    "iata": "TND"
+  },
+  "TRINIDAD (TND)": {
+    "latitude": 21.78831,
+    "longitude": -79.997207,
+    "address": "Alberto Delgado Airport, Trinidad",
+    "name": "Alberto Delgado Airport",
+    "iata": "TND"
+  },
+  "ALBERTO DELGADO AIRPORT": {
+    "latitude": 21.78831,
+    "longitude": -79.997207,
+    "address": "Alberto Delgado Airport, Trinidad",
+    "name": "Alberto Delgado Airport",
+    "iata": "TND"
+  },
+  "SOX": {
+    "latitude": 5.677171,
+    "longitude": -72.969377,
+    "address": "Alberto Lleras Camargo Airport, Sogamoso",
+    "name": "Alberto Lleras Camargo Airport",
+    "iata": "SOX"
+  },
+  "SOGAMOSO": {
+    "latitude": 5.677171,
+    "longitude": -72.969377,
+    "address": "Alberto Lleras Camargo Airport, Sogamoso",
+    "name": "Alberto Lleras Camargo Airport",
+    "iata": "SOX"
+  },
+  "SOGAMOSO (SOX)": {
+    "latitude": 5.677171,
+    "longitude": -72.969377,
+    "address": "Alberto Lleras Camargo Airport, Sogamoso",
+    "name": "Alberto Lleras Camargo Airport",
+    "iata": "SOX"
+  },
+  "ALBERTO LLERAS CAMARGO AIRPORT": {
+    "latitude": 5.677171,
+    "longitude": -72.969377,
+    "address": "Alberto Lleras Camargo Airport, Sogamoso",
+    "name": "Alberto Lleras Camargo Airport",
+    "iata": "SOX"
+  },
+  "BYF": {
+    "latitude": 49.971864,
+    "longitude": 2.696333,
+    "address": "Albert – Picardie Airport, Albert",
+    "name": "Albert – Picardie Airport",
+    "iata": "BYF"
+  },
+  "ALBERT": {
+    "latitude": 49.971864,
+    "longitude": 2.696333,
+    "address": "Albert – Picardie Airport, Albert",
+    "name": "Albert – Picardie Airport",
+    "iata": "BYF"
+  },
+  "ALBERT (BYF)": {
+    "latitude": 49.971864,
+    "longitude": 2.696333,
+    "address": "Albert – Picardie Airport, Albert",
+    "name": "Albert – Picardie Airport",
+    "iata": "BYF"
+  },
+  "ALBERT – PICARDIE AIRPORT": {
+    "latitude": 49.971864,
+    "longitude": 2.696333,
+    "address": "Albert – Picardie Airport, Albert",
+    "name": "Albert – Picardie Airport",
+    "iata": "BYF"
+  },
+  "FEP": {
+    "latitude": 42.246452,
+    "longitude": -89.581727,
+    "address": "Albertus Airport, Freeport",
+    "name": "Albertus Airport",
+    "iata": "FEP"
+  },
+  "FREEPORT": {
+    "latitude": 42.246452,
+    "longitude": -89.581727,
+    "address": "Albertus Airport, Freeport",
+    "name": "Albertus Airport",
+    "iata": "FEP"
+  },
+  "FREEPORT (FEP)": {
+    "latitude": 42.246452,
+    "longitude": -89.581727,
+    "address": "Albertus Airport, Freeport",
+    "name": "Albertus Airport",
+    "iata": "FEP"
+  },
+  "ALBERTUS AIRPORT": {
+    "latitude": 42.246452,
+    "longitude": -89.581727,
+    "address": "Albertus Airport, Freeport",
+    "name": "Albertus Airport",
+    "iata": "FEP"
+  },
+  "SPG": {
+    "latitude": 27.764901,
+    "longitude": -82.630173,
+    "address": "Albert Whitted Airport, St. Petersburg",
+    "name": "Albert Whitted Airport",
+    "iata": "SPG"
+  },
+  "ST. PETERSBURG": {
+    "latitude": 27.764901,
+    "longitude": -82.630173,
+    "address": "Albert Whitted Airport, St. Petersburg",
+    "name": "Albert Whitted Airport",
+    "iata": "SPG"
+  },
+  "ST. PETERSBURG (SPG)": {
+    "latitude": 27.764901,
+    "longitude": -82.630173,
+    "address": "Albert Whitted Airport, St. Petersburg",
+    "name": "Albert Whitted Airport",
+    "iata": "SPG"
+  },
+  "ALBERT WHITTED AIRPORT": {
+    "latitude": 27.764901,
+    "longitude": -82.630173,
+    "address": "Albert Whitted Airport, St. Petersburg",
+    "name": "Albert Whitted Airport",
+    "iata": "SPG"
+  },
+  "LBI": {
+    "latitude": 43.914577,
+    "longitude": 2.114411,
+    "address": "Albi-Le Séquestre Airport, Albi",
+    "name": "Albi-Le Séquestre Airport",
+    "iata": "LBI"
+  },
+  "ALBI": {
+    "latitude": 43.914577,
+    "longitude": 2.114411,
+    "address": "Albi-Le Séquestre Airport, Albi",
+    "name": "Albi-Le Séquestre Airport",
+    "iata": "LBI"
+  },
+  "ALBI (LBI)": {
+    "latitude": 43.914577,
+    "longitude": 2.114411,
+    "address": "Albi-Le Séquestre Airport, Albi",
+    "name": "Albi-Le Séquestre Airport",
+    "iata": "LBI"
+  },
+  "ALBI-LE SÉQUESTRE AIRPORT": {
+    "latitude": 43.914577,
+    "longitude": 2.114411,
+    "address": "Albi-Le Séquestre Airport, Albi",
+    "name": "Albi-Le Séquestre Airport",
+    "iata": "LBI"
+  },
+  "ABN": {
+    "latitude": 5.512478,
+    "longitude": -54.050118,
+    "address": "Albina Airport, Albina",
+    "name": "Albina Airport",
+    "iata": "ABN"
+  },
+  "ALBINA": {
+    "latitude": 5.512478,
+    "longitude": -54.050118,
+    "address": "Albina Airport, Albina",
+    "name": "Albina Airport",
+    "iata": "ABN"
+  },
+  "ALBINA (ABN)": {
+    "latitude": 5.512478,
+    "longitude": -54.050118,
+    "address": "Albina Airport, Albina",
+    "name": "Albina Airport",
+    "iata": "ABN"
+  },
+  "ALBINA AIRPORT": {
+    "latitude": 5.512478,
+    "longitude": -54.050118,
+    "address": "Albina Airport, Albina",
+    "name": "Albina Airport",
+    "iata": "ABN"
+  },
+  "BUK": {
+    "latitude": -20.015928,
+    "longitude": 28.622417,
+    "address": "Al Buq Airport, Al Buq",
+    "name": "Al Buq Airport",
+    "iata": "BUK"
+  },
+  "AL BUQ": {
+    "latitude": -20.015928,
+    "longitude": 28.622417,
+    "address": "Al Buq Airport, Al Buq",
+    "name": "Al Buq Airport",
+    "iata": "BUK"
+  },
+  "AL BUQ (BUK)": {
+    "latitude": -20.015928,
+    "longitude": 28.622417,
+    "address": "Al Buq Airport, Al Buq",
+    "name": "Al Buq Airport",
+    "iata": "BUK"
+  },
+  "AL BUQ AIRPORT": {
+    "latitude": -20.015928,
+    "longitude": 28.622417,
+    "address": "Al Buq Airport, Al Buq",
+    "name": "Al Buq Airport",
+    "iata": "BUK"
+  },
+  "ABQ": {
+    "latitude": 35.041766,
+    "longitude": -106.610954,
+    "address": "Albuquerque International Sunport, Albuquerque",
+    "name": "Albuquerque International Sunport",
+    "iata": "ABQ"
+  },
+  "ALBUQUERQUE": {
+    "latitude": 35.041766,
+    "longitude": -106.610954,
+    "address": "Albuquerque International Sunport, Albuquerque",
+    "name": "Albuquerque International Sunport",
+    "iata": "ABQ"
+  },
+  "ALBUQUERQUE (ABQ)": {
+    "latitude": 35.041766,
+    "longitude": -106.610954,
+    "address": "Albuquerque International Sunport, Albuquerque",
+    "name": "Albuquerque International Sunport",
+    "iata": "ABQ"
+  },
+  "ALBUQUERQUE INTERNATIONAL SUNPORT": {
+    "latitude": 35.041766,
+    "longitude": -106.610954,
+    "address": "Albuquerque International Sunport, Albuquerque",
+    "name": "Albuquerque International Sunport",
+    "iata": "ABQ"
+  },
+  "ABX": {
+    "latitude": -36.068399,
+    "longitude": 146.956265,
+    "address": "Albury Airport, Albury",
+    "name": "Albury Airport",
+    "iata": "ABX"
+  },
+  "ALBURY": {
+    "latitude": -36.068399,
+    "longitude": 146.956265,
+    "address": "Albury Airport, Albury",
+    "name": "Albury Airport",
+    "iata": "ABX"
+  },
+  "ALBURY (ABX)": {
+    "latitude": -36.068399,
+    "longitude": 146.956265,
+    "address": "Albury Airport, Albury",
+    "name": "Albury Airport",
+    "iata": "ABX"
+  },
+  "ALBURY AIRPORT": {
+    "latitude": -36.068399,
+    "longitude": 146.956265,
+    "address": "Albury Airport, Albury",
+    "name": "Albury Airport",
+    "iata": "ABX"
+  },
+  "ACD": {
+    "latitude": 8.496198,
+    "longitude": -77.273665,
+    "address": "Alcides Fernández Airport, Acandí",
+    "name": "Alcides Fernández Airport",
+    "iata": "ACD"
+  },
+  "ACANDÍ": {
+    "latitude": 8.496198,
+    "longitude": -77.273665,
+    "address": "Alcides Fernández Airport, Acandí",
+    "name": "Alcides Fernández Airport",
+    "iata": "ACD"
+  },
+  "ACANDÍ (ACD)": {
+    "latitude": 8.496198,
+    "longitude": -77.273665,
+    "address": "Alcides Fernández Airport, Acandí",
+    "name": "Alcides Fernández Airport",
+    "iata": "ACD"
+  },
+  "ALCIDES FERNÁNDEZ AIRPORT": {
+    "latitude": 8.496198,
+    "longitude": -77.273665,
+    "address": "Alcides Fernández Airport, Acandí",
+    "name": "Alcides Fernández Airport",
+    "iata": "ACD"
+  },
+  "ADH": {
+    "latitude": 58.603385,
+    "longitude": 125.408283,
+    "address": "Aldan Airport, Aldan",
+    "name": "Aldan Airport",
+    "iata": "ADH"
+  },
+  "ALDAN": {
+    "latitude": 58.603385,
+    "longitude": 125.408283,
+    "address": "Aldan Airport, Aldan",
+    "name": "Aldan Airport",
+    "iata": "ADH"
+  },
+  "ALDAN (ADH)": {
+    "latitude": 58.603385,
+    "longitude": 125.408283,
+    "address": "Aldan Airport, Aldan",
+    "name": "Aldan Airport",
+    "iata": "ADH"
+  },
+  "ALDAN AIRPORT": {
+    "latitude": 58.603385,
+    "longitude": 125.408283,
+    "address": "Aldan Airport, Aldan",
+    "name": "Aldan Airport",
+    "iata": "ADH"
+  },
+  "ACI": {
+    "latitude": 49.706104,
+    "longitude": -2.21472,
+    "address": "Alderney Airport, Alderney",
+    "name": "Alderney Airport",
+    "iata": "ACI"
+  },
+  "ALDERNEY": {
+    "latitude": 49.706104,
+    "longitude": -2.21472,
+    "address": "Alderney Airport, Alderney",
+    "name": "Alderney Airport",
+    "iata": "ACI"
+  },
+  "ALDERNEY (ACI)": {
+    "latitude": 49.706104,
+    "longitude": -2.21472,
+    "address": "Alderney Airport, Alderney",
+    "name": "Alderney Airport",
+    "iata": "ACI"
+  },
+  "ALDERNEY AIRPORT": {
+    "latitude": 49.706104,
+    "longitude": -2.21472,
+    "address": "Alderney Airport, Alderney",
+    "name": "Alderney Airport",
+    "iata": "ACI"
+  },
+  "DHF": {
+    "latitude": 24.249302,
+    "longitude": 54.548251,
+    "address": "Al Dhafra Air Base, Abu Dhabi",
+    "name": "Al Dhafra Air Base",
+    "iata": "DHF"
+  },
+  "ABU DHABI (DHF)": {
+    "latitude": 24.249302,
+    "longitude": 54.548251,
+    "address": "Al Dhafra Air Base, Abu Dhabi",
+    "name": "Al Dhafra Air Base",
+    "iata": "DHF"
+  },
+  "AL DHAFRA AIR BASE": {
+    "latitude": 24.249302,
+    "longitude": 54.548251,
+    "address": "Al Dhafra Air Base, Abu Dhabi",
+    "name": "Al Dhafra Air Base",
+    "iata": "DHF"
+  },
+  "LEG": {
+    "latitude": 16.678452,
+    "longitude": -14.964944,
+    "address": "Aleg Airport, Aleg",
+    "name": "Aleg Airport",
+    "iata": "LEG"
+  },
+  "ALEG": {
+    "latitude": 16.678452,
+    "longitude": -14.964944,
+    "address": "Aleg Airport, Aleg",
+    "name": "Aleg Airport",
+    "iata": "LEG"
+  },
+  "ALEG (LEG)": {
+    "latitude": 16.678452,
+    "longitude": -14.964944,
+    "address": "Aleg Airport, Aleg",
+    "name": "Aleg Airport",
+    "iata": "LEG"
+  },
+  "ALEG AIRPORT": {
+    "latitude": 16.678452,
+    "longitude": -14.964944,
+    "address": "Aleg Airport, Aleg",
+    "name": "Aleg Airport",
+    "iata": "LEG"
+  },
+  "ALQ": {
+    "latitude": -29.817475,
+    "longitude": -55.892987,
+    "address": "Alegrete Novo Airport, Alegrete",
+    "name": "Alegrete Novo Airport",
+    "iata": "ALQ"
+  },
+  "ALEGRETE": {
+    "latitude": -29.817475,
+    "longitude": -55.892987,
+    "address": "Alegrete Novo Airport, Alegrete",
+    "name": "Alegrete Novo Airport",
+    "iata": "ALQ"
+  },
+  "ALEGRETE (ALQ)": {
+    "latitude": -29.817475,
+    "longitude": -55.892987,
+    "address": "Alegrete Novo Airport, Alegrete",
+    "name": "Alegrete Novo Airport",
+    "iata": "ALQ"
+  },
+  "ALEGRETE NOVO AIRPORT": {
+    "latitude": -29.817475,
+    "longitude": -55.892987,
+    "address": "Alegrete Novo Airport, Alegrete",
+    "name": "Alegrete Novo Airport",
+    "iata": "ALQ"
+  },
+  "CUZ": {
+    "latitude": -13.536765,
+    "longitude": -71.941214,
+    "address": "Alejandro Velasco Astete International Airport, Cusco",
+    "name": "Alejandro Velasco Astete International Airport",
+    "iata": "CUZ"
+  },
+  "CUSCO": {
+    "latitude": -13.536765,
+    "longitude": -71.941214,
+    "address": "Alejandro Velasco Astete International Airport, Cusco",
+    "name": "Alejandro Velasco Astete International Airport",
+    "iata": "CUZ"
+  },
+  "CUSCO (CUZ)": {
+    "latitude": -13.536765,
+    "longitude": -71.941214,
+    "address": "Alejandro Velasco Astete International Airport, Cusco",
+    "name": "Alejandro Velasco Astete International Airport",
+    "iata": "CUZ"
+  },
+  "ALEJANDRO VELASCO ASTETE INTERNATIONAL AIRPORT": {
+    "latitude": -13.536765,
+    "longitude": -71.941214,
+    "address": "Alejandro Velasco Astete International Airport, Cusco",
+    "name": "Alejandro Velasco Astete International Airport",
+    "iata": "CUZ"
+  },
+  "WKK": {
+    "latitude": 59.282692,
+    "longitude": -158.617899,
+    "address": "Aleknagik Airport, Aleknagik",
+    "name": "Aleknagik Airport",
+    "iata": "WKK"
+  },
+  "ALEKNAGIK": {
+    "latitude": 59.282692,
+    "longitude": -158.617899,
+    "address": "Aleknagik Airport, Aleknagik",
+    "name": "Aleknagik Airport",
+    "iata": "WKK"
+  },
+  "ALEKNAGIK (WKK)": {
+    "latitude": 59.282692,
+    "longitude": -158.617899,
+    "address": "Aleknagik Airport, Aleknagik",
+    "name": "Aleknagik Airport",
+    "iata": "WKK"
+  },
+  "ALEKNAGIK AIRPORT": {
+    "latitude": 59.282692,
+    "longitude": -158.617899,
+    "address": "Aleknagik Airport, Aleknagik",
+    "name": "Aleknagik Airport",
+    "iata": "WKK"
+  },
+  "ALT": {
+    "latitude": -1.91705,
+    "longitude": -54.72228,
+    "address": "Alenquer Airport, Alenquer",
+    "name": "Alenquer Airport",
+    "iata": "ALT"
+  },
+  "ALENQUER": {
+    "latitude": -1.91705,
+    "longitude": -54.72228,
+    "address": "Alenquer Airport, Alenquer",
+    "name": "Alenquer Airport",
+    "iata": "ALT"
+  },
+  "ALENQUER (ALT)": {
+    "latitude": -1.91705,
+    "longitude": -54.72228,
+    "address": "Alenquer Airport, Alenquer",
+    "name": "Alenquer Airport",
+    "iata": "ALT"
+  },
+  "ALENQUER AIRPORT": {
+    "latitude": -1.91705,
+    "longitude": -54.72228,
+    "address": "Alenquer Airport, Alenquer",
+    "name": "Alenquer Airport",
+    "iata": "ALT"
+  },
+  "ALP": {
+    "latitude": 36.181637,
+    "longitude": 37.225151,
+    "address": "Aleppo International Airport, Aleppo",
+    "name": "Aleppo International Airport",
+    "iata": "ALP"
+  },
+  "ALEPPO": {
+    "latitude": 36.181637,
+    "longitude": 37.225151,
+    "address": "Aleppo International Airport, Aleppo",
+    "name": "Aleppo International Airport",
+    "iata": "ALP"
+  },
+  "ALEPPO (ALP)": {
+    "latitude": 36.181637,
+    "longitude": 37.225151,
+    "address": "Aleppo International Airport, Aleppo",
+    "name": "Aleppo International Airport",
+    "iata": "ALP"
+  },
+  "ALEPPO INTERNATIONAL AIRPORT": {
+    "latitude": 36.181637,
+    "longitude": 37.225151,
+    "address": "Aleppo International Airport, Aleppo",
+    "name": "Aleppo International Airport",
+    "iata": "ALP"
+  },
+  "ALD": {
+    "latitude": -11.650036,
+    "longitude": -69.229493,
+    "address": "Alerta Airport, Alerta",
+    "name": "Alerta Airport",
+    "iata": "ALD"
+  },
+  "ALERTA": {
+    "latitude": -11.650036,
+    "longitude": -69.229493,
+    "address": "Alerta Airport, Alerta",
+    "name": "Alerta Airport",
+    "iata": "ALD"
+  },
+  "ALERTA (ALD)": {
+    "latitude": -11.650036,
+    "longitude": -69.229493,
+    "address": "Alerta Airport, Alerta",
+    "name": "Alerta Airport",
+    "iata": "ALD"
+  },
+  "ALERTA AIRPORT": {
+    "latitude": -11.650036,
+    "longitude": -69.229493,
+    "address": "Alerta Airport, Alerta",
+    "name": "Alerta Airport",
+    "iata": "ALD"
+  },
+  "YLT": {
+    "latitude": 82.511152,
+    "longitude": -62.327781,
+    "address": "Alert Airport, Alert",
+    "name": "Alert Airport",
+    "iata": "YLT"
+  },
+  "ALERT": {
+    "latitude": 82.511152,
+    "longitude": -62.327781,
+    "address": "Alert Airport, Alert",
+    "name": "Alert Airport",
+    "iata": "YLT"
+  },
+  "ALERT (YLT)": {
+    "latitude": 82.511152,
+    "longitude": -62.327781,
+    "address": "Alert Airport, Alert",
+    "name": "Alert Airport",
+    "iata": "YLT"
+  },
+  "ALERT AIRPORT": {
+    "latitude": 82.511152,
+    "longitude": -62.327781,
+    "address": "Alert Airport, Alert",
+    "name": "Alert Airport",
+    "iata": "YLT"
+  },
+  "YAL": {
+    "latitude": 50.582661,
+    "longitude": -126.917328,
+    "address": "Alert Bay Airport, Alert Bay",
+    "name": "Alert Bay Airport",
+    "iata": "YAL"
+  },
+  "ALERT BAY": {
+    "latitude": 50.582661,
+    "longitude": -126.917328,
+    "address": "Alert Bay Airport, Alert Bay",
+    "name": "Alert Bay Airport",
+    "iata": "YAL"
+  },
+  "ALERT BAY (YAL)": {
+    "latitude": 50.582661,
+    "longitude": -126.917328,
+    "address": "Alert Bay Airport, Alert Bay",
+    "name": "Alert Bay Airport",
+    "iata": "YAL"
+  },
+  "ALERT BAY AIRPORT": {
+    "latitude": 50.582661,
+    "longitude": -126.917328,
+    "address": "Alert Bay Airport, Alert Bay",
+    "name": "Alert Bay Airport",
+    "iata": "YAL"
+  },
+  "AES": {
+    "latitude": 62.560566,
+    "longitude": 6.117434,
+    "address": "Ålesund Airport, Vigra, Ålesund",
+    "name": "Ålesund Airport, Vigra",
+    "iata": "AES"
+  },
+  "ÅLESUND": {
+    "latitude": 62.560566,
+    "longitude": 6.117434,
+    "address": "Ålesund Airport, Vigra, Ålesund",
+    "name": "Ålesund Airport, Vigra",
+    "iata": "AES"
+  },
+  "ÅLESUND (AES)": {
+    "latitude": 62.560566,
+    "longitude": 6.117434,
+    "address": "Ålesund Airport, Vigra, Ålesund",
+    "name": "Ålesund Airport, Vigra",
+    "iata": "AES"
+  },
+  "ÅLESUND AIRPORT, VIGRA": {
+    "latitude": 62.560566,
+    "longitude": 6.117434,
+    "address": "Ålesund Airport, Vigra, Ålesund",
+    "name": "Ålesund Airport, Vigra",
+    "iata": "AES"
+  },
+  "ALJ": {
+    "latitude": -28.572683,
+    "longitude": 16.530734,
+    "address": "Alexander Bay Airport, Alexander Bay",
+    "name": "Alexander Bay Airport",
+    "iata": "ALJ"
+  },
+  "ALEXANDER BAY": {
+    "latitude": -28.572683,
+    "longitude": 16.530734,
+    "address": "Alexander Bay Airport, Alexander Bay",
+    "name": "Alexander Bay Airport",
+    "iata": "ALJ"
+  },
+  "ALEXANDER BAY (ALJ)": {
+    "latitude": -28.572683,
+    "longitude": 16.530734,
+    "address": "Alexander Bay Airport, Alexander Bay",
+    "name": "Alexander Bay Airport",
+    "iata": "ALJ"
+  },
+  "ALEXANDER BAY AIRPORT": {
+    "latitude": -28.572683,
+    "longitude": 16.530734,
+    "address": "Alexander Bay Airport, Alexander Bay",
+    "name": "Alexander Bay Airport",
+    "iata": "ALJ"
+  },
+  "ALR": {
+    "latitude": -45.213504,
+    "longitude": 169.371742,
+    "address": "Alexandra Airport, Alexandra",
+    "name": "Alexandra Airport",
+    "iata": "ALR"
+  },
+  "ALEXANDRA": {
+    "latitude": -45.213504,
+    "longitude": 169.371742,
+    "address": "Alexandra Airport, Alexandra",
+    "name": "Alexandra Airport",
+    "iata": "ALR"
+  },
+  "ALEXANDRA (ALR)": {
+    "latitude": -45.213504,
+    "longitude": 169.371742,
+    "address": "Alexandra Airport, Alexandra",
+    "name": "Alexandra Airport",
+    "iata": "ALR"
+  },
+  "ALEXANDRA AIRPORT": {
+    "latitude": -45.213504,
+    "longitude": 169.371742,
+    "address": "Alexandra Airport, Alexandra",
+    "name": "Alexandra Airport",
+    "iata": "ALR"
+  },
+  "AXL": {
+    "latitude": -19.060687,
+    "longitude": 136.711479,
+    "address": "Alexandria Homestead Airport, Alexandria Station",
+    "name": "Alexandria Homestead Airport",
+    "iata": "AXL"
+  },
+  "ALEXANDRIA STATION": {
+    "latitude": -19.060687,
+    "longitude": 136.711479,
+    "address": "Alexandria Homestead Airport, Alexandria Station",
+    "name": "Alexandria Homestead Airport",
+    "iata": "AXL"
+  },
+  "ALEXANDRIA STATION (AXL)": {
+    "latitude": -19.060687,
+    "longitude": 136.711479,
+    "address": "Alexandria Homestead Airport, Alexandria Station",
+    "name": "Alexandria Homestead Airport",
+    "iata": "AXL"
+  },
+  "ALEXANDRIA HOMESTEAD AIRPORT": {
+    "latitude": -19.060687,
+    "longitude": 136.711479,
+    "address": "Alexandria Homestead Airport, Alexandria Station",
+    "name": "Alexandria Homestead Airport",
+    "iata": "AXL"
+  },
+  "AEX": {
+    "latitude": 31.326149,
+    "longitude": -92.546915,
+    "address": "Alexandria International Airport, Alexandria",
+    "name": "Alexandria International Airport",
+    "iata": "AEX"
+  },
+  "ALEXANDRIA": {
+    "latitude": 31.326149,
+    "longitude": -92.546915,
+    "address": "Alexandria International Airport, Alexandria",
+    "name": "Alexandria International Airport",
+    "iata": "AEX"
+  },
+  "ALEXANDRIA (AEX)": {
+    "latitude": 31.326149,
+    "longitude": -92.546915,
+    "address": "Alexandria International Airport, Alexandria",
+    "name": "Alexandria International Airport",
+    "iata": "AEX"
+  },
+  "ALEXANDRIA INTERNATIONAL AIRPORT": {
+    "latitude": 31.326149,
+    "longitude": -92.546915,
+    "address": "Alexandria International Airport, Alexandria",
+    "name": "Alexandria International Airport",
+    "iata": "AEX"
+  },
+  "AXD": {
+    "latitude": 40.856259,
+    "longitude": 25.953504,
+    "address": "Alexandroupolis Airport, Alexandroupolis",
+    "name": "Alexandroupolis Airport",
+    "iata": "AXD"
+  },
+  "ALEXANDROUPOLIS": {
+    "latitude": 40.856259,
+    "longitude": 25.953504,
+    "address": "Alexandroupolis Airport, Alexandroupolis",
+    "name": "Alexandroupolis Airport",
+    "iata": "AXD"
+  },
+  "ALEXANDROUPOLIS (AXD)": {
+    "latitude": 40.856259,
+    "longitude": 25.953504,
+    "address": "Alexandroupolis Airport, Alexandroupolis",
+    "name": "Alexandroupolis Airport",
+    "iata": "AXD"
+  },
+  "ALEXANDROUPOLIS AIRPORT": {
+    "latitude": 40.856259,
+    "longitude": 25.953504,
+    "address": "Alexandroupolis Airport, Alexandroupolis",
+    "name": "Alexandroupolis Airport",
+    "iata": "AXD"
+  },
+  "STX": {
+    "latitude": 17.701154,
+    "longitude": -64.800116,
+    "address": "Alex Hamilton Airport, St Croix Island",
+    "name": "Alex Hamilton Airport",
+    "iata": "STX"
+  },
+  "ST CROIX ISLAND": {
+    "latitude": 17.701154,
+    "longitude": -64.800116,
+    "address": "Alex Hamilton Airport, St Croix Island",
+    "name": "Alex Hamilton Airport",
+    "iata": "STX"
+  },
+  "ST CROIX ISLAND (STX)": {
+    "latitude": 17.701154,
+    "longitude": -64.800116,
+    "address": "Alex Hamilton Airport, St Croix Island",
+    "name": "Alex Hamilton Airport",
+    "iata": "STX"
+  },
+  "ALEX HAMILTON AIRPORT": {
+    "latitude": 17.701154,
+    "longitude": -64.800116,
+    "address": "Alex Hamilton Airport, St Croix Island",
+    "name": "Alex Hamilton Airport",
+    "iata": "STX"
+  },
+  "LLS": {
+    "latitude": -24.722042,
+    "longitude": -60.548791,
+    "address": "Alferez Armando Rodriguez Airport, Las Lomitas",
+    "name": "Alferez Armando Rodriguez Airport",
+    "iata": "LLS"
+  },
+  "LAS LOMITAS": {
+    "latitude": -24.722042,
+    "longitude": -60.548791,
+    "address": "Alferez Armando Rodriguez Airport, Las Lomitas",
+    "name": "Alferez Armando Rodriguez Airport",
+    "iata": "LLS"
+  },
+  "LAS LOMITAS (LLS)": {
+    "latitude": -24.722042,
+    "longitude": -60.548791,
+    "address": "Alferez Armando Rodriguez Airport, Las Lomitas",
+    "name": "Alferez Armando Rodriguez Airport",
+    "iata": "LLS"
+  },
+  "ALFEREZ ARMANDO RODRIGUEZ AIRPORT": {
+    "latitude": -24.722042,
+    "longitude": -60.548791,
+    "address": "Alferez Armando Rodriguez Airport, Las Lomitas",
+    "name": "Alferez Armando Rodriguez Airport",
+    "iata": "LLS"
+  },
+  "AOP": {
+    "latitude": -2.796357,
+    "longitude": -76.46612,
+    "address": "Alferez FAP Alfredo Vladimir Sara Bauer Airport, Andoas",
+    "name": "Alferez FAP Alfredo Vladimir Sara Bauer Airport",
+    "iata": "AOP"
+  },
+  "ANDOAS": {
+    "latitude": -2.796357,
+    "longitude": -76.46612,
+    "address": "Alferez FAP Alfredo Vladimir Sara Bauer Airport, Andoas",
+    "name": "Alferez FAP Alfredo Vladimir Sara Bauer Airport",
+    "iata": "AOP"
+  },
+  "ANDOAS (AOP)": {
+    "latitude": -2.796357,
+    "longitude": -76.46612,
+    "address": "Alferez FAP Alfredo Vladimir Sara Bauer Airport, Andoas",
+    "name": "Alferez FAP Alfredo Vladimir Sara Bauer Airport",
+    "iata": "AOP"
+  },
+  "ALFEREZ FAP ALFREDO VLADIMIR SARA BAUER AIRPORT": {
+    "latitude": -2.796357,
+    "longitude": -76.46612,
+    "address": "Alferez FAP Alfredo Vladimir Sara Bauer Airport, Andoas",
+    "name": "Alferez FAP Alfredo Vladimir Sara Bauer Airport",
+    "iata": "AOP"
+  },
+  "CLO": {
+    "latitude": 3.541789,
+    "longitude": -76.383752,
+    "address": "Alfonso Bonilla Aragón International Airport, Cali",
+    "name": "Alfonso Bonilla Aragón International Airport",
+    "iata": "CLO"
+  },
+  "CALI": {
+    "latitude": 3.541789,
+    "longitude": -76.383752,
+    "address": "Alfonso Bonilla Aragón International Airport, Cali",
+    "name": "Alfonso Bonilla Aragón International Airport",
+    "iata": "CLO"
+  },
+  "CALI (CLO)": {
+    "latitude": 3.541789,
+    "longitude": -76.383752,
+    "address": "Alfonso Bonilla Aragón International Airport, Cali",
+    "name": "Alfonso Bonilla Aragón International Airport",
+    "iata": "CLO"
+  },
+  "ALFONSO BONILLA ARAGÓN INTERNATIONAL AIRPORT": {
+    "latitude": 3.541789,
+    "longitude": -76.383752,
+    "address": "Alfonso Bonilla Aragón International Airport, Cali",
+    "name": "Alfonso Bonilla Aragón International Airport",
+    "iata": "CLO"
+  },
+  "VUP": {
+    "latitude": 10.434309,
+    "longitude": -73.248644,
+    "address": "Alfonso López Pumarejo Airport, Valledupar",
+    "name": "Alfonso López Pumarejo Airport",
+    "iata": "VUP"
+  },
+  "VALLEDUPAR": {
+    "latitude": 10.434309,
+    "longitude": -73.248644,
+    "address": "Alfonso López Pumarejo Airport, Valledupar",
+    "name": "Alfonso López Pumarejo Airport",
+    "iata": "VUP"
+  },
+  "VALLEDUPAR (VUP)": {
+    "latitude": 10.434309,
+    "longitude": -73.248644,
+    "address": "Alfonso López Pumarejo Airport, Valledupar",
+    "name": "Alfonso López Pumarejo Airport",
+    "iata": "VUP"
+  },
+  "ALFONSO LÓPEZ PUMAREJO AIRPORT": {
+    "latitude": 10.434309,
+    "longitude": -73.248644,
+    "address": "Alfonso López Pumarejo Airport, Valledupar",
+    "name": "Alfonso López Pumarejo Airport",
+    "iata": "VUP"
+  },
+  "LET": {
+    "latitude": -4.192345,
+    "longitude": -69.942306,
+    "address": "Alfredo Vásquez Cobo International Airport, Leticia",
+    "name": "Alfredo Vásquez Cobo International Airport",
+    "iata": "LET"
+  },
+  "LETICIA": {
+    "latitude": -4.192345,
+    "longitude": -69.942306,
+    "address": "Alfredo Vásquez Cobo International Airport, Leticia",
+    "name": "Alfredo Vásquez Cobo International Airport",
+    "iata": "LET"
+  },
+  "LETICIA (LET)": {
+    "latitude": -4.192345,
+    "longitude": -69.942306,
+    "address": "Alfredo Vásquez Cobo International Airport, Leticia",
+    "name": "Alfredo Vásquez Cobo International Airport",
+    "iata": "LET"
+  },
+  "ALFREDO VÁSQUEZ COBO INTERNATIONAL AIRPORT": {
+    "latitude": -4.192345,
+    "longitude": -69.942306,
+    "address": "Alfredo Vásquez Cobo International Airport, Leticia",
+    "name": "Alfredo Vásquez Cobo International Airport",
+    "iata": "LET"
+  },
+  "AAY": {
+    "latitude": 16.193682,
+    "longitude": 52.174267,
+    "address": "Al Ghaydah Airport, Al Ghaydah",
+    "name": "Al Ghaydah Airport",
+    "iata": "AAY"
+  },
+  "AL GHAYDAH": {
+    "latitude": 16.193682,
+    "longitude": 52.174267,
+    "address": "Al Ghaydah Airport, Al Ghaydah",
+    "name": "Al Ghaydah Airport",
+    "iata": "AAY"
+  },
+  "AL GHAYDAH (AAY)": {
+    "latitude": 16.193682,
+    "longitude": 52.174267,
+    "address": "Al Ghaydah Airport, Al Ghaydah",
+    "name": "Al Ghaydah Airport",
+    "iata": "AAY"
+  },
+  "AL GHAYDAH AIRPORT": {
+    "latitude": 16.193682,
+    "longitude": 52.174267,
+    "address": "Al Ghaydah Airport, Al Ghaydah",
+    "name": "Al Ghaydah Airport",
+    "iata": "AAY"
+  },
+  "AHO": {
+    "latitude": 40.632485,
+    "longitude": 8.290451,
+    "address": "Alghero-Fertilia Airport, Alghero",
+    "name": "Alghero-Fertilia Airport",
+    "iata": "AHO"
+  },
+  "ALGHERO": {
+    "latitude": 40.632485,
+    "longitude": 8.290451,
+    "address": "Alghero-Fertilia Airport, Alghero",
+    "name": "Alghero-Fertilia Airport",
+    "iata": "AHO"
+  },
+  "ALGHERO (AHO)": {
+    "latitude": 40.632485,
+    "longitude": 8.290451,
+    "address": "Alghero-Fertilia Airport, Alghero",
+    "name": "Alghero-Fertilia Airport",
+    "iata": "AHO"
+  },
+  "ALGHERO-FERTILIA AIRPORT": {
+    "latitude": 40.632485,
+    "longitude": 8.290451,
+    "address": "Alghero-Fertilia Airport, Alghero",
+    "name": "Alghero-Fertilia Airport",
+    "iata": "AHO"
+  },
+  "AXG": {
+    "latitude": 43.077838,
+    "longitude": -94.271972,
+    "address": "Algona Municipal Airport, Algona",
+    "name": "Algona Municipal Airport",
+    "iata": "AXG"
+  },
+  "ALGONA": {
+    "latitude": 43.077838,
+    "longitude": -94.271972,
+    "address": "Algona Municipal Airport, Algona",
+    "name": "Algona Municipal Airport",
+    "iata": "AXG"
+  },
+  "ALGONA (AXG)": {
+    "latitude": 43.077838,
+    "longitude": -94.271972,
+    "address": "Algona Municipal Airport, Algona",
+    "name": "Algona Municipal Airport",
+    "iata": "AXG"
+  },
+  "ALGONA MUNICIPAL AIRPORT": {
+    "latitude": 43.077838,
+    "longitude": -94.271972,
+    "address": "Algona Municipal Airport, Algona",
+    "name": "Algona Municipal Airport",
+    "iata": "AXG"
+  },
+  "RHR": {
+    "latitude": 24.073775,
+    "longitude": 52.463117,
+    "address": "Al Hamra Seaplane Base Airport, Ras al Khaimah",
+    "name": "Al Hamra Seaplane Base Airport",
+    "iata": "RHR"
+  },
+  "RAS AL KHAIMAH": {
+    "latitude": 24.073775,
+    "longitude": 52.463117,
+    "address": "Al Hamra Seaplane Base Airport, Ras al Khaimah",
+    "name": "Al Hamra Seaplane Base Airport",
+    "iata": "RHR"
+  },
+  "RAS AL KHAIMAH (RHR)": {
+    "latitude": 24.073775,
+    "longitude": 52.463117,
+    "address": "Al Hamra Seaplane Base Airport, Ras al Khaimah",
+    "name": "Al Hamra Seaplane Base Airport",
+    "iata": "RHR"
+  },
+  "AL HAMRA SEAPLANE BASE AIRPORT": {
+    "latitude": 24.073775,
+    "longitude": 52.463117,
+    "address": "Al Hamra Seaplane Base Airport, Ras al Khaimah",
+    "name": "Al Hamra Seaplane Base Airport",
+    "iata": "RHR"
+  },
+  "ALC": {
+    "latitude": 38.28384,
+    "longitude": -0.559106,
+    "address": "Alicante–Elche Airport, Alicante",
+    "name": "Alicante–Elche Airport",
+    "iata": "ALC"
+  },
+  "ALICANTE": {
+    "latitude": 38.28384,
+    "longitude": -0.559106,
+    "address": "Alicante–Elche Airport, Alicante",
+    "name": "Alicante–Elche Airport",
+    "iata": "ALC"
+  },
+  "ALICANTE (ALC)": {
+    "latitude": 38.28384,
+    "longitude": -0.559106,
+    "address": "Alicante–Elche Airport, Alicante",
+    "name": "Alicante–Elche Airport",
+    "iata": "ALC"
+  },
+  "ALICANTE–ELCHE AIRPORT": {
+    "latitude": 38.28384,
+    "longitude": -0.559106,
+    "address": "Alicante–Elche Airport, Alicante",
+    "name": "Alicante–Elche Airport",
+    "iata": "ALC"
+  },
+  "ZAA": {
+    "latitude": 55.468217,
+    "longitude": -129.488492,
+    "address": "Alice Arm Airport, Alice Arm",
+    "name": "Alice Arm Airport",
+    "iata": "ZAA"
+  },
+  "ALICE ARM": {
+    "latitude": 55.468217,
+    "longitude": -129.488492,
+    "address": "Alice Arm Airport, Alice Arm",
+    "name": "Alice Arm Airport",
+    "iata": "ZAA"
+  },
+  "ALICE ARM (ZAA)": {
+    "latitude": 55.468217,
+    "longitude": -129.488492,
+    "address": "Alice Arm Airport, Alice Arm",
+    "name": "Alice Arm Airport",
+    "iata": "ZAA"
+  },
+  "ALICE ARM AIRPORT": {
+    "latitude": 55.468217,
+    "longitude": -129.488492,
+    "address": "Alice Arm Airport, Alice Arm",
+    "name": "Alice Arm Airport",
+    "iata": "ZAA"
+  },
+  "ALI": {
+    "latitude": 27.740877,
+    "longitude": -98.027008,
+    "address": "Alice International Airport, Alice",
+    "name": "Alice International Airport",
+    "iata": "ALI"
+  },
+  "ALICE": {
+    "latitude": 27.740877,
+    "longitude": -98.027008,
+    "address": "Alice International Airport, Alice",
+    "name": "Alice International Airport",
+    "iata": "ALI"
+  },
+  "ALICE (ALI)": {
+    "latitude": 27.740877,
+    "longitude": -98.027008,
+    "address": "Alice International Airport, Alice",
+    "name": "Alice International Airport",
+    "iata": "ALI"
+  },
+  "ALICE INTERNATIONAL AIRPORT": {
+    "latitude": 27.740877,
+    "longitude": -98.027008,
+    "address": "Alice International Airport, Alice",
+    "name": "Alice International Airport",
+    "iata": "ALI"
+  },
+  "ASP": {
+    "latitude": -23.805021,
+    "longitude": 133.902347,
+    "address": "Alice Springs Airport, Alice Springs",
+    "name": "Alice Springs Airport",
+    "iata": "ASP"
+  },
+  "ALICE SPRINGS": {
+    "latitude": -23.805021,
+    "longitude": 133.902347,
+    "address": "Alice Springs Airport, Alice Springs",
+    "name": "Alice Springs Airport",
+    "iata": "ASP"
+  },
+  "ALICE SPRINGS (ASP)": {
+    "latitude": -23.805021,
+    "longitude": 133.902347,
+    "address": "Alice Springs Airport, Alice Springs",
+    "name": "Alice Springs Airport",
+    "iata": "ASP"
+  },
+  "ALICE SPRINGS AIRPORT": {
+    "latitude": -23.805021,
+    "longitude": 133.902347,
+    "address": "Alice Springs Airport, Alice Springs",
+    "name": "Alice Springs Airport",
+    "iata": "ASP"
+  },
+  "AII": {
+    "latitude": 11.516854,
+    "longitude": 43.060818,
+    "address": "Ali-Sabieh Airport, Ali Sabieh",
+    "name": "Ali-Sabieh Airport",
+    "iata": "AII"
+  },
+  "ALI SABIEH": {
+    "latitude": 11.516854,
+    "longitude": 43.060818,
+    "address": "Ali-Sabieh Airport, Ali Sabieh",
+    "name": "Ali-Sabieh Airport",
+    "iata": "AII"
+  },
+  "ALI SABIEH (AII)": {
+    "latitude": 11.516854,
+    "longitude": 43.060818,
+    "address": "Ali-Sabieh Airport, Ali Sabieh",
+    "name": "Ali-Sabieh Airport",
+    "iata": "AII"
+  },
+  "ALI-SABIEH AIRPORT": {
+    "latitude": 11.516854,
+    "longitude": 43.060818,
+    "address": "Ali-Sabieh Airport, Ali Sabieh",
+    "name": "Ali-Sabieh Airport",
+    "iata": "AII"
+  },
+  "ALZ": {
+    "latitude": 56.897616,
+    "longitude": -154.248873,
+    "address": "Alitak Seaplane Base Airport, Lazy Bay",
+    "name": "Alitak Seaplane Base Airport",
+    "iata": "ALZ"
+  },
+  "LAZY BAY": {
+    "latitude": 56.897616,
+    "longitude": -154.248873,
+    "address": "Alitak Seaplane Base Airport, Lazy Bay",
+    "name": "Alitak Seaplane Base Airport",
+    "iata": "ALZ"
+  },
+  "LAZY BAY (ALZ)": {
+    "latitude": 56.897616,
+    "longitude": -154.248873,
+    "address": "Alitak Seaplane Base Airport, Lazy Bay",
+    "name": "Alitak Seaplane Base Airport",
+    "iata": "ALZ"
+  },
+  "ALITAK SEAPLANE BASE AIRPORT": {
+    "latitude": 56.897616,
+    "longitude": -154.248873,
+    "address": "Alitak Seaplane Base Airport, Lazy Bay",
+    "name": "Alitak Seaplane Base Airport",
+    "iata": "ALZ"
+  },
+  "AJF": {
+    "latitude": 29.785856,
+    "longitude": 40.100851,
+    "address": "Al-Jawf Domestic Airport, Al-Jawf",
+    "name": "Al-Jawf Domestic Airport",
+    "iata": "AJF"
+  },
+  "AL-JAWF": {
+    "latitude": 29.785856,
+    "longitude": 40.100851,
+    "address": "Al-Jawf Domestic Airport, Al-Jawf",
+    "name": "Al-Jawf Domestic Airport",
+    "iata": "AJF"
+  },
+  "AL-JAWF (AJF)": {
+    "latitude": 29.785856,
+    "longitude": 40.100851,
+    "address": "Al-Jawf Domestic Airport, Al-Jawf",
+    "name": "Al-Jawf Domestic Airport",
+    "iata": "AJF"
+  },
+  "AL-JAWF DOMESTIC AIRPORT": {
+    "latitude": 29.785856,
+    "longitude": 40.100851,
+    "address": "Al-Jawf Domestic Airport, Al-Jawf",
+    "name": "Al-Jawf Domestic Airport",
+    "iata": "AJF"
+  },
+  "IXD": {
+    "latitude": 25.440093,
+    "longitude": 81.733956,
+    "address": "Allahabad Airport, Allahabad",
+    "name": "Allahabad Airport",
+    "iata": "IXD"
+  },
+  "ALLAHABAD": {
+    "latitude": 25.440093,
+    "longitude": 81.733956,
+    "address": "Allahabad Airport, Allahabad",
+    "name": "Allahabad Airport",
+    "iata": "IXD"
+  },
+  "ALLAHABAD (IXD)": {
+    "latitude": 25.440093,
+    "longitude": 81.733956,
+    "address": "Allahabad Airport, Allahabad",
+    "name": "Allahabad Airport",
+    "iata": "IXD"
+  },
+  "ALLAHABAD AIRPORT": {
+    "latitude": 25.440093,
+    "longitude": 81.733956,
+    "address": "Allahabad Airport, Allahabad",
+    "name": "Allahabad Airport",
+    "iata": "IXD"
+  },
+  "AAV": {
+    "latitude": 6.369073,
+    "longitude": 124.75065,
+    "address": "Allah Valley Airport, Surallah",
+    "name": "Allah Valley Airport",
+    "iata": "AAV"
+  },
+  "SURALLAH": {
+    "latitude": 6.369073,
+    "longitude": 124.75065,
+    "address": "Allah Valley Airport, Surallah",
+    "name": "Allah Valley Airport",
+    "iata": "AAV"
+  },
+  "SURALLAH (AAV)": {
+    "latitude": 6.369073,
+    "longitude": 124.75065,
+    "address": "Allah Valley Airport, Surallah",
+    "name": "Allah Valley Airport",
+    "iata": "AAV"
+  },
+  "ALLAH VALLEY AIRPORT": {
+    "latitude": 6.369073,
+    "longitude": 124.75065,
+    "address": "Allah Valley Airport, Surallah",
+    "name": "Allah Valley Airport",
+    "iata": "AAV"
+  },
+  "AET": {
+    "latitude": 66.551071,
+    "longitude": -152.624426,
+    "address": "Allakaket Airport, Allakaket",
+    "name": "Allakaket Airport",
+    "iata": "AET"
+  },
+  "ALLAKAKET": {
+    "latitude": 66.551071,
+    "longitude": -152.624426,
+    "address": "Allakaket Airport, Allakaket",
+    "name": "Allakaket Airport",
+    "iata": "AET"
+  },
+  "ALLAKAKET (AET)": {
+    "latitude": 66.551071,
+    "longitude": -152.624426,
+    "address": "Allakaket Airport, Allakaket",
+    "name": "Allakaket Airport",
+    "iata": "AET"
+  },
+  "ALLAKAKET AIRPORT": {
+    "latitude": 66.551071,
+    "longitude": -152.624426,
+    "address": "Allakaket Airport, Allakaket",
+    "name": "Allakaket Airport",
+    "iata": "AET"
+  },
+  "LHE": {
+    "latitude": 31.521077,
+    "longitude": 74.407111,
+    "address": "Allama Iqbal International Airport, Lahore",
+    "name": "Allama Iqbal International Airport",
+    "iata": "LHE"
+  },
+  "LAHORE": {
+    "latitude": 31.521077,
+    "longitude": 74.407111,
+    "address": "Allama Iqbal International Airport, Lahore",
+    "name": "Allama Iqbal International Airport",
+    "iata": "LHE"
+  },
+  "LAHORE (LHE)": {
+    "latitude": 31.521077,
+    "longitude": 74.407111,
+    "address": "Allama Iqbal International Airport, Lahore",
+    "name": "Allama Iqbal International Airport",
+    "iata": "LHE"
+  },
+  "ALLAMA IQBAL INTERNATIONAL AIRPORT": {
+    "latitude": 31.521077,
+    "longitude": 74.407111,
+    "address": "Allama Iqbal International Airport, Lahore",
+    "name": "Allama Iqbal International Airport",
+    "iata": "LHE"
+  },
+  "ADY": {
+    "latitude": -22.679,
+    "longitude": 29.0555,
+    "address": "Alldays Airport, Alldays",
+    "name": "Alldays Airport",
+    "iata": "ADY"
+  },
+  "ALLDAYS": {
+    "latitude": -22.679,
+    "longitude": 29.0555,
+    "address": "Alldays Airport, Alldays",
+    "name": "Alldays Airport",
+    "iata": "ADY"
+  },
+  "ALLDAYS (ADY)": {
+    "latitude": -22.679,
+    "longitude": 29.0555,
+    "address": "Alldays Airport, Alldays",
+    "name": "Alldays Airport",
+    "iata": "ADY"
+  },
+  "ALLDAYS AIRPORT": {
+    "latitude": -22.679,
+    "longitude": 29.0555,
+    "address": "Alldays Airport, Alldays",
+    "name": "Alldays Airport",
+    "iata": "ADY"
+  },
+  "AGC": {
+    "latitude": 40.35391,
+    "longitude": -79.929429,
+    "address": "Allegheny County Airport, Pittsburgh",
+    "name": "Allegheny County Airport",
+    "iata": "AGC"
+  },
+  "PITTSBURGH": {
+    "latitude": 40.35391,
+    "longitude": -79.929429,
+    "address": "Allegheny County Airport, Pittsburgh",
+    "name": "Allegheny County Airport",
+    "iata": "AGC"
+  },
+  "PITTSBURGH (AGC)": {
+    "latitude": 40.35391,
+    "longitude": -79.929429,
+    "address": "Allegheny County Airport, Pittsburgh",
+    "name": "Allegheny County Airport",
+    "iata": "AGC"
+  },
+  "ALLEGHENY COUNTY AIRPORT": {
+    "latitude": 40.35391,
+    "longitude": -79.929429,
+    "address": "Allegheny County Airport, Pittsburgh",
+    "name": "Allegheny County Airport",
+    "iata": "AGC"
+  },
+  "BIG": {
+    "latitude": 63.994573,
+    "longitude": -145.721425,
+    "address": "Allen Army Airfield, Delta Junction",
+    "name": "Allen Army Airfield",
+    "iata": "BIG"
+  },
+  "DELTA JUNCTION": {
+    "latitude": 63.994573,
+    "longitude": -145.721425,
+    "address": "Allen Army Airfield, Delta Junction",
+    "name": "Allen Army Airfield",
+    "iata": "BIG"
+  },
+  "DELTA JUNCTION (BIG)": {
+    "latitude": 63.994573,
+    "longitude": -145.721425,
+    "address": "Allen Army Airfield, Delta Junction",
+    "name": "Allen Army Airfield",
+    "iata": "BIG"
+  },
+  "ALLEN ARMY AIRFIELD": {
+    "latitude": 63.994573,
+    "longitude": -145.721425,
+    "address": "Allen Army Airfield, Delta Junction",
+    "name": "Allen Army Airfield",
+    "iata": "BIG"
+  },
+  "AIA": {
+    "latitude": 42.056102,
+    "longitude": -102.804995,
+    "address": "Alliance Municipal Airport, Alliance",
+    "name": "Alliance Municipal Airport",
+    "iata": "AIA"
+  },
+  "ALLIANCE": {
+    "latitude": 42.056102,
+    "longitude": -102.804995,
+    "address": "Alliance Municipal Airport, Alliance",
+    "name": "Alliance Municipal Airport",
+    "iata": "AIA"
+  },
+  "ALLIANCE (AIA)": {
+    "latitude": 42.056102,
+    "longitude": -102.804995,
+    "address": "Alliance Municipal Airport, Alliance",
+    "name": "Alliance Municipal Airport",
+    "iata": "AIA"
+  },
+  "ALLIANCE MUNICIPAL AIRPORT": {
+    "latitude": 42.056102,
+    "longitude": -102.804995,
+    "address": "Alliance Municipal Airport, Alliance",
+    "name": "Alliance Municipal Airport",
+    "iata": "AIA"
+  },
+  "YTF": {
+    "latitude": 48.508851,
+    "longitude": -71.646963,
+    "address": "Alma Airport, Alma",
+    "name": "Alma Airport",
+    "iata": "YTF"
+  },
+  "ALMA": {
+    "latitude": 48.508851,
+    "longitude": -71.646963,
+    "address": "Alma Airport, Alma",
+    "name": "Alma Airport",
+    "iata": "YTF"
+  },
+  "ALMA (YTF)": {
+    "latitude": 48.508851,
+    "longitude": -71.646963,
+    "address": "Alma Airport, Alma",
+    "name": "Alma Airport",
+    "iata": "YTF"
+  },
+  "ALMA AIRPORT": {
+    "latitude": 48.508851,
+    "longitude": -71.646963,
+    "address": "Alma Airport, Alma",
+    "name": "Alma Airport",
+    "iata": "YTF"
+  },
+  "DWC": {
+    "latitude": 24.89344,
+    "longitude": 55.143777,
+    "address": "Al Maktoum International Airport, Dubai",
+    "name": "Al Maktoum International Airport",
+    "iata": "DWC"
+  },
+  "DUBAI": {
+    "latitude": 24.89344,
+    "longitude": 55.143777,
+    "address": "Al Maktoum International Airport, Dubai",
+    "name": "Al Maktoum International Airport",
+    "iata": "DWC"
+  },
+  "DUBAI (DWC)": {
+    "latitude": 24.89344,
+    "longitude": 55.143777,
+    "address": "Al Maktoum International Airport, Dubai",
+    "name": "Al Maktoum International Airport",
+    "iata": "DWC"
+  },
+  "AL MAKTOUM INTERNATIONAL AIRPORT": {
+    "latitude": 24.89344,
+    "longitude": 55.143777,
+    "address": "Al Maktoum International Airport, Dubai",
+    "name": "Al Maktoum International Airport",
+    "iata": "DWC"
+  },
+  "OCH": {
+    "latitude": 31.578406,
+    "longitude": -94.705817,
+    "address": "A.L. Mangham Jr. Regional Airport, Nacogdoches",
+    "name": "A.L. Mangham Jr. Regional Airport",
+    "iata": "OCH"
+  },
+  "NACOGDOCHES": {
+    "latitude": 31.578406,
+    "longitude": -94.705817,
+    "address": "A.L. Mangham Jr. Regional Airport, Nacogdoches",
+    "name": "A.L. Mangham Jr. Regional Airport",
+    "iata": "OCH"
+  },
+  "NACOGDOCHES (OCH)": {
+    "latitude": 31.578406,
+    "longitude": -94.705817,
+    "address": "A.L. Mangham Jr. Regional Airport, Nacogdoches",
+    "name": "A.L. Mangham Jr. Regional Airport",
+    "iata": "OCH"
+  },
+  "A.L. MANGHAM JR. REGIONAL AIRPORT": {
+    "latitude": 31.578406,
+    "longitude": -94.705817,
+    "address": "A.L. Mangham Jr. Regional Airport, Nacogdoches",
+    "name": "A.L. Mangham Jr. Regional Airport",
+    "iata": "OCH"
+  },
+  "ALA": {
+    "latitude": 43.350605,
+    "longitude": 77.023187,
+    "address": "Almaty International Airport, Almaty",
+    "name": "Almaty International Airport",
+    "iata": "ALA"
+  },
+  "ALMATY": {
+    "latitude": 43.350605,
+    "longitude": 77.023187,
+    "address": "Almaty International Airport, Almaty",
+    "name": "Almaty International Airport",
+    "iata": "ALA"
+  },
+  "ALMATY (ALA)": {
+    "latitude": 43.350605,
+    "longitude": 77.023187,
+    "address": "Almaty International Airport, Almaty",
+    "name": "Almaty International Airport",
+    "iata": "ALA"
+  },
+  "ALMATY INTERNATIONAL AIRPORT": {
+    "latitude": 43.350605,
+    "longitude": 77.023187,
+    "address": "Almaty International Airport, Almaty",
+    "name": "Almaty International Airport",
+    "iata": "ALA"
+  },
+  "AMJ": {
+    "latitude": -16.168404,
+    "longitude": -40.687691,
+    "address": "Almenara Airport, Almenara",
+    "name": "Almenara Airport",
+    "iata": "AMJ"
+  },
+  "ALMENARA": {
+    "latitude": -16.168404,
+    "longitude": -40.687691,
+    "address": "Almenara Airport, Almenara",
+    "name": "Almenara Airport",
+    "iata": "AMJ"
+  },
+  "ALMENARA (AMJ)": {
+    "latitude": -16.168404,
+    "longitude": -40.687691,
+    "address": "Almenara Airport, Almenara",
+    "name": "Almenara Airport",
+    "iata": "AMJ"
+  },
+  "ALMENARA AIRPORT": {
+    "latitude": -16.168404,
+    "longitude": -40.687691,
+    "address": "Almenara Airport, Almenara",
+    "name": "Almenara Airport",
+    "iata": "AMJ"
+  },
+  "OSL": {
+    "latitude": 60.1978654,
+    "longitude": 11.0996754,
+    "address": "Oslo lufthavn, Gardermoen, Lufthavnvegen, Brudalen, Ullensaker, Akershus, 2060, Norge",
+    "name": "OSL"
+  },
+  "CUN": {
+    "latitude": 4.7831994,
+    "longitude": -73.6731282,
+    "address": "Cundinamarca, RAP (Especial) Central, Colombia",
+    "name": "CUN"
+  },
+  "XYZ": {
+    "latitude": 33.9744309,
+    "longitude": 71.4900533,
+    "address": "XYZ, دانش آباد, سفید ڈھیری, پيښور ښار تحصیل, ضلع پشاور‎, پشاور ڈویژن, خیبر پختونخوا, 25120, پاکستان",
+    "name": "XYZ"
+  }
+}
