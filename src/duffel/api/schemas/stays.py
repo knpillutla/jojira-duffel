@@ -22,8 +22,24 @@ class StaySearchRequest(BaseModel):
     check_in_date: str = Field(..., description="Check-in date in YYYY-MM-DD format")
     check_out_date: str = Field(..., description="Check-out date in YYYY-MM-DD format")
     rooms: int = Field(1, ge=1, le=10, description="Number of rooms requested")
-    guests: Optional[list[dict[str, Any]]] = Field(None, description="List of guest specification objects")
-    location: Optional[dict[str, Any]] = Field(None, description="Geographic location search filter")
+    guests: Optional[list[dict[str, Any]]] = Field(
+        None, 
+        description="List of guest specification objects with 'type' field (e.g., [{'type': 'adult'}, {'type': 'child', 'age': 8}])"
+    )
+    guests_count: Optional[int] = Field(
+        None,
+        ge=1,
+        le=9,
+        description="Alternative: number of adult guests (will create list of adults). Use either 'guests' OR 'guests_count'"
+    )
+    location: Optional[dict[str, Any]] = Field(
+        None, 
+        description="Location filter: {'place_id': 'string'} OR {'geographic_coordinates': {'latitude': float, 'longitude': float}}"
+    )
+    location_string: Optional[str] = Field(
+        None,
+        description="Alternative: location as place name/city (e.g., 'delhi'). Will be converted to place_id"
+    )
     accommodation_ids: Optional[list[str]] = Field(None, description="Optional list of specific Duffel accommodation IDs")
 
 

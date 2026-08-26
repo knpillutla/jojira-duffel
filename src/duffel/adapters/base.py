@@ -114,6 +114,11 @@ class BaseProviderAdapter(ABC):
         pass
 
     @abstractmethod
+    def create_car_quote(self, rate_id: str) -> dict[str, Any]:
+        """Create a priced quote from a car rental rate."""
+        pass
+
+    @abstractmethod
     def get_car_offer(self, offer_id: str) -> dict[str, Any]:
         """Fetch details of a car rental offer."""
         pass

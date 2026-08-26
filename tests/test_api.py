@@ -359,13 +359,13 @@ class TestDuffelAPI(unittest.TestCase):
         # Test POST /stays/search
         search_res = self.client.post(
             "/api/v1/stays/search",
-            json={"check_in_date": "2026-10-01", "check_out_date": "2026-10-05", "rooms": 1},
+            json={"check_in_date": "2026-10-01", "check_out_date": "2026-10-05", "rooms": 1, "location_string": "Paris"},
         )
         self.assertEqual(search_res.status_code, 200)
         self.assertEqual(search_res.json()["total_results"], 1)
 
         # Test GET /stays/search
-        get_res = self.client.get("/api/v1/stays/search?check_in_date=2026-10-01&check_out_date=2026-10-05")
+        get_res = self.client.get("/api/v1/stays/search?check_in_date=2026-10-01&check_out_date=2026-10-05&location_string=Paris")
         self.assertEqual(get_res.status_code, 200)
 
         # Test GET /stays/search-results/{id}

@@ -178,11 +178,25 @@ class MockProviderAdapter(BaseProviderAdapter):
                 "results": [
                     {
                         "id": f"st_res_mock_{uuid.uuid4().hex[:8]}",
+                        "search_request_id": s_id,  # Added: needed to fetch rates
                         "accommodation": {
                             "id": "acc_mock_1",
                             "name": "Grand Mock Hotel",
                             "rating": 5
                         },
+                        "rates": [
+                            {
+                                "id": f"rat_mock_{uuid.uuid4().hex[:8]}",
+                                "quote_id": f"quo_mock_{uuid.uuid4().hex[:8]}",  # Added: needed for booking
+                                "total_amount": "600.00",
+                                "total_currency": "USD",
+                                "board_type": "room_only",
+                                "description": "Standard Room",
+                                "cancellation_timeline": [],
+                                "available_rooms": 5
+                            }
+                        ],
+                        "created_at": "2026-08-25T10:00:00Z",
                         "cheapest_rate_total_amount": "600.00",
                         "cheapest_rate_currency": "USD"
                     }
@@ -198,9 +212,23 @@ class MockProviderAdapter(BaseProviderAdapter):
             "data": [
                 {
                     "id": f"rat_mock_{uuid.uuid4().hex[:8]}",
+                    "quote_id": f"quo_mock_{uuid.uuid4().hex[:8]}",  # Added: needed for booking
                     "total_amount": "600.00",
                     "total_currency": "USD",
-                    "board_type": "room_only"
+                    "board_type": "room_only",
+                    "description": "Standard Room",
+                    "cancellation_timeline": [],
+                    "available_rooms": 5
+                },
+                {
+                    "id": f"rat_mock_{uuid.uuid4().hex[:8]}",
+                    "quote_id": f"quo_mock_{uuid.uuid4().hex[:8]}",  # Added: needed for booking
+                    "total_amount": "750.00",
+                    "total_currency": "USD",
+                    "board_type": "breakfast",
+                    "description": "Deluxe Room with Breakfast",
+                    "cancellation_timeline": [],
+                    "available_rooms": 3
                 }
             ]
         }
@@ -250,6 +278,17 @@ class MockProviderAdapter(BaseProviderAdapter):
                 "id": offer_id,
                 "supplier": {"name": "Hertz"},
                 "vehicle": {"category": "SUV", "name": "Ford Explorer"},
+                "total_amount": "250.00",
+                "total_currency": "USD"
+            }
+        }
+
+    def create_car_quote(self, rate_id: str) -> dict[str, Any]:
+        return {
+            "data": {
+                "id": f"qut_mock_{uuid.uuid4().hex[:8]}",
+                "rate_id": rate_id,
+                "supplier": {"name": "Hertz"},
                 "total_amount": "250.00",
                 "total_currency": "USD"
             }

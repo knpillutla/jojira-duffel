@@ -8,6 +8,7 @@ import os
 from datetime import datetime
 from typing import Any, Optional
 
+from ..exceptions import DuffelException
 from ..models.common import CabinClass, Passenger
 from .base import BaseService
 
@@ -30,13 +31,21 @@ class BundlesService(BaseService):
         rooms: int = 1,
         driver_age: int = 30,
         force_refresh: bool = False,
+        selected_types: Optional[list[str]] = None,
     ) -> dict[str, Any]:
         """
-        Executes combined multi-domain search across Flights, Stays (Hotels), and Cars (Car Rentals).
-        Computes 5% package savings, computes category highlights, caches response in Redis, and exports JSON report.
+        Executes combined multi-domain search for selected types (flights, stays, cars).
+        - Only searches for specified types
+        - Computes package pricing and 5% savings
+        - Returns top 20 bundles sorted by total price ascending
+        - Caches response in Redis
         """
+        # Normalize selected_types
+        selected_types = selected_types or ["flights", "stays", "cars"]
+        selected_types = [t.lower() for t in selected_types]
+        
         # 1. Check Redis Cache for 0ms hit
-        hash_input = f"{origin.upper()}_{destination.upper()}_{departure_date}_{return_date}_{passengers_count}_{cabin_class.lower()}_{rooms}_{driver_age}"
+        hash_input = f"{origin.upper()}_{destination.upper()}_{departure_date}_{return_date}_{passengers_count}_{cabin_class.lower()}_{rooms}_{driver_age}_{sorted(selected_types)}"
         hash_key = hashlib.md5(hash_input.encode("utf-8")).hexdigest()[:6]
         cache_key = f"duffel:bundle:search:{hash_key}"
 
@@ -47,48 +56,60 @@ class BundlesService(BaseService):
                 cached_res["cache_metrics"] = self.cache.get_metrics_summary()
                 return cached_res
 
-        # 2. Execute parallel/combined domain searches
+        # 2. Execute domain searches only for selected types
+        # Tracks a user-friendly error per component instead of silently falling back to dummy data
+        component_errors: dict[str, str] = {}
+
         # Flight Search
         flight_offers = []
-        try:
-            if hasattr(self.client_app, "flights"):
-                flight_offers = self.client_app.flights.search_exact(
-                    origin=origin,
-                    destination=destination,
-                    departure_date=departure_date,
-                    return_date=return_date,
-                    passengers=[Passenger(type="adult") for _ in range(passengers_count)],
-                    cabin_class=CabinClass(cabin_class.lower()),
-                    force_refresh=force_refresh,
-                )
-        except Exception as f_err:
-            print(f"[BUNDLE SEARCH] Flight search notice: {f_err}")
+        if "flights" in selected_types:
+            if not hasattr(self.client_app, "flights"):
+                component_errors["flights"] = "Flights service is not available."
+            else:
+                try:
+                    flight_offers = self.client_app.flights.search_exact(
+                        origin=origin,
+                        destination=destination,
+                        departure_date=departure_date,
+                        return_date=return_date,
+                        passengers=[Passenger(type="adult") for _ in range(passengers_count)],
+                        cabin_class=CabinClass(cabin_class.lower()),
+                        force_refresh=force_refresh,
+                    )
+                except Exception as f_err:
+                    component_errors["flights"] = str(f_err)
 
         # Stay Search
         stay_results = []
-        try:
-            if hasattr(self.client_app, "stays"):
-                stay_results = self.client_app.stays.search(
-                    check_in_date=departure_date,
-                    check_out_date=return_date,
-                    rooms=rooms,
-                )
-        except Exception as s_err:
-            print(f"[BUNDLE SEARCH] Stay search notice: {s_err}")
+        if "stays" in selected_types or "hotels" in selected_types:
+            if not hasattr(self.client_app, "stays"):
+                component_errors["hotels"] = "Stays service is not available."
+            else:
+                try:
+                    stay_results = self.client_app.stays.search(
+                        check_in_date=departure_date,
+                        check_out_date=return_date,
+                        rooms=rooms,
+                    )
+                except Exception as s_err:
+                    component_errors["hotels"] = str(s_err)
 
         # Car Search
         car_offers = []
-        try:
-            if hasattr(self.client_app, "cars"):
-                car_offers = self.client_app.cars.search(
-                    pickup_location=destination,
-                    dropoff_location=destination,
-                    pickup_datetime=f"{departure_date}T10:00:00Z",
-                    dropoff_datetime=f"{return_date}T10:00:00Z",
-                    driver_age=driver_age,
-                )
-        except Exception as c_err:
-            print(f"[BUNDLE SEARCH] Car search notice: {c_err}")
+        if "cars" in selected_types:
+            if not hasattr(self.client_app, "cars"):
+                component_errors["cars"] = "Cars service is not available."
+            else:
+                try:
+                    car_offers = self.client_app.cars.search(
+                        pickup_location=destination,
+                        dropoff_location=destination,
+                        pickup_datetime=f"{departure_date}T10:00:00Z",
+                        dropoff_datetime=f"{return_date}T10:00:00Z",
+                        driver_age=driver_age,
+                    )
+                except Exception as c_err:
+                    component_errors["cars"] = str(c_err)
 
         # 3. Format components and build package bundles
         top_bundles = []
@@ -99,44 +120,48 @@ class BundlesService(BaseService):
             else:
                 fl_summaries.append(fo.to_dict() if hasattr(fo, "to_dict") else getattr(fo, "__dict__", {}))
 
-        if not fl_summaries:
-            fl_summaries = [{
-                "offer_id": "off_bundle_mock_fl",
-                "price": "USD 350.00",
-                "total_amount": 350.0,
-                "currency": "USD",
-                "airline": "American Airlines",
-                "origin": origin.upper(),
-                "destination": destination.upper(),
-                "max_stops": 0,
-                "legs": "Non-stop",
-                "duration": "7h 30m"
-            }]
+        if "flights" in selected_types and not fl_summaries and "flights" not in component_errors:
+            component_errors["flights"] = (
+                f"No flight offers found for {origin.upper()} \u2192 {destination.upper()} on {departure_date}."
+            )
 
         st_summaries = []
         for st in stay_results[:5]:
             st_summaries.append(st.to_dict() if hasattr(st, "to_dict") else getattr(st, "__dict__", {}))
 
-        if not st_summaries:
-            st_summaries = [{
-                "id": "sres_bundle_mock_st",
-                "accommodation": {"id": "acc_1", "name": f"Grand {destination.upper()} Luxury Hotel", "rating": 5},
-                "cheapest_rate_total_amount": "400.00",
-                "cheapest_rate_currency": "USD"
-            }]
+        if ("stays" in selected_types or "hotels" in selected_types) and not st_summaries:
+            if getattr(self.client.config, "test_mode", False):
+                st_summaries = [{
+                    "id": "sres_bundle_mock_st",
+                    "accommodation": {"id": "acc_1", "name": f"Grand {destination.upper()} Luxury Hotel", "rating": 5},
+                    "cheapest_rate_total_amount": "400.00",
+                    "cheapest_rate_currency": "USD"
+                }]
+                component_errors.pop("hotels", None)
+            elif "hotels" not in component_errors:
+                component_errors["hotels"] = f"No hotel availability found in {destination.upper()} for {departure_date} to {return_date}."
 
         cr_summaries = []
         for cr in car_offers[:5]:
             cr_summaries.append(cr.to_dict() if hasattr(cr, "to_dict") else getattr(cr, "__dict__", {}))
 
-        if not cr_summaries:
-            cr_summaries = [{
-                "id": "off_car_bundle_mock",
-                "supplier": {"name": "Hertz"},
-                "vehicle": {"category": "SUV", "name": "Tesla Model Y"},
-                "total_amount": "180.00",
-                "total_currency": "USD"
-            }]
+        if "cars" in selected_types and not cr_summaries:
+            if getattr(self.client.config, "test_mode", False):
+                cr_summaries = [{
+                    "id": "off_car_bundle_mock",
+                    "supplier": {"name": "Hertz"},
+                    "vehicle": {"category": "SUV", "name": "Tesla Model Y"},
+                    "total_amount": "180.00",
+                    "total_currency": "USD"
+                }]
+                component_errors.pop("cars", None)
+            elif "cars" not in component_errors:
+                component_errors["cars"] = f"No car rental availability found in {destination.upper()} for {departure_date} to {return_date}."
+
+        # Surface a single, user-friendly error instead of ever returning fabricated placeholder data
+        if component_errors:
+            detail = " ".join(f"{component.capitalize()}: {message}" for component, message in component_errors.items())
+            raise DuffelException(f"Unable to build the requested travel package. {detail}")
 
         # Construct combined bundles
         b_idx = 1

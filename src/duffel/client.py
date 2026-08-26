@@ -60,6 +60,7 @@ class DuffelClient:
 
         from .services.bundles import BundlesService
         from .services.natural_search import NaturalSearchService
+        from .services.ai_search import AISearchService
         from .services.planner import TravelPlannerService
 
         # Service instances
@@ -69,5 +70,6 @@ class DuffelClient:
         self.bundles = BundlesService(self.http_client, cache=self.cache, adapter=self.adapter, client=self)
         self.planner = TravelPlannerService(self.http_client, cache=self.cache, adapter=self.adapter, client=self)
         self.natural_search = NaturalSearchService(self.http_client, cache=self.cache, adapter=self.adapter, client=self)
+        self.ai_search = AISearchService(self.http_client, cache=self.cache, adapter=self.adapter, client=self)
 
 

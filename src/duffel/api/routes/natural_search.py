@@ -4,6 +4,7 @@ Unified Natural Search Route Controllers for Duffel REST API.
 
 from fastapi import APIRouter, HTTPException, Query, status
 
+from ...exceptions import DuffelException
 from ..schemas import NaturalSearchRequest, NaturalSearchResponse
 from . import common
 
@@ -57,6 +58,11 @@ def search_natural_endpoint(req: NaturalSearchRequest):
         return NaturalSearchResponse(**result)
     except HTTPException:
         raise
+    except DuffelException as err:
+        raise HTTPException(
+            status_code=status.HTTP_424_FAILED_DEPENDENCY,
+            detail=str(err)
+        )
     except Exception as err:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

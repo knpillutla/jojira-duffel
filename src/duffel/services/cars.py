@@ -4,6 +4,8 @@ Service for Car Rentals API.
 
 from typing import Any, Optional, Union
 
+from ..adapters.mock_adapter import MockProviderAdapter
+from ..exceptions import DuffelException
 from ..models.cars import (
     CarCancellation,
     CarOffer,
@@ -11,10 +13,58 @@ from ..models.cars import (
     CarSearchQuery,
 )
 from .base import BaseService
+from .planner import DESTINATION_GEO_MAP
+
+DEFAULT_SEARCH_RADIUS_KM = 5
+
+
+def _split_iso_datetime(iso_str: str) -> tuple[str, str]:
+    """Splits an ISO 8601 datetime (e.g. '2026-09-15T10:00:00Z') into Duffel's separate date + HH:MM time fields."""
+    try:
+        date_part, time_part = iso_str.split("T")
+        return date_part, time_part.rstrip("Z")[:5]
+    except Exception as err:
+        raise DuffelException(
+            f"Invalid datetime '{iso_str}'. Expected ISO 8601 format e.g. '2026-09-15T10:00:00Z'."
+        ) from err
+
+
+def _resolve_geo(location: str) -> dict[str, float]:
+    """Resolves a free-text location (e.g. 'Paris CDG Airport') to geographic coordinates via known city lookup."""
+    key = location.strip().upper()
+    geo = DESTINATION_GEO_MAP.get(key)
+    if not geo:
+        geo = next((data for city, data in DESTINATION_GEO_MAP.items() if city in key or key in city), None)
+    if not geo:
+        raise DuffelException(
+            f"Unable to resolve location '{location}' to coordinates. Duffel requires geographic_coordinates. "
+            f"Supported city names: {sorted(DESTINATION_GEO_MAP.keys())}."
+        )
+    return {"latitude": geo["latitude"], "longitude": geo["longitude"]}
 
 
 class CarsService(BaseService):
     """Integrates with Car Rental endpoints via Provider Adapter."""
+
+    _mock_adapter: Optional[MockProviderAdapter] = None
+
+    def _mock(self) -> MockProviderAdapter:
+        """Lazily creates a shared mock adapter used only when test_mode is enabled."""
+        if CarsService._mock_adapter is None:
+            CarsService._mock_adapter = MockProviderAdapter()
+        return CarsService._mock_adapter
+
+    def _adapter_call(self, method_name: str, *args: Any, friendly_action: str) -> dict[str, Any]:
+        """
+        Calls the configured adapter's car method. If it fails: returns mock data when
+        config.test_mode is enabled, otherwise raises a clear DuffelException.
+        """
+        try:
+            return getattr(self.adapter, method_name)(*args)
+        except Exception as err:
+            if getattr(self.client.config, "test_mode", False):
+                return getattr(self._mock(), method_name)(*args)
+            raise DuffelException(f"Unable to {friendly_action}. {err}") from err
 
     def search(
         self,
@@ -48,10 +98,28 @@ class CarsService(BaseService):
             driver_age=driver_age,
         )
 
-        res = self.adapter.search_cars(query.to_dict())
+        pickup_date, pickup_time = _split_iso_datetime(pickup_datetime)
+        dropoff_date, dropoff_time = _split_iso_datetime(dropoff_datetime)
+        payload = {
+            "pickup_date": pickup_date,
+            "pickup_time": pickup_time,
+            "pickup_location": {
+                "radius": DEFAULT_SEARCH_RADIUS_KM,
+                "geographic_coordinates": _resolve_geo(pickup_location),
+            },
+            "dropoff_date": dropoff_date,
+            "dropoff_time": dropoff_time,
+            "dropoff_location": {
+                "radius": DEFAULT_SEARCH_RADIUS_KM,
+                "geographic_coordinates": _resolve_geo(dropoff_location),
+            },
+            "driver": {"age": driver_age},
+        }
+
+        res = self._adapter_call("search_cars", payload, friendly_action="search rental cars")
         data = res.get("data", {})
         if isinstance(data, dict):
-            raw_offers = data.get("offers", [])
+            raw_offers = data.get("rates") or data.get("offers", [])
         elif isinstance(data, list):
             raw_offers = data
         else:
@@ -71,8 +139,15 @@ class CarsService(BaseService):
         """
         Retrieve details of a car rental offer.
         """
-        res = self.adapter.get_car_offer(offer_id)
+        res = self._adapter_call("get_car_offer", offer_id, friendly_action="fetch the car rental offer")
         return CarOffer.from_dict(res.get("data", {}))
+
+    def create_quote(self, rate_id: str) -> dict[str, Any]:
+        """
+        Creates a priced, availability-confirmed quote from a search rate (required before booking).
+        """
+        res = self._adapter_call("create_car_quote", rate_id, friendly_action="create a car rental quote")
+        return res.get("data", {})
 
     def create_order(
         self,
@@ -89,19 +164,19 @@ class CarsService(BaseService):
             "payments": payments,
         }
 
-        res = self.adapter.create_car_order(payload)
+        res = self._adapter_call("create_car_order", payload, friendly_action="book the car rental")
         return CarOrder.from_dict(res.get("data", {}))
 
     def get_order(self, order_id: str) -> CarOrder:
         """
         Retrieve car order details.
         """
-        res = self.adapter.get_car_order(order_id)
+        res = self._adapter_call("get_car_order", order_id, friendly_action="fetch the car rental order")
         return CarOrder.from_dict(res.get("data", {}))
 
     def cancel_order(self, order_id: str) -> CarCancellation:
         """
         Cancel a car rental order.
         """
-        res = self.adapter.cancel_car_order(order_id)
+        res = self._adapter_call("cancel_car_order", order_id, friendly_action="cancel the car rental order")
         return CarCancellation.from_dict(res.get("data", {}))

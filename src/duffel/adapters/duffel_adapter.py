@@ -66,36 +66,40 @@ class DuffelProviderAdapter(BaseProviderAdapter):
     # --- Stay Operations ---
 
     def search_stays(self, payload: dict[str, Any]) -> dict[str, Any]:
-        return self.http_client.request("POST", "/stays/search_requests", data={"data": payload})
+        return self.http_client.request("POST", "/stays/search", data={"data": payload})
 
     def get_stay_search_result(self, search_result_id: str) -> dict[str, Any]:
         return self.http_client.request("GET", f"/stays/search_requests/{search_result_id}")
 
     def get_stay_rates(self, search_result_id: str) -> dict[str, Any]:
-        return self.http_client.request("GET", f"/stays/results/{search_result_id}/rates")
+        return self.http_client.request("POST", f"/stays/search_results/{search_result_id}/actions/fetch_all_rates")
 
     def create_stay_order(self, payload: dict[str, Any]) -> dict[str, Any]:
-        return self.http_client.request("POST", "/stays/orders", data={"data": payload})
+        return self.http_client.request("POST", "/stays/bookings", data={"data": payload})
 
     def get_stay_order(self, order_id: str) -> dict[str, Any]:
-        return self.http_client.request("GET", f"/stays/orders/{order_id}")
+        return self.http_client.request("GET", f"/stays/bookings/{order_id}")
 
     def cancel_stay_order(self, order_id: str) -> dict[str, Any]:
-        return self.http_client.request("POST", f"/stays/orders/{order_id}/actions/cancel")
+        return self.http_client.request("POST", f"/stays/bookings/{order_id}/actions/cancel")
 
     # --- Car Operations ---
+    # Verified against https://duffel.com/docs/api/v2/cars-search, cars-quotes, cars-bookings
 
     def search_cars(self, payload: dict[str, Any]) -> dict[str, Any]:
-        return self.http_client.request("POST", "/cars/search_requests", data={"data": payload})
+        return self.http_client.request("POST", "/cars/search", data={"data": payload})
+
+    def create_car_quote(self, rate_id: str) -> dict[str, Any]:
+        return self.http_client.request("POST", "/cars/quotes", data={"data": {"rate_id": rate_id}})
 
     def get_car_offer(self, offer_id: str) -> dict[str, Any]:
-        return self.http_client.request("GET", f"/cars/offers/{offer_id}")
+        return self.http_client.request("GET", f"/cars/quotes/{offer_id}")
 
     def create_car_order(self, payload: dict[str, Any]) -> dict[str, Any]:
-        return self.http_client.request("POST", "/cars/orders", data={"data": payload})
+        return self.http_client.request("POST", "/cars/bookings", data={"data": payload})
 
     def get_car_order(self, order_id: str) -> dict[str, Any]:
-        return self.http_client.request("GET", f"/cars/orders/{order_id}")
+        return self.http_client.request("GET", f"/cars/bookings/{order_id}")
 
     def cancel_car_order(self, offer_id_or_order_id: str) -> dict[str, Any]:
-        return self.http_client.request("POST", f"/cars/orders/{offer_id_or_order_id}/actions/cancel")
+        return self.http_client.request("POST", f"/cars/bookings/{offer_id_or_order_id}/actions/cancel")

@@ -3,13 +3,98 @@ Stays (Hotels & Accommodations) Route Controllers for Duffel REST API.
 """
 
 from datetime import datetime
+from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, Path, Query, status
 
 from . import common
+from ...services.planner import DESTINATION_GEO_MAP
 from ..schemas import StayBookingRequest, StayBookingResponse, StaySearchRequest, StaySearchResponse
 
 router = APIRouter(tags=["Stays (Hotels) API"])
+
+DEFAULT_SEARCH_RADIUS_KM = 5
+
+
+def normalize_guests(
+    guests: Optional[list[dict[str, Any]]] = None,
+    guests_count: Optional[int] = None
+) -> list[dict[str, Any]]:
+    """
+    Normalize guests parameter to Duffel format.
+    
+    Handles multiple input formats:
+    - guests: [{"type": "adult"}, {"type": "child", "age": 8}]  (preferred)
+    - guests_count: 2  (creates [{"type": "adult"}, {"type": "adult"}])
+    
+    Returns: List of guest objects with required 'type' field
+    """
+    if guests:
+        # Ensure each guest has a 'type' field
+        normalized = []
+        for guest in guests:
+            if isinstance(guest, dict) and "type" in guest:
+                normalized.append(guest)
+            else:
+                # Default to adult if type missing
+                normalized.append({**guest, "type": "adult"})
+        return normalized
+    
+    if guests_count:
+        return [{"type": "adult"} for _ in range(guests_count)]
+    
+    # Default: single adult guest
+    return [{"type": "adult"}]
+
+
+def normalize_location(
+    location: Optional[dict[str, Any]] = None,
+    location_string: Optional[str] = None,
+    radius: Optional[float] = None,
+) -> Optional[dict[str, Any]]:
+    """
+    Normalize location parameter to Duffel's actual stays search schema.
+
+    Duffel's `location` object ONLY accepts `radius` (km) + `geographic_coordinates`
+    ({'latitude': float, 'longitude': float}) - there is no `place_id` field.
+
+    Handles multiple input formats:
+    - location: {"geographic_coordinates": {"latitude": 28.7, "longitude": 77.1}, "radius": 5}  (preferred)
+    - location_string: "paris"  (resolved via known city -> coordinates lookup)
+
+    Returns: Location dict in Duffel format, or None if unresolvable (caller must then
+    require accommodation_ids instead, since Duffel requires one of the two).
+    """
+    if location:
+        if "geographic_coordinates" in location:
+            return {
+                "radius": location.get("radius", radius or DEFAULT_SEARCH_RADIUS_KM),
+                "geographic_coordinates": location["geographic_coordinates"],
+            }
+        # If a single non-standard key is present, treat its value as a place name string
+        if isinstance(location, dict) and len(location) == 1:
+            key = list(location.keys())[0]
+            if key != "geographic_coordinates":
+                location_string = location[key]
+
+    if location_string:
+        geo = DESTINATION_GEO_MAP.get(location_string.strip().upper())
+        if not geo:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=(
+                    f"Unable to resolve location '{location_string}' to coordinates. Duffel requires "
+                    "'location.geographic_coordinates' (or 'accommodation_ids'). Pass "
+                    "location={'geographic_coordinates': {'latitude': ..., 'longitude': ...}} directly, "
+                    f"or use one of the supported city names: {sorted(DESTINATION_GEO_MAP.keys())}."
+                ),
+            )
+        return {
+            "radius": radius or DEFAULT_SEARCH_RADIUS_KM,
+            "geographic_coordinates": {"latitude": geo["latitude"], "longitude": geo["longitude"]},
+        }
+
+    return None
 
 
 @router.post("/stays/search", response_model=StaySearchResponse, summary="Search Stays (Hotels)")
@@ -17,12 +102,26 @@ def search_stays_endpoint(req: StaySearchRequest):
     """Search for hotel accommodation availability by check-in/check-out dates, location, or accommodation IDs."""
     client = common.get_duffel_client()
     try:
+        # Normalize guests and location to Duffel format
+        normalized_guests = normalize_guests(req.guests, req.guests_count)
+        normalized_location = normalize_location(req.location, req.location_string)
+
+        # Duffel requires either a location or accommodation_ids - never neither
+        if not normalized_location and not req.accommodation_ids:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=(
+                    "Either 'location' (with geographic_coordinates), 'location_string' "
+                    "(a supported city name), or 'accommodation_ids' must be provided."
+                ),
+            )
+
         results = client.stays.search(
             check_in_date=req.check_in_date,
             check_out_date=req.check_out_date,
             rooms=req.rooms,
-            guests=req.guests,
-            location=req.location,
+            guests=normalized_guests,
+            location=normalized_location,
             accommodation_ids=req.accommodation_ids,
         )
         res_dicts = [r.to_dict() if hasattr(r, "to_dict") else getattr(r, "__dict__", {}) for r in results]
@@ -32,6 +131,8 @@ def search_stays_endpoint(req: StaySearchRequest):
             total_results=len(res_dicts),
             results=res_dicts,
         )
+    except HTTPException:
+        raise
     except Exception as err:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -44,6 +145,7 @@ def get_search_stays_endpoint(
     check_in_date: str = Query(..., description="Check-in date YYYY-MM-DD"),
     check_out_date: str = Query(..., description="Check-out date YYYY-MM-DD"),
     rooms: int = Query(1, ge=1, le=10, description="Number of rooms requested"),
+    location_string: Optional[str] = Query(None, description="City name to search near, e.g. 'Paris'"),
 ):
     """HTTP GET endpoint for hotel search via URL query parameters."""
     return search_stays_endpoint(
@@ -51,6 +153,7 @@ def get_search_stays_endpoint(
             check_in_date=check_in_date,
             check_out_date=check_out_date,
             rooms=rooms,
+            location_string=location_string,
         )
     )
 

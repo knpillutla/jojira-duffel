@@ -10,6 +10,7 @@ import os
 from typing import Any, Optional
 
 from ..cli.parser import PromptExtractor
+from ..exceptions import DuffelException
 from ..models.common import CabinClass, Passenger
 from .base import BaseService
 
@@ -231,60 +232,74 @@ class NaturalSearchService(BaseService):
         search_params: dict[str, Any],
     ) -> dict[str, Any]:
         """Executes combined travel bundle for selected_types."""
+        component_errors: dict[str, str] = {}
+
         flights_list = []
-        if "flights" in selected_types and hasattr(self.client_app, "flights"):
-            try:
-                flights_list = self.client_app.flights.search_exact(
-                    origin=origin,
-                    destination=destination,
-                    departure_date=departure_date,
-                    return_date=return_date,
-                    passengers=[Passenger(type="adult") for _ in range(passengers_count)],
-                    cabin_class=CabinClass(cabin_class.lower()),
-                    force_refresh=force_refresh,
-                )
-            except Exception as e:
-                print(f"[NATURAL SEARCH] Flight component notice: {e}")
+        if "flights" in selected_types:
+            if not hasattr(self.client_app, "flights"):
+                component_errors["flights"] = "Flights service is not available."
+            else:
+                try:
+                    flights_list = self.client_app.flights.search_exact(
+                        origin=origin,
+                        destination=destination,
+                        departure_date=departure_date,
+                        return_date=return_date,
+                        passengers=[Passenger(type="adult") for _ in range(passengers_count)],
+                        cabin_class=CabinClass(cabin_class.lower()),
+                        force_refresh=force_refresh,
+                    )
+                except Exception as e:
+                    component_errors["flights"] = str(e)
 
         stays_list = []
-        if "hotels" in selected_types and hasattr(self.client_app, "stays"):
-            try:
-                stays_list = self.client_app.stays.search(
-                    check_in_date=departure_date,
-                    check_out_date=return_date,
-                    rooms=rooms,
-                )
-            except Exception as e:
-                print(f"[NATURAL SEARCH] Stay component notice: {e}")
+        if "hotels" in selected_types:
+            if not hasattr(self.client_app, "stays"):
+                component_errors["hotels"] = "Stays service is not available."
+            else:
+                try:
+                    stays_list = self.client_app.stays.search(
+                        check_in_date=departure_date,
+                        check_out_date=return_date,
+                        rooms=rooms,
+                    )
+                except Exception as e:
+                    component_errors["hotels"] = str(e)
 
         cars_list = []
-        if "cars" in selected_types and hasattr(self.client_app, "cars"):
-            try:
-                cars_list = self.client_app.cars.search(
-                    pickup_location=destination,
-                    dropoff_location=destination,
-                    pickup_datetime=f"{departure_date}T10:00:00Z",
-                    dropoff_datetime=f"{return_date}T10:00:00Z",
-                    driver_age=driver_age,
-                )
-            except Exception as e:
-                print(f"[NATURAL SEARCH] Car component notice: {e}")
+        if "cars" in selected_types:
+            if not hasattr(self.client_app, "cars"):
+                component_errors["cars"] = "Cars service is not available."
+            else:
+                try:
+                    cars_list = self.client_app.cars.search(
+                        pickup_location=destination,
+                        dropoff_location=destination,
+                        pickup_datetime=f"{departure_date}T10:00:00Z",
+                        dropoff_datetime=f"{return_date}T10:00:00Z",
+                        driver_age=driver_age,
+                    )
+                except Exception as e:
+                    component_errors["cars"] = str(e)
 
         attractions_list = []
-        if "attractions" in selected_types and hasattr(self.client_app, "planner"):
-            try:
-                itinerary = self.client_app.planner.generate_itinerary(
-                    prompt=f"Attractions in {destination}",
-                    origin=origin,
-                    destination=destination,
-                    start_date=departure_date,
-                    end_date=return_date,
-                    passengers_count=passengers_count,
-                    force_refresh=force_refresh,
-                )
-                attractions_list = itinerary.get("itinerary_days", [])
-            except Exception as e:
-                print(f"[NATURAL SEARCH] Attraction component notice: {e}")
+        if "attractions" in selected_types:
+            if not hasattr(self.client_app, "planner"):
+                component_errors["attractions"] = "Planner service is not available."
+            else:
+                try:
+                    itinerary = self.client_app.planner.generate_itinerary(
+                        prompt=f"Attractions in {destination}",
+                        origin=origin,
+                        destination=destination,
+                        start_date=departure_date,
+                        end_date=return_date,
+                        passengers_count=passengers_count,
+                        force_refresh=force_refresh,
+                    )
+                    attractions_list = itinerary.get("itinerary_days", [])
+                except Exception as e:
+                    component_errors["attractions"] = str(e)
 
         fl_summaries = []
         for fo in flights_list[:5]:
@@ -292,52 +307,29 @@ class NaturalSearchService(BaseService):
                 fl_summaries.append(self.client_app.flights._build_offer_summary(fo))
             else:
                 fl_summaries.append(fo.to_dict() if hasattr(fo, "to_dict") else getattr(fo, "__dict__", {}))
-        if "flights" in selected_types and not fl_summaries:
-            fl_summaries = [{
-                "offer_id": f"off_fl_{hash_key}",
-                "price": "USD 350.00",
-                "total_amount": 350.0,
-                "currency": "USD",
-                "airline": "American Airlines",
-                "origin": origin,
-                "destination": destination,
-                "max_stops": 0,
-                "legs": "Non-stop",
-                "duration": "7h 30m"
-            }]
+        if "flights" in selected_types and not fl_summaries and "flights" not in component_errors:
+            component_errors["flights"] = f"No flight offers found for {origin} \u2192 {destination} on {departure_date}."
 
         st_summaries = []
         for st in stays_list[:5]:
             st_summaries.append(st.to_dict() if hasattr(st, "to_dict") else getattr(st, "__dict__", {}))
-        if "hotels" in selected_types and not st_summaries:
-            st_summaries = [{
-                "id": f"sres_{hash_key}",
-                "accommodation": {"id": "acc_1", "name": f"Grand {destination} Hotel", "rating": 5},
-                "cheapest_rate_total_amount": "400.00",
-                "cheapest_rate_currency": "USD"
-            }]
+        if "hotels" in selected_types and not st_summaries and "hotels" not in component_errors:
+            component_errors["hotels"] = f"No hotel availability found in {destination} for {departure_date} to {return_date}."
 
         cr_summaries = []
         for cr in cars_list[:5]:
             cr_summaries.append(cr.to_dict() if hasattr(cr, "to_dict") else getattr(cr, "__dict__", {}))
-        if "cars" in selected_types and not cr_summaries:
-            cr_summaries = [{
-                "id": f"car_{hash_key}",
-                "supplier": {"name": "Hertz"},
-                "vehicle": {"category": "SUV", "name": "Tesla Model Y"},
-                "total_amount": "180.00",
-                "total_currency": "USD"
-            }]
+        if "cars" in selected_types and not cr_summaries and "cars" not in component_errors:
+            component_errors["cars"] = f"No car rental availability found in {destination} for {departure_date} to {return_date}."
 
         attr_summaries = attractions_list[:5] if attractions_list else []
-        if "attractions" in selected_types and not attr_summaries:
-            attr_summaries = [{
-                "day_number": 1,
-                "theme": f"Best of {destination} Sightseeing",
-                "activities": [
-                    {"title": f"Top Landmark in {destination}", "cost": "USD 25.00", "rating": 4.9}
-                ]
-            }]
+        if "attractions" in selected_types and not attr_summaries and "attractions" not in component_errors:
+            component_errors["attractions"] = f"No attractions/itinerary could be generated for {destination}."
+
+        # Surface a single, user-friendly error instead of ever returning fabricated placeholder data
+        if component_errors:
+            detail = " ".join(f"{component.capitalize()}: {message}" for component, message in component_errors.items())
+            raise DuffelException(f"Unable to build the requested travel package. {detail}")
 
         top_bundles = []
         b_idx = 1
@@ -501,6 +493,7 @@ class NaturalSearchService(BaseService):
     ) -> dict[str, Any]:
         """Executes single-type stay/hotel search with stay category highlights."""
         results = []
+        error_detail: Optional[str] = None
         if hasattr(self.client_app, "stays"):
             try:
                 stay_objs = self.client_app.stays.search(
@@ -510,15 +503,21 @@ class NaturalSearchService(BaseService):
                 )
                 results = [s.to_dict() if hasattr(s, "to_dict") else getattr(s, "__dict__", {}) for s in stay_objs]
             except Exception as e:
-                print(f"[NATURAL SEARCH] Stay search notice: {e}")
+                error_detail = str(e)
+        else:
+            error_detail = "Stays service is not available."
 
         if not results:
-            results = [{
-                "id": "sres_mock_001",
-                "accommodation": {"id": "acc_001", "name": f"Grand {destination} Hotel", "rating": 5},
-                "cheapest_rate_total_amount": "250.00",
-                "cheapest_rate_currency": "USD"
-            }]
+            if getattr(self.client.config, "test_mode", False):
+                results = [{
+                    "id": "sres_mock_001",
+                    "accommodation": {"id": "acc_001", "name": f"Grand {destination} Hotel", "rating": 5},
+                    "cheapest_rate_total_amount": "250.00",
+                    "cheapest_rate_currency": "USD"
+                }]
+            else:
+                reason = error_detail or f"No hotel availability found in {destination} for {check_in_date} to {check_out_date}."
+                raise DuffelException(f"Unable to search hotels. {reason}")
 
         cheapest = min(results, key=lambda r: float(r.get("cheapest_rate_total_amount") or r.get("total_amount") or 999.0))
         best_value = results[0]
@@ -558,6 +557,7 @@ class NaturalSearchService(BaseService):
     ) -> dict[str, Any]:
         """Executes single-type car rental search with car category highlights."""
         results = []
+        error_detail: Optional[str] = None
         if hasattr(self.client_app, "cars"):
             try:
                 car_objs = self.client_app.cars.search(
@@ -569,16 +569,22 @@ class NaturalSearchService(BaseService):
                 )
                 results = [c.to_dict() if hasattr(c, "to_dict") else getattr(c, "__dict__", {}) for c in car_objs]
             except Exception as e:
-                print(f"[NATURAL SEARCH] Car search notice: {e}")
+                error_detail = str(e)
+        else:
+            error_detail = "Cars service is not available."
 
         if not results:
-            results = [{
-                "id": "car_mock_001",
-                "supplier": {"name": "Hertz"},
-                "vehicle": {"category": "SUV", "name": "Tesla Model Y"},
-                "total_amount": "120.00",
-                "total_currency": "USD"
-            }]
+            if getattr(self.client.config, "test_mode", False):
+                results = [{
+                    "id": "car_mock_001",
+                    "supplier": {"name": "Hertz"},
+                    "vehicle": {"category": "SUV", "name": "Tesla Model Y"},
+                    "total_amount": "120.00",
+                    "total_currency": "USD"
+                }]
+            else:
+                reason = error_detail or f"No car rental availability found in {destination} for the requested dates."
+                raise DuffelException(f"Unable to search car rentals. {reason}")
 
         cheapest = min(results, key=lambda c: float(c.get("total_amount") or 999.0))
         best_val = results[0]

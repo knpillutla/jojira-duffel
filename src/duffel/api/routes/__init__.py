@@ -32,6 +32,7 @@ from .flights import (
 from .flights import (
     router as flights_router,
 )
+from .ai_search import router as ai_search_router
 from .natural_search import router as natural_search_router
 from .planner import router as planner_router
 from .stays import router as stays_router
@@ -39,6 +40,7 @@ from .stays import router as stays_router
 # Assembles main APIRouter containing all domain submodules
 router = APIRouter(tags=["Duffel REST API"])
 router.include_router(common_router)
+router.include_router(ai_search_router)
 router.include_router(natural_search_router)
 router.include_router(flights_router)
 router.include_router(stays_router)

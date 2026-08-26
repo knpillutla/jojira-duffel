@@ -38,6 +38,12 @@ from .flights import (
     OptimizedFlightSearchResponse,
     StandardFlightSearchRequest,
 )
+from .ai_search import (
+    AIBookingRequest,
+    AIBookingResponse,
+    AISearchRequest,
+    AISearchResponse,
+)
 from .natural_search import (
     NaturalSearchMeta,
     NaturalSearchRequest,
@@ -104,6 +110,10 @@ __all__ = [
     "NaturalSearchRequest",
     "NaturalSearchMeta",
     "NaturalSearchResponse",
+    "AISearchRequest",
+    "AISearchResponse",
+    "AIBookingRequest",
+    "AIBookingResponse",
     "PopularPromptItem",
     "PopularPromptsResponse",
 ]

@@ -18,6 +18,7 @@ class DuffelConfig:
     timeout: float = 5.0
     force_instant_booking: bool = False
     debug: bool = False
+    test_mode: bool = False
     enable_cache: bool = True
     redis_host: str = "localhost"
     redis_port: int = 6379
@@ -82,6 +83,8 @@ class DuffelConfig:
                         self.force_instant_booking = bool(cfg_data["force_instant_booking"])
                     if "debug" in cfg_data:
                         self.debug = bool(cfg_data["debug"])
+                    if "test_mode" in cfg_data:
+                        self.test_mode = bool(cfg_data["test_mode"])
                     if "enable_cache" in cfg_data:
                         self.enable_cache = bool(cfg_data["enable_cache"])
                     if "redis_host" in cfg_data and cfg_data["redis_host"]:
@@ -172,6 +175,8 @@ class DuffelConfig:
         # 2. Fall back to environment variable if empty
         if not self.api_token:
             self.api_token = os.environ.get("DUFFEL_API_TOKEN", "")
+        if os.environ.get("TEST_MODE"):
+            self.test_mode = os.environ["TEST_MODE"].strip().lower() in ("1", "true", "yes")
         if os.environ.get("MESSAGE_BROKER"):
             self.message_broker = os.environ["MESSAGE_BROKER"].lower()
         if os.environ.get("RABBITMQ_HOST"):

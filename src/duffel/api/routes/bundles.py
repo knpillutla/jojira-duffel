@@ -9,6 +9,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Path, Query, status
 
+from ...exceptions import DuffelException
 from ...models.common import Passenger, Payment
 from ..schemas import (
     BundleBookingRequest,
@@ -19,6 +20,23 @@ from ..schemas import (
 from . import common
 
 router = APIRouter(tags=["Bundles (Travel Packages) API"])
+
+VALID_BUNDLE_TYPES = {"flights", "hotels", "cars"}
+
+
+def normalize_bundle_types(bundle_types) -> list[str]:
+    """Normalizes bundle_types input ('all', a comma-separated string, or a list) into a list of valid types."""
+    if bundle_types is None or bundle_types == "all" or bundle_types == ["all"]:
+        return ["flights", "hotels", "cars"]
+    types = bundle_types.split(",") if isinstance(bundle_types, str) else list(bundle_types)
+    normalized = [t.strip().lower() for t in types if t and t.strip()]
+    invalid = [t for t in normalized if t not in VALID_BUNDLE_TYPES]
+    if invalid:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Invalid bundle_types value(s): {invalid}. Must be one of {sorted(VALID_BUNDLE_TYPES)} or 'all'.",
+        )
+    return normalized or ["flights", "hotels", "cars"]
 
 
 @router.post("/bundles/search", response_model=BundleSearchResponse, summary="Search Bundled Travel Packages")
@@ -33,6 +51,8 @@ def search_bundles_endpoint(req: BundleSearchRequest):
             from ...services.bundles import BundlesService
             client.bundles = BundlesService(client.http_client, cache=client.cache, adapter=client.adapter, client=client)
 
+        selected_types = normalize_bundle_types(req.bundle_types)
+
         result = client.bundles.search_bundle(
             origin=req.origin,
             destination=req.destination,
@@ -43,10 +63,16 @@ def search_bundles_endpoint(req: BundleSearchRequest):
             rooms=req.rooms,
             driver_age=req.driver_age,
             force_refresh=req.force_refresh,
+            selected_types=selected_types,
         )
         return BundleSearchResponse(**result)
     except HTTPException:
         raise
+    except DuffelException as err:
+        raise HTTPException(
+            status_code=status.HTTP_424_FAILED_DEPENDENCY,
+            detail=str(err)
+        )
     except Exception as err:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -64,9 +90,11 @@ def get_search_bundles_endpoint(
     cabin_class: str = Query("economy", description="Cabin class"),
     rooms: int = Query(1, ge=1, le=10, description="Hotel rooms"),
     driver_age: int = Query(30, ge=18, le=99, description="Driver age"),
+    bundle_types: str = Query("all", description="Comma-separated types to include: flights,hotels,cars or 'all'"),
     force_refresh: bool = Query(False, description="Bypass cache"),
 ):
     """HTTP GET endpoint for bundled travel package search using URL query parameters."""
+    parsed_bundle_types = [t.strip() for t in bundle_types.split(",")] if bundle_types != "all" else "all"
     return search_bundles_endpoint(
         BundleSearchRequest(
             origin=origin,
@@ -77,6 +105,7 @@ def get_search_bundles_endpoint(
             cabin_class=cabin_class,
             rooms=rooms,
             driver_age=driver_age,
+            bundle_types=parsed_bundle_types,
             force_refresh=force_refresh,
         )
     )

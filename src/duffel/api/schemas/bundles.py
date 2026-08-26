@@ -2,7 +2,7 @@
 Bundled Travel Package Pydantic schemas for Duffel REST API.
 """
 
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from pydantic import BaseModel, Field
 
 from .common import PassengerInput, PaymentInput
@@ -19,6 +19,11 @@ class BundleSearchRequest(BaseModel):
     cabin_class: str = Field("economy", description="Cabin class: economy, business, etc.")
     rooms: int = Field(1, ge=1, le=10, description="Number of hotel rooms requested")
     driver_age: int = Field(30, ge=18, le=99, description="Driver age for car rental")
+    bundle_types: Union[list[str], str] = Field(
+        "all",
+        description="Which components to include: a list containing any of 'flights', 'hotels', 'cars', "
+        "or the string 'all' to include every component.",
+    )
     force_refresh: bool = Field(False, description="Set true to bypass cache and query live")
 
 

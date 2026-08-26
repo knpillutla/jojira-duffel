@@ -17,6 +17,15 @@ DESTINATION_GEO_MAP = {
     "TOKYO": {"latitude": 35.6762, "longitude": 139.6503, "address": "Tokyo, Japan", "name": "Tokyo Central"},
     "ROME": {"latitude": 41.9028, "longitude": 12.4964, "address": "Rome, Italy", "name": "Rome Historical Center"},
     "BARCELONA": {"latitude": 41.3851, "longitude": 2.1734, "address": "Barcelona, Spain", "name": "Barcelona Center"},
+    # Common airport IATA codes, for lookups against pickup/dropoff location strings like "LAX" or "Paris CDG Airport"
+    "CDG": {"latitude": 49.0097, "longitude": 2.5479, "address": "Paris CDG Airport, France", "name": "Paris CDG Airport"},
+    "LHR": {"latitude": 51.4700, "longitude": -0.4543, "address": "London Heathrow Airport, UK", "name": "London Heathrow Airport"},
+    "JFK": {"latitude": 40.6413, "longitude": -73.7781, "address": "New York JFK Airport, USA", "name": "New York JFK Airport"},
+    "LAX": {"latitude": 33.9416, "longitude": -118.4085, "address": "Los Angeles LAX Airport, USA", "name": "Los Angeles LAX Airport"},
+    "ATL": {"latitude": 33.6407, "longitude": -84.4277, "address": "Atlanta ATL Airport, USA", "name": "Atlanta ATL Airport"},
+    "ORD": {"latitude": 41.9742, "longitude": -87.9073, "address": "Chicago O'Hare Airport, USA", "name": "Chicago O'Hare Airport"},
+    "MCO": {"latitude": 28.4312, "longitude": -81.3081, "address": "Orlando MCO Airport, USA", "name": "Orlando MCO Airport"},
+    "HNL": {"latitude": 21.3245, "longitude": -157.9251, "address": "Honolulu HNL Airport, USA", "name": "Honolulu HNL Airport"},
 }
 
 

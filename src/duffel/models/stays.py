@@ -38,6 +38,7 @@ class StayRate:
     description: str
     cancellation_timeline: list[dict[str, Any]]
     available_rooms: int
+    quote_id: Optional[str] = None  # Duffel quote ID needed for booking
     raw: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -50,8 +51,24 @@ class StayRate:
             description=data.get("description", ""),
             cancellation_timeline=data.get("cancellation_timeline", []),
             available_rooms=data.get("available_rooms", 1),
+            quote_id=data.get("quote_id"),
             raw=data,
         )
+    
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to API response format."""
+        result = {
+            "id": self.id,
+            "total_amount": self.total_amount,
+            "total_currency": self.total_currency,
+            "board_type": self.board_type,
+            "description": self.description,
+            "cancellation_timeline": self.cancellation_timeline,
+            "available_rooms": self.available_rooms,
+        }
+        if self.quote_id:
+            result["quote_id"] = self.quote_id  # Include for booking
+        return result
 
 
 @dataclass
@@ -60,6 +77,7 @@ class StaySearchResult:
     accommodation: dict[str, Any]
     rates: list[StayRate]
     created_at: str
+    search_request_id: Optional[str] = None  # Duffel search request ID for fetching rates
     raw: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -70,8 +88,21 @@ class StaySearchResult:
             accommodation=data.get("accommodation", {}),
             rates=rates,
             created_at=data.get("created_at", ""),
+            search_request_id=data.get("search_request_id"),
             raw=data,
         )
+    
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to API response format."""
+        result = {
+            "id": self.id,
+            "accommodation": self.accommodation,
+            "rates": [r.to_dict() for r in self.rates],
+            "created_at": self.created_at,
+        }
+        if self.search_request_id:
+            result["search_request_id"] = self.search_request_id
+        return result
 
 
 @dataclass
