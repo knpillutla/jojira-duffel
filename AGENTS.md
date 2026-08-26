@@ -15,4 +15,4 @@
 - **Minimize Input & Output Tokens**: Keep context, prompts, and responses extremely concise and focused. Avoid conversational filler, redundant context, or repeating existing code needlessly.
 - **Omit Default Explanations**: Do not provide explanations, summaries, or conceptual walkthroughs of code changes unless explicitly requested by the user.
 - **Concise Diffs & Outputs**: Provide minimal, targeted diffs and direct answers rather than dumping entire files or verbose logs.
-- **Do Not Automatically Execute Scratchpad Scripts**: Avoid creating or executing scratchpad scripts automatically or speculatively unless explicitly requested by the user, to prevent unnecessary token consumption.
+- **Do Not Automatically Execute Commands**: Do not automatically run shell/terminal commands or scratchpad scripts unless explicitly requested by the user, to prevent unnecessary token consumption and unexpected execution.
