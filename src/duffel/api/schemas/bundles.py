@@ -58,14 +58,15 @@ class BundleSearchResponse(BaseModel):
 
 class BundleBookingRequest(BaseModel):
     """Bundled travel package booking request."""
-    flight_offer_id: str = Field(..., description="Flight offer ID")
-    stay_quote_id: str = Field(..., description="Stay quote ID")
-    car_offer_id: str = Field(..., description="Car rental offer ID")
+    flight_offer_id: Optional[str] = Field(None, description="Flight offer ID")
+    stay_quote_id: Optional[str] = Field(None, description="Stay quote ID")
+    car_offer_id: Optional[str] = Field(None, description="Car rental offer ID")
     passengers: list[PassengerInput] = Field(..., min_length=1, description="List of passengers")
-    guests: list[dict[str, Any]] = Field(..., min_length=1, description="List of hotel guests")
-    driver_details: dict[str, Any] = Field(..., description="Driver details object")
+    guests: Optional[list[dict[str, Any]]] = Field(None, description="List of hotel guests")
+    driver_details: Optional[dict[str, Any]] = Field(None, description="Driver details object")
     payments: Optional[list[PaymentInput]] = Field(None, description="List of payment objects")
     payment: Optional[PaymentInput] = Field(None, description="Single payment object")
+
     promo_code: Optional[str] = Field(None, description="Optional promo/discount code applied")
     discount_amount: Optional[str] = Field(None, description="Optional discount amount applied")
 

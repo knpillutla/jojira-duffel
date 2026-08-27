@@ -299,17 +299,34 @@ class OrderDAO:
                     updated_at TEXT
                 );
                 CREATE INDEX IF NOT EXISTS idx_itinerary_dest_dur ON itinerary_templates(destination, duration_days);
+
+                CREATE TABLE IF NOT EXISTS generated_itineraries (
+                    id TEXT PRIMARY KEY,
+                    prompt TEXT NOT NULL,
+                    destination TEXT NOT NULL,
+                    start_date TEXT,
+                    end_date TEXT,
+                    duration_days INTEGER,
+                    passengers_count INTEGER,
+                    payload TEXT NOT NULL,
+                    created_at TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_gen_itin_dest ON generated_itineraries(destination);
                 """
                 cursor.executescript(ddl)
                 conn.commit()
 
-            # Ensure bundle_id, promo_code, gross_amount, discount_amount columns exist on existing tables
+
+            # Ensure bundle_id, promo_code, gross_amount, discount_amount, and audit columns exist on existing tables
             cols_to_add = [
                 ("bundle_id", "VARCHAR(100)", "TEXT"),
                 ("promo_code", "VARCHAR(50)", "TEXT"),
                 ("gross_amount", "NUMERIC(10, 2)", "TEXT"),
                 ("discount_amount", "NUMERIC(10, 2)", "TEXT"),
+                ("created_by", "VARCHAR(100) DEFAULT 'system'", "TEXT DEFAULT 'system'"),
+                ("updated_by", "VARCHAR(100) DEFAULT 'system'", "TEXT DEFAULT 'system'"),
             ]
+
             for tbl in ["flight_orders", "stay_orders", "car_orders", "bundle_orders"]:
                 for col_name, pg_type, sq_type in cols_to_add:
                     try:
@@ -1062,4 +1079,75 @@ class OrderDAO:
             if self.db_engine != "postgresql":
                 conn.close()
 
+    def save_generated_itinerary(
+        self,
+        prompt: str,
+        destination: str,
+        start_date: str,
+        end_date: str,
+        duration_days: int,
+        passengers_count: int,
+        payload: dict[str, Any],
+    ) -> str:
+        """
+        Persists a newly generated user itinerary payload into PostgreSQL / SQLite.
+        """
+        itin_id = f"itin_{hashlib.md5(f'{prompt}_{destination}_{start_date}_{end_date}'.encode()).hexdigest()[:8]}"
+        now_iso = datetime.now(timezone.utc).isoformat()
+        payload_json = json.dumps(payload)
+
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            if self.db_engine == "postgresql":
+                sql = """
+                INSERT INTO generated_itineraries (
+                    id, prompt, destination, start_date, end_date, duration_days, passengers_count, payload, created_at
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (id) DO UPDATE SET
+                    payload = EXCLUDED.payload;
+                """
+                cursor.execute(sql, (itin_id, prompt, destination, start_date, end_date, duration_days, passengers_count, payload_json, now_iso))
+            else:
+                sql = """
+                INSERT INTO generated_itineraries (
+                    id, prompt, destination, start_date, end_date, duration_days, passengers_count, payload, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    payload = excluded.payload;
+                """
+                cursor.execute(sql, (itin_id, prompt, destination, start_date, end_date, duration_days, passengers_count, payload_json, now_iso))
+                conn.commit()
+            print(f"[ORDER DAO] Saved generated itinerary '{itin_id}' to database.")
+            return itin_id
+        except Exception as db_err:
+            print(f"[ORDER DAO NOTICE] Database save itinerary notice: {db_err}")
+            return itin_id
+        finally:
+            if self.db_engine != "postgresql":
+                conn.close()
+
+    def get_generated_itinerary(self, itin_id: str) -> Optional[dict[str, Any]]:
+        """
+        Reads a persisted itinerary from PostgreSQL / SQLite by itinerary ID.
+        """
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            if self.db_engine == "postgresql":
+                sql = "SELECT payload FROM generated_itineraries WHERE id = %s LIMIT 1;"
+                cursor.execute(sql, (itin_id,))
+            else:
+                sql = "SELECT payload FROM generated_itineraries WHERE id = ? LIMIT 1;"
+                cursor.execute(sql, (itin_id,))
+
+            row = cursor.fetchone()
+            if not row:
+                return None
+            return json.loads(row[0]) if isinstance(row[0], str) else row[0]
+        except Exception:
+            return None
+        finally:
+            if self.db_engine != "postgresql":
+                conn.close()
 

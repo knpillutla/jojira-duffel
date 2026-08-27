@@ -5675,5 +5675,11 @@
     "longitude": 20.2285184,
     "address": "12, Sęp, gmina Radoszyce, powiat konecki, województwo świętokrzyskie, 26-230, Polska",
     "name": "SEP 12"
+  },
+  "OCTOBER": {
+    "latitude": 56.1674664,
+    "longitude": 88.4170484,
+    "address": "Октябрьский, Тяжинский муниципальный округ, Кемеровская область, Сибирский федеральный округ, Россия",
+    "name": "OCTOBER"
   }
 }
