@@ -5651,5 +5651,29 @@
     "longitude": 71.4900533,
     "address": "XYZ, دانش آباد, سفید ڈھیری, پيښور ښار تحصیل, ضلع پشاور‎, پشاور ڈویژن, خیبر پختونخوا, 25120, پاکستان",
     "name": "XYZ"
+  },
+  "HND": {
+    "latitude": 35.5456924,
+    "longitude": 139.7760994,
+    "address": "東京国際空港, 東京都, 144-0041, 日本",
+    "name": "HND"
+  },
+  "MIA": {
+    "latitude": 25.7949789,
+    "longitude": -80.2867234,
+    "address": "Miami International Airport, 2100, Northwest 42nd Avenue, Miami, Miami-Dade County, Florida, 33142, United States",
+    "name": "MIA"
+  },
+  "SEPTEMBER 15": {
+    "latitude": 50.8520878,
+    "longitude": 4.3788569,
+    "address": "15, Boulevard des Quatre Journées - Vier-September-Dagenlaan, Saint-Josse-ten-Noode - Sint-Joost-ten-Node, Brussel-Hoofdstad - Bruxelles-Capitale, Région de Bruxelles-Capitale - Brussels Hoofdstedelijk Gewest, 1210, België / Belgique / Belgien",
+    "name": "SEPTEMBER 15"
+  },
+  "SEP 12": {
+    "latitude": 51.0141677,
+    "longitude": 20.2285184,
+    "address": "12, Sęp, gmina Radoszyce, powiat konecki, województwo świętokrzyskie, 26-230, Polska",
+    "name": "SEP 12"
   }
 }

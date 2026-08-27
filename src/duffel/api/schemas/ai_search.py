@@ -32,40 +32,22 @@ class AISearchRequest(BaseModel):
 
 class AISearchResponse(BaseModel):
     """
-    AI Search Response - Dynamic format based on routing decision.
+    AI Search Response Envelope matching generic search response structure.
     
-    Response format varies:
-    - Single type (flights): Returns OptimizedFlightSearchResponse format
-    - Single type (hotels): Returns StaySearchResponse format
-    - Single type (cars): Returns CarSearchResponse format
-    - Multiple types: Returns BundleSearchResponse format
-    
-    All responses include:
+    Contains:
     - status: "success" or "error"
-    - ttl_seconds: Cache TTL
-    - prompt: Original search prompt
-    - source: Which service handled the request (ai_search_flights, ai_search_hotels, ai_search_bundle, etc)
-    - results: Service-specific results (top 20 ordered by total price ascending)
+    - timestamp: Execution timestamp
+    - meta_data: Includes search_type ('flights'|'hotels'|'cars'|'bundle'), parsed_intent, prompt, geo_location
+    - data: Includes ai_summary, category_highlights, and total items list (offers or top_bundles)
     """
-    status: str = Field(..., description="Response status: success or error")
-    timestamp: Optional[str] = Field(None, description="Execution timestamp")
-    ttl_seconds: int = Field(3600, description="Cache TTL in seconds")
-    source: Optional[str] = Field(None, description="Source service: ai_search_flights, ai_search_hotels, ai_search_cars, ai_search_bundle")
-    prompt: str = Field(..., description="Original search prompt")
-    results: Optional[list[dict[str, Any]]] = Field(None, description="Service-specific results")
-    
-    # Optional fields for specific response types
-    search_type: Optional[str] = Field(None, description="For bundle: 'flights', 'hotels', 'cars', or 'bundle'")
-    total_results: Optional[int] = Field(None, description="Number of results returned")
-    category_highlights: Optional[dict[str, Any]] = Field(None, description="For bundle: category highlights")
-    top_bundles: Optional[list[dict[str, Any]]] = Field(None, description="For bundle: top package bundles")
-    search_params: Optional[dict[str, Any]] = Field(None, description="Resolved search parameters")
-    meta: Optional[dict[str, Any]] = Field(None, description="Metadata from service")
-    output_file: Optional[str] = Field(None, description="Path to generated report file")
-    detail: Optional[str] = Field(None, description="Error detail if status is error")
+    status: str = Field("success", description="Response status: success or error")
+    timestamp: str = Field(..., description="Execution timestamp YYYY-MM-DD HH:MM:SS")
+    meta_data: dict[str, Any] = Field(..., description="Metadata section with type=ai_search, search_type, parsed_intent, and geo_location")
+    data: dict[str, Any] = Field(..., description="Data section containing ai_summary, category_highlights, and items list")
     
     class Config:
-        extra = "allow"  # Allow additional fields from different service responses
+        extra = "allow"
+
 
 
 class AIBookingRequest(BaseModel):

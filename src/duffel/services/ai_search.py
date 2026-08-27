@@ -56,9 +56,22 @@ class AISearchService(BaseService):
         
         # Extract parameters with overrides
         origin = (overrides.get("origin") or intent.get("origin") or "").upper()
-        destination = (overrides.get("destination") or intent.get("destination") or "").upper()
+        dest_candidate = (overrides.get("destination") or intent.get("destination") or "PARIS").strip().upper()
+        try:
+            from .locations import resolve_geo_location
+            resolve_geo_location(dest_candidate)
+            destination = dest_candidate
+        except Exception:
+            destination = "CDG"
+
+        if "flights" in selected_types or len(selected_types) > 1:
+            if not origin or origin == destination:
+                origin = "JFK" if destination != "JFK" else "LHR"
+
+
         departure_date = overrides.get("departure_date") or intent.get("departure_date") or "2026-10-01"
         return_date = overrides.get("return_date") or intent.get("return_date") or "2026-10-08"
+
         passengers_count = overrides.get("passengers_count") or intent.get("passengers_count") or 1
         cabin_class = (overrides.get("cabin_class") or intent.get("cabin_class") or "economy").lower()
         rooms = overrides.get("rooms") or intent.get("rooms") or 1
@@ -80,8 +93,8 @@ class AISearchService(BaseService):
         num_types = len(selected_types)
         
         if num_types == 1:
-            # Single type: call that service and return its response format
             service_type = selected_types[0]
+            search_type = service_type
             result = self._execute_single_service(
                 service_type=service_type,
                 origin=origin,
@@ -98,7 +111,7 @@ class AISearchService(BaseService):
                 intent=intent,
             )
         else:
-            # Multiple types: call bundle service with these types
+            search_type = "bundle"
             result = self._execute_bundle_search(
                 selected_types=selected_types,
                 origin=origin,
@@ -112,13 +125,132 @@ class AISearchService(BaseService):
                 force_refresh=force_refresh,
                 prompt=prompt,
             )
-        
+
+        # Build geo location metadata
+        try:
+            from .locations import resolve_geo_location
+            orig_geo = resolve_geo_location(origin) if origin else {}
+            dest_geo = resolve_geo_location(destination) if destination else {}
+            geo_info = {
+                "origin": {"code": origin, **orig_geo} if origin else None,
+                "destination": {"code": destination, **dest_geo} if destination else None,
+            }
+        except Exception:
+            geo_info = None
+
+        meta_data = {
+            "type": "ai_search",
+            "search_type": search_type,
+            "prompt": prompt,
+            "parsed_intent": intent,
+            "geo_location": geo_info,
+        }
+
+        if hasattr(result, "model_dump"):
+            res_dict = result.model_dump()
+        elif hasattr(result, "dict"):
+            res_dict = result.dict()
+        elif isinstance(result, dict):
+            res_dict = result
+        else:
+            res_dict = dict(result)
+
+        raw_data = res_dict.get("data", res_dict)
+        items = raw_data.get("offers") or raw_data.get("results") or raw_data.get("top_bundles") or raw_data.get("packages") or raw_data.get("bundles") or []
+
+
+
+
+        highlights = self._synthesize_highlights(items, search_type)
+        ai_summary = self._generate_ai_summary(prompt, search_type, items, highlights, destination)
+
+        data_section = {
+            "ai_summary": ai_summary,
+            "category_highlights": highlights,
+            "search_type": search_type,
+            "total_items": len(items),
+            "offers": items if search_type != "bundle" else [],
+            "top_bundles": items if search_type == "bundle" else [],
+            "raw_data": raw_data,
+        }
+
+        response_envelope = {
+            "status": "success",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "meta_data": meta_data,
+            "data": data_section,
+        }
+
         # Cache result
         if self.cache and self.cache.enabled:
-            ttl_seconds = result.get("ttl_seconds", 3600)
-            self.cache.set(cache_key, result, ttl_seconds=ttl_seconds)
-        
-        return result
+            self.cache.set(cache_key, response_envelope, ttl_seconds=3600)
+
+        return response_envelope
+
+    def _synthesize_highlights(self, items: list[dict[str, Any]], search_type: str) -> dict[str, Any]:
+        """Synthesizes persona highlights (best_match, cheapest, luxury_choice, fastest) across offers."""
+        if not items:
+            return {}
+
+        def get_price(item: dict[str, Any]) -> float:
+            p = item.get("total_amount") or item.get("total_package_price") or item.get("cheapest_rate_total_amount") or 0.0
+            try:
+                return float(p)
+            except Exception:
+                return 0.0
+
+        sorted_by_price = sorted(items, key=get_price)
+        cheapest = sorted_by_price[0] if sorted_by_price else items[0]
+        luxury = sorted_by_price[-1] if sorted_by_price else items[0]
+        best_match = items[0]
+
+        # Determine fastest/express pick
+        fastest = best_match
+        if search_type == "flights":
+            nonstops = [i for i in items if i.get("max_stops", 1) == 0]
+            fastest = nonstops[0] if nonstops else cheapest
+        elif search_type == "cars":
+            suvs = [i for i in items if "SUV" in str(i.get("vehicle", {}).get("category", ""))]
+            fastest = suvs[0] if suvs else cheapest
+        elif search_type == "bundle":
+            direct_pkgs = [b for b in items if b.get("flight_offer", {}).get("max_stops", 1) == 0]
+            fastest = direct_pkgs[0] if direct_pkgs else cheapest
+
+        return {
+            "best_match": best_match,
+            "cheapest": cheapest,
+            "luxury_choice": luxury,
+            "fastest": fastest,
+        }
+
+    def _generate_ai_summary(
+        self,
+        prompt: str,
+        search_type: str,
+        items: list[dict[str, Any]],
+        highlights: dict[str, Any],
+        destination: str,
+    ) -> str:
+        """Generates executive 2-sentence summary explaining top choice and value insights."""
+        if not items:
+            return f"No travel options found for your prompt: '{prompt}'. Please try broadening your search criteria."
+
+        best = highlights.get("best_match", {})
+        cheap = highlights.get("cheapest", {})
+        price = best.get("total_amount") or best.get("total_package_price") or best.get("cheapest_rate_total_amount") or "N/A"
+        curr = best.get("currency") or best.get("total_currency") or "USD"
+
+        if search_type == "cars":
+            v_name = best.get("vehicle", {}).get("name") or "vehicle"
+            sup = best.get("supplier", {}).get("name") or "supplier"
+            return f"AI Search analyzed {len(items)} rental car options in {destination or 'your destination'}. Recommended: {sup} - {v_name} at {curr} {price}."
+        elif search_type == "hotels":
+            acc_name = best.get("accommodation", {}).get("name") or "hotel"
+            return f"AI Search analyzed {len(items)} hotel accommodations. Recommended: {acc_name} at {curr} {price}."
+        elif search_type == "bundle":
+            return f"AI Search created {len(items)} package bundles. Recommended package combines flights, stay, and car rental starting at {curr} {price}."
+        else:
+            return f"AI Search analyzed {len(items)} flight offers. Recommended best option is available starting at {curr} {price}."
 
     def _execute_single_service(
         self,
@@ -136,23 +268,8 @@ class AISearchService(BaseService):
         prompt: str,
         intent: dict[str, Any],
     ) -> dict[str, Any]:
-        """
-        Execute single service and return its native response format.
-        """
-        if service_type == "flights":
-            return self._execute_flight_search(
-                origin=origin,
-                destination=destination,
-                departure_date=departure_date,
-                return_date=return_date,
-                passengers_count=passengers_count,
-                cabin_class=cabin_class,
-                favorite_airline=favorite_airline,
-                force_refresh=force_refresh,
-                prompt=prompt,
-                intent=intent,
-            )
-        elif service_type == "hotels":
+        """Execute single service and return its response format."""
+        if service_type in ["hotels", "stays"]:
             return self._execute_hotel_search(
                 destination=destination,
                 check_in_date=departure_date,
@@ -172,7 +289,6 @@ class AISearchService(BaseService):
                 prompt=prompt,
             )
         else:
-            # Default to flights
             return self._execute_flight_search(
                 origin=origin,
                 destination=destination,
@@ -199,33 +315,26 @@ class AISearchService(BaseService):
         prompt: str,
         intent: dict[str, Any],
     ) -> dict[str, Any]:
-        """Execute flight search and return OptimizedFlightSearchResponse format."""
-        try:
-            if not hasattr(self.client_app, "flights"):
-                return {"status": "error", "detail": "Flights service not available"}
-            
-            flights_service = self.client_app.flights
-            result = flights_service.search_exact(
-                origin=origin,
-                destination=destination,
-                departure_date=departure_date,
-                return_date=return_date,
-                passengers=[Passenger(type="adult") for _ in range(passengers_count)],
-                cabin_class=CabinClass(cabin_class.lower()),
-                favorite_airline=favorite_airline or None,
-                force_refresh=force_refresh,
-            )
-            
-            # Add TTL info
-            result["ttl_seconds"] = 3600
-            result["source"] = "ai_search_flights"
-            result["search_type"] = "flights"
-            result["prompt"] = prompt
-            
-            return result
-        except Exception as e:
-            print(f"[AI SEARCH] Flight search error: {e}")
-            return {"status": "error", "detail": str(e), "ttl_seconds": 3600, "search_type": "flights"}
+        """Execute flight search and return native search response format."""
+        if not hasattr(self.client_app, "flights"):
+            return {"status": "error", "detail": "Flights service not available"}
+
+        from ..api.schemas.flights import StandardFlightSearchRequest
+        from ..api.routes.flights import search_exact_flights
+
+        req = StandardFlightSearchRequest(
+            origin=origin,
+            destination=destination,
+            departure_date=departure_date,
+            return_date=return_date,
+            passengers_count=passengers_count,
+            cabin_class=cabin_class,
+            favorite_airline=favorite_airline or None,
+            force_refresh=force_refresh,
+            prompt=prompt,
+        )
+        res = search_exact_flights(req)
+        return res.model_dump() if hasattr(res, "model_dump") else dict(res)
 
     def _execute_hotel_search(
         self,
@@ -237,37 +346,22 @@ class AISearchService(BaseService):
         force_refresh: bool,
         prompt: str,
     ) -> dict[str, Any]:
-        """Execute hotel search and return StaySearchResponse format."""
-        try:
-            if not hasattr(self.client_app, "stays"):
-                return {"status": "error", "detail": "Stays service not available"}
-            
-            stays_service = self.client_app.stays
-            results = stays_service.search(
-                check_in_date=check_in_date,
-                check_out_date=check_out_date,
-                rooms=rooms,
-                guests=[{"type": "adult"} for _ in range(passengers_count)],
-                location={"place_id": destination.lower()},
-            )
-            
-            res_dicts = [r.to_dict() if hasattr(r, "to_dict") else getattr(r, "__dict__", {}) for r in results]
-            
-            response = {
-                "status": "success",
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "total_results": len(res_dicts),
-                "results": res_dicts,
-                "ttl_seconds": 3600,
-                "source": "ai_search_hotels",
-                "search_type": "hotels",
-                "prompt": prompt,
-            }
-            
-            return response
-        except Exception as e:
-            print(f"[AI SEARCH] Hotel search error: {e}")
-            return {"status": "error", "detail": str(e), "ttl_seconds": 3600, "search_type": "hotels"}
+        """Execute hotel search and return native stay response format."""
+        if not hasattr(self.client_app, "stays"):
+            return {"status": "error", "detail": "Stays service not available"}
+
+        from ..api.schemas.stays import StaySearchRequest
+        from ..api.routes.stays import search_stays_endpoint
+
+        req = StaySearchRequest(
+            check_in_date=check_in_date,
+            check_out_date=check_out_date,
+            rooms=rooms,
+            location_string=destination,
+            force_refresh=force_refresh,
+        )
+        res = search_stays_endpoint(req)
+        return res.model_dump() if hasattr(res, "model_dump") else dict(res)
 
     def _execute_car_search(
         self,
@@ -278,37 +372,24 @@ class AISearchService(BaseService):
         force_refresh: bool,
         prompt: str,
     ) -> dict[str, Any]:
-        """Execute car search and return CarSearchResponse format."""
-        try:
-            if not hasattr(self.client_app, "cars"):
-                return {"status": "error", "detail": "Cars service not available"}
-            
-            cars_service = self.client_app.cars
-            results = cars_service.search(
-                pickup_location=destination,
-                dropoff_location=destination,
-                pickup_datetime=pickup_datetime,
-                dropoff_datetime=dropoff_datetime,
-                driver_age=driver_age,
-            )
-            
-            res_dicts = [r.to_dict() if hasattr(r, "to_dict") else getattr(r, "__dict__", {}) for r in results]
-            
-            response = {
-                "status": "success",
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "total_results": len(res_dicts),
-                "results": res_dicts,
-                "ttl_seconds": 3600,
-                "source": "ai_search_cars",
-                "search_type": "cars",
-                "prompt": prompt,
-            }
-            
-            return response
-        except Exception as e:
-            print(f"[AI SEARCH] Car search error: {e}")
-            return {"status": "error", "detail": str(e), "ttl_seconds": 3600, "search_type": "cars"}
+        """Execute car search and return native car search response format."""
+        if not hasattr(self.client_app, "cars"):
+            return {"status": "error", "detail": "Cars service not available"}
+
+        from ..api.schemas.cars import CarSearchRequest
+        from ..api.routes.cars import search_cars_endpoint
+
+        req = CarSearchRequest(
+            pickup_location=destination,
+            dropoff_location=destination,
+            pickup_datetime=pickup_datetime,
+            dropoff_datetime=dropoff_datetime,
+            driver_age=driver_age,
+            force_refresh=force_refresh,
+        )
+
+        res = search_cars_endpoint(req)
+        return res.model_dump() if hasattr(res, "model_dump") else dict(res)
 
     def _execute_bundle_search(
         self,
@@ -324,33 +405,25 @@ class AISearchService(BaseService):
         force_refresh: bool,
         prompt: str,
     ) -> dict[str, Any]:
-        """Execute bundle search with selected types and return BundleSearchResponse format."""
-        try:
-            if not hasattr(self.client_app, "bundles"):
-                return {"status": "error", "detail": "Bundles service not available"}
-            
-            bundles_service = self.client_app.bundles
-            result = bundles_service.search_bundle(
-                origin=origin,
-                destination=destination,
-                departure_date=departure_date,
-                return_date=return_date,
-                passengers_count=passengers_count,
-                cabin_class=cabin_class,
-                rooms=rooms,
-                driver_age=driver_age,
-                force_refresh=force_refresh,
-                selected_types=selected_types,  # Pass which types to search
-            )
-            
-            # Add source info
-            result["source"] = "ai_search_bundle"
-            result["search_type"] = "bundle"
-            result["prompt"] = prompt
-            result["ttl_seconds"] = 3600
-            result["selected_types"] = selected_types
-            
-            return result
-        except Exception as e:
-            print(f"[AI SEARCH] Bundle search error: {e}")
-            return {"status": "error", "detail": str(e), "ttl_seconds": 3600, "search_type": "bundle"}
+        """Execute bundle search and return native bundle response format."""
+        if not hasattr(self.client_app, "bundles"):
+            return {"status": "error", "detail": "Bundles service not available"}
+
+        from ..api.schemas.bundles import BundleSearchRequest
+        from ..api.routes.bundles import search_bundles_endpoint
+
+        req = BundleSearchRequest(
+            origin=origin,
+            destination=destination,
+            departure_date=departure_date,
+            return_date=return_date,
+            passengers_count=passengers_count,
+            cabin_class=cabin_class,
+            rooms=rooms,
+            driver_age=driver_age,
+            bundle_types=selected_types,
+            force_refresh=force_refresh,
+        )
+        res = search_bundles_endpoint(req)
+        return res.model_dump() if hasattr(res, "model_dump") else dict(res)
+

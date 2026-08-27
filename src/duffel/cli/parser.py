@@ -60,8 +60,21 @@ class PromptExtractor:
         text = prompt.lower()
         selected_types: list[str] = []
 
-        if any(w in text for w in ["flight", "flights", "fly", "flying", "airline", "plane", "nonstop", "one way", "round trip", "from "]):
+        flight_kw = ["flight", "flights", "fly", "flying", "airline", "plane", "nonstop", "one way", "round trip"]
+        has_flight_keyword = any(w in text for w in flight_kw)
+        
+        # Check if 'from <location>' exists (excluding date prepositions like 'from sep', 'from october', 'from 2026-11-12')
+        from_match = re.search(r"\bfrom\s+([a-z0-9]+)", text)
+        if from_match:
+            word = from_match.group(1)
+            date_words = {"jan", "january", "feb", "february", "mar", "march", "apr", "april", "may", "jun", "june", "jul", "july", "aug", "august", "sep", "september", "oct", "october", "nov", "november", "dec", "december", "today", "tomorrow", "next", "this"}
+            if not word.isdigit() and word not in date_words and "to " in text:
+                has_flight_keyword = True
+
+        if has_flight_keyword:
             selected_types.append("flights")
+
+
         if any(w in text for w in ["hotel", "hotels", "stay", "stays", "resort", "resorts", "accommodation", "lodging", "room", "rooms"]):
             selected_types.append("hotels")
         if any(w in text for w in ["car", "cars", "rental car", "car rental", "drive", "vehicle", "hertz", "suv", "auto"]):
