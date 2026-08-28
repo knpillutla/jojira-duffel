@@ -48,6 +48,9 @@ $AkvName = $env:AZURE_KEYVAULT_NAME
 $ApiAppName = $env:CONTAINER_APP_API_NAME
 $UserSvcAppName = $env:CONTAINER_APP_USER_SERVICE_NAME
 $OrderSvcAppName = $env:CONTAINER_APP_ORDER_SERVICE_NAME
+$PostgresAppName = if ($env:CONTAINER_APP_POSTGRES_NAME) { $env:CONTAINER_APP_POSTGRES_NAME } else { "app-jojira-postgres-$Env" }
+$RedisAppName = if ($env:CONTAINER_APP_REDIS_NAME) { $env:CONTAINER_APP_REDIS_NAME } else { "app-jojira-redis-$Env" }
+$RabbitMqAppName = if ($env:CONTAINER_APP_RABBITMQ_NAME) { $env:CONTAINER_APP_RABBITMQ_NAME } else { "app-jojira-rabbitmq-$Env" }
 
 $AcrServer = "$AcrName.azurecr.io"
 
@@ -61,48 +64,123 @@ Write-Host " Key Vault (AKV):    $AkvName" -ForegroundColor Cyan
 Write-Host "==================================================================" -ForegroundColor Cyan
 
 # 1. Authenticate with Azure
-Write-Host "[1/5] Authenticating with Azure CLI..." -ForegroundColor Yellow
+Write-Host "[1/6] Authenticating with Azure CLI..." -ForegroundColor Yellow
 if ($Subscription) { az account set --subscription $Subscription }
 az extension add --name containerapp --upgrade --yes --allow-preview true
 
-# 2. Build Stage (Only if -Build parameter is specified)
+# 2. Build & Push Stage (Only if -Build parameter is specified)
 if ($Build) {
-    Write-Host "[2/5] [-Build parameter set] Building Docker images for Booking, User, and Order microservices..." -ForegroundColor Yellow
+    Write-Host "[2/6] [-Build parameter set] Building & Pushing Docker images for Services + Infra..." -ForegroundColor Yellow
     az acr login --name $AcrName
 
-    Write-Host "      [1/3] Building Booking API image ($AcrServer/jojira-api:$Tag)..." -ForegroundColor Yellow
+    Write-Host "      [1/6] Building Booking API image ($AcrServer/jojira-api:$Tag)..." -ForegroundColor Yellow
     docker build -t "$AcrServer/jojira-api:$Tag" -f "$RootDir\Dockerfile.booking-service" "$RootDir"
     docker push "$AcrServer/jojira-api:$Tag"
 
-    Write-Host "      [2/3] Building User Service image ($AcrServer/jojira-user-service:$Tag)..." -ForegroundColor Yellow
+    Write-Host "      [2/6] Building User Service image ($AcrServer/jojira-user-service:$Tag)..." -ForegroundColor Yellow
     docker build -t "$AcrServer/jojira-user-service:$Tag" -f "$RootDir\Dockerfile.user-service" "$RootDir"
     docker push "$AcrServer/jojira-user-service:$Tag"
 
-    Write-Host "      [3/3] Building Order Service image ($AcrServer/jojira-order-service:$Tag)..." -ForegroundColor Yellow
+    Write-Host "      [3/6] Building Order Service image ($AcrServer/jojira-order-service:$Tag)..." -ForegroundColor Yellow
     docker build -t "$AcrServer/jojira-order-service:$Tag" -f "$RootDir\Dockerfile.order-service" "$RootDir"
     docker push "$AcrServer/jojira-order-service:$Tag"
+
+    Write-Host "      [4/6] Pulling & Pushing PostgreSQL image ($AcrServer/postgres:$Tag)..." -ForegroundColor Yellow
+    docker pull postgres:16-alpine
+    docker tag postgres:16-alpine "$AcrServer/postgres:$Tag"
+    docker push "$AcrServer/postgres:$Tag"
+
+    Write-Host "      [5/6] Pulling & Pushing Redis image ($AcrServer/redis:$Tag)..." -ForegroundColor Yellow
+    docker pull redis:7-alpine
+    docker tag redis:7-alpine "$AcrServer/redis:$Tag"
+    docker push "$AcrServer/redis:$Tag"
+
+    Write-Host "      [6/6] Pulling & Pushing RabbitMQ image ($AcrServer/rabbitmq:$Tag)..." -ForegroundColor Yellow
+    docker pull rabbitmq:3-management-alpine
+    docker tag rabbitmq:3-management-alpine "$AcrServer/rabbitmq:$Tag"
+    docker push "$AcrServer/rabbitmq:$Tag"
 } else {
-    Write-Host "[2/5] Skipping build step. Reusing pre-built image artifacts for Booking, User, and Order..." -ForegroundColor Yellow
+    Write-Host "[2/6] Skipping build step. Reusing pre-built image artifacts..." -ForegroundColor Yellow
 }
 
 # 3. Ensure Environment Exists
-Write-Host "[3/5] Ensuring Resource Group & Container Apps Environment in '$Env'..." -ForegroundColor Yellow
+Write-Host "[3/6] Ensuring Resource Group & Container Apps Environment in '$Env'..." -ForegroundColor Yellow
 az group create --name $ResourceGroup --location $Location -o table
 
+$PrevEap = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
 $EnvCheck = az containerapp env show --name $ContainerAppEnv --resource-group $ResourceGroup 2>$null
 if (-not $EnvCheck) {
     az containerapp env create --name $ContainerAppEnv --resource-group $ResourceGroup --location $Location
 }
+az acr update --name $AcrName --admin-enabled true
+$AcrPasswordRaw = az acr credential show --name $AcrName --query "passwords[0].value" -o tsv
+$AcrPassword = if ($AcrPasswordRaw) { $AcrPasswordRaw.Trim() } else { "" }
+$ErrorActionPreference = $PrevEap
 
-$AcrPassword = az acr credential show --name $AcrName --query "passwords[0].value" -o tsv 2>$null
+if ([string]::IsNullOrWhiteSpace($AcrPassword)) {
+    Write-Error "Failed to fetch ACR password for '$AcrName'. Ensure Azure CLI is authenticated."
+}
 
 $Cpu = if ($env:CPU) { $env:CPU } else { "0.25" }
 $Memory = if ($env:MEMORY) { $env:MEMORY } else { "0.5Gi" }
 $MinReplicas = if ($env:MIN_REPLICAS) { $env:MIN_REPLICAS } else { "0" }
 $MaxReplicas = if ($env:MAX_REPLICAS) { $env:MAX_REPLICAS } else { "10" }
 
-# 4. Deploy Main API Container App (Injecting Environment Configs & Secret Vault)
-Write-Host "[4/5] Deploying '$ApiAppName' with environment configs from '$Env.env'..." -ForegroundColor Yellow
+# 4. Deploy Infrastructure Containers (PostgreSQL, Redis, RabbitMQ)
+Write-Host "[4/6] Deploying PostgreSQL, Redis, and RabbitMQ Container Apps..." -ForegroundColor Yellow
+
+az containerapp create `
+  --name $PostgresAppName `
+  --resource-group $ResourceGroup `
+  --environment $ContainerAppEnv `
+  --image "$AcrServer/postgres:$Tag" `
+  --registry-server $AcrServer `
+  --registry-username $AcrName `
+  --registry-password $AcrPassword `
+  --target-port 5432 `
+  --ingress internal `
+  --cpu $Cpu `
+  --memory $Memory `
+  --min-replicas 1 `
+  --max-replicas 1 `
+  --env-vars `
+    POSTGRES_DB="jojira_duffel" `
+    POSTGRES_USER="postgres" `
+    POSTGRES_PASSWORD="postgres"
+
+az containerapp create `
+  --name $RedisAppName `
+  --resource-group $ResourceGroup `
+  --environment $ContainerAppEnv `
+  --image "$AcrServer/redis:$Tag" `
+  --registry-server $AcrServer `
+  --registry-username $AcrName `
+  --registry-password $AcrPassword `
+  --target-port 6379 `
+  --ingress internal `
+  --cpu $Cpu `
+  --memory $Memory `
+  --min-replicas 1 `
+  --max-replicas 1
+
+az containerapp create `
+  --name $RabbitMqAppName `
+  --resource-group $ResourceGroup `
+  --environment $ContainerAppEnv `
+  --image "$AcrServer/rabbitmq:$Tag" `
+  --registry-server $AcrServer `
+  --registry-username $AcrName `
+  --registry-password $AcrPassword `
+  --target-port 5672 `
+  --ingress internal `
+  --cpu $Cpu `
+  --memory $Memory `
+  --min-replicas 1 `
+  --max-replicas 1
+
+# 5. Deploy Main API Container App
+Write-Host "[5/6] Deploying '$ApiAppName' with environment configs from '$Env.env'..." -ForegroundColor Yellow
 az containerapp create `
   --name $ApiAppName `
   --resource-group $ResourceGroup `
@@ -124,10 +202,19 @@ az containerapp create `
     AZURE_KEYVAULT_URL="https://$AkvName.vault.azure.net/" `
     DEFAULT_ORDER_MODE="instant" `
     LLM_PROVIDER="openai" `
+    POSTGRES_HOST="$PostgresAppName" `
+    POSTGRES_PORT="5432" `
+    POSTGRES_DB="jojira_duffel" `
+    POSTGRES_USER="postgres" `
+    POSTGRES_PASSWORD="postgres" `
+    REDIS_HOST="$RedisAppName" `
+    REDIS_PORT="6379" `
+    RABBITMQ_HOST="$RabbitMqAppName" `
+    RABBITMQ_PORT="5672" `
   --system-assigned
 
-# 5. Deploy User Service & Order Service
-Write-Host "[5/5] Deploying User Service & Order Service Container Apps..." -ForegroundColor Yellow
+# 6. Deploy User Service & Order Service
+Write-Host "[6/6] Deploying User Service & Order Service Container Apps..." -ForegroundColor Yellow
 az containerapp create `
   --name $UserSvcAppName `
   --resource-group $ResourceGroup `
@@ -147,6 +234,11 @@ az containerapp create `
     AZURE_KEYVAULT_ENABLED="true" `
     AZURE_KEYVAULT_NAME="$AkvName" `
     AZURE_KEYVAULT_URL="https://$AkvName.vault.azure.net/" `
+    POSTGRES_HOST="$PostgresAppName" `
+    POSTGRES_PORT="5432" `
+    POSTGRES_DB="jojira_duffel" `
+    POSTGRES_USER="postgres" `
+    POSTGRES_PASSWORD="postgres" `
   --system-assigned
 
 az containerapp create `
@@ -157,7 +249,6 @@ az containerapp create `
   --registry-server $AcrServer `
   --registry-username $AcrName `
   --registry-password $AcrPassword `
-  --ingress disabled `
   --cpu $Cpu `
   --memory $Memory `
   --min-replicas $MinReplicas `
@@ -167,6 +258,15 @@ az containerapp create `
     AZURE_KEYVAULT_ENABLED="true" `
     AZURE_KEYVAULT_NAME="$AkvName" `
     AZURE_KEYVAULT_URL="https://$AkvName.vault.azure.net/" `
+    POSTGRES_HOST="$PostgresAppName" `
+    POSTGRES_PORT="5432" `
+    POSTGRES_DB="jojira_duffel" `
+    POSTGRES_USER="postgres" `
+    POSTGRES_PASSWORD="postgres" `
+    REDIS_HOST="$RedisAppName" `
+    REDIS_PORT="6379" `
+    RABBITMQ_HOST="$RabbitMqAppName" `
+    RABBITMQ_PORT="5672" `
   --system-assigned
 
 $ApiUrl = az containerapp show --name $ApiAppName --resource-group $ResourceGroup --query "properties.configuration.ingress.fqdn" -o tsv
@@ -174,4 +274,5 @@ $ApiUrl = az containerapp show --name $ApiAppName --resource-group $ResourceGrou
 Write-Host "==================================================================" -ForegroundColor Green
 Write-Host " [SUCCESS] Deployed image '$Tag' to '$Env' environment!" -ForegroundColor Green
 Write-Host " Main REST API URL: https://$ApiUrl" -ForegroundColor Green
+Write-Host " Infrastructure Deployed: Postgres ($PostgresAppName), Redis ($RedisAppName), RabbitMQ ($RabbitMqAppName)" -ForegroundColor Green
 Write-Host "==================================================================" -ForegroundColor Green

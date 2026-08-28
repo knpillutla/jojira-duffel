@@ -48,6 +48,9 @@ fi
 SUBSCRIPTION="${AZURE_SUBSCRIPTION_NAME:-${AZURE_SUBSCRIPTION_ID:-${AZURE_SUBSCRIPTION:-}}}"
 
 ACR_SERVER="${AZURE_ACR_NAME}.azurecr.io"
+POSTGRES_APP_NAME="${CONTAINER_APP_POSTGRES_NAME:-app-jojira-postgres-${TARGET_ENV}}"
+REDIS_APP_NAME="${CONTAINER_APP_REDIS_NAME:-app-jojira-redis-${TARGET_ENV}}"
+RABBITMQ_APP_NAME="${CONTAINER_APP_RABBITMQ_NAME:-app-jojira-rabbitmq-${TARGET_ENV}}"
 
 echo "=================================================================="
 echo " Starting Azure Container Apps Deployment (Build Once, Deploy Anywhere)"
@@ -59,7 +62,7 @@ echo " Key Vault (AKV):    ${AZURE_KEYVAULT_NAME}"
 echo "=================================================================="
 
 # 1. Azure Authentication & Setup
-echo "[1/5] Authenticating with Azure CLI..."
+echo "[1/6] Authenticating with Azure CLI..."
 if [ -n "${SUBSCRIPTION}" ]; then
   az account set --subscription "${SUBSCRIPTION}" || true
 fi
@@ -67,26 +70,41 @@ az extension add --name containerapp --upgrade --yes --allow-preview true
 
 # 2. Build Stage (Only executed if --build flag is explicitly passed)
 if [ "${DO_BUILD}" = true ]; then
-  echo "[2/5] [--build flag set] Building Docker images for Booking, User, and Order microservices..."
+  echo "[2/6] [--build flag set] Building & Pushing Docker images for Services + Infra..."
   az acr login --name "${AZURE_ACR_NAME}"
 
-  echo "      [1/3] Building Booking API image (${ACR_SERVER}/jojira-api:${TAG})..."
+  echo "      [1/6] Building Booking API image (${ACR_SERVER}/jojira-api:${TAG})..."
   docker build -t "${ACR_SERVER}/jojira-api:${TAG}" -f "${ROOT_DIR}/Dockerfile.booking-service" "${ROOT_DIR}"
   docker push "${ACR_SERVER}/jojira-api:${TAG}"
 
-  echo "      [2/3] Building User Service image (${ACR_SERVER}/jojira-user-service:${TAG})..."
+  echo "      [2/6] Building User Service image (${ACR_SERVER}/jojira-user-service:${TAG})..."
   docker build -t "${ACR_SERVER}/jojira-user-service:${TAG}" -f "${ROOT_DIR}/Dockerfile.user-service" "${ROOT_DIR}"
   docker push "${ACR_SERVER}/jojira-user-service:${TAG}"
 
-  echo "      [3/3] Building Order Service image (${ACR_SERVER}/jojira-order-service:${TAG})..."
+  echo "      [3/6] Building Order Service image (${ACR_SERVER}/jojira-order-service:${TAG})..."
   docker build -t "${ACR_SERVER}/jojira-order-service:${TAG}" -f "${ROOT_DIR}/Dockerfile.order-service" "${ROOT_DIR}"
   docker push "${ACR_SERVER}/jojira-order-service:${TAG}"
+
+  echo "      [4/6] Pulling & Pushing PostgreSQL image (${ACR_SERVER}/postgres:${TAG})..."
+  docker pull postgres:16-alpine
+  docker tag postgres:16-alpine "${ACR_SERVER}/postgres:${TAG}"
+  docker push "${ACR_SERVER}/postgres:${TAG}"
+
+  echo "      [5/6] Pulling & Pushing Redis image (${ACR_SERVER}/redis:${TAG})..."
+  docker pull redis:7-alpine
+  docker tag redis:7-alpine "${ACR_SERVER}/redis:${TAG}"
+  docker push "${ACR_SERVER}/redis:${TAG}"
+
+  echo "      [6/6] Pulling & Pushing RabbitMQ image (${ACR_SERVER}/rabbitmq:${TAG})..."
+  docker pull rabbitmq:3-management-alpine
+  docker tag rabbitmq:3-management-alpine "${ACR_SERVER}/rabbitmq:${TAG}"
+  docker push "${ACR_SERVER}/rabbitmq:${TAG}"
 else
-  echo "[2/5] Skipping build step. Reusing pre-built image artifacts for Booking, User, and Order..."
+  echo "[2/6] Skipping build step. Reusing pre-built image artifacts..."
 fi
 
 # 3. Ensure Container Apps Environment Exist
-echo "[3/5] Ensuring Resource Group & Container Apps Environment in '${TARGET_ENV}'..."
+echo "[3/6] Ensuring Resource Group & Container Apps Environment in '${TARGET_ENV}'..."
 az group create --name "${AZURE_RESOURCE_GROUP}" --location "${AZURE_LOCATION}" -o table
 
 if ! az containerapp env show --name "${AZURE_CONTAINER_APP_ENV}" --resource-group "${AZURE_RESOURCE_GROUP}" >/dev/null 2>&1; then
@@ -98,8 +116,59 @@ fi
 
 ACR_PASSWORD=$(az acr credential show --name "${AZURE_ACR_NAME}" --query "passwords[0].value" -o tsv 2>/dev/null || echo "")
 
-# 4. Deploy Main API Container App (Injecting Environment-Specific Configs & Secret Vault)
-echo "[4/5] Deploying '${CONTAINER_APP_API_NAME}' with environment configs from '${TARGET_ENV}.env'..."
+# 4. Deploy Infrastructure Containers (PostgreSQL, Redis, RabbitMQ)
+echo "[4/6] Deploying PostgreSQL, Redis, and RabbitMQ Container Apps..."
+az containerapp create \
+  --name "${POSTGRES_APP_NAME}" \
+  --resource-group "${AZURE_RESOURCE_GROUP}" \
+  --environment "${AZURE_CONTAINER_APP_ENV}" \
+  --image "${ACR_SERVER}/postgres:${TAG}" \
+  --registry-server "${ACR_SERVER}" \
+  --registry-username "${AZURE_ACR_NAME}" \
+  --registry-password "${ACR_PASSWORD}" \
+  --target-port 5432 \
+  --ingress internal \
+  --cpu "${CPU:-0.25}" \
+  --memory "${MEMORY:-0.5Gi}" \
+  --min-replicas 1 \
+  --max-replicas 1 \
+  --env-vars \
+    POSTGRES_DB="jojira_duffel" \
+    POSTGRES_USER="postgres" \
+    POSTGRES_PASSWORD="postgres"
+
+az containerapp create \
+  --name "${REDIS_APP_NAME}" \
+  --resource-group "${AZURE_RESOURCE_GROUP}" \
+  --environment "${AZURE_CONTAINER_APP_ENV}" \
+  --image "${ACR_SERVER}/redis:${TAG}" \
+  --registry-server "${ACR_SERVER}" \
+  --registry-username "${AZURE_ACR_NAME}" \
+  --registry-password "${ACR_PASSWORD}" \
+  --target-port 6379 \
+  --ingress internal \
+  --cpu "${CPU:-0.25}" \
+  --memory "${MEMORY:-0.5Gi}" \
+  --min-replicas 1 \
+  --max-replicas 1
+
+az containerapp create \
+  --name "${RABBITMQ_APP_NAME}" \
+  --resource-group "${AZURE_RESOURCE_GROUP}" \
+  --environment "${AZURE_CONTAINER_APP_ENV}" \
+  --image "${ACR_SERVER}/rabbitmq:${TAG}" \
+  --registry-server "${ACR_SERVER}" \
+  --registry-username "${AZURE_ACR_NAME}" \
+  --registry-password "${ACR_PASSWORD}" \
+  --target-port 5672 \
+  --ingress internal \
+  --cpu "${CPU:-0.25}" \
+  --memory "${MEMORY:-0.5Gi}" \
+  --min-replicas 1 \
+  --max-replicas 1
+
+# 5. Deploy Main API Container App
+echo "[5/6] Deploying '${CONTAINER_APP_API_NAME}' with environment configs from '${TARGET_ENV}.env'..."
 az containerapp create \
   --name "${CONTAINER_APP_API_NAME}" \
   --resource-group "${AZURE_RESOURCE_GROUP}" \
@@ -121,10 +190,19 @@ az containerapp create \
     AZURE_KEYVAULT_URL="https://${AZURE_KEYVAULT_NAME}.vault.azure.net/" \
     DEFAULT_ORDER_MODE="${DEFAULT_ORDER_MODE:-instant}" \
     LLM_PROVIDER="${LLM_PROVIDER:-openai}" \
+    POSTGRES_HOST="${POSTGRES_APP_NAME}" \
+    POSTGRES_PORT="5432" \
+    POSTGRES_DB="jojira_duffel" \
+    POSTGRES_USER="postgres" \
+    POSTGRES_PASSWORD="postgres" \
+    REDIS_HOST="${REDIS_APP_NAME}" \
+    REDIS_PORT="6379" \
+    RABBITMQ_HOST="${RABBITMQ_APP_NAME}" \
+    RABBITMQ_PORT="5672" \
   --system-assigned
 
-# 5. Deploy User Service & Order Service Container Apps
-echo "[5/5] Deploying User Service & Order Service Container Apps..."
+# 6. Deploy User Service & Order Service Container Apps
+echo "[6/6] Deploying User Service & Order Service Container Apps..."
 az containerapp create \
   --name "${CONTAINER_APP_USER_SERVICE_NAME}" \
   --resource-group "${AZURE_RESOURCE_GROUP}" \
@@ -144,6 +222,11 @@ az containerapp create \
     AZURE_KEYVAULT_ENABLED="${AZURE_KEYVAULT_ENABLED:-true}" \
     AZURE_KEYVAULT_NAME="${AZURE_KEYVAULT_NAME}" \
     AZURE_KEYVAULT_URL="https://${AZURE_KEYVAULT_NAME}.vault.azure.net/" \
+    POSTGRES_HOST="${POSTGRES_APP_NAME}" \
+    POSTGRES_PORT="5432" \
+    POSTGRES_DB="jojira_duffel" \
+    POSTGRES_USER="postgres" \
+    POSTGRES_PASSWORD="postgres" \
   --system-assigned
 
 az containerapp create \
@@ -154,7 +237,6 @@ az containerapp create \
   --registry-server "${ACR_SERVER}" \
   --registry-username "${AZURE_ACR_NAME}" \
   --registry-password "${ACR_PASSWORD}" \
-  --ingress disabled \
   --cpu "${CPU:-0.25}" \
   --memory "${MEMORY:-0.5Gi}" \
   --min-replicas "${MIN_REPLICAS:-0}" \
@@ -164,6 +246,15 @@ az containerapp create \
     AZURE_KEYVAULT_ENABLED="${AZURE_KEYVAULT_ENABLED:-true}" \
     AZURE_KEYVAULT_NAME="${AZURE_KEYVAULT_NAME}" \
     AZURE_KEYVAULT_URL="https://${AZURE_KEYVAULT_NAME}.vault.azure.net/" \
+    POSTGRES_HOST="${POSTGRES_APP_NAME}" \
+    POSTGRES_PORT="5432" \
+    POSTGRES_DB="jojira_duffel" \
+    POSTGRES_USER="postgres" \
+    POSTGRES_PASSWORD="postgres" \
+    REDIS_HOST="${REDIS_APP_NAME}" \
+    REDIS_PORT="6379" \
+    RABBITMQ_HOST="${RABBITMQ_APP_NAME}" \
+    RABBITMQ_PORT="5672" \
   --system-assigned
 
 API_URL=$(az containerapp show --name "${CONTAINER_APP_API_NAME}" --resource-group "${AZURE_RESOURCE_GROUP}" --query "properties.configuration.ingress.fqdn" -o tsv)
@@ -171,4 +262,5 @@ API_URL=$(az containerapp show --name "${CONTAINER_APP_API_NAME}" --resource-gro
 echo "=================================================================="
 echo " [SUCCESS] Deployed image '${TAG}' to '${TARGET_ENV}' environment!"
 echo " Main REST API URL: https://${API_URL}"
+echo " Infrastructure Deployed: Postgres (${POSTGRES_APP_NAME}), Redis (${REDIS_APP_NAME}), RabbitMQ (${RABBITMQ_APP_NAME})"
 echo "=================================================================="
