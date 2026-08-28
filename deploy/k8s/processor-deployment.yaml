@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jojira-order-processor
+  namespace: jojira
+  labels:
+    app: jojira-order-processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jojira-order-processor
+  template:
+    metadata:
+      labels:
+        app: jojira-order-processor
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+      containers:
+      - name: processor
+        image: jojiraacr.azurecr.io/jojira-order-processor:latest
+        imagePullPolicy: Always
+        command: ["python", "run_processor.py"]
+        envFrom:
+        - configMapRef:
+            name: jojira-config
+        - secretRef:
+            name: jojira-secrets
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "azure-keyvault-secrets-provider"

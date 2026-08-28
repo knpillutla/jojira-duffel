@@ -18,6 +18,9 @@ class DuffelConfig:
     timeout: float = 5.0
     force_instant_booking: bool = False
     default_order_mode: str = "hold"
+    azure_keyvault_enabled: bool = False
+    azure_keyvault_name: str = ""
+    azure_keyvault_url: str = ""
     debug: bool = False
     test_mode: bool = False
     enable_cache: bool = True
@@ -81,11 +84,21 @@ class DuffelConfig:
             except Exception as sp_err:
                 print(f"[CONFIG NOTICE] Failed loading system_prompts.json: {sp_err}")
 
-        # 1. Load from config.json if present
+        # 1. Load from environment-specific JSON config file if present
+        env_name = os.getenv("ENVIRONMENT", "").lower().strip()
+        custom_config_path = os.getenv("CONFIG_FILE_PATH", "")
 
-        if Path(self.config_file).is_file():
+        target_config_file = self.config_file
+        if custom_config_path and Path(custom_config_path).is_file():
+            target_config_file = custom_config_path
+        elif env_name and Path(f"deploy/container_apps/configs/config.{env_name}.json").is_file():
+            target_config_file = f"deploy/container_apps/configs/config.{env_name}.json"
+        elif env_name and Path(f"config.{env_name}.json").is_file():
+            target_config_file = f"config.{env_name}.json"
+
+        if Path(target_config_file).is_file():
             try:
-                with open(self.config_file, "r", encoding="utf-8") as f:
+                with open(target_config_file, "r", encoding="utf-8") as f:
                     cfg_data = json.load(f)
                     if not self.api_token:
                         self.api_token = cfg_data.get("duffel_api_token") or cfg_data.get("api_token") or ""
@@ -101,6 +114,12 @@ class DuffelConfig:
                         self.default_order_mode = str(cfg_data["default_order_mode"]).lower().strip()
                     elif "default_booking_mode" in cfg_data and cfg_data["default_booking_mode"]:
                         self.default_order_mode = str(cfg_data["default_booking_mode"]).lower().strip()
+                    if "azure_keyvault_enabled" in cfg_data:
+                        self.azure_keyvault_enabled = bool(cfg_data["azure_keyvault_enabled"])
+                    if "azure_keyvault_name" in cfg_data and cfg_data["azure_keyvault_name"]:
+                        self.azure_keyvault_name = str(cfg_data["azure_keyvault_name"]).strip()
+                    if "azure_keyvault_url" in cfg_data and cfg_data["azure_keyvault_url"]:
+                        self.azure_keyvault_url = str(cfg_data["azure_keyvault_url"]).strip()
                     if "debug" in cfg_data:
                         self.debug = bool(cfg_data["debug"])
                     if "test_mode" in cfg_data:
@@ -251,6 +270,20 @@ class DuffelConfig:
             self.max_retries = int(os.environ["DUFFEL_MAX_RETRIES"])
         if os.environ.get("FORCE_INSTANT_BOOKING"):
             self.force_instant_booking = os.environ["FORCE_INSTANT_BOOKING"].strip().lower() in ("true", "1", "yes")
+        if os.environ.get("AZURE_KEYVAULT_ENABLED"):
+            self.azure_keyvault_enabled = os.environ["AZURE_KEYVAULT_ENABLED"].strip().lower() in ("true", "1", "yes")
+        if os.environ.get("AZURE_KEYVAULT_NAME"):
+            self.azure_keyvault_name = os.environ["AZURE_KEYVAULT_NAME"].strip()
+        if os.environ.get("AZURE_KEYVAULT_URL"):
+            self.azure_keyvault_url = os.environ["AZURE_KEYVAULT_URL"].strip()
+
+        # 3. Load secrets from Azure Key Vault if enabled
+        if self.azure_keyvault_enabled or self.azure_keyvault_name:
+            try:
+                from .azure_vault import AzureKeyVaultClient
+                AzureKeyVaultClient.load_secrets_into_config(self)
+            except Exception as kv_err:
+                print(f"[AZURE KEY VAULT NOTICE] Azure Key Vault secret loading notice: {kv_err}")
 
     @property
     def headers(self) -> dict[str, str]:

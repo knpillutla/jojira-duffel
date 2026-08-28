@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jojira-config
+  namespace: jojira
+data:
+  ENVIRONMENT: "production"
+  DEFAULT_ORDER_MODE: "hold"
+  LLM_PROVIDER: "openai"
+  POSTGRES_HOST: "postgres-service"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "jojira_duffel"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  MESSAGE_BROKER: "rabbitmq"
+  RABBITMQ_HOST: "rabbitmq-service"
+  RABBITMQ_PORT: "5672"
+  SERVICE_BUS_ENABLED: "true"
+  EMAIL_CONFIRMATION_ENABLED: "true"

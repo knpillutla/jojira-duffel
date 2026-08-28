@@ -34,10 +34,11 @@ services:
       - "8001:8001"
 
 
-  order-processor:
+  order-service:
     build:
       context: .
-      dockerfile: Dockerfile.processor
+      dockerfile: Dockerfile.order-service
+    command: python run_order_service.py
     environment:
       DUFFEL_API_TOKEN: ${DUFFEL_API_TOKEN:-}
       POSTGRES_HOST: postgres
