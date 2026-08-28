@@ -180,12 +180,20 @@ class DuffelCache:
 
     def set(self, key: str, value: Any, ttl_seconds: Optional[int] = None) -> None:
         """Store or update value in cache with TTL."""
-        if not self.enabled:
-            return
-
         t0 = time.perf_counter()
         ttl = ttl_seconds if ttl_seconds is not None else self.ttl
-        json_val = json.dumps(value)
+
+        try:
+            json_val = json.dumps(value)
+        except Exception:
+            def _json_default(obj):
+                if hasattr(obj, "to_dict"):
+                    return obj.to_dict()
+                if hasattr(obj, "__dict__"):
+                    return obj.__dict__
+                return str(obj)
+            json_val = json.dumps(value, default=_json_default)
+
 
         # 1. Store in Redis if available
         if self.redis_client is not None:

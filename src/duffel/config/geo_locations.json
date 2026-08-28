@@ -5681,5 +5681,23 @@
     "longitude": 88.4170484,
     "address": "Октябрьский, Тяжинский муниципальный округ, Кемеровская область, Сибирский федеральный округ, Россия",
     "name": "OCTOBER"
+  },
+  "ZRH": {
+    "latitude": 47.4633881,
+    "longitude": 8.5533661,
+    "address": "Flughafen Zürich, Himmelbachweg, Kloten, Bezirk Bülach, Zürich, 8058, Schweiz/Suisse/Svizzera/Svizra",
+    "name": "ZRH"
+  },
+  "DELHI": {
+    "latitude": 28.6328027,
+    "longitude": 77.2197713,
+    "address": "Delhi, India",
+    "name": "delhi"
+  },
+  "NRT": {
+    "latitude": 8.6772337,
+    "longitude": 99.7309635,
+    "address": "จังหวัดนครศรีธรรมราช, ประเทศไทย",
+    "name": "NRT"
   }
 }

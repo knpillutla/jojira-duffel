@@ -18,12 +18,8 @@ router = APIRouter(prefix="/users", tags=["User Profile & Preferences"])
 def get_user_profile(user_id: str):
     """Retrieves user profile information and travel preferences."""
     user_dao = UserDAO(config=UserServiceConfig())
-    user_data = user_dao.get_user_by_id(user_id)
-    if not user_data:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID '{user_id}' was not found."
-        )
+    user_data = user_dao.ensure_user_exists(user_id)
+
 
     return UserProfileResponse(
         status="success",

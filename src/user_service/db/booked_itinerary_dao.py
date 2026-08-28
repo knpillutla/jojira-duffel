@@ -67,7 +67,8 @@ class BookedItineraryDAO:
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     created_by VARCHAR(100) DEFAULT 'system',
-                    updated_by VARCHAR(100) DEFAULT 'system'
+                    updated_by VARCHAR(100) DEFAULT 'system',
+                    is_test BOOLEAN DEFAULT FALSE
                 );
                 CREATE INDEX IF NOT EXISTS idx_booked_itin_user ON users.user_booked_itineraries(user_id);
                 """
@@ -92,7 +93,8 @@ class BookedItineraryDAO:
                     created_at TEXT,
                     updated_at TEXT,
                     created_by TEXT DEFAULT 'system',
-                    updated_by TEXT DEFAULT 'system'
+                    updated_by TEXT DEFAULT 'system',
+                    is_test INTEGER DEFAULT 0
                 );
                 CREATE INDEX IF NOT EXISTS idx_booked_itin_user ON user_booked_itineraries(user_id);
                 """
@@ -102,10 +104,10 @@ class BookedItineraryDAO:
                 tbl = "users.user_booked_itineraries" if self.db_engine == "postgresql" else "user_booked_itineraries"
                 c_type = "BOOLEAN DEFAULT FALSE" if self.db_engine == "postgresql" else "INTEGER DEFAULT 0"
                 cursor.execute(f"ALTER TABLE {tbl} ADD COLUMN is_test {c_type};")
-                if self.db_engine != "postgresql":
-                    conn.commit()
+                conn.commit()
             except Exception:
-                pass
+                conn.rollback()
+
         except Exception as err:
             print(f"[BOOKED ITINERARY DAO NOTICE] DB Init notice: {err}")
         finally:

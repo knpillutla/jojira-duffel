@@ -26,11 +26,7 @@ def record_user_search(user_id: str, req: SearchHistoryRecordRequest):
     """Logs a user search query or natural language prompt into search history."""
     cfg = UserServiceConfig()
     user_dao = UserDAO(config=cfg)
-    if not user_dao.get_user_by_id(user_id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID '{user_id}' was not found."
-        )
+    user_dao.ensure_user_exists(user_id)
 
     search_dao = SearchHistoryDAO(config=cfg)
     rec_id = search_dao.record_search(
@@ -57,16 +53,11 @@ def get_user_search_history(user_id: str, limit: int = Query(20, ge=1, le=100)):
     """Retrieves recent search queries logged for a user."""
     cfg = UserServiceConfig()
     user_dao = UserDAO(config=cfg)
-    if not user_dao.get_user_by_id(user_id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID '{user_id}' was not found."
-        )
+    user_dao.ensure_user_exists(user_id)
 
     limit_val = limit if isinstance(limit, int) else (getattr(limit, "default", 20) or 20)
     search_dao = SearchHistoryDAO(config=cfg)
     rows = search_dao.get_user_search_history(user_id=user_id, limit=limit_val)
-
 
     items = [SearchHistoryItem(**r) for r in rows]
 
@@ -86,11 +77,7 @@ def get_user_search_entry_details(user_id: str, search_id: str):
     """Retrieves full details for a past AI Planner search, including generated package bundles and draft itinerary."""
     cfg = UserServiceConfig()
     user_dao = UserDAO(config=cfg)
-    if not user_dao.get_user_by_id(user_id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID '{user_id}' was not found."
-        )
+    user_dao.ensure_user_exists(user_id)
 
     search_dao = SearchHistoryDAO(config=cfg)
     details = search_dao.get_search_entry_details(user_id=user_id, search_id=search_id)
@@ -106,7 +93,6 @@ def get_user_search_entry_details(user_id: str, search_id: str):
     }
 
 
-
 @router.post(
     "/{user_id}/bookings",
     response_model=SaveBookingResponse,
@@ -116,11 +102,7 @@ def save_user_booking(user_id: str, req: SaveBookingRequest):
     """Saves a booked or liked itinerary to the user's saved bookings collection."""
     cfg = UserServiceConfig()
     user_dao = UserDAO(config=cfg)
-    if not user_dao.get_user_by_id(user_id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID '{user_id}' was not found."
-        )
+    user_dao.ensure_user_exists(user_id)
 
     history_dao = HistoryDAO(config=cfg)
     bkg_id = history_dao.save_itinerary_booking(
@@ -147,11 +129,7 @@ def get_user_bookings(user_id: str):
     """Retrieves all saved or booked itineraries for a user."""
     cfg = UserServiceConfig()
     user_dao = UserDAO(config=cfg)
-    if not user_dao.get_user_by_id(user_id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID '{user_id}' was not found."
-        )
+    user_dao.ensure_user_exists(user_id)
 
     history_dao = HistoryDAO(config=cfg)
     bookings = history_dao.get_user_bookings(user_id=user_id)
@@ -161,3 +139,4 @@ def get_user_bookings(user_id: str):
         "count": len(bookings),
         "bookings": bookings
     }
+

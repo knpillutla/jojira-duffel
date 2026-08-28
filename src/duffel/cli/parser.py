@@ -16,10 +16,16 @@ CITY_IATA_MAP = {
     "lon": "LHR",
     "lgw": "LGW",
     "new york": "JFK",
+    "newyork": "JFK",
     "nyc": "JFK",
     "jfk": "JFK",
     "ewr": "EWR",
+    "san diego": "SAN",
+    "sandiego": "SAN",
+    "san diego ca": "SAN",
+    "australia": "SYD",
     "los angeles": "LAX",
+
     "lax": "LAX",
     "paris": "CDG",
     "cdg": "CDG",
@@ -75,8 +81,19 @@ class PromptExtractor:
             selected_types.append("flights")
 
 
+        # Price per night / lodging detection
+        max_price_per_night = None
+        price_night_match = re.search(r"(?:under|less than|max|up to|below|\$)\s*\$?(\d+(?:\.\d+)?)\s*(?:a|per|\/)?\s*(?:night|day)", text)
+        if price_night_match:
+            max_price_per_night = float(price_night_match.group(1))
+            if "hotels" not in selected_types:
+                selected_types.append("hotels")
+
+
+
         if any(w in text for w in ["hotel", "hotels", "stay", "stays", "resort", "resorts", "accommodation", "lodging", "room", "rooms"]):
-            selected_types.append("hotels")
+            if "hotels" not in selected_types:
+                selected_types.append("hotels")
         if any(w in text for w in ["car", "cars", "rental car", "car rental", "drive", "vehicle", "hertz", "suv", "auto"]):
             selected_types.append("cars")
         if any(w in text for w in ["attraction", "attractions", "things to do", "sightseeing", "tour", "tours", "activities", "visit", "museum", "landmarks", "itinerary", "places to see"]):
@@ -95,6 +112,86 @@ class PromptExtractor:
         ret_date = flight_info.get("target_return_date") or stay_info.get("check_out_date")
         if not ret_date and len(slices) > 1:
             ret_date = slices[1].get("departure_date")
+
+        # Extract adults & kids count (defaulting to 1 adult if unlisted)
+        adult_match = re.search(r"(\d+)\s*adult", text)
+        adults = int(adult_match.group(1)) if adult_match else 0
+
+        child_match = re.search(r"(\d+)\s*(?:kid|child|children)", text)
+        children = int(child_match.group(1)) if child_match else 0
+
+        total_explicit = adults + children
+        if total_explicit > 0:
+            passengers_count = total_explicit
+            if adults == 0:
+                adults = 1
+        else:
+            adults = 1
+            children = 0
+            passengers_count = max(flight_info.get("passengers_count") or 1, 1)
+
+
+        # Extract excluded airlines
+        excluded_airlines = []
+        exclude_match = re.search(r"(?:exclude|excluding|without|no)\s+([a-z\s]+?)(?=\s+airlines?|\s+flights|\s+on|\s+for|\s*$)", text)
+        if exclude_match:
+            ex_name = exclude_match.group(1).strip()
+            if "frontier" in ex_name:
+                excluded_airlines.append("Frontier Airlines")
+            elif "spirit" in ex_name:
+                excluded_airlines.append("Spirit Airlines")
+            elif "delta" in ex_name:
+                excluded_airlines.append("Delta Air Lines")
+            elif "american" in ex_name:
+                excluded_airlines.append("American Airlines")
+            else:
+                excluded_airlines.append(ex_name.title())
+
+        # Extract preferred airline
+        preferred_airline = None
+        airline_code = None
+        airlines_map = {
+            "american airlines": ("American Airlines", "AA"),
+            "american": ("American Airlines", "AA"),
+            "aa": ("American Airlines", "AA"),
+            "delta": ("Delta Air Lines", "DL"),
+            "united": ("United Airlines", "UA"),
+            "air france": ("Air France", "AF"),
+            "lufthansa": ("Lufthansa", "LH"),
+            "british airways": ("British Airways", "BA"),
+            "emirates": ("Emirates", "EK"),
+            "ana": ("All Nippon Airways", "NH"),
+            "japan airlines": ("Japan Airlines", "JL"),
+            "jal": ("Japan Airlines", "JL"),
+            "frontier": ("Frontier Airlines", "F9"),
+            "spirit": ("Spirit Airlines", "NK"),
+        }
+        for kw, (name, code) in airlines_map.items():
+            if name in excluded_airlines:
+                continue
+            if re.search(r"(?<!exclude\s)(?<!excluding\s)(?<!without\s)(?<!no\s)\b" + re.escape(kw) + r"\b", text):
+                preferred_airline = name
+                airline_code = code
+                break
+
+
+
+        # Extract allowed cabin classes
+        allowed_cabins = []
+        if "premium" in text:
+            allowed_cabins.append("premium_economy")
+        if "business" in text:
+            allowed_cabins.append("business")
+        if "first" in text:
+            allowed_cabins.append("first")
+        if "economy" in text and "premium" not in text:
+            allowed_cabins.append("economy")
+        elif "economy" in text and "premium" in text and "economy" not in allowed_cabins:
+            allowed_cabins.append("economy")
+
+        if not allowed_cabins:
+            allowed_cabins = [flight_info.get("cabin_class", "economy")]
+
 
         if not selected_types:
             if origin and destination:
@@ -116,14 +213,28 @@ class PromptExtractor:
             "destination": destination,
             "departure_date": dep_date,
             "return_date": ret_date,
-            "passengers_count": flight_info.get("passengers_count", 1),
-            "cabin_class": flight_info.get("cabin_class", "economy"),
+            "passengers": {
+                "adults": adults,
+                "children": children,
+                "total": passengers_count,
+            },
+            "passengers_count": passengers_count,
+            "cabin_class": allowed_cabins[0],
+            "allowed_cabin_classes": allowed_cabins,
+            "preferred_airline": preferred_airline or flight_info.get("preferred_airline"),
+            "airline_code": airline_code or flight_info.get("airline_code"),
+            "excluded_airlines": excluded_airlines,
+            "max_price_per_night": max_price_per_night or flight_info.get("max_price_per_night"),
+
             "rooms": stay_info.get("rooms", 1),
             "driver_age": car_info.get("driver_age", 30),
             "interests": [],
             "duration_days": flight_info.get("duration_days"),
-            "slices": slices,
+            "slices": [s.to_dict() if hasattr(s, "to_dict") else s for s in slices],
         }
+
+
+
 
     @staticmethod
     def missing_flight_fields(extracted: dict[str, Any]) -> list[str]:
@@ -169,13 +280,25 @@ class PromptExtractor:
         elif any(term in text for term in ["one way", "oneway", "single"]):
             extracted["trip_type"] = "one_way"
 
-        # 2. Extract Dates (YYYY-MM-DD, ordinal dates like 'oct 17th', or a named month)
+        # 2. Extract Dates (YYYY-MM-DD, MM/DD/YYYY, ordinal dates like 'oct 17th', or a named month)
         dates = re.findall(r"\b(20\d{2}-\d{2}-\d{2})\b", prompt)
+        if not dates:
+            slash_dates = re.findall(r"\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\b", prompt)
+            if slash_dates:
+                for m_str, d_str, y_str in slash_dates:
+                    try:
+                        m_num = int(m_str)
+                        d_num = int(d_str)
+                        y_num = int(y_str)
+                        dates.append(f"{y_num:04d}-{m_num:02d}-{d_num:02d}")
+                    except Exception:
+                        pass
         if not dates:
             ordinal_dates = re.findall(
                 r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+(\d{1,2})(?:st|nd|rd|th)?(?:\s+(20\d{2}))?\b",
                 text
             )
+
             if ordinal_dates:
                 for m_str, d_str, y_str in ordinal_dates:
                     try:

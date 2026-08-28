@@ -315,7 +315,10 @@ class AISearchService(BaseService):
         prompt: str,
         intent: dict[str, Any],
     ) -> dict[str, Any]:
-        """Execute flight search and return native search response format."""
+        """Execute flight search using natural search resolution to enforce intent filters."""
+        if hasattr(self.client_app, "natural_search"):
+            return self.client_app.natural_search.search_natural(prompt, force_refresh=force_refresh)
+
         if not hasattr(self.client_app, "flights"):
             return {"status": "error", "detail": "Flights service not available"}
 
@@ -329,12 +332,13 @@ class AISearchService(BaseService):
             return_date=return_date,
             passengers_count=passengers_count,
             cabin_class=cabin_class,
-            favorite_airline=favorite_airline or None,
+            favorite_airline=favorite_airline or intent.get("preferred_airline"),
             force_refresh=force_refresh,
             prompt=prompt,
         )
         res = search_exact_flights(req)
         return res.model_dump() if hasattr(res, "model_dump") else dict(res)
+
 
     def _execute_hotel_search(
         self,

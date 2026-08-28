@@ -119,6 +119,24 @@ class FlightOffer:
             raw=data,
         )
 
+    def to_dict(self) -> dict[str, Any]:
+        if self.raw:
+            return dict(self.raw)
+        return {
+            "id": self.id,
+            "total_amount": self.total_amount,
+            "total_currency": self.total_currency,
+            "tax_amount": self.tax_amount,
+            "tax_currency": self.tax_currency,
+            "owner": self.owner,
+            "slices": [s.to_dict() if hasattr(s, "to_dict") else s for s in self.slices],
+            "passengers": self.passengers,
+            "expires_at": self.expires_at,
+            "created_at": self.created_at,
+            "payment_requirements": self.payment_requirements,
+        }
+
+
 
 @dataclass
 class FlightOrder:

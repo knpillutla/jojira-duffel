@@ -96,10 +96,10 @@ class SearchHistoryDAO:
                     c_type = pg_t if self.db_engine == "postgresql" else sq_t
                     tbl = "users.user_search_history" if self.db_engine == "postgresql" else "user_search_history"
                     cursor.execute(f"ALTER TABLE {tbl} ADD COLUMN {col_name} {c_type};")
-                    if self.db_engine != "postgresql":
-                        conn.commit()
+                    conn.commit()
                 except Exception:
-                    pass
+                    conn.rollback()
+
         except Exception as err:
             print(f"[SEARCH HISTORY DAO NOTICE] DB Init notice: {err}")
         finally:

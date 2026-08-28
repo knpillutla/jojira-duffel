@@ -24,14 +24,28 @@ class MockProviderAdapter(BaseProviderAdapter):
         offer_id = f"off_mock_{uuid.uuid4().hex[:8]}"
         slices = payload.get("slices", [])
         
-        origin = slices[0]["origin"] if slices else "JFK"
-        destination = slices[0]["destination"] if slices else "LHR"
-        departure_date = slices[0]["departure_date"] if slices else "2026-10-01"
+        if slices and isinstance(slices[0], dict):
+            origin = slices[0].get("origin", "JFK")
+            destination = slices[0].get("destination", "LHR")
+            departure_date = slices[0].get("departure_date", "2026-10-01")
+        elif slices:
+            origin = getattr(slices[0], "origin", "JFK")
+            destination = getattr(slices[0], "destination", "LHR")
+            departure_date = getattr(slices[0], "departure_date", "2026-10-01")
+        else:
+            origin = "JFK"
+            destination = "LHR"
+            departure_date = "2026-10-01"
+
+
+        from datetime import datetime, timezone, timedelta
+        now_iso = datetime.now(timezone.utc).isoformat()
+        exp_iso = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
 
         return {
             "data": {
                 "id": req_id,
-                "created_at": "2026-08-25T12:00:00Z",
+                "created_at": now_iso,
                 "live_mode": False,
                 "slices": slices,
                 "passengers": payload.get("passengers", [{"type": "adult"}]),
@@ -40,10 +54,11 @@ class MockProviderAdapter(BaseProviderAdapter):
                     {
                         "id": offer_id,
                         "live_mode": False,
-                        "created_at": "2026-08-25T12:00:00Z",
-                        "expires_at": "2026-08-25T14:00:00Z",
+                        "created_at": now_iso,
+                        "expires_at": exp_iso,
                         "total_amount": "450.00",
                         "total_currency": "USD",
+
                         "tax_amount": "50.00",
                         "tax_currency": "USD",
                         "base_amount": "400.00",

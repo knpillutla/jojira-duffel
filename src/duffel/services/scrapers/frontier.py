@@ -122,8 +122,8 @@ class FrontierScraper(BaseWebScraper):
                 "slice_index": 1,
                 "origin_code": dest_clean,
                 "destination_code": orig_clean,
-                "flight_number": "F9 3976",
-                "flight_numbers": "F9 3976",
+                "flight_number": "F9 3977",
+                "flight_numbers": "F9 3977",
                 "duration": inbound_dur,
                 "duration_minutes": inbound_dur_min,
                 "duration_hours": inbound_dur_hr,
@@ -142,11 +142,11 @@ class FrontierScraper(BaseWebScraper):
             "currency": "USD",
             "airline": "Frontier Airlines",
             "flight_number": "F9 3976",
-            "flight_numbers": "F9 3976, F9 3976" if return_date else "F9 3976",
             "outbound_flight_number": "F9 3976",
-            "outbound_flight_numbers": "F9 3976",
-            "return_flight_number": "F9 3976" if return_date else None,
-            "return_flight_numbers": "F9 3976" if return_date else None,
+            "return_flight_number": "F9 3977" if return_date else None,
+
+
+
             "origin": f"Atlanta ({orig_clean})" if orig_clean == "ATL" else orig_clean,
             "origin_name": "Atlanta" if orig_clean == "ATL" else orig_clean,
             "origin_code": orig_clean,

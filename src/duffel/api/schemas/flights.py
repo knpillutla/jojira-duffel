@@ -87,7 +87,12 @@ class FlightOfferSummary(BaseModel):
     total_amount: float
     currency: str
     airline: str
+    flight_number: Optional[str] = None
+    outbound_flight_number: Optional[str] = None
+    return_flight_number: Optional[str] = None
     origin: Optional[str] = None
+
+
     origin_name: Optional[str] = None
     origin_code: Optional[str] = None
     destination: Optional[str] = None

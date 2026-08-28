@@ -198,8 +198,9 @@ class UserDAO:
                 if not l_name and len(parts) > 1:
                     l_name = " ".join(parts[1:])
 
-            # Check existing user by email or google_user_id
-            user_id = f"usr_{hashlib.md5(email.lower().strip().encode()).hexdigest()[:12]}"
+            # User ID is the email address directly
+            user_id = email.lower().strip()
+
             
             if self.db_engine == "postgresql":
                 sql_check = "SELECT id, google_user_id, email, name, picture_url, created_at FROM users.users WHERE email = %s OR (google_user_id = %s AND %s IS NOT NULL);"
@@ -260,6 +261,8 @@ class UserDAO:
                     VALUES (%s, 'ATL', 'balanced', 'moderate', %s, %s, %s, %s) ON CONFLICT DO NOTHING;
                     """
                     cursor.execute(sql_pref, (user_id, now_iso, now_iso, user_id, user_id))
+                    conn.commit()
+
                 else:
                     sql_ins = """
                     INSERT INTO users (id, google_user_id, email, name, first_name, last_name, phone_number, date_of_birth, picture_url, last_login_at, created_at, updated_at, created_by, updated_by)
@@ -320,11 +323,11 @@ class UserDAO:
                     "id": row[0],
                     "google_user_id": row[1],
                     "email": row[2],
-                    "name": row[3],
-                    "first_name": row[4],
-                    "last_name": row[5],
-                    "given_name": row[4],
-                    "family_name": row[5],
+                    "name": row[3] or (row[2].split("@")[0].replace(".", " ").replace("_", " ").title() if row[2] else None),
+                    "first_name": row[4] or (row[3].split()[0] if row[3] else None),
+                    "last_name": row[5] or (" ".join(row[3].split()[1:]) if row[3] and len(row[3].split()) > 1 else None),
+                    "given_name": row[4] or (row[3].split()[0] if row[3] else None),
+                    "family_name": row[5] or (" ".join(row[3].split()[1:]) if row[3] and len(row[3].split()) > 1 else None),
                     "phone_number": row[6],
                     "date_of_birth": row[7],
                     "picture_url": row[8],
@@ -345,15 +348,18 @@ class UserDAO:
                     interests_list = json.loads(interests_raw) if interests_raw else []
                 except Exception:
                     interests_list = []
+                u_email = row["email"] or ""
+                u_name = row["name"] or (u_email.split("@")[0].replace(".", " ").replace("_", " ").title() if u_email else None)
                 return {
                     "id": row["id"],
                     "google_user_id": row["google_user_id"],
-                    "email": row["email"],
-                    "name": row["name"],
-                    "first_name": row["first_name"],
-                    "last_name": row["last_name"],
-                    "given_name": row["first_name"],
-                    "family_name": row["last_name"],
+                    "email": u_email,
+                    "name": u_name,
+                    "first_name": row["first_name"] or (u_name.split()[0] if u_name else None),
+                    "last_name": row["last_name"] or (" ".join(u_name.split()[1:]) if u_name and len(u_name.split()) > 1 else None),
+                    "given_name": row["first_name"] or (u_name.split()[0] if u_name else None),
+                    "family_name": row["last_name"] or (" ".join(u_name.split()[1:]) if u_name and len(u_name.split()) > 1 else None),
+
                     "phone_number": row["phone_number"],
                     "date_of_birth": row["date_of_birth"],
                     "picture_url": row["picture_url"],
@@ -370,6 +376,68 @@ class UserDAO:
                 }
         finally:
             conn.close()
+
+    def ensure_user_exists(self, user_id: str, email: Optional[str] = None, name: Optional[str] = None) -> dict[str, Any]:
+        """Ensures user record exists by user_id (which is the email address), auto-creating user if missing."""
+        clean_id = (user_id or "").lower().strip()
+        existing = self.get_user_by_id(clean_id)
+        if existing:
+            return existing
+
+        user_email = (email or clean_id).lower().strip()
+        user_id_val = user_email
+
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            now_iso = datetime.now(timezone.utc).isoformat()
+            if name:
+                user_name = name
+            else:
+                handle = user_email.split("@")[0].replace(".", " ").replace("_", " ").strip()
+                user_name = handle.title() if handle else user_email
+
+            if self.db_engine == "postgresql":
+                sql = """
+                INSERT INTO users.users (id, email, name, created_at, updated_at, created_by, updated_by)
+                VALUES (%s, %s, %s, %s, %s, 'auto_provision', 'auto_provision')
+                ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, name = COALESCE(EXCLUDED.name, users.users.name);
+                """
+                cursor.execute(sql, (user_id_val, user_email, user_name, now_iso, now_iso))
+            else:
+                sql = """
+                INSERT INTO users (id, email, name, created_at, updated_at, created_by, updated_by)
+                VALUES (?, ?, ?, ?, ?, 'auto_provision', 'auto_provision')
+                ON CONFLICT(id) DO UPDATE SET email = excluded.email, name = COALESCE(excluded.name, users.name);
+                """
+                cursor.execute(sql, (user_id_val, user_email, user_name, now_iso, now_iso))
+
+            conn.commit()
+        except Exception as e:
+            print(f"[USER DAO NOTICE] Auto-provision user '{user_id_val}' notice: {e}")
+        finally:
+            conn.close()
+
+        res = self.get_user_by_id(user_id_val) or self.get_user_by_id(clean_id)
+        if not res:
+            res = {
+                "id": user_id_val,
+                "email": user_email,
+                "name": user_name,
+                "first_name": user_name.split()[0] if user_name else "",
+                "last_name": " ".join(user_name.split()[1:]) if user_name and len(user_name.split()) > 1 else "",
+                "preferences": {
+                    "home_airport": "ATL",
+                    "preferred_style": "balanced",
+                    "preferred_budget": "moderate",
+                    "seat_preference": None,
+                    "interests": []
+                }
+            }
+        return res
+
+
+
 
 
     def update_preferences(

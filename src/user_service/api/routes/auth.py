@@ -5,7 +5,8 @@ import json
 from typing import Any, Optional
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Header, HTTPException, status
+
 from ..schemas import (
     GoogleAuthRequest,
     GoogleAuthResponse,
@@ -83,20 +84,47 @@ def _verify_jwt_token(token: str, secret: str) -> Optional[dict]:
 
 
 
-def _verify_google_id_token(id_token: str) -> Optional[dict]:
-    """Verifies Google ID Token signature and payload against Google OAuth2 tokeninfo API."""
+def _verify_google_token(token: str) -> Optional[dict]:
+    """Verifies Google ID Token or Access Token against Google OAuth2 userinfo & tokeninfo APIs."""
     import urllib.request
     import urllib.parse
+
+    # 1. Try Google UserInfo API (for Google OAuth2 access tokens e.g. ya29...)
     try:
-        url = f"https://oauth2.googleapis.com/tokeninfo?id_token={urllib.parse.quote(id_token)}"
+        url = "https://www.googleapis.com/oauth2/v3/userinfo"
+        req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}", "User-Agent": "Jojira-User-Service/1.0"})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            if response.status == 200:
+                data = json.loads(response.read().decode("utf-8"))
+                if data.get("email"):
+                    return data
+    except Exception:
+        pass
+
+    # 2. Try ID Token verification endpoint
+    try:
+        url = f"https://oauth2.googleapis.com/tokeninfo?id_token={urllib.parse.quote(token)}"
         req = urllib.request.Request(url, headers={"User-Agent": "Jojira-User-Service/1.0"})
         with urllib.request.urlopen(req, timeout=5) as response:
             if response.status == 200:
                 data = json.loads(response.read().decode("utf-8"))
-                if data.get("iss") in ["accounts.google.com", "https://accounts.google.com"]:
+                if data.get("email"):
                     return data
-    except Exception as err:
-        print(f"[AUTH NOTICE] Google ID token verification notice: {err}")
+    except Exception:
+        pass
+
+    # 3. Try Access Token tokeninfo endpoint
+    try:
+        url = f"https://oauth2.googleapis.com/tokeninfo?access_token={urllib.parse.quote(token)}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Jojira-User-Service/1.0"})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            if response.status == 200:
+                data = json.loads(response.read().decode("utf-8"))
+                if data.get("email"):
+                    return data
+    except Exception:
+        pass
+
     return None
 
 
@@ -108,7 +136,7 @@ def _verify_google_id_token(id_token: str) -> Optional[dict]:
 def authenticate_google_user(req: GoogleAuthRequest):
     """
     Syncs user authentication token payload from Google OAuth Sign-In on the frontend.
-    Verifies Google ID token cryptographic signature, upserts user, and returns session JWT token.
+    Verifies Google ID token or Access token, upserts user, and returns session JWT token.
     """
     email = req.email
     google_sub = req.google_user_id
@@ -117,9 +145,9 @@ def authenticate_google_user(req: GoogleAuthRequest):
     family_name = req.family_name or req.last_name
     picture = req.picture
 
-    # High Security Practice: Verify Google ID token if provided by UI
+    # High Security Practice: Verify Google ID token or Access token if provided by UI
     if req.google_token:
-        google_payload = _verify_google_id_token(req.google_token)
+        google_payload = _verify_google_token(req.google_token)
         if google_payload:
             email = google_payload.get("email") or email
             google_sub = google_payload.get("sub") or google_sub
@@ -127,6 +155,7 @@ def authenticate_google_user(req: GoogleAuthRequest):
             given_name = google_payload.get("given_name") or given_name
             family_name = google_payload.get("family_name") or family_name
             picture = google_payload.get("picture") or picture
+
 
     if not email:
         raise HTTPException(
@@ -159,14 +188,19 @@ def authenticate_google_user(req: GoogleAuthRequest):
                 detail="Failed to retrieve synced user profile."
             )
 
-        # Generate JWT session token
+        # Generate JWT session token containing user claims
         exp_timestamp = int((datetime.now(timezone.utc) + timedelta(days=7)).timestamp())
         token_payload = {
             "sub": user_data["id"],
             "email": user_data["email"],
+            "name": user_data.get("name"),
+            "first_name": user_data.get("first_name"),
+            "last_name": user_data.get("last_name"),
+            "picture_url": user_data.get("picture_url"),
             "exp": exp_timestamp
         }
         token = _generate_jwt_token(token_payload, cfg.jwt_secret)
+
 
         profile_resp = UserProfileResponse(
             status="success",
@@ -220,4 +254,52 @@ def signout_user(req: Optional[SignOutRequest] = None):
         status="success",
         message=msg
     )
+
+
+@router.get(
+    "/me",
+    response_model=UserProfileResponse,
+    summary="Get Authenticated User Profile Derived Directly From Bearer Token",
+)
+def get_user_profile_from_token(authorization: Optional[str] = Header(None)):
+    """Decodes JWT session token and returns user profile derived directly from token payload."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing or invalid Authorization header. Format: 'Bearer <TOKEN>'."
+        )
+    token = authorization.split("Bearer ", 1)[1].strip()
+    cfg = UserServiceConfig()
+    payload = _verify_jwt_token(token, cfg.jwt_secret)
+    if not payload or not payload.get("sub"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session token is invalid or expired."
+        )
+
+    user_dao = UserDAO(config=cfg)
+    user_data = user_dao.ensure_user_exists(
+        user_id=payload["sub"],
+        email=payload.get("email"),
+        name=payload.get("name")
+    )
+
+    return UserProfileResponse(
+        status="success",
+        user_id=user_data["id"],
+        email=user_data["email"],
+        name=user_data.get("name"),
+        first_name=user_data.get("first_name"),
+        last_name=user_data.get("last_name"),
+        given_name=user_data.get("given_name"),
+        family_name=user_data.get("family_name"),
+        phone_number=user_data.get("phone_number"),
+        date_of_birth=user_data.get("date_of_birth"),
+        picture_url=user_data.get("picture_url"),
+        google_user_id=user_data.get("google_user_id"),
+        last_login_at=user_data.get("last_login_at"),
+        created_at=user_data.get("created_at"),
+        preferences=user_data["preferences"]
+    )
+
 

@@ -1220,22 +1220,20 @@ class FlightsService(BaseService):
         cabin_class: Union[CabinClass, str] = CabinClass.ECONOMY,
         force_refresh: bool = False,
         progress_callback: Optional[Any] = None,
-    ) -> list[FlightOffer]:
+        passengers_count: Optional[int] = None,
+        favorite_airline: Optional[str] = None,
+    ) -> Union[dict[str, Any], list[FlightOffer]]:
         """
         Search for cheapest flights within a flexible date window and trip duration range.
-
-        - Bounded strictly by window start and end dates
-        - Bounded by trip duration: min_duration_days <= duration <= max_duration_days
-        - Filters candidates where min_duration_days <= trip duration <= max_duration_days
-        - Queries candidates concurrently in parallel worker threads
-        - Returns top 10 cheapest offers sorted strictly from lowest to highest price.
         """
         import time
         from datetime import datetime, timedelta
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
         if passengers is None:
-            passengers = [Passenger(type="adult")]
+            count = passengers_count or 1
+            passengers = [Passenger(type="adult") for _ in range(count)]
+
 
         self.client.clear_metrics()
         search_start_time = time.perf_counter()
@@ -1324,12 +1322,14 @@ class FlightsService(BaseService):
         queries = []
         seen_pairs = set()
 
+        now_dt = datetime.now()
         if is_one_way:
             start_dep_dt = base_dep_dt - timedelta(days=flex_days)
             end_dep_dt = base_dep_dt + timedelta(days=flex_days)
             curr_dep = start_dep_dt
             while curr_dep <= end_dep_dt:
                 if curr_dep >= now_dt:
+
                     dep_str = curr_dep.strftime("%Y-%m-%d")
                     if dep_str not in seen_pairs:
                         seen_pairs.add(dep_str)
