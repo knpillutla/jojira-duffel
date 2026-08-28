@@ -107,6 +107,7 @@ async def log_requests_and_responses(request: Request, call_next):
     delayed_calls = 0
     cache_hit_str = "NO"
     records_retrieved = 0
+    records_written = 0
 
     if client:
         if hasattr(client, "http_client") and client.http_client:
@@ -123,6 +124,7 @@ async def log_requests_and_responses(request: Request, call_next):
                 if isinstance(c_stats, dict):
                     cache_hit_str = "YES" if c_stats.get("cache_hit") else "NO"
                     records_retrieved = _safe_int(c_stats.get("records_retrieved", 0))
+                    records_written = _safe_int(c_stats.get("records_written", 0))
             except Exception:
                 pass
 
@@ -137,6 +139,7 @@ async def log_requests_and_responses(request: Request, call_next):
     print(f"  * Delayed Calls (429 Limit) : {delayed_calls}")
     print(f"  * Cache Hit Status          : {cache_hit_str}")
     print(f"  * Records Retrieved Cache   : {records_retrieved}")
+    print(f"  * Records Written Cache     : {records_written}")
     print(f"  * HTTP Status Code          : {response.status_code}")
     print("=" * 85 + "\n")
 

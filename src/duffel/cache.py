@@ -91,22 +91,30 @@ class DuffelCache:
             self.write_latencies.clear()
             self._current_cache_hits = 0
             self._current_records_retrieved = 0
+            self._current_cache_writes = 0
+            self._current_records_written = 0
 
     def reset_request_stats(self) -> None:
-        """Reset per-request cache hit and retrieved records metrics."""
+        """Reset per-request cache hit, write, and record count metrics."""
         with self._lock:
             self._current_cache_hits = 0
             self._current_records_retrieved = 0
+            self._current_cache_writes = 0
+            self._current_records_written = 0
 
     def get_request_stats(self) -> dict[str, Any]:
-        """Return cache hit status and record count for current request cycle."""
+        """Return cache hit status, retrieved records, and written records count for current request cycle."""
         with self._lock:
             hits = getattr(self, "_current_cache_hits", 0)
-            records = getattr(self, "_current_records_retrieved", 0)
+            retrieved = getattr(self, "_current_records_retrieved", 0)
+            writes = getattr(self, "_current_cache_writes", 0)
+            written = getattr(self, "_current_records_written", 0)
             return {
                 "cache_hit": hits > 0,
                 "hits_count": hits,
-                "records_retrieved": records,
+                "records_retrieved": retrieved,
+                "writes_count": writes,
+                "records_written": written,
             }
 
     def _record_retrieved_items(self, val: Any) -> None:
@@ -126,6 +134,24 @@ class DuffelCache:
         with self._lock:
             self._current_cache_hits = getattr(self, "_current_cache_hits", 0) + 1
             self._current_records_retrieved = getattr(self, "_current_records_retrieved", 0) + count
+
+    def _record_written_items(self, val: Any) -> None:
+        count = 0
+        if isinstance(val, list):
+            count = len(val)
+        elif isinstance(val, dict):
+            if "results" in val and isinstance(val["results"], list):
+                count = len(val["results"])
+            elif "offers" in val and isinstance(val["offers"], list):
+                count = len(val["offers"])
+            else:
+                count = 1
+        elif val is not None:
+            count = 1
+
+        with self._lock:
+            self._current_cache_writes = getattr(self, "_current_cache_writes", 0) + 1
+            self._current_records_written = getattr(self, "_current_records_written", 0) + count
 
     def get(self, key: str) -> Optional[Any]:
         """Retrieve cached object by key, or return None if missed/expired."""
@@ -263,6 +289,7 @@ class DuffelCache:
         with self._lock:
             self.writes_count += 1
             self.write_latencies.append(elapsed_ms)
+        self._record_written_items(value)
 
     def delete(self, key: str) -> None:
         """Evict/delete a specific cache key from Redis and In-Memory store."""
