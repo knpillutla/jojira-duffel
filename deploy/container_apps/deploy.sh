@@ -45,11 +45,14 @@ else
   exit 1
 fi
 
+SUBSCRIPTION="${AZURE_SUBSCRIPTION_NAME:-${AZURE_SUBSCRIPTION_ID:-${AZURE_SUBSCRIPTION:-}}}"
+
 ACR_SERVER="${AZURE_ACR_NAME}.azurecr.io"
 
 echo "=================================================================="
 echo " Starting Azure Container Apps Deployment (Build Once, Deploy Anywhere)"
 echo " Target Environment: ${TARGET_ENV}"
+echo " Subscription:       ${SUBSCRIPTION}"
 echo " Image Tag:          ${TAG}"
 echo " ACR Server:         ${ACR_SERVER}"
 echo " Key Vault (AKV):    ${AZURE_KEYVAULT_NAME}"
@@ -57,7 +60,9 @@ echo "=================================================================="
 
 # 1. Azure Authentication & Setup
 echo "[1/5] Authenticating with Azure CLI..."
-az account set --subscription "${AZURE_SUBSCRIPTION_ID}" || true
+if [ -n "${SUBSCRIPTION}" ]; then
+  az account set --subscription "${SUBSCRIPTION}" || true
+fi
 az extension add --name containerapp --upgrade --yes
 
 # 2. Build Stage (Only executed if --build flag is explicitly passed)
@@ -102,14 +107,16 @@ az containerapp create \
   --registry-password "${ACR_PASSWORD}" \
   --target-port 8000 \
   --ingress external \
-  --cpu 0.5 \
-  --memory 1.0Gi \
+  --cpu "${CPU:-0.5}" \
+  --memory "${MEMORY:-1.0Gi}" \
+  --min-replicas "${MIN_REPLICAS:-0}" \
+  --max-replicas "${MAX_REPLICAS:-10}" \
   --env-vars \
     ENVIRONMENT="${TARGET_ENV}" \
     AZURE_KEYVAULT_ENABLED="${AZURE_KEYVAULT_ENABLED:-true}" \
     AZURE_KEYVAULT_NAME="${AZURE_KEYVAULT_NAME}" \
     AZURE_KEYVAULT_URL="https://${AZURE_KEYVAULT_NAME}.vault.azure.net/" \
-    DEFAULT_ORDER_MODE="${DEFAULT_ORDER_MODE:-hold}" \
+    DEFAULT_ORDER_MODE="${DEFAULT_ORDER_MODE:-instant}" \
     LLM_PROVIDER="${LLM_PROVIDER:-openai}" \
   --system-assigned
 
@@ -125,8 +132,10 @@ az containerapp create \
   --registry-password "${ACR_PASSWORD}" \
   --target-port 8001 \
   --ingress external \
-  --cpu 0.25 \
-  --memory 0.5Gi \
+  --cpu "${CPU:-0.25}" \
+  --memory "${MEMORY:-0.5Gi}" \
+  --min-replicas "${MIN_REPLICAS:-0}" \
+  --max-replicas "${MAX_REPLICAS:-10}" \
   --env-vars \
     ENVIRONMENT="${TARGET_ENV}" \
     AZURE_KEYVAULT_ENABLED="${AZURE_KEYVAULT_ENABLED:-true}" \
@@ -143,8 +152,10 @@ az containerapp create \
   --registry-username "${AZURE_ACR_NAME}" \
   --registry-password "${ACR_PASSWORD}" \
   --ingress disabled \
-  --cpu 0.25 \
-  --memory 0.5Gi \
+  --cpu "${CPU:-0.25}" \
+  --memory "${MEMORY:-0.5Gi}" \
+  --min-replicas "${MIN_REPLICAS:-0}" \
+  --max-replicas "${MAX_REPLICAS:-10}" \
   --env-vars \
     ENVIRONMENT="${TARGET_ENV}" \
     AZURE_KEYVAULT_ENABLED="${AZURE_KEYVAULT_ENABLED:-true}" \

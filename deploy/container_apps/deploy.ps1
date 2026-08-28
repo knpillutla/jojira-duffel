@@ -38,7 +38,7 @@ if (Test-Path $EnvFile) {
     Write-Error "Configuration file '$EnvFile' not found!"
 }
 
-$SubscriptionId = $env:AZURE_SUBSCRIPTION_ID
+$Subscription = if ($env:AZURE_SUBSCRIPTION_NAME) { $env:AZURE_SUBSCRIPTION_NAME } elseif ($env:AZURE_SUBSCRIPTION_ID) { $env:AZURE_SUBSCRIPTION_ID } else { $env:AZURE_SUBSCRIPTION }
 $ResourceGroup = $env:AZURE_RESOURCE_GROUP
 $Location = if ($env:AZURE_LOCATION) { $env:AZURE_LOCATION } else { "eastus" }
 $ContainerAppEnv = $env:AZURE_CONTAINER_APP_ENV
@@ -54,6 +54,7 @@ $AcrServer = "$AcrName.azurecr.io"
 Write-Host "==================================================================" -ForegroundColor Cyan
 Write-Host " Starting Azure Container Apps Deployment (Build Once, Deploy Anywhere)" -ForegroundColor Cyan
 Write-Host " Target Environment: $Env" -ForegroundColor Cyan
+Write-Host " Subscription:       $Subscription" -ForegroundColor Cyan
 Write-Host " Image Tag:          $Tag" -ForegroundColor Cyan
 Write-Host " ACR Server:         $AcrServer" -ForegroundColor Cyan
 Write-Host " Key Vault (AKV):    $AkvName" -ForegroundColor Cyan
@@ -61,7 +62,7 @@ Write-Host "==================================================================" 
 
 # 1. Authenticate with Azure
 Write-Host "[1/5] Authenticating with Azure CLI..." -ForegroundColor Yellow
-if ($SubscriptionId) { az account set --subscription $SubscriptionId }
+if ($Subscription) { az account set --subscription $Subscription }
 az extension add --name containerapp --upgrade --yes
 
 # 2. Build Stage (Only if -Build parameter is specified)
@@ -92,6 +93,11 @@ if (-not $EnvCheck) {
 
 $AcrPassword = az acr credential show --name $AcrName --query "passwords[0].value" -o tsv 2>$null
 
+$Cpu = if ($env:CPU) { $env:CPU } else { "0.25" }
+$Memory = if ($env:MEMORY) { $env:MEMORY } else { "0.5Gi" }
+$MinReplicas = if ($env:MIN_REPLICAS) { $env:MIN_REPLICAS } else { "0" }
+$MaxReplicas = if ($env:MAX_REPLICAS) { $env:MAX_REPLICAS } else { "10" }
+
 # 4. Deploy Main API Container App (Injecting Environment Configs & Secret Vault)
 Write-Host "[4/5] Deploying '$ApiAppName' with environment configs from '$Env.env'..." -ForegroundColor Yellow
 az containerapp create `
@@ -104,14 +110,16 @@ az containerapp create `
   --registry-password $AcrPassword `
   --target-port 8000 `
   --ingress external `
-  --cpu 0.5 `
-  --memory 1.0Gi `
+  --cpu $Cpu `
+  --memory $Memory `
+  --min-replicas $MinReplicas `
+  --max-replicas $MaxReplicas `
   --env-vars `
     ENVIRONMENT="$Env" `
     AZURE_KEYVAULT_ENABLED="true" `
     AZURE_KEYVAULT_NAME="$AkvName" `
     AZURE_KEYVAULT_URL="https://$AkvName.vault.azure.net/" `
-    DEFAULT_ORDER_MODE="hold" `
+    DEFAULT_ORDER_MODE="instant" `
     LLM_PROVIDER="openai" `
   --system-assigned
 
@@ -127,8 +135,10 @@ az containerapp create `
   --registry-password $AcrPassword `
   --target-port 8001 `
   --ingress external `
-  --cpu 0.25 `
-  --memory 0.5Gi `
+  --cpu $Cpu `
+  --memory $Memory `
+  --min-replicas $MinReplicas `
+  --max-replicas $MaxReplicas `
   --env-vars `
     ENVIRONMENT="$Env" `
     AZURE_KEYVAULT_ENABLED="true" `
@@ -145,8 +155,10 @@ az containerapp create `
   --registry-username $AcrName `
   --registry-password $AcrPassword `
   --ingress disabled `
-  --cpu 0.25 `
-  --memory 0.5Gi `
+  --cpu $Cpu `
+  --memory $Memory `
+  --min-replicas $MinReplicas `
+  --max-replicas $MaxReplicas `
   --env-vars `
     ENVIRONMENT="$Env" `
     AZURE_KEYVAULT_ENABLED="true" `
