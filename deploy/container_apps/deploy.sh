@@ -181,7 +181,7 @@ az containerapp create \
   --ingress external \
   --cpu "${CPU:-0.5}" \
   --memory "${MEMORY:-1.0Gi}" \
-  --min-replicas "${MIN_REPLICAS:-0}" \
+  --min-replicas "${MIN_REPLICAS:-1}" \
   --max-replicas "${MAX_REPLICAS:-10}" \
   --env-vars \
     ENVIRONMENT="${TARGET_ENV}" \
@@ -215,7 +215,7 @@ az containerapp create \
   --ingress external \
   --cpu "${CPU:-0.25}" \
   --memory "${MEMORY:-0.5Gi}" \
-  --min-replicas "${MIN_REPLICAS:-0}" \
+  --min-replicas "${MIN_REPLICAS:-1}" \
   --max-replicas "${MAX_REPLICAS:-10}" \
   --env-vars \
     ENVIRONMENT="${TARGET_ENV}" \
@@ -239,7 +239,7 @@ az containerapp create \
   --registry-password "${ACR_PASSWORD}" \
   --cpu "${CPU:-0.25}" \
   --memory "${MEMORY:-0.5Gi}" \
-  --min-replicas "${MIN_REPLICAS:-0}" \
+  --min-replicas "${MIN_REPLICAS:-1}" \
   --max-replicas "${MAX_REPLICAS:-10}" \
   --env-vars \
     ENVIRONMENT="${TARGET_ENV}" \

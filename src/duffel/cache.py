@@ -73,11 +73,10 @@ class DuffelCache:
                         print(f"\n[!] Redis Connection attempt to {h}:{config.redis_port} failed: {type(err).__name__}: {err}\n")
 
             if self.redis_client is None:
-                err_msg = f"[REDIS ERROR] Failed to connect to Redis server at {config.redis_host}:{config.redis_port} ({type(last_err).__name__}: {last_err}). Exiting application."
-                logger.error(err_msg)
-                print(f"\n{'=' * 80}\n{err_msg}\n{'=' * 80}\n")
-                import sys
-                sys.exit(1)
+                err_msg = f"[REDIS NOTICE] Could not connect to Redis server at {config.redis_host}:{config.redis_port} ({type(last_err).__name__}: {last_err}). Falling back to in-memory L1 cache."
+                logger.warning(err_msg)
+                if self.debug:
+                    print(f"\n{'=' * 80}\n{err_msg}\n{'=' * 80}\n")
 
     def clear_metrics(self) -> None:
         """Reset cache hits, misses, writes, and latency metrics."""

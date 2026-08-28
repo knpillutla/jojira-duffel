@@ -13,10 +13,11 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 if ([string]::IsNullOrWhiteSpace($Tag)) {
     $GitSha = git rev-parse --short HEAD 2>$null
+    $Timestamp = Get-Date -Format "HHmmss"
     if ($GitSha) {
-        $Tag = $GitSha.Trim()
+        $Tag = ($GitSha.Trim()) + "-" + $Timestamp
     } else {
-        $Tag = "dev-" + (Get-Date -Format "yyyyMMdd-HHmmss")
+        $Tag = "dev-" + $Timestamp
     }
 }
 

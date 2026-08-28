@@ -124,7 +124,7 @@ if ([string]::IsNullOrWhiteSpace($AcrPassword)) {
 
 $Cpu = if ($env:CPU) { $env:CPU } else { "0.25" }
 $Memory = if ($env:MEMORY) { $env:MEMORY } else { "0.5Gi" }
-$MinReplicas = if ($env:MIN_REPLICAS) { $env:MIN_REPLICAS } else { "0" }
+$MinReplicas = if ($env:MIN_REPLICAS) { $env:MIN_REPLICAS } else { "1" }
 $MaxReplicas = if ($env:MAX_REPLICAS) { $env:MAX_REPLICAS } else { "10" }
 
 # 4. Deploy Infrastructure Containers (PostgreSQL, Redis, RabbitMQ)
@@ -268,6 +268,21 @@ az containerapp create `
     RABBITMQ_HOST="$RabbitMqAppName" `
     RABBITMQ_PORT="5672" `
   --system-assigned
+
+# Grant Key Vault Secrets User role to Managed Identities
+$AkvId = az keyvault show --name $AkvName --resource-group $ResourceGroup --query "id" -o tsv 2>$null
+if ($AkvId) {
+    Write-Host "[+] Assigning 'Key Vault Secrets User' RBAC role to Container App Managed Identities..." -ForegroundColor Yellow
+    foreach ($AppName in @($ApiAppName, $UserSvcAppName, $OrderSvcAppName)) {
+        $PrincipalId = az containerapp identity show --name $AppName --resource-group $ResourceGroup --query "principalId" -o tsv 2>$null
+        if ($PrincipalId) {
+            $PrevEap = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            az role assignment create --assignee $PrincipalId --role "Key Vault Secrets User" --scope $AkvId 2>$null
+            $ErrorActionPreference = $PrevEap
+        }
+    }
+}
 
 $ApiUrl = az containerapp show --name $ApiAppName --resource-group $ResourceGroup --query "properties.configuration.ingress.fqdn" -o tsv
 

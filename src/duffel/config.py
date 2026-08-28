@@ -237,10 +237,26 @@ class DuffelConfig:
             self.test_mode = os.environ["TEST_MODE"].strip().lower() in ("1", "true", "yes")
         if os.environ.get("MESSAGE_BROKER"):
             self.message_broker = os.environ["MESSAGE_BROKER"].lower()
-        if os.environ.get("DEFAULT_ORDER_MODE"):
-            self.default_order_mode = os.environ["DEFAULT_ORDER_MODE"].lower().strip()
-        elif os.environ.get("DEFAULT_BOOKING_MODE"):
-            self.default_order_mode = os.environ["DEFAULT_BOOKING_MODE"].lower().strip()
+        if os.environ.get("REDIS_HOST"):
+            self.redis_host = os.environ["REDIS_HOST"].strip()
+        if os.environ.get("REDIS_PORT"):
+            self.redis_port = int(os.environ["REDIS_PORT"])
+        if os.environ.get("REDIS_PASSWORD"):
+            self.redis_password = os.environ["REDIS_PASSWORD"]
+        if os.environ.get("REDIS_URL"):
+            r_url = os.environ["REDIS_URL"].strip()
+            try:
+                from urllib.parse import urlparse
+                parsed_r = urlparse(r_url)
+                if parsed_r.hostname:
+                    self.redis_host = parsed_r.hostname
+                if parsed_r.port:
+                    self.redis_port = parsed_r.port
+                if parsed_r.password:
+                    self.redis_password = parsed_r.password
+            except Exception:
+                pass
+
         if os.environ.get("RABBITMQ_HOST"):
             self.rabbitmq_host = os.environ["RABBITMQ_HOST"]
         if os.environ.get("RABBITMQ_PORT"):
