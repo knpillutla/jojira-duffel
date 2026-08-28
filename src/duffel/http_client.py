@@ -34,11 +34,29 @@ class HTTPClient:
         self.config = config
         self._lock = threading.Lock()
         self.metrics: list[dict[str, Any]] = []
+        self._current_api_calls: int = 0
+        self._current_delayed_calls: int = 0
+
+    def reset_request_stats(self):
+        """Reset per-request API call and delayed call counters."""
+        with self._lock:
+            self._current_api_calls = 0
+            self._current_delayed_calls = 0
+
+    def get_request_stats(self) -> dict[str, int]:
+        """Return counts of Duffel API calls and rate-limit delayed calls made during current request."""
+        with self._lock:
+            return {
+                "api_calls": self._current_api_calls,
+                "delayed_calls": self._current_delayed_calls,
+            }
 
     def clear_metrics(self):
         """Reset recorded HTTP call metrics."""
         with self._lock:
             self.metrics.clear()
+            self._current_api_calls = 0
+            self._current_delayed_calls = 0
 
     def get_metrics_summary(self) -> dict[str, Any]:
         """Compute total call count, min, max, and avg response times in milliseconds."""
@@ -95,29 +113,26 @@ class HTTPClient:
         if data is not None:
             body_bytes = json.dumps(data).encode("utf-8")
 
-        max_retries = getattr(self.config, "max_retries", 3)
+        total_attempts = 3  # Max 3 attempts (1 initial + 2 retries)
         backoff_factor = getattr(self.config, "retry_backoff_factor", 0.5)
         backoff_max = getattr(self.config, "retry_backoff_max", 10.0)
         retry_status_codes = set(getattr(self.config, "retry_status_codes", [500, 502, 503, 504, 429]) or [500, 502, 503, 504, 429])
 
         req_timeout = timeout if timeout is not None else getattr(self.config, "timeout", 5.0)
 
-        for attempt in range(1, max_retries + 2):
-            print("")
-            print("=" * 80)
-            if attempt > 1:
-                print(f"[DUFFEL API RETRY ATTEMPT {attempt}/{max_retries + 1}] {method.upper()} {url}")
-            else:
-                print(f"[DUFFEL API REQUEST] {method.upper()} {url}")
-            if "Duffel-Idempotency-Key" in req_headers:
-                print(f"   Duffel-Idempotency-Key: {req_headers['Duffel-Idempotency-Key']}")
-            if data and attempt == 1:
-                try:
-                    payload_str = json.dumps(data, indent=2)
-                    print(f"   Duffel Request Payload:\n{payload_str}")
-                except Exception:
-                    print(f"   Duffel Request Payload: {data}")
-            print("-" * 80)
+        for attempt in range(1, total_attempts + 1):
+            # Throttle request rate if a 429 rate limit was recently encountered (max 1 call/sec)
+            with self._lock:
+                last_429 = getattr(self, "_last_429_time", 0.0)
+            if last_429 > 0:
+                since_429 = time.time() - last_429
+                if since_429 < 1.0:
+                    time.sleep(1.0 - since_429)
+
+            if self.config.debug:
+                logger.debug("[DUFFEL API REQUEST] %s %s (Attempt %d/%d)", method.upper(), url, attempt, total_attempts)
+                if data and attempt == 1:
+                    logger.debug("Duffel Request Payload:\n%s", json.dumps(data, indent=2))
 
             req = urllib.request.Request(
                 url=url,
@@ -132,47 +147,64 @@ class HTTPClient:
                     elapsed_ms = (time.perf_counter() - start_time) * 1000.0
                     with self._lock:
                         self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": response.status})
+                        self._current_api_calls = getattr(self, "_current_api_calls", 0) + 1
 
                     res_body = response.read().decode("utf-8")
                     if not res_body.strip():
-                        print(f"[DUFFEL API RESPONSE] Status {response.status} ({elapsed_ms:.1f}ms) -> (Empty Body)")
-                        print("=" * 80 + "\n")
+                        logger.debug("[DUFFEL API RESPONSE] Status %d (%.1fms) -> Empty Body", response.status, elapsed_ms)
                         return {}
                     parsed = json.loads(res_body)
-                    try:
-                        formatted_p = json.dumps(parsed, indent=2)
-                        if len(formatted_p) > 2000:
-                            print(f"[DUFFEL API RESPONSE] Status {response.status} ({elapsed_ms:.1f}ms):\n{formatted_p[:2000]}...\n[Truncated total: {len(formatted_p)} chars]")
-                        else:
-                            print(f"[DUFFEL API RESPONSE] Status {response.status} ({elapsed_ms:.1f}ms):\n{formatted_p}")
-                    except Exception:
-                        print(f"[DUFFEL API RESPONSE] Status {response.status} ({elapsed_ms:.1f}ms): {res_body[:1000]}")
-                    print("=" * 80 + "\n")
+                    if self.config.debug:
+                        logger.debug("[DUFFEL API RESPONSE] Status %d (%.1fms)", response.status, elapsed_ms)
                     return parsed
             except urllib.error.HTTPError as err:
                 elapsed_ms = (time.perf_counter() - start_time) * 1000.0
                 with self._lock:
                     self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": err.code})
+                    self._current_api_calls = getattr(self, "_current_api_calls", 0) + 1
+                    if err.code == 429:
+                        self._last_429_time = time.time()
+                        self._current_delayed_calls = getattr(self, "_current_delayed_calls", 0) + 1
 
                 err_body = err.read().decode("utf-8")
 
-                if err.code in retry_status_codes and attempt <= max_retries:
-                    retry_after = err.headers.get("Retry-After") if err.headers else None
+                if err.code in retry_status_codes and attempt < total_attempts:
+                    retry_after = None
+                    if err.headers:
+                        retry_after = (
+                            err.headers.get("ratelimit-reset")
+                            or err.headers.get("Ratelimit-Reset")
+                            or err.headers.get("Retry-After")
+                            or err.headers.get("retry-after")
+                        )
                     delay = None
                     if retry_after:
                         try:
-                            delay = float(retry_after)
+                            val = float(retry_after)
+                            if val > 1000000000:
+                                delay = max(1.0, val - time.time())
+                            else:
+                                delay = max(1.0, val)
                         except ValueError:
                             pass
                     if delay is None:
                         base_delay = min(backoff_max, backoff_factor * (2 ** (attempt - 1)))
                         delay = random.uniform(0.5 * base_delay, base_delay)
 
-                    msg = (
-                        f"[DUFFEL API RETRY] {method.upper()} {path} returned status {err.code}. "
-                        f"Retrying attempt {attempt}/{max_retries} in {delay:.2f}s... "
-                        f"(Idempotency Key: {req_headers.get('Duffel-Idempotency-Key', 'N/A')})"
-                    )
+                    # Enforce a 1.0 second minimum backoff floor for 429 Rate Limit Exceeded
+                    if err.code == 429:
+                        delay = max(1.0, delay if delay is not None else 1.0)
+                        msg = (
+                            f"[DUFFEL 429 RATE LIMIT BACKOFF] HTTP 429 Rate Limit Exceeded (ratelimit-reset: {retry_after or 'N/A'}). "
+                            f"Throttling execution to 1 call per second (pausing {delay:.2f}s before retry {attempt}/{total_attempts - 1})... "
+                            f"(Idempotency Key: {req_headers.get('Duffel-Idempotency-Key', 'N/A')})"
+                        )
+                    else:
+                        msg = (
+                            f"[DUFFEL API RETRY] {method.upper()} {path} returned status {err.code}. "
+                            f"Retrying attempt {attempt + 1}/{total_attempts} in {delay:.2f}s... "
+                            f"(Idempotency Key: {req_headers.get('Duffel-Idempotency-Key', 'N/A')})"
+                        )
                     logger.warning(msg)
                     print(msg)
                     time.sleep(delay)
@@ -187,19 +219,19 @@ class HTTPClient:
                 with self._lock:
                     self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": 0})
 
-                if attempt <= max_retries:
+                if attempt < total_attempts:
                     base_delay = min(backoff_max, backoff_factor * (2 ** (attempt - 1)))
                     delay = random.uniform(0.5 * base_delay, base_delay)
                     msg = (
                         f"[DUFFEL NETWORK RETRY] {method.upper()} {path} failed: {err}. "
-                        f"Retrying attempt {attempt}/{max_retries} in {delay:.2f}s..."
+                        f"Retrying attempt {attempt + 1}/{total_attempts} in {delay:.2f}s..."
                     )
                     logger.warning(msg)
                     print(msg)
                     time.sleep(delay)
                     continue
 
-                raise DuffelException(f"Network error communicating with Duffel API after {max_retries} retries: {err}") from err
+                raise DuffelException(f"Network error communicating with Duffel API after {total_attempts} attempts: {err}") from err
             except Exception as err:
                 raise DuffelException(f"Unexpected error: {str(err)}") from err
 

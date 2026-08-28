@@ -93,10 +93,11 @@ class DuffelCLI:
 
     def _handle_clear_redis_cache(self):
         print("\n--- [REDIS CACHE] Clear / Flush Database ---")
-        confirm = prompt_input("Are you sure you want to flush ALL cached entries in Redis? (y/n)", default="n", required=False).lower()
+        before_count = self.client.cache.get_count()
+        print(f"Current Cache Record Count: {before_count}")
+        confirm = prompt_input("Are you sure you want to flush ALL cached entries in Redis? (y/n)", default="y", required=False).lower()
         if confirm in ("y", "yes"):
             self.client.cache.clear()
-            print("\n[+] Redis cache database successfully cleared!")
         else:
             print("\nOperation cancelled. Cache intact.")
 

@@ -44,6 +44,35 @@ deploy/container_apps/
 
 ---
 
+## Key Vault Secrets vs. Keys
+
+> [!IMPORTANT]
+> All application credentials and tokens **MUST be created as SECRETS** (`az keyvault secret set` or `SecretClient.get_secret`), **NOT Keys**.
+> - **Secrets (`azurerm_key_vault_secret`)**: Store plaintext string credentials (API keys, connection strings, passwords).
+> - **Keys (`azurerm_key_vault_key`)**: Used exclusively for RSA/EC cryptographic operations (signing, envelope encryption).
+
+### Seeding Key Vault Secrets
+
+Use the included helper scripts to set/update secrets in Key Vault:
+
+```powershell
+# PowerShell (DEV)
+.\set_keyvault_secrets.ps1 -Env dev -DuffelToken "duffel_test_..." -OpenAiKey "sk-..."
+
+# PowerShell (PROD)
+.\set_keyvault_secrets.ps1 -Env prod -DuffelToken "duffel_live_..." -OpenAiKey "sk-..."
+```
+
+```bash
+# Bash (DEV)
+DUFFEL_API_TOKEN="duffel_test_..." OPENAI_API_KEY="sk-..." ./set_keyvault_secrets.sh dev
+
+# Bash (PROD)
+DUFFEL_API_TOKEN="duffel_live_..." OPENAI_API_KEY="sk-..." ./set_keyvault_secrets.sh prod
+```
+
+---
+
 ## Execution Guide
 
 ### 1. Build and Deploy to DEV Environment

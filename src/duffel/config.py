@@ -21,8 +21,17 @@ class DuffelConfig:
     azure_keyvault_enabled: bool = False
     azure_keyvault_name: str = ""
     azure_keyvault_url: str = ""
+    user_service_url: str = ""
+    order_service_url: str = ""
+    booking_service_url: str = ""
+    api_gateway_url: str = ""
+    user_service_port: int = 5000
     debug: bool = False
     test_mode: bool = False
+
+    @property
+    def debug_mode(self) -> bool:
+        return self.debug
     enable_cache: bool = True
     redis_host: str = "localhost"
     redis_port: int = 6379
@@ -91,6 +100,8 @@ class DuffelConfig:
         target_config_file = self.config_file
         if custom_config_path and Path(custom_config_path).is_file():
             target_config_file = custom_config_path
+        elif Path("config.local.json").is_file():
+            target_config_file = "config.local.json"
         elif env_name and Path(f"deploy/container_apps/configs/config.{env_name}.json").is_file():
             target_config_file = f"deploy/container_apps/configs/config.{env_name}.json"
         elif env_name and Path(f"config.{env_name}.json").is_file():
@@ -120,6 +131,14 @@ class DuffelConfig:
                         self.azure_keyvault_name = str(cfg_data["azure_keyvault_name"]).strip()
                     if "azure_keyvault_url" in cfg_data and cfg_data["azure_keyvault_url"]:
                         self.azure_keyvault_url = str(cfg_data["azure_keyvault_url"]).strip()
+                    if "user_service_url" in cfg_data and cfg_data["user_service_url"]:
+                        self.user_service_url = str(cfg_data["user_service_url"]).strip()
+                    if "order_service_url" in cfg_data and cfg_data["order_service_url"]:
+                        self.order_service_url = str(cfg_data["order_service_url"]).strip()
+                    if "booking_service_url" in cfg_data and cfg_data["booking_service_url"]:
+                        self.booking_service_url = str(cfg_data["booking_service_url"]).strip()
+                    if "api_gateway_url" in cfg_data and cfg_data["api_gateway_url"]:
+                        self.api_gateway_url = str(cfg_data["api_gateway_url"]).strip()
                     if "debug" in cfg_data:
                         self.debug = bool(cfg_data["debug"])
                     if "test_mode" in cfg_data:
@@ -211,9 +230,9 @@ class DuffelConfig:
             except Exception:
                 pass
 
-        # 2. Fall back to environment variable if empty
-        if not self.api_token:
-            self.api_token = os.environ.get("DUFFEL_API_TOKEN", "")
+        # 2. Apply environment variable overrides
+        if not self.api_token or os.environ.get("DUFFEL_API_TOKEN"):
+            self.api_token = os.environ.get("DUFFEL_API_TOKEN") or os.environ.get("DUFFEL_TOKEN") or os.environ.get("API_TOKEN") or self.api_token
         if os.environ.get("TEST_MODE"):
             self.test_mode = os.environ["TEST_MODE"].strip().lower() in ("1", "true", "yes")
         if os.environ.get("MESSAGE_BROKER"):
@@ -276,6 +295,12 @@ class DuffelConfig:
             self.azure_keyvault_name = os.environ["AZURE_KEYVAULT_NAME"].strip()
         if os.environ.get("AZURE_KEYVAULT_URL"):
             self.azure_keyvault_url = os.environ["AZURE_KEYVAULT_URL"].strip()
+        # Service URLs: Uses Azure environment variables when deployed, defaults to localhost locally
+        self.user_service_url = os.getenv("USER_SERVICE_URL", self.user_service_url or "http://localhost:8001").strip()
+        self.order_service_url = os.getenv("ORDER_SERVICE_URL", self.order_service_url or "http://localhost:8000").strip()
+        self.booking_service_url = os.getenv("BOOKING_SERVICE_URL", self.booking_service_url or "http://localhost:8000").strip()
+        self.api_gateway_url = os.getenv("API_GATEWAY_URL", self.api_gateway_url or "http://localhost:8000").strip()
+        self.user_service_port = int(os.getenv("PORT", getattr(self, "user_service_port", 8001)))
 
         # 3. Load secrets from Azure Key Vault if enabled
         if self.azure_keyvault_enabled or self.azure_keyvault_name:

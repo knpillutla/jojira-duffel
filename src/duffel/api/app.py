@@ -2,6 +2,8 @@
 FastAPI Application Initialization and Middleware Setup.
 """
 
+from typing import Any
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
@@ -29,53 +31,114 @@ app.add_middleware(
 @app.middleware("http")
 async def log_requests_and_responses(request: Request, call_next):
     import json
+    import time
+    from datetime import datetime
     from starlette.concurrency import iterate_in_threadpool
+
+    req_start_dt = datetime.now()
+    req_start_str = req_start_dt.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    t0 = time.time()
+
+    # Reset per-request metrics on shared DuffelClient instance
+    client = None
+    try:
+        from .routes.common import get_duffel_client
+        client = get_duffel_client()
+        if hasattr(client, "http_client") and client.http_client:
+            client.http_client.reset_request_stats()
+        if hasattr(client, "cache") and client.cache:
+            client.cache.reset_request_stats()
+    except Exception:
+        client = None
+
+    is_debug = False
+    if client and hasattr(client, "config") and client.config:
+        is_debug = bool(getattr(client.config, "debug", False) or getattr(client.config, "debug_mode", False))
 
     body_bytes = await request.body()
     body_str = body_bytes.decode("utf-8", errors="replace") if body_bytes else ""
 
-    print("\n" + "=" * 85)
-    print(f"[REST REQUEST] {request.method} {request.url.path}")
-    if body_str.strip():
-        try:
-            formatted_body = json.dumps(json.loads(body_str), indent=2)
-            print(f"   Request Body:\n{formatted_body}")
-        except Exception:
-            print(f"   Request Body: {body_str}")
-    else:
-        print("   Request Body: (empty)")
-    print("-" * 85)
-
-    import time
-    start_time = time.time()
+    if is_debug:
+        print("\n" + "=" * 85)
+        print(f"[REST DEBUG REQUEST] {request.method} {request.url.path}")
+        print(f"   Request Received Time: {req_start_str}")
+        if body_str.strip():
+            try:
+                formatted_body = json.dumps(json.loads(body_str), indent=2)
+                print(f"   Request Body:\n{formatted_body}")
+            except Exception:
+                print(f"   Request Body: {body_str}")
+        print("-" * 85)
 
     async def receive():
         return {"type": "http.request", "body": body_bytes}
 
     req_wrapped = Request(request.scope, receive=receive)
     response = await call_next(req_wrapped)
-    duration_ms = round((time.time() - start_time) * 1000, 2)
+    
+    t1 = time.time()
+    req_end_dt = datetime.now()
+    req_end_str = req_end_dt.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    duration_ms = round((t1 - t0) * 1000, 2)
+    duration_sec = round(t1 - t0, 3)
 
     response_body = [section async for section in response.body_iterator]
     response.body_iterator = iterate_in_threadpool(iter(response_body))
-    res_bytes = b"".join(response_body)
-    res_str = res_bytes.decode("utf-8", errors="replace") if res_bytes else ""
 
-    print(f"[REST RESPONSE] {request.method} {request.url.path} -> Status {response.status_code} (Total Execution Time: {duration_ms} ms)")
-    if res_str.strip():
-        try:
-            formatted_res = json.dumps(json.loads(res_str), indent=2)
-            if len(formatted_res) > 2000:
-                print(f"   Response Body (Truncated):\n{formatted_res[:2000]}...\n[Total length: {len(formatted_res)} chars]")
-            else:
-                print(f"   Response Body:\n{formatted_res}")
-        except Exception:
-            print(f"   Response Body: {res_str[:1000]}")
-    else:
-        print("   Response Body: (empty)")
-    print(f"   [TIMING] Request completed in {duration_ms} ms")
+    if is_debug:
+        res_bytes = b"".join(response_body)
+        res_str = res_bytes.decode("utf-8", errors="replace") if res_bytes else ""
+        print(f"[REST DEBUG RESPONSE] {request.method} {request.url.path} -> Status {response.status_code} ({duration_ms} ms)")
+        if res_str.strip():
+            try:
+                formatted_res = json.dumps(json.loads(res_str), indent=2)
+                print(f"   Response Body:\n{formatted_res[:1000]}...")
+            except Exception:
+                print(f"   Response Body: {res_str[:500]}")
+
+    def _safe_int(val: Any) -> int:
+        if isinstance(val, (int, float)):
+            return int(val)
+        if isinstance(val, str) and val.isdigit():
+            return int(val)
+        return 0
+
+    api_calls = 0
+    delayed_calls = 0
+    cache_hit_str = "NO"
+    records_retrieved = 0
+
+    if client:
+        if hasattr(client, "http_client") and client.http_client:
+            try:
+                h_stats = client.http_client.get_request_stats()
+                if isinstance(h_stats, dict):
+                    api_calls = _safe_int(h_stats.get("api_calls", 0))
+                    delayed_calls = _safe_int(h_stats.get("delayed_calls", 0))
+            except Exception:
+                pass
+        if hasattr(client, "cache") and client.cache:
+            try:
+                c_stats = client.cache.get_request_stats()
+                if isinstance(c_stats, dict):
+                    cache_hit_str = "YES" if c_stats.get("cache_hit") else "NO"
+                    records_retrieved = _safe_int(c_stats.get("records_retrieved", 0))
+            except Exception:
+                pass
+
+    # Print clean INFO-level request/response cycle summary box
+    print("\n" + "=" * 85)
+    print(f"[REST REQUEST SUMMARY] {request.method} {request.url.path}")
+    print(f"  * URL                       : {request.url}")
+    print(f"  * Request Received Time      : {req_start_str}")
+    print(f"  * Response Sent Time        : {req_end_str}")
+    print(f"  * Total Execution Time      : {duration_ms} ms ({duration_sec}s)")
+    print(f"  * Duffel API Calls Made     : {api_calls}")
+    print(f"  * Delayed Calls (429 Limit) : {delayed_calls}")
+    print(f"  * Cache Hit Status          : {cache_hit_str}")
+    print(f"  * Records Retrieved Cache   : {records_retrieved}")
+    print(f"  * HTTP Status Code          : {response.status_code}")
     print("=" * 85 + "\n")
-
 
     return response
 

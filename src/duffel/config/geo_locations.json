@@ -5711,5 +5711,29 @@
     "longitude": 139.7630049,
     "address": "NEWYORK, 8, 千駄木三丁目, 千駄木, 文京区, 東京都, 113-0022, 日本",
     "name": "NEWYORK"
+  },
+  "SEP 4": {
+    "latitude": 51.15427,
+    "longitude": 20.09899,
+    "address": "4, Sęp, Starzechowice, gmina Fałków, powiat konecki, województwo świętokrzyskie, 26-260, Polska",
+    "name": "SEP 4"
+  },
+  "CALGARY": {
+    "latitude": 51.0456064,
+    "longitude": -114.057541,
+    "address": "Calgary, Alberta, Canada",
+    "name": "CALGARY"
+  },
+  "SEPTEMBER 22": {
+    "latitude": 50.8525136,
+    "longitude": 4.3792509,
+    "address": "22, Boulevard des Quatre Journées - Vier-September-Dagenlaan, Saint-Josse-ten-Noode - Sint-Joost-ten-Node, Brussel-Hoofdstad - Bruxelles-Capitale, Région de Bruxelles-Capitale - Brussels Hoofdstedelijk Gewest, 1210, België / Belgique / Belgien",
+    "name": "SEPTEMBER 22"
+  },
+  "CMH": {
+    "latitude": 39.9970561,
+    "longitude": -82.8930477,
+    "address": "John Glenn Columbus International Airport, 4600, International Gateway, Columbus, Sharon, Franklin County, Ohio, 43219, United States",
+    "name": "CMH"
   }
 }

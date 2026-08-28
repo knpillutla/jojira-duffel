@@ -11,6 +11,30 @@ from ..config import DuffelConfig
 
 # Common airport/city IATA mapping for heuristic extraction
 CITY_IATA_MAP = {
+    # Canada
+    "calgary": "YYC",
+    "yyc": "YYC",
+    "vancouver": "YVR",
+    "yvr": "YVR",
+    "toronto": "YYZ",
+    "yyz": "YYZ",
+    "montreal": "YUL",
+    "yul": "YUL",
+    "edmonton": "YEG",
+    "yeg": "YEG",
+    "ottawa": "YOW",
+    "yow": "YOW",
+    "winnipeg": "YWG",
+    "ywg": "YWG",
+    "halifax": "YHZ",
+    "yhz": "YHZ",
+    "quebec": "YQB",
+    "quebec city": "YQB",
+    "yqb": "YQB",
+    "victoria": "YYJ",
+    "yyj": "YYJ",
+
+    # USA & Americas
     "london": "LHR",
     "lhr": "LHR",
     "lon": "LHR",
@@ -25,7 +49,6 @@ CITY_IATA_MAP = {
     "san diego ca": "SAN",
     "australia": "SYD",
     "los angeles": "LAX",
-
     "lax": "LAX",
     "paris": "CDG",
     "cdg": "CDG",
@@ -44,12 +67,102 @@ CITY_IATA_MAP = {
     "sin": "SIN",
     "sydney": "SYD",
     "syd": "SYD",
+    "melbourne": "MEL",
+    "mel": "MEL",
     "atlanta": "ATL",
     "atl": "ATL",
     "orlando": "MCO",
     "mco": "MCO",
     "oslo": "OSL",
     "osl": "OSL",
+    "seattle": "SEA",
+    "sea": "SEA",
+    "boston": "BOS",
+    "bos": "BOS",
+    "washington": "IAD",
+    "iad": "IAD",
+    "dallas": "DFW",
+    "dfw": "DFW",
+    "houston": "IAH",
+    "iah": "IAH",
+    "denver": "DEN",
+    "den": "DEN",
+    "las vegas": "LAS",
+    "las": "LAS",
+    "phoenix": "PHX",
+    "phx": "PHX",
+    "honolulu": "HNL",
+    "hnl": "HNL",
+    "columbus": "CMH",
+    "columbus oh": "CMH",
+    "columbus, oh": "CMH",
+    "cmh": "CMH",
+    "cleveland": "CLE",
+    "cle": "CLE",
+    "cincinnati": "CVG",
+    "cvg": "CVG",
+    "detroit": "DTW",
+    "dtw": "DTW",
+    "pittsburgh": "PIT",
+    "pit": "PIT",
+    "minneapolis": "MSP",
+    "msp": "MSP",
+    "salt lake city": "SLC",
+    "slc": "SLC",
+    "baltimore": "BWI",
+    "bwi": "BWI",
+    "charlotte": "CLT",
+    "clt": "CLT",
+    "raleigh": "RDU",
+    "rdu": "RDU",
+    "nashville": "BNA",
+    "bna": "BNA",
+    "st louis": "STL",
+    "stl": "STL",
+    "kansas city": "MCI",
+    "mci": "MCI",
+    "indianapolis": "IND",
+    "ind": "IND",
+
+    # Europe, Asia & World
+    "rome": "FCO",
+    "fco": "FCO",
+    "milan": "MXP",
+    "mxp": "MXP",
+    "madrid": "MAD",
+    "mad": "MAD",
+    "barcelona": "BCN",
+    "bcn": "BCN",
+    "frankfurt": "FRA",
+    "fra": "FRA",
+    "munich": "MUC",
+    "muc": "MUC",
+    "amsterdam": "AMS",
+    "ams": "AMS",
+    "zurich": "ZRH",
+    "zrh": "ZRH",
+    "vienna": "VIE",
+    "vie": "VIE",
+    "dublin": "DUB",
+    "dub": "DUB",
+    "delhi": "DEL",
+    "new delhi": "DEL",
+    "del": "DEL",
+    "mumbai": "BOM",
+    "bom": "BOM",
+    "bengaluru": "BLR",
+    "bangalore": "BLR",
+    "blr": "BLR",
+    "bangkok": "BKK",
+    "bkk": "BKK",
+    "seoul": "ICN",
+    "icn": "ICN",
+    "beijing": "PEK",
+    "pek": "PEK",
+    "shanghai": "PVG",
+    "pvg": "PVG",
+    "hong kong": "HKG",
+    "hkg": "HKG",
 }
 
 
@@ -108,10 +221,14 @@ class PromptExtractor:
         origin = first_slice.get("origin") or car_info.get("pickup_location")
         destination = first_slice.get("destination") or stay_info.get("location") or car_info.get("dropoff_location")
         
+        trip_type = flight_info.get("trip_type")
         dep_date = first_slice.get("departure_date") or stay_info.get("check_in_date")
-        ret_date = flight_info.get("target_return_date") or stay_info.get("check_out_date")
-        if not ret_date and len(slices) > 1:
-            ret_date = slices[1].get("departure_date")
+        if trip_type == "one_way":
+            ret_date = None
+        else:
+            ret_date = flight_info.get("target_return_date") or stay_info.get("check_out_date")
+            if not ret_date and len(slices) > 1:
+                ret_date = slices[1].get("departure_date")
 
         # Extract adults & kids count (defaulting to 1 adult if unlisted)
         adult_match = re.search(r"(\d+)\s*adult", text)
@@ -260,6 +377,7 @@ class PromptExtractor:
 
         return {
             "selected_types": unique_types,
+            "trip_type": trip_type,
             "origin": origin,
             "destination": destination,
             "departure_date": dep_date,
@@ -377,7 +495,11 @@ class PromptExtractor:
                 )
 
         # 3. Extract IATA / Cities using "from X to Y" pattern
-        from_to_matches = re.findall(r"from\s+([a-z\s]+?)\s+to\s+([a-z\s]+?)(?=\s+on|\s+for|\s+in|\s+and|\s*$)", text)
+        from_to_matches = re.findall(
+            r"\bfrom\s+([a-z0-9\s,]+?)\s+to\s+([a-z0-9\s,]+?)(?=\s+(?:from|on|for|in|during|departing|returning|between|with|under|\d)|\s*$)",
+            text,
+            flags=re.IGNORECASE
+        )
 
         if from_to_matches:
             for idx, (orig_str, dest_str) in enumerate(from_to_matches):
@@ -495,11 +617,19 @@ class PromptExtractor:
         normalized["trip_type"] = {
             "oneway": "one_way",
             "one_way": "one_way",
+            "single": "one_way",
             "roundtrip": "round_trip",
             "round_trip": "round_trip",
             "multicity": "multi_city",
             "multi_city": "multi_city",
         }.get(trip_type, normalized.get("trip_type"))
+
+        # If trip_type is one_way, force target_return_date to None and keep only 1 slice
+        if normalized.get("trip_type") == "one_way":
+            normalized["target_return_date"] = None
+            if isinstance(normalized.get("slices"), list) and len(normalized["slices"]) > 1:
+                normalized["slices"] = [normalized["slices"][0]]
+
         normalized.setdefault("cabin_class", "economy")
         normalized.setdefault("passengers_count", 1)
         for flight_slice in normalized.get("slices", []):
@@ -522,13 +652,14 @@ class PromptExtractor:
 
         today = datetime.now().strftime("%Y-%m-%d")
         instruction = (
-            f"Today is {today}. Extract the flight request as JSON only. Resolve city names "
-            "to primary IATA airport codes. Resolve month names using the current year unless "
-            "a year is stated. A named month means target_date is its first day and "
-            "target_return_date is its last day. Extract requested trip duration separately. "
-            "Return exactly: trip_type, slices, target_return_date, cabin_class, "
-            "passengers_count, duration_days. Each slice has origin, destination, "
-            "departure_date. Use null for unknown values. User request: " + prompt
+            f"Today is {today}. Extract the flight request as JSON only.\n"
+            "STRICT RULES:\n"
+            "1. trip_type: MUST be 'one_way' if user specifies 'oneway', 'one way', 'single', or does not specify a return flight. "
+            "MUST be 'round_trip' ONLY if user explicitly requests a return flight or roundtrip. MUST be 'multi_city' if multiple destinations are requested.\n"
+            "2. IATA CODES: You MUST resolve all city names strictly to 3-letter IATA airport codes in uppercase (e.g. 'Calgary' -> 'YYC', 'Atlanta' -> 'ATL', 'Columbus' -> 'CMH', 'Paris' -> 'CDG', 'London' -> 'LHR', 'New York' -> 'JFK'). NEVER return city names.\n"
+            "3. SLICES & RETURN DATE: For 'one_way', return EXACTLY 1 slice with origin, destination, departure_date, and set target_return_date to null.\n"
+            "4. Return JSON with keys: trip_type, slices, target_return_date, cabin_class, passengers_count, duration_days. Use null for unknown values.\n"
+            "User request: " + prompt
         )
         payload = {
             "model": config.openai_model,
@@ -572,14 +703,14 @@ class PromptExtractor:
 
         today = datetime.now().strftime("%Y-%m-%d")
         instruction = (
-            f"Extract this flight request as JSON. Today is {today}. "
-            "Resolve city names to primary IATA airport codes. Resolve month names using "
-            "the current year unless a year is stated. For 'in October for 4 days', use "
-            "October 1 as target departure and October 31 as the target return boundary; use "
-            "the requested duration separately as the trip length. Return only these "
-            "keys: trip_type, slices, cabin_class, passengers_count, duration_days. "
-            "slices must contain origin, destination, and departure_date. Use null for unknown "
-            f"dates and one_way unless return travel is explicit. User request: {prompt}"
+            f"Extract this flight request as JSON. Today is {today}.\n"
+            "STRICT RULES:\n"
+            "1. trip_type: MUST be 'one_way' if user specifies 'oneway', 'one way', 'single', or does not specify a return flight. "
+            "MUST be 'round_trip' ONLY if user explicitly requests a return flight or roundtrip.\n"
+            "2. IATA CODES: Resolve all city names strictly to 3-letter IATA airport codes in uppercase (e.g. 'Calgary' -> 'YYC', 'Columbus' -> 'CMH').\n"
+            "3. SLICES & RETURN DATE: For 'one_way', return EXACTLY 1 slice with origin, destination, departure_date, and set target_return_date to null.\n"
+            "4. Return JSON with keys: trip_type, slices, target_return_date, cabin_class, passengers_count, duration_days.\n"
+            f"User request: {prompt}"
         )
         payload = {
             "contents": [{"parts": [{"text": instruction}]}],
@@ -708,9 +839,24 @@ class PromptExtractor:
 
     @staticmethod
     def _resolve_iata(val: str) -> str:
-        clean = val.strip().lower()
+        # Strip trailing date clauses like 'from september 15' or 'on oct 1'
+        clean = re.sub(r"\s+(?:from|on|for|in|during|departing|returning)\s+.*$", "", val.strip(), flags=re.IGNORECASE)
+        clean = clean.strip().lower()
+
+        # Remove trailing state names/abbreviations e.g. 'columbus, oh' -> 'columbus'
+        clean_no_state = re.sub(r",?\s*(?:oh|ohio|ca|california|ny|new york|tx|texas|fl|florida|ga|georgia|il|illinois|ma|massachusetts|wa|washington|nc|north carolina|sc|south carolina|va|virginia|pa|pennsylvania|co|colorado|az|arizona|or|oregon)\b", "", clean).strip()
+
         if clean in CITY_IATA_MAP:
             return CITY_IATA_MAP[clean]
+        if clean_no_state in CITY_IATA_MAP:
+            return CITY_IATA_MAP[clean_no_state]
         if len(clean) == 3 and clean.isalpha():
             return clean.upper()
+        if len(clean_no_state) == 3 and clean_no_state.isalpha():
+            return clean_no_state.upper()
+
+        m_iata = re.search(r"\b([a-zA-Z]{3})\b", val)
+        if m_iata:
+            return m_iata.group(1).upper()
+
         return val.upper()

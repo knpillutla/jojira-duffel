@@ -12,6 +12,10 @@ services:
       MESSAGE_BROKER: rabbitmq
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
+      USER_SERVICE_URL: http://user-service:8001
+      ORDER_SERVICE_URL: http://api:8000
+      BOOKING_SERVICE_URL: http://api:8000
+      API_GATEWAY_URL: http://api:8000
     depends_on:
       - redis
       - postgres
@@ -28,6 +32,8 @@ services:
       POSTGRES_DB: jojira_duffel
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      BOOKING_SERVICE_URL: http://api:8000
+      API_GATEWAY_URL: http://api:8000
     depends_on:
       - postgres
     ports:

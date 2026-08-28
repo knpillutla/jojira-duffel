@@ -27,6 +27,9 @@ build/
 .env.*
 !.env.example
 config.json
+config.local.json
+config.dev.json
+config.prod.json
 
 # Generated search results and local scratch work
 *_search_results.json

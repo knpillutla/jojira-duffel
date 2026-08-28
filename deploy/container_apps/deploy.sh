@@ -63,23 +63,26 @@ echo "[1/5] Authenticating with Azure CLI..."
 if [ -n "${SUBSCRIPTION}" ]; then
   az account set --subscription "${SUBSCRIPTION}" || true
 fi
-az extension add --name containerapp --upgrade --yes
+az extension add --name containerapp --upgrade --yes --allow-preview true
 
 # 2. Build Stage (Only executed if --build flag is explicitly passed)
 if [ "${DO_BUILD}" = true ]; then
-  echo "[2/5] [--build flag set] Building Docker images ONCE and pushing to ACR..."
+  echo "[2/5] [--build flag set] Building Docker images for Booking, User, and Order microservices..."
   az acr login --name "${AZURE_ACR_NAME}"
 
-  docker build -t "${ACR_SERVER}/jojira-api:${TAG}" -f "${ROOT_DIR}/Dockerfile" "${ROOT_DIR}"
+  echo "      [1/3] Building Booking API image (${ACR_SERVER}/jojira-api:${TAG})..."
+  docker build -t "${ACR_SERVER}/jojira-api:${TAG}" -f "${ROOT_DIR}/Dockerfile.booking-service" "${ROOT_DIR}"
   docker push "${ACR_SERVER}/jojira-api:${TAG}"
 
-  docker build -t "${ACR_SERVER}/jojira-user-service:${TAG}" -f "${ROOT_DIR}/Dockerfile" "${ROOT_DIR}"
+  echo "      [2/3] Building User Service image (${ACR_SERVER}/jojira-user-service:${TAG})..."
+  docker build -t "${ACR_SERVER}/jojira-user-service:${TAG}" -f "${ROOT_DIR}/Dockerfile.user-service" "${ROOT_DIR}"
   docker push "${ACR_SERVER}/jojira-user-service:${TAG}"
 
+  echo "      [3/3] Building Order Service image (${ACR_SERVER}/jojira-order-service:${TAG})..."
   docker build -t "${ACR_SERVER}/jojira-order-service:${TAG}" -f "${ROOT_DIR}/Dockerfile.order-service" "${ROOT_DIR}"
   docker push "${ACR_SERVER}/jojira-order-service:${TAG}"
 else
-  echo "[2/5] Skipping build step. Reusing pre-built image artifact '${TAG}'..."
+  echo "[2/5] Skipping build step. Reusing pre-built image artifacts for Booking, User, and Order..."
 fi
 
 # 3. Ensure Container Apps Environment Exist

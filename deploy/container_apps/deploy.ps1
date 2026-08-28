@@ -63,23 +63,26 @@ Write-Host "==================================================================" 
 # 1. Authenticate with Azure
 Write-Host "[1/5] Authenticating with Azure CLI..." -ForegroundColor Yellow
 if ($Subscription) { az account set --subscription $Subscription }
-az extension add --name containerapp --upgrade --yes
+az extension add --name containerapp --upgrade --yes --allow-preview true
 
 # 2. Build Stage (Only if -Build parameter is specified)
 if ($Build) {
-    Write-Host "[2/5] [-Build parameter set] Building Docker images ONCE and pushing to ACR..." -ForegroundColor Yellow
+    Write-Host "[2/5] [-Build parameter set] Building Docker images for Booking, User, and Order microservices..." -ForegroundColor Yellow
     az acr login --name $AcrName
 
-    docker build -t "$AcrServer/jojira-api:$Tag" -f "$RootDir\Dockerfile" "$RootDir"
+    Write-Host "      [1/3] Building Booking API image ($AcrServer/jojira-api:$Tag)..." -ForegroundColor Yellow
+    docker build -t "$AcrServer/jojira-api:$Tag" -f "$RootDir\Dockerfile.booking-service" "$RootDir"
     docker push "$AcrServer/jojira-api:$Tag"
 
-    docker build -t "$AcrServer/jojira-user-service:$Tag" -f "$RootDir\Dockerfile" "$RootDir"
+    Write-Host "      [2/3] Building User Service image ($AcrServer/jojira-user-service:$Tag)..." -ForegroundColor Yellow
+    docker build -t "$AcrServer/jojira-user-service:$Tag" -f "$RootDir\Dockerfile.user-service" "$RootDir"
     docker push "$AcrServer/jojira-user-service:$Tag"
 
+    Write-Host "      [3/3] Building Order Service image ($AcrServer/jojira-order-service:$Tag)..." -ForegroundColor Yellow
     docker build -t "$AcrServer/jojira-order-service:$Tag" -f "$RootDir\Dockerfile.order-service" "$RootDir"
     docker push "$AcrServer/jojira-order-service:$Tag"
 } else {
-    Write-Host "[2/5] Skipping build step. Reusing pre-built image artifact '$Tag'..." -ForegroundColor Yellow
+    Write-Host "[2/5] Skipping build step. Reusing pre-built image artifacts for Booking, User, and Order..." -ForegroundColor Yellow
 }
 
 # 3. Ensure Environment Exists

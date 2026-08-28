@@ -178,6 +178,7 @@ class FrontierScraper(BaseWebScraper):
             "arrival_at": arr_at,
             "arrival_date": departure_date,
             "arrival_time": outbound_arr_time[:5],
+            "return_date": return_date,
             "return_departure_at": ret_dep_at,
             "return_departure_date": return_date,
             "return_departure_time": return_dep_time[:5] if return_date else None,

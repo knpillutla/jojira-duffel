@@ -1,4 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
 import math
 import os
 import re
@@ -52,7 +51,7 @@ class TravelPlannerService(BaseService):
     """
     High-Performance AI Travel Planner service:
     - Tier-0 L1 Process Memory Cache (<0.1ms) + Tier-1 Redis Distributed Cache (<2ms).
-    - Concurrent ThreadPoolExecutor execution: Parallelizes LLM prompt synthesis and live Duffel sub-API price searches.
+    - Sequential execution for stable production scaling.
     - Calculates hotel room occupancy (ceil(passengers / 2)) and vehicle seating capacity (ceil(passengers / 5)).
     - Generates Category Highlights (Cheapest, Moderate, Luxury) with ratings and prices.
     - Enforces standard response envelope (status, timestamp, meta_data, data).
@@ -62,7 +61,6 @@ class TravelPlannerService(BaseService):
         super().__init__(http_client, cache=cache, adapter=adapter)
         self.client_app = client or http_client
         self.client = client or http_client
-        self.executor = ThreadPoolExecutor(max_workers=8)
 
 
     def generate_itinerary(

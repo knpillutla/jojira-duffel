@@ -89,6 +89,43 @@ class DuffelCache:
             self.writes_count = 0
             self.read_latencies.clear()
             self.write_latencies.clear()
+            self._current_cache_hits = 0
+            self._current_records_retrieved = 0
+
+    def reset_request_stats(self) -> None:
+        """Reset per-request cache hit and retrieved records metrics."""
+        with self._lock:
+            self._current_cache_hits = 0
+            self._current_records_retrieved = 0
+
+    def get_request_stats(self) -> dict[str, Any]:
+        """Return cache hit status and record count for current request cycle."""
+        with self._lock:
+            hits = getattr(self, "_current_cache_hits", 0)
+            records = getattr(self, "_current_records_retrieved", 0)
+            return {
+                "cache_hit": hits > 0,
+                "hits_count": hits,
+                "records_retrieved": records,
+            }
+
+    def _record_retrieved_items(self, val: Any) -> None:
+        count = 0
+        if isinstance(val, list):
+            count = len(val)
+        elif isinstance(val, dict):
+            if "results" in val and isinstance(val["results"], list):
+                count = len(val["results"])
+            elif "offers" in val and isinstance(val["offers"], list):
+                count = len(val["offers"])
+            else:
+                count = 1
+        elif val is not None:
+            count = 1
+
+        with self._lock:
+            self._current_cache_hits = getattr(self, "_current_cache_hits", 0) + 1
+            self._current_records_retrieved = getattr(self, "_current_records_retrieved", 0) + count
 
     def get(self, key: str) -> Optional[Any]:
         """Retrieve cached object by key, or return None if missed/expired."""
@@ -110,15 +147,14 @@ class DuffelCache:
                             self.tier1_hits += 1
                         else:
                             self.tier2_hits += 1
+                    self._record_retrieved_items(res)
                     if self.debug:
-                        print(f"\n[REDIS CACHE HIT]")
-                        print(f"  * Key   : {key}")
-                        print(f"  * Value : {raw_val[:300]}{'...' if len(raw_val) > 300 else ''}\n")
+                        logger.debug("[REDIS CACHE HIT] Key: %s | Value: %s", key, raw_val[:300])
                     logger.debug("Redis Cache HIT for key: %s", key)
             except Exception as err:
                 self.redis_client = None
                 if self.debug:
-                    print(f"\n[!] REDIS READ EXCEPTION: {type(err).__name__}: {err}\n")
+                    logger.debug("[!] REDIS READ EXCEPTION: %s: %s", type(err).__name__, err)
                 logger.warning("Redis read error (%s). Checking in-memory cache.", err)
 
         # 2. Fallback to In-Memory store
@@ -132,10 +168,9 @@ class DuffelCache:
                         self.tier1_hits += 1
                     else:
                         self.tier2_hits += 1
+                self._record_retrieved_items(res)
                 if self.debug:
-                    print(f"\n[IN-MEMORY CACHE HIT]")
-                    print(f"  * Key   : {key}")
-                    print(f"  * Value : {raw_val[:300]}{'...' if len(raw_val) > 300 else ''}\n")
+                    logger.debug("[IN-MEMORY CACHE HIT] Key: %s | Value: %s", key, raw_val[:300])
                 logger.debug("In-Memory Cache HIT for key: %s", key)
             else:
                 del self.in_memory_store[key]
@@ -243,14 +278,50 @@ class DuffelCache:
         """Alias for delete."""
         self.delete(key)
 
-    def clear(self) -> None:
-        """Clear all cached entries."""
+    def get_count(self) -> int:
+        """Return total count of cached records in Redis and In-Memory store."""
+        count = 0
         if self.redis_client is not None:
             try:
+                keys = self.redis_client.keys("*")
+                count += len(keys)
+            except Exception as err:
+                logger.error("Failed to count Redis keys: %s", err)
+        count += len(self.in_memory_store)
+        return count
+
+    def clear(self) -> None:
+        """Clear all cached entries in Redis and In-Memory store."""
+        before_count = self.get_count()
+        print(f"\n[CACHE CLEAR] Record count BEFORE clearing: {before_count}")
+
+        if self.redis_client is not None:
+            try:
+                keys = self.redis_client.keys("*")
+                if keys:
+                    self.redis_client.delete(*keys)
                 self.redis_client.flushdb()
-            except Exception:
-                pass
+                try:
+                    self.redis_client.flushall()
+                except Exception:
+                    pass
+                print("[+] Flushed Redis database successfully.")
+            except Exception as err:
+                print(f"[!] Error flushing Redis cache: {err}")
+
+        mem_count = len(self.in_memory_store)
         self.in_memory_store.clear()
+        with self._lock:
+            self.hits = 0
+            self.tier1_hits = 0
+            self.tier2_hits = 0
+            self.misses = 0
+            self.writes_count = 0
+            self.read_latencies.clear()
+            self.write_latencies.clear()
+
+        after_count = self.get_count()
+        print(f"[CACHE CLEAR] Record count AFTER clearing: {after_count}\n")
 
     def get_metrics_summary(self) -> dict[str, Any]:
         """Return detailed cache performance & latency metrics summary."""

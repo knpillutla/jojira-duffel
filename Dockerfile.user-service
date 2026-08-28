@@ -12,4 +12,6 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . .
 
-CMD ["python", "run_order_service.py"]
+EXPOSE 8001
+
+CMD ["python", "run_user_service.py", "8001"]

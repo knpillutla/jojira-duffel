@@ -22,10 +22,16 @@ from ..schemas import (
 router = APIRouter(tags=["Common & Payments API"])
 
 
+_GLOBAL_CLIENT_INSTANCE = None
+
 def get_duffel_client() -> DuffelClient:
-    """Dependency helper to return configured DuffelClient."""
-    token = os.environ.get("DUFFEL_API_TOKEN", "")
-    return DuffelClient(api_token=token, debug=False)
+    """Dependency helper to return configured shared DuffelClient."""
+    global _GLOBAL_CLIENT_INSTANCE
+    from unittest.mock import MagicMock
+    if _GLOBAL_CLIENT_INSTANCE is None or isinstance(_GLOBAL_CLIENT_INSTANCE, MagicMock):
+        token = os.environ.get("DUFFEL_API_TOKEN", "")
+        _GLOBAL_CLIENT_INSTANCE = DuffelClient(api_token=token, debug=False)
+    return _GLOBAL_CLIENT_INSTANCE
 
 
 @router.get("/health", response_model=HealthCheckResponse, summary="System Health Check")

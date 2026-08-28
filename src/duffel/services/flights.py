@@ -1353,7 +1353,7 @@ class FlightsService(BaseService):
                         ]
                         queries.append(slices)
                 curr_dep += timedelta(days=1)
-        elif target_date and target_return_date and str(target_return_date).strip() and flex_days == 0:
+        elif target_date and target_return_date and str(target_return_date).strip() and flex_days == 0 and min_duration_days == max_duration_days and (datetime.strptime(target_return_date.strip(), "%Y-%m-%d") - datetime.strptime(target_date.strip(), "%Y-%m-%d")).days == min_duration_days:
             dep_str = target_date.strip()
             ret_str = target_return_date.strip()
             queries = [[
@@ -1456,36 +1456,39 @@ class FlightsService(BaseService):
 
         all_offers: list[FlightOffer] = []
 
-        # Execute candidate date queries concurrently with max_workers=4 to prevent API rate limiting
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = [
-                executor.submit(_execute_single, idx, q_slices)
-                for idx, q_slices in enumerate(queries, 1)
-            ]
-            for future in as_completed(futures):
-                try:
-                    res = future.result()
-                    if isinstance(res, list):
-                        all_offers.extend(res)
-                except Exception:
-                    pass
+        # Execute candidate date queries sequentially in a single thread to guarantee stability and prevent rate limit spikes
+        for idx, q_slices in enumerate(queries, 1):
+            try:
+                res = _execute_single(idx, q_slices)
+                if isinstance(res, list):
+                    all_offers.extend(res)
+            except Exception as e:
+                logger.warning("Error executing candidate batch %d: %s", idx, e)
 
-        # Query Web Scraper Engine (e.g. Frontier, Spirit direct web fares)
+        # Query Web Scraper Engine (e.g. Frontier, Spirit direct web fares) per candidate batch date pair
         try:
             from .scrapers import ScraperRegistry
             registry = ScraperRegistry(enabled=True)
-            scraped_fares = registry.search_all_scrapers(
-                origin=origin,
-                destination=destination,
-                departure_date=target_date,
-                return_date=target_return_date,
-            )
-            if scraped_fares:
-                fav_clean = (favorite_airline or "").strip().lower()
-                for sf in scraped_fares:
-                    sf_air = (sf.get("airline") or "").lower()
-                    if not fav_clean or fav_clean in sf_air or sf_air in fav_clean:
-                        all_offers.append(sf)
+            fav_clean = (favorite_airline or "").strip().lower()
+            for q_slices in queries:
+                if not q_slices:
+                    continue
+                q_orig = q_slices[0].origin
+                q_dest = q_slices[0].destination
+                q_dep = q_slices[0].departure_date
+                q_ret = q_slices[1].departure_date if len(q_slices) > 1 else None
+
+                scraped_fares = registry.search_all_scrapers(
+                    origin=q_orig,
+                    destination=q_dest,
+                    departure_date=q_dep,
+                    return_date=q_ret,
+                )
+                if scraped_fares:
+                    for sf in scraped_fares:
+                        sf_air = (sf.get("airline") or "").lower()
+                        if not fav_clean or fav_clean in sf_air or sf_air in fav_clean:
+                            all_offers.append(sf)
         except Exception as sc_err:
             print(f"[!] Web Scraper Engine notice: {sc_err}")
 

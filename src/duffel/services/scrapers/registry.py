@@ -38,28 +38,19 @@ class ScraperRegistry:
             return []
 
         results: list[dict[str, Any]] = []
-        with ThreadPoolExecutor(max_workers=len(self._scrapers)) as executor:
-            future_to_scraper = {
-                executor.submit(
-                    scraper.search_fares,
+        for scraper in self._scrapers:
+            try:
+                fares = scraper.search_fares(
                     origin=origin,
                     destination=destination,
                     departure_date=departure_date,
                     return_date=return_date,
                     passengers_count=passengers_count,
                     cabin_class=cabin_class,
-                ): scraper
-                for scraper in self._scrapers
-            }
-
-            for future in as_completed(future_to_scraper):
-                scraper = future_to_scraper[future]
-                try:
-                    fares = future.result()
-                    if fares:
-                        results.extend(fares)
-                except Exception as err:
-                    # Non-blocking error handling for external scrapers
-                    pass
+                )
+                if fares:
+                    results.extend(fares)
+            except Exception as err:
+                logger.warning("Scraper %s failed: %s", scraper.name, err)
 
         return results

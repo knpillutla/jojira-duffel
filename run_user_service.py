@@ -89,7 +89,8 @@ def health_check():
 
 
 if __name__ == "__main__":
-    port = 8001
+    import os
+    port = int(os.environ.get("PORT", 8001))
     if len(sys.argv) > 1 and sys.argv[1].isdigit():
         port = int(sys.argv[1])
     print(f"Starting Jojira User Service Microservice on http://0.0.0.0:{port}...")

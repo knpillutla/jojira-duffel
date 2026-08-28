@@ -47,7 +47,14 @@ class NaturalSearchService(BaseService):
         origin = (overrides.get("origin") or intent.get("origin") or "ATL").upper()
         destination = (overrides.get("destination") or intent.get("destination") or "CDG").upper()
         departure_date = overrides.get("departure_date") or intent.get("departure_date") or "2026-10-01"
-        return_date = overrides.get("return_date") or intent.get("return_date") or "2026-10-08"
+
+        trip_type = overrides.get("trip_type") or intent.get("trip_type")
+        is_one_way = trip_type == "one_way" or any(w in prompt for w in ["one way", "oneway", "single"])
+
+        if is_one_way:
+            return_date = None
+        else:
+            return_date = overrides.get("return_date") or intent.get("return_date") or "2026-10-08"
         passengers_count = overrides.get("passengers_count") or intent.get("passengers_count") or 1
         cabin_class = overrides.get("cabin_class") or intent.get("cabin_class") or "economy"
         rooms = overrides.get("rooms") or intent.get("rooms") or 1
@@ -528,19 +535,31 @@ class NaturalSearchService(BaseService):
         highlights = {}
         pref_air_param = favorite_airline or intent.get("preferred_airline") or ""
         is_pref = bool(intent.get("is_preferred_airline")) or any(w in (favorite_airline or "").lower() for w in ["preferred", "favorite", "pref", "fav", "prefer"])
+        dur_days = intent.get("duration_days")
+        min_dur = intent.get("min_duration_days") or dur_days
+        max_dur = intent.get("max_duration_days") or dur_days
+        flex_days = intent.get("flex_days", 0)
+
+        opt_kwargs = {
+            "origin": origin,
+            "destination": destination,
+            "target_date": departure_date,
+            "target_return_date": return_date,
+            "passengers_count": passengers_count,
+            "cabin_class": cabin_class,
+            "favorite_airline": pref_air_param,
+            "is_preferred": is_pref,
+            "force_refresh": force_refresh,
+        }
+        if min_dur is not None:
+            opt_kwargs["min_duration_days"] = min_dur
+            opt_kwargs["max_duration_days"] = max_dur or min_dur
+        if flex_days:
+            opt_kwargs["flex_days"] = flex_days
+
         if hasattr(self.client_app, "flights"):
             try:
-                opt_res = self.client_app.flights.search_optimized(
-                    origin=origin,
-                    destination=destination,
-                    target_date=departure_date,
-                    target_return_date=return_date,
-                    passengers_count=passengers_count,
-                    cabin_class=cabin_class,
-                    favorite_airline=pref_air_param,
-                    is_preferred=is_pref,
-                    force_refresh=force_refresh,
-                )
+                opt_res = self.client_app.flights.search_optimized(**opt_kwargs)
                 if isinstance(opt_res, dict):
                     raw_offers = opt_res.get("top_offers") or opt_res.get("results") or []
                     highlights = opt_res.get("category_highlights") or {}
