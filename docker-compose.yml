@@ -19,6 +19,21 @@ services:
     ports:
       - "8000:8000"
 
+  user-service:
+    build: .
+    command: python run_user_service.py 8001
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: jojira_duffel
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    depends_on:
+      - postgres
+    ports:
+      - "8001:8001"
+
+
   order-processor:
     build:
       context: .

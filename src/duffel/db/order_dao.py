@@ -72,9 +72,12 @@ class OrderDAO:
             cursor = conn.cursor()
             if self.db_engine == "postgresql":
                 ddl = """
-                CREATE TABLE IF NOT EXISTS flight_orders (
+                CREATE SCHEMA IF NOT EXISTS orders;
+
+                CREATE TABLE IF NOT EXISTS orders.flight_orders (
                     id VARCHAR(100) PRIMARY KEY,
                     duffel_order_id VARCHAR(100) UNIQUE NOT NULL,
+
                     bundle_id VARCHAR(100),
                     promo_code VARCHAR(50),
                     gross_amount NUMERIC(10, 2),
@@ -319,6 +322,8 @@ class OrderDAO:
 
             # Ensure bundle_id, promo_code, gross_amount, discount_amount, and audit columns exist on existing tables
             cols_to_add = [
+                ("user_id", "VARCHAR(100)", "TEXT"),
+                ("itinerary_id", "VARCHAR(100)", "TEXT"),
                 ("bundle_id", "VARCHAR(100)", "TEXT"),
                 ("promo_code", "VARCHAR(50)", "TEXT"),
                 ("gross_amount", "NUMERIC(10, 2)", "TEXT"),
@@ -326,6 +331,8 @@ class OrderDAO:
                 ("created_by", "VARCHAR(100) DEFAULT 'system'", "TEXT DEFAULT 'system'"),
                 ("updated_by", "VARCHAR(100) DEFAULT 'system'", "TEXT DEFAULT 'system'"),
             ]
+
+
 
             for tbl in ["flight_orders", "stay_orders", "car_orders", "bundle_orders"]:
                 for col_name, pg_type, sq_type in cols_to_add:
@@ -360,6 +367,7 @@ class OrderDAO:
         promo_code: Optional[str] = None,
         gross_amount: Optional[str] = None,
         discount_amount: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> dict[str, Any]:
         """
         Persist a flight order when created in 'hold' (or 'instant') status.
@@ -377,18 +385,19 @@ class OrderDAO:
             if self.db_engine == "postgresql":
                 sql = """
                 INSERT INTO flight_orders (
-                    id, duffel_order_id, bundle_id, promo_code, gross_amount, discount_amount,
+                    id, duffel_order_id, user_id, bundle_id, promo_code, gross_amount, discount_amount,
                     booking_reference, order_type, status, total_amount, total_currency,
                     payment_status, payment_method, payment_required_by, email_confirmation_status,
                     email_recipient, passengers, slices, created_at, updated_at
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (duffel_order_id) DO UPDATE SET
+                    user_id = COALESCE(EXCLUDED.user_id, flight_orders.user_id),
                     status = EXCLUDED.status,
                     payment_status = EXCLUDED.payment_status,
                     updated_at = EXCLUDED.updated_at;
                 """
                 cursor.execute(sql, (
-                    order_id, duffel_order_id, bundle_id, promo_code, gross_val, disc_val,
+                    order_id, duffel_order_id, user_id, bundle_id, promo_code, gross_val, disc_val,
                     booking_reference, order_type, status, float(total_amount or 0.0), total_currency,
                     payment_status, payment_method, payment_required_by, email_confirmation_status,
                     email_recipient, passengers_json, slices_json, now_iso, now_iso
@@ -396,23 +405,25 @@ class OrderDAO:
             else:
                 sql = """
                 INSERT INTO flight_orders (
-                    id, duffel_order_id, bundle_id, promo_code, gross_amount, discount_amount,
+                    id, duffel_order_id, user_id, bundle_id, promo_code, gross_amount, discount_amount,
                     booking_reference, order_type, status, total_amount, total_currency,
                     payment_status, payment_method, payment_required_by, email_confirmation_status,
                     email_recipient, passengers, slices, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(duffel_order_id) DO UPDATE SET
+                    user_id = COALESCE(excluded.user_id, flight_orders.user_id),
                     status = excluded.status,
                     payment_status = excluded.payment_status,
                     updated_at = excluded.updated_at;
                 """
                 cursor.execute(sql, (
-                    order_id, duffel_order_id, bundle_id, promo_code, str(gross_val), str(disc_val),
+                    order_id, duffel_order_id, user_id, bundle_id, promo_code, str(gross_val), str(disc_val),
                     booking_reference, order_type, status, str(total_amount), total_currency,
                     payment_status, payment_method, payment_required_by, email_confirmation_status,
                     email_recipient, passengers_json, slices_json, now_iso, now_iso
                 ))
                 conn.commit()
+
             print(f"[ORDER DAO] Saved hold order '{duffel_order_id}' to database (Engine: {self.db_engine}).")
         finally:
             if self.db_engine != "postgresql":
@@ -563,6 +574,7 @@ class OrderDAO:
         promo_code: Optional[str] = None,
         gross_amount: Optional[str] = None,
         discount_amount: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> dict[str, Any]:
         """Persist a hotel stay order to the database."""
         now_iso = datetime.now(timezone.utc).isoformat()
@@ -577,18 +589,19 @@ class OrderDAO:
             if self.db_engine == "postgresql":
                 sql = """
                 INSERT INTO stay_orders (
-                    id, duffel_order_id, bundle_id, promo_code, gross_amount, discount_amount,
+                    id, duffel_order_id, user_id, bundle_id, promo_code, gross_amount, discount_amount,
                     quote_id, booking_reference, accommodation_id, accommodation_name,
                     check_in_date, check_out_date, rooms, status, total_amount, total_currency,
                     payment_status, payment_method, guests, created_at, updated_at
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (duffel_order_id) DO UPDATE SET
+                    user_id = COALESCE(EXCLUDED.user_id, stay_orders.user_id),
                     status = EXCLUDED.status,
                     payment_status = EXCLUDED.payment_status,
                     updated_at = EXCLUDED.updated_at;
                 """
                 cursor.execute(sql, (
-                    order_id, duffel_order_id, bundle_id, promo_code, gross_val, disc_val,
+                    order_id, duffel_order_id, user_id, bundle_id, promo_code, gross_val, disc_val,
                     quote_id, booking_reference, accommodation_id, accommodation_name,
                     check_in_date, check_out_date, rooms, status, float(total_amount or 0.0), total_currency,
                     payment_status, payment_method, guests_json, now_iso, now_iso
@@ -596,23 +609,25 @@ class OrderDAO:
             else:
                 sql = """
                 INSERT INTO stay_orders (
-                    id, duffel_order_id, bundle_id, promo_code, gross_amount, discount_amount,
+                    id, duffel_order_id, user_id, bundle_id, promo_code, gross_amount, discount_amount,
                     quote_id, booking_reference, accommodation_id, accommodation_name,
                     check_in_date, check_out_date, rooms, status, total_amount, total_currency,
                     payment_status, payment_method, guests, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(duffel_order_id) DO UPDATE SET
+                    user_id = COALESCE(excluded.user_id, stay_orders.user_id),
                     status = excluded.status,
                     payment_status = excluded.payment_status,
                     updated_at = excluded.updated_at;
                 """
                 cursor.execute(sql, (
-                    order_id, duffel_order_id, bundle_id, promo_code, str(gross_val), str(disc_val),
+                    order_id, duffel_order_id, user_id, bundle_id, promo_code, str(gross_val), str(disc_val),
                     quote_id, booking_reference, accommodation_id, accommodation_name,
                     check_in_date, check_out_date, rooms, status, str(total_amount), total_currency,
                     payment_status, payment_method, guests_json, now_iso, now_iso
                 ))
                 conn.commit()
+
             print(f"[ORDER DAO] Saved stay order '{duffel_order_id}' to database.")
         finally:
             if self.db_engine != "postgresql":
@@ -826,6 +841,8 @@ class OrderDAO:
         promo_code: Optional[str] = None,
         gross_amount: Optional[str] = None,
         discount_amount: Optional[str] = None,
+        user_id: Optional[str] = None,
+        itinerary_id: Optional[str] = None,
     ) -> dict[str, Any]:
         """Persist a combined travel package bundle order."""
         now_iso = datetime.now(timezone.utc).isoformat()
@@ -842,40 +859,45 @@ class OrderDAO:
             if self.db_engine == "postgresql":
                 sql = """
                 INSERT INTO bundle_orders (
-                    id, duffel_bundle_id, promo_code, gross_amount, discount_amount,
+                    id, duffel_bundle_id, user_id, itinerary_id, promo_code, gross_amount, discount_amount,
                     flight_order_id, stay_order_id, car_order_id, status, combined_total_amount,
                     total_currency, payment_status, payment_method, flight_details,
                     stay_details, car_details, created_at, updated_at
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (duffel_bundle_id) DO UPDATE SET
+                    user_id = COALESCE(EXCLUDED.user_id, bundle_orders.user_id),
+                    itinerary_id = COALESCE(EXCLUDED.itinerary_id, bundle_orders.itinerary_id),
                     status = EXCLUDED.status,
                     payment_status = EXCLUDED.payment_status,
                     updated_at = EXCLUDED.updated_at;
                 """
                 cursor.execute(sql, (
-                    order_id, duffel_bundle_id, promo_code, gross_val, disc_val,
+                    order_id, duffel_bundle_id, user_id, itinerary_id, promo_code, gross_val, disc_val,
                     flight_order_id, stay_order_id, car_order_id, status, float(combined_total_amount or 0.0),
                     total_currency, payment_status, payment_method, fl_json, st_json, cr_json, now_iso, now_iso
                 ))
             else:
                 sql = """
                 INSERT INTO bundle_orders (
-                    id, duffel_bundle_id, promo_code, gross_amount, discount_amount,
+                    id, duffel_bundle_id, user_id, itinerary_id, promo_code, gross_amount, discount_amount,
                     flight_order_id, stay_order_id, car_order_id, status, combined_total_amount,
                     total_currency, payment_status, payment_method, flight_details,
                     stay_details, car_details, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(duffel_bundle_id) DO UPDATE SET
+                    user_id = COALESCE(excluded.user_id, bundle_orders.user_id),
+                    itinerary_id = COALESCE(excluded.itinerary_id, bundle_orders.itinerary_id),
                     status = excluded.status,
                     payment_status = excluded.payment_status,
                     updated_at = excluded.updated_at;
                 """
                 cursor.execute(sql, (
-                    order_id, duffel_bundle_id, promo_code, str(gross_val), str(disc_val),
+                    order_id, duffel_bundle_id, user_id, itinerary_id, promo_code, str(gross_val), str(disc_val),
                     flight_order_id, stay_order_id, car_order_id, status, str(combined_total_amount),
                     total_currency, payment_status, payment_method, fl_json, st_json, cr_json, now_iso, now_iso
                 ))
                 conn.commit()
+
             print(f"[ORDER DAO] Saved bundle order '{duffel_bundle_id}' to database.")
         finally:
             if self.db_engine != "postgresql":

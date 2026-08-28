@@ -1,22 +1,22 @@
 """
-FastAPI Application Initialization and Middleware Setup.
+Standalone Runner for Jojira User Service Microservice (Port 8001).
 """
 
+import sys
+import uvicorn
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
 
-from .routes import router
+from fastapi.middleware.cors import CORSMiddleware
+from src.user_service.api.router import api_router
 
 app = FastAPI(
-    title="Jajira LLC - Duffel Flight REST API",
-    description="High-performance REST API web service for Duffel Flight Search, 2-Tier Caching Optimization, Non-Stop Ranking, and Order Booking.",
+    title="Jojira User Service Microservice",
+    description="Dedicated microservice for Google OAuth, User Identity, Search History, & Saved Bookings.",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
 
-# Configure CORS Middleware for cross-origin web frontend access
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,13 +29,14 @@ app.add_middleware(
 @app.middleware("http")
 async def log_requests_and_responses(request: Request, call_next):
     import json
+    import time
     from starlette.concurrency import iterate_in_threadpool
 
     body_bytes = await request.body()
     body_str = body_bytes.decode("utf-8", errors="replace") if body_bytes else ""
 
     print("\n" + "=" * 85)
-    print(f"[REST REQUEST] {request.method} {request.url.path}")
+    print(f"[USER SERVICE REQUEST] {request.method} {request.url.path}")
     if body_str.strip():
         try:
             formatted_body = json.dumps(json.loads(body_str), indent=2)
@@ -46,7 +47,6 @@ async def log_requests_and_responses(request: Request, call_next):
         print("   Request Body: (empty)")
     print("-" * 85)
 
-    import time
     start_time = time.time()
 
     async def receive():
@@ -61,7 +61,7 @@ async def log_requests_and_responses(request: Request, call_next):
     res_bytes = b"".join(response_body)
     res_str = res_bytes.decode("utf-8", errors="replace") if res_bytes else ""
 
-    print(f"[REST RESPONSE] {request.method} {request.url.path} -> Status {response.status_code} (Total Execution Time: {duration_ms} ms)")
+    print(f"[USER SERVICE RESPONSE] {request.method} {request.url.path} -> Status {response.status_code} (Total Execution Time: {duration_ms} ms)")
     if res_str.strip():
         try:
             formatted_res = json.dumps(json.loads(res_str), indent=2)
@@ -76,43 +76,21 @@ async def log_requests_and_responses(request: Request, call_next):
     print(f"   [TIMING] Request completed in {duration_ms} ms")
     print("=" * 85 + "\n")
 
-
     return response
 
-# Include API Router for /api/v1, /api, and root path compatibility
-app.include_router(router, prefix="/api/v1")
-app.include_router(router, prefix="/api", include_in_schema=False)
-app.include_router(router, include_in_schema=False)
 
-# Include User Service Microservice Router
-try:
-    from user_service.api.router import api_router as user_service_router
-    app.include_router(user_service_router)
-except Exception:
-    try:
-        from src.user_service.api.router import api_router as user_service_router
-        app.include_router(user_service_router)
-    except Exception as us_err:
-        print(f"[APP NOTICE] User service router notice: {us_err}")
+app.include_router(api_router)
 
 
 
-
-@app.get("/", include_in_schema=False)
-def root():
-    """Redirect root path to interactive OpenAPI docs."""
-    return RedirectResponse(url="/docs")
+@app.get("/health", summary="Service Health Check", tags=["System"])
+def health_check():
+    return {"status": "healthy", "service": "jojira-user-service"}
 
 
-@app.get("/health", summary="System Health Check (Root Alias)", tags=["System"])
-def root_health_check():
-    """System health check endpoint at root level."""
-    from .routes import health_check
-    return health_check()
-
-
-@app.get("/help", summary="API Help & Documentation Index (Root Alias)", tags=["System"])
-def root_api_help(request: Request):
-    """API documentation and schema index endpoint at root level."""
-    from .routes import get_api_help
-    return get_api_help(request)
+if __name__ == "__main__":
+    port = 8001
+    if len(sys.argv) > 1 and sys.argv[1].isdigit():
+        port = int(sys.argv[1])
+    print(f"Starting Jojira User Service Microservice on http://0.0.0.0:{port}...")
+    uvicorn.run(app, host="0.0.0.0", port=port)

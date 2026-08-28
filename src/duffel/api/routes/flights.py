@@ -666,6 +666,19 @@ def book_flight(req: FlightBookingRequest, request: Request = None):
             disc_val = float(req.discount_amount or 0.0)
             gross_val = tot_val + disc_val
 
+            target_user_id = req.user_id
+            auth_hdr = request.headers.get("Authorization", "")
+            if not target_user_id and auth_hdr.startswith("Bearer "):
+                try:
+                    from ...user_service.api.routes.auth import _verify_jwt_token
+                    from ...user_service.config import UserServiceConfig
+                    token_str = auth_hdr.split(" ", 1)[1].strip()
+                    token_payload = _verify_jwt_token(token_str, UserServiceConfig().jwt_secret)
+                    if token_payload and token_payload.get("sub"):
+                        target_user_id = token_payload["sub"]
+                except Exception:
+                    pass
+
             order_dao.save_hold_order(
                 duffel_order_id=getattr(order, "id", ""),
                 booking_reference=booking_ref,
@@ -683,7 +696,9 @@ def book_flight(req: FlightBookingRequest, request: Request = None):
                 promo_code=req.promo_code,
                 gross_amount=f"{gross_val:.2f}",
                 discount_amount=f"{disc_val:.2f}",
+                user_id=target_user_id,
             )
+
         except Exception as db_err:
             print(f"[ORDER DAO NOTICE] Failed saving order to database: {db_err}")
 

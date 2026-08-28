@@ -64,6 +64,8 @@ class FlightBookingRequest(BaseModel):
     allow_price_change: bool = Field(False, description="Set True to accept airline live price changes automatically")
     promo_code: Optional[str] = Field(None, description="Optional promo/discount code applied")
     discount_amount: Optional[str] = Field(None, description="Optional discount amount applied")
+    user_id: Optional[str] = Field(None, description="Authenticated user ID e.g. 'usr_0cba00ca3da1'")
+
 
 
 class AnalyzeQueriesResponse(BaseModel):

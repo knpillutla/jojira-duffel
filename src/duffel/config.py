@@ -28,12 +28,13 @@ class DuffelConfig:
     max_cached_offers: int = 40
     max_non_stop_offers: int = 10
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-3.6-flash"
+    gemini_model: str = "gemini-1.5-flash"
     gemini_enabled: bool = True
     openai_api_key: str = ""
-    openai_model: str = "gpt-4.1-mini"
+    openai_model: str = "gpt-4o-mini"
     openai_enabled: bool = True
     llm_provider: str = "openai"
+
     service_bus_enabled: bool = True
     service_bus_connection_string: str = ""
     service_bus_queue_name: str = "order-hold-events"
@@ -62,11 +63,25 @@ class DuffelConfig:
     retry_backoff_max: float = 10.0
     retry_status_codes: Optional[list[int]] = None
     config_file: str = "config.json"
+    system_prompts_file: str = "system_prompts.json"
+    system_prompts: Optional[dict[str, str]] = None
 
     def __post_init__(self):
         if self.retry_status_codes is None:
             self.retry_status_codes = [500, 502, 503, 504, 429]
+        if self.system_prompts is None:
+            self.system_prompts = {}
+
+        # Load system_prompts.json if present
+        if Path(self.system_prompts_file).is_file():
+            try:
+                with open(self.system_prompts_file, "r", encoding="utf-8") as sp_f:
+                    self.system_prompts = json.load(sp_f)
+            except Exception as sp_err:
+                print(f"[CONFIG NOTICE] Failed loading system_prompts.json: {sp_err}")
+
         # 1. Load from config.json if present
+
         if Path(self.config_file).is_file():
             try:
                 with open(self.config_file, "r", encoding="utf-8") as f:

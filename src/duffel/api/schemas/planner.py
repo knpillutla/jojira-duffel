@@ -38,8 +38,14 @@ class ItineraryPlannerRequest(BaseModel):
     include_flights: bool = Field(True, description="Whether to include flights in trip plan")
     include_hotels: bool = Field(True, description="Whether to include hotel stay in trip plan")
     include_cars: bool = Field(True, description="Whether to include car rental in trip plan")
+    include_trains: bool = Field(True, description="Whether to include train/rail transport in trip plan")
+    include_buses: bool = Field(True, description="Whether to include bus/coach transport in trip plan")
     include_attractions: bool = Field(True, description="Whether to include attractions in trip plan")
     include_activities: bool = Field(True, description="Whether to include daily activities in trip plan")
+    include_seasonal_attractions: bool = Field(True, description="Whether to include local seasonal attractions (e.g., festivals, foliage, markets)")
+    include_seasonal_activities: bool = Field(True, description="Whether to include seasonal events and regional experiences")
+
+
     origin: Optional[str] = Field(None, description="Origin airport IATA code e.g. 'ATL'")
     destination: Optional[str] = Field(None, description="Destination airport IATA code or city name e.g. 'Paris'")
     days: Optional[int] = Field(None, ge=1, le=30, description="Trip duration in days e.g. 4")
@@ -52,7 +58,27 @@ class ItineraryPlannerRequest(BaseModel):
     rooms: Optional[int] = Field(None, ge=1, le=10, description="Number of hotel rooms (auto-calculated if omitted)")
     driver_age: int = Field(30, ge=18, le=99, description="Driver age for car rental")
     interests: Optional[list[str]] = Field(None, description="Travel interests e.g. ['Art', 'Food', 'History']")
+    user_id: Optional[str] = Field(None, description="Authenticated user ID to automatically record search history e.g. 'usr_0cba00ca3da1'")
     force_refresh: bool = Field(False, description="Set True to bypass Redis cache")
+
+
+
+class ItineraryOptionSchema(BaseModel):
+    """Detailed schema for an individual itinerary option choice."""
+    itinerary_id: str = Field(..., description="Unique itinerary option ID e.g. 'itin_opt_3cc953bf'")
+    option_number: int = Field(..., description="Option index (1, 2, or 3)")
+    title: str = Field(..., description="Option title e.g. 'Option 1: Classic & Iconic Culture'")
+    style: str = Field(..., description="Travel style e.g. 'balanced', 'culinary_gems', 'luxury_vip'")
+    budget: str = Field(..., description="Budget tier e.g. 'moderate', 'luxury'")
+    llm_description: str = Field(..., description="Rich AI narrative description explaining what makes this option unique")
+    highlights: list[str] = Field(..., description="Bulleted list of key attraction highlights for quick comparison")
+    why_choose_this: str = Field(..., description="Target audience tagline explaining who should pick this itinerary")
+    ai_summary: str = Field(..., description="Brief trip summary narrative")
+    trip_summary: dict[str, Any] = Field(..., description="Pricing and component breakdown")
+    category_highlights: dict[str, Any] = Field(..., description="Cheapest, Moderate, and Luxury category package options")
+    map_pins: list[dict[str, Any]] = Field(..., description="Geographic map coordinates")
+    daily_itinerary: list[dict[str, Any]] = Field(..., description="Day-by-day schedule")
+    top_3_bundles: list[dict[str, Any]] = Field(..., description="Top component packages")
 
 
 class ItineraryPlannerResponse(BaseModel):
@@ -60,10 +86,11 @@ class ItineraryPlannerResponse(BaseModel):
     status: str = Field("success", description="Response status")
     timestamp: str = Field(..., description="Response generation timestamp YYYY-MM-DD HH:MM:SS")
     meta_data: dict[str, Any] = Field(..., description="Metadata envelope with search parameters, duration, occupancy, and map center")
-    data: dict[str, Any] = Field(..., description="Data envelope with ai_summary, trip_summary, category_highlights, map_pins, daily_itinerary, top_3_bundles")
+    data: dict[str, Any] = Field(..., description="Data envelope with itinerary_options, recommended_itinerary_id, ai_summary, trip_summary, category_highlights, map_pins, daily_itinerary, top_3_bundles")
 
     class Config:
         extra = "allow"
+
 
 
 class ItineraryLikeRequest(BaseModel):

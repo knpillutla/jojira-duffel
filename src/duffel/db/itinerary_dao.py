@@ -67,9 +67,12 @@ class ItineraryDAO:
             cursor = conn.cursor()
             if self.db_engine == "postgresql":
                 ddl = """
-                CREATE TABLE IF NOT EXISTS generated_itineraries (
+                CREATE SCHEMA IF NOT EXISTS planner;
+
+                CREATE TABLE IF NOT EXISTS planner.generated_itineraries (
                     id VARCHAR(100) PRIMARY KEY,
                     prompt TEXT NOT NULL,
+
                     parent_itinerary_id VARCHAR(100),
                     destination VARCHAR(100) NOT NULL,
                     start_date VARCHAR(20),
@@ -103,6 +106,18 @@ class ItineraryDAO:
                     updated_by VARCHAR(100) DEFAULT 'system'
                 );
                 CREATE INDEX IF NOT EXISTS idx_itin_tpl_dest_dur ON itinerary_templates(destination, duration_days);
+
+                CREATE TABLE IF NOT EXISTS llm_call_logs (
+                    id VARCHAR(100) PRIMARY KEY,
+                    provider VARCHAR(50) NOT NULL,
+                    model VARCHAR(100) NOT NULL,
+                    prompt TEXT,
+                    destination VARCHAR(100),
+                    success BOOLEAN DEFAULT TRUE,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE INDEX IF NOT EXISTS idx_llm_log_provider ON llm_call_logs(provider);
                 """
                 cursor.execute(ddl)
                 conn.commit()
@@ -144,12 +159,26 @@ class ItineraryDAO:
                     updated_by TEXT DEFAULT 'system'
                 );
                 CREATE INDEX IF NOT EXISTS idx_itin_tpl_dest_dur ON itinerary_templates(destination, duration_days);
+
+                CREATE TABLE IF NOT EXISTS llm_call_logs (
+                    id TEXT PRIMARY KEY,
+                    provider TEXT NOT NULL,
+                    model TEXT NOT NULL,
+                    prompt TEXT,
+                    destination TEXT,
+                    success INTEGER DEFAULT 1,
+                    error_message TEXT,
+                    created_at TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_llm_log_provider ON llm_call_logs(provider);
                 """
                 cursor.executescript(ddl)
                 conn.commit()
 
+
             # Ensure audit columns exist on existing tables
             cols_to_add = [
+                ("user_id", "VARCHAR(100)", "TEXT"),
                 ("liked", "INTEGER DEFAULT 0", "INTEGER DEFAULT 0"),
                 ("likes_count", "INTEGER DEFAULT 0", "INTEGER DEFAULT 0"),
                 ("feedback_notes", "TEXT", "TEXT"),
@@ -183,6 +212,7 @@ class ItineraryDAO:
         passengers_count: int,
         payload: dict[str, Any],
         parent_itinerary_id: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> str:
         """
         Saves a generated or refined travel itinerary into database.
@@ -199,9 +229,10 @@ class ItineraryDAO:
         hash_input = f"{prompt}_{destination}_{start_date}_{end_date}_{version}_{now_iso}"
         itin_id = f"itin_{hashlib.md5(hash_input.encode()).hexdigest()[:10]}"
 
-        # Tag itinerary_id & version into payload metadata
+        # Tag itinerary_id, user_id & version into payload metadata
         if "meta_data" in payload and isinstance(payload["meta_data"], dict):
             payload["meta_data"]["itinerary_id"] = itin_id
+            payload["meta_data"]["user_id"] = user_id
             payload["meta_data"]["version"] = version
             if parent_itinerary_id:
                 payload["meta_data"]["parent_itinerary_id"] = parent_itinerary_id
@@ -213,20 +244,21 @@ class ItineraryDAO:
             if self.db_engine == "postgresql":
                 sql = """
                 INSERT INTO generated_itineraries (
-                    id, prompt, parent_itinerary_id, destination, start_date, end_date, duration_days, passengers_count, version, payload, created_at, updated_at
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    id, user_id, prompt, parent_itinerary_id, destination, start_date, end_date, duration_days, passengers_count, version, payload, created_at, updated_at
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = EXCLUDED.updated_at;
                 """
-                cursor.execute(sql, (itin_id, prompt, parent_itinerary_id, destination, start_date, end_date, duration_days, passengers_count, version, payload_json, now_iso, now_iso))
+                cursor.execute(sql, (itin_id, user_id, prompt, parent_itinerary_id, destination, start_date, end_date, duration_days, passengers_count, version, payload_json, now_iso, now_iso))
             else:
                 sql = """
                 INSERT INTO generated_itineraries (
-                    id, prompt, parent_itinerary_id, destination, start_date, end_date, duration_days, passengers_count, version, payload, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    id, user_id, prompt, parent_itinerary_id, destination, start_date, end_date, duration_days, passengers_count, version, payload, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET payload = excluded.payload, updated_at = excluded.updated_at;
                 """
-                cursor.execute(sql, (itin_id, prompt, parent_itinerary_id, destination, start_date, end_date, duration_days, passengers_count, version, payload_json, now_iso, now_iso))
+                cursor.execute(sql, (itin_id, user_id, prompt, parent_itinerary_id, destination, start_date, end_date, duration_days, passengers_count, version, payload_json, now_iso, now_iso))
                 conn.commit()
+
 
             print(f"[ITINERARY DAO] Persisted itinerary '{itin_id}' (v{version}) for {destination}.")
             return itin_id
@@ -355,5 +387,58 @@ class ItineraryDAO:
             return False
         finally:
             conn.close()
+
+    def log_llm_call(
+        self,
+        provider: str,
+        model: str,
+        prompt: Optional[str] = None,
+        destination: Optional[str] = None,
+        success: bool = True,
+        error_message: Optional[str] = None,
+    ) -> bool:
+        """Logs an LLM API call invocation to PostgreSQL / SQLite database."""
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            now_iso = datetime.now(timezone.utc).isoformat()
+            log_id = f"llm_log_{hashlib.md5(f'{provider}_{model}_{now_iso}'.encode()).hexdigest()[:10]}"
+            succ_val = True if self.db_engine == "postgresql" else (1 if success else 0)
+
+            if self.db_engine == "postgresql":
+                sql = """
+                INSERT INTO llm_call_logs (id, provider, model, prompt, destination, success, error_message, created_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+                """
+                cursor.execute(sql, (log_id, provider, model, prompt, destination, succ_val, error_message, now_iso))
+            else:
+                sql = """
+                INSERT INTO llm_call_logs (id, provider, model, prompt, destination, success, error_message, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                """
+                cursor.execute(sql, (log_id, provider, model, prompt, destination, succ_val, error_message, now_iso))
+                conn.commit()
+            return True
+        except Exception as err:
+            print(f"[ITINERARY DAO NOTICE] Log LLM call notice: {err}")
+            return False
+        finally:
+            conn.close()
+
+    def get_llm_call_stats(self) -> dict[str, Any]:
+        """Queries total LLM call counts grouped by provider and model."""
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            sql = "SELECT provider, COUNT(*) FROM llm_call_logs GROUP BY provider;"
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            stats = {row[0]: row[1] for row in rows}
+            return stats
+        except Exception:
+            return {}
+        finally:
+            conn.close()
+
 
 
