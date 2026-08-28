@@ -38,7 +38,7 @@ class OrderDAO:
                 import psycopg2
                 import psycopg2.extras
                 if self.url:
-                    self._pg_conn = psycopg2.connect(self.url)
+                    self._pg_conn = psycopg2.connect(self.url, connect_timeout=2)
                 else:
                     self._pg_conn = psycopg2.connect(
                         host=self.host,
@@ -51,8 +51,11 @@ class OrderDAO:
                 self._pg_conn.autocommit = True
                 self.db_engine = "postgresql"
             except Exception as err:
-                logger.info(f"[ORDER DAO] PostgreSQL connection not established: {err}. Using local SQLite engine fallback.")
-                self.db_engine = "sqlite_fallback"
+                err_msg = f"[POSTGRES ERROR] Failed to connect to PostgreSQL database ({self.host}:{self.port}/{self.database}): {err}. Exiting application."
+                logger.error(err_msg)
+                print(f"\n{'=' * 80}\n{err_msg}\n{'=' * 80}\n")
+                import sys
+                sys.exit(1)
 
         self.init_db()
 
@@ -344,6 +347,50 @@ class OrderDAO:
                             conn.commit()
                     except Exception:
                         pass
+            # Create ai_search_history table if not exists
+            if self.db_engine == "postgresql":
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS ai_search_history (
+                    id VARCHAR(100) PRIMARY KEY,
+                    user_id VARCHAR(100) NOT NULL DEFAULT 'guest_user',
+                    prompt TEXT NOT NULL,
+                    search_type VARCHAR(50) NOT NULL DEFAULT 'flights',
+                    origin VARCHAR(20),
+                    destination VARCHAR(20),
+                    departure_date VARCHAR(50),
+                    return_date VARCHAR(50),
+                    parsed_intent JSONB,
+                    results_summary JSONB,
+                    created_at VARCHAR(50),
+                    created_by VARCHAR(100) DEFAULT 'system',
+                    updated_at VARCHAR(50),
+                    updated_by VARCHAR(100) DEFAULT 'system',
+                    is_test BOOLEAN DEFAULT FALSE
+                );
+                CREATE INDEX IF NOT EXISTS idx_ai_search_hist_user ON ai_search_history(user_id);
+                """)
+            else:
+                cursor.executescript("""
+                CREATE TABLE IF NOT EXISTS ai_search_history (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL DEFAULT 'guest_user',
+                    prompt TEXT NOT NULL,
+                    search_type TEXT NOT NULL DEFAULT 'flights',
+                    origin TEXT,
+                    destination TEXT,
+                    departure_date TEXT,
+                    return_date TEXT,
+                    parsed_intent TEXT,
+                    results_summary TEXT,
+                    created_at TEXT,
+                    created_by TEXT DEFAULT 'system',
+                    updated_at TEXT,
+                    updated_by TEXT DEFAULT 'system',
+                    is_test INTEGER DEFAULT 0
+                );
+                CREATE INDEX IF NOT EXISTS idx_ai_search_hist_user ON ai_search_history(user_id);
+                """)
+                conn.commit()
         finally:
             if self.db_engine != "postgresql":
                 conn.close()
@@ -446,13 +493,14 @@ class OrderDAO:
         self,
         duffel_order_id: str,
         status: Optional[str] = None,
+        order_type: Optional[str] = None,
         payment_status: Optional[str] = None,
         email_confirmation_status: Optional[str] = None,
         payment_details: Optional[dict[str, Any]] = None,
         email_recipient: Optional[str] = None,
     ) -> Optional[dict[str, Any]]:
         """
-        Update the status, payment_status, email_confirmation_status, and payment details of an existing order.
+        Update the status, order_type, payment_status, email_confirmation_status, and payment details of an existing order.
         """
         now_iso = datetime.now(timezone.utc).isoformat()
         conn = self._get_connection()
@@ -466,6 +514,9 @@ class OrderDAO:
                 if status:
                     updates.append("status = %s")
                     params.append(status)
+                if order_type:
+                    updates.append("order_type = %s")
+                    params.append(order_type)
                 if payment_status:
                     updates.append("payment_status = %s")
                     params.append(payment_status)
@@ -488,6 +539,9 @@ class OrderDAO:
                 if status:
                     updates.append("status = ?")
                     params.append(status)
+                if order_type:
+                    updates.append("order_type = ?")
+                    params.append(order_type)
                 if payment_status:
                     updates.append("payment_status = ?")
                     params.append(payment_status)
@@ -1169,6 +1223,117 @@ class OrderDAO:
             return json.loads(row[0]) if isinstance(row[0], str) else row[0]
         except Exception:
             return None
+        finally:
+            if self.db_engine != "postgresql":
+                conn.close()
+
+    def save_ai_search_history(
+        self,
+        prompt: str,
+        user_id: str = "guest_user",
+        search_type: str = "flights",
+        origin: Optional[str] = None,
+        destination: Optional[str] = None,
+        departure_date: Optional[str] = None,
+        return_date: Optional[str] = None,
+        parsed_intent: Optional[dict[str, Any]] = None,
+        results_summary: Optional[dict[str, Any]] = None,
+    ) -> dict[str, Any]:
+        """Persist an AI Search prompt and summary response into history table."""
+        import uuid
+        hist_id = f"hist_ai_{uuid.uuid4().hex[:10]}"
+        now_iso = datetime.now(timezone.utc).isoformat()
+        intent_json = json.dumps(parsed_intent or {})
+        summary_json = json.dumps(results_summary or {})
+
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            if self.db_engine == "postgresql":
+                sql = """
+                INSERT INTO ai_search_history (
+                    id, user_id, prompt, search_type, origin, destination, departure_date, return_date,
+                    parsed_intent, results_summary, created_at, created_by, updated_at, updated_by, is_test
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                """
+                cursor.execute(sql, (
+                    hist_id, user_id or "guest_user", prompt, search_type, origin, destination,
+                    departure_date, return_date, intent_json, summary_json, now_iso, "system", now_iso, "system", False
+                ))
+            else:
+                sql = """
+                INSERT INTO ai_search_history (
+                    id, user_id, prompt, search_type, origin, destination, departure_date, return_date,
+                    parsed_intent, results_summary, created_at, created_by, updated_at, updated_by, is_test
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                """
+                cursor.execute(sql, (
+                    hist_id, user_id or "guest_user", prompt, search_type, origin, destination,
+                    departure_date, return_date, intent_json, summary_json, now_iso, "system", now_iso, "system", 0
+                ))
+                conn.commit()
+        finally:
+            if self.db_engine != "postgresql":
+                conn.close()
+
+        return {
+            "id": hist_id,
+            "user_id": user_id or "guest_user",
+            "prompt": prompt,
+            "created_at": now_iso,
+        }
+
+    def get_ai_search_history(
+        self,
+        user_id: Optional[str] = None,
+        search_type: Optional[str] = None,
+        limit: int = 20,
+    ) -> list[dict[str, Any]]:
+        """Retrieve AI Search prompt history from database."""
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            where_clauses = []
+            params = []
+
+            if user_id:
+                where_clauses.append("user_id = %s" if self.db_engine == "postgresql" else "user_id = ?")
+                params.append(user_id)
+            if search_type:
+                where_clauses.append("search_type = %s" if self.db_engine == "postgresql" else "search_type = ?")
+                params.append(search_type)
+
+            where_str = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
+            sql = f"""
+            SELECT id, user_id, prompt, search_type, origin, destination, departure_date, return_date,
+                   parsed_intent, results_summary, created_at, updated_at
+            FROM ai_search_history
+            {where_str}
+            ORDER BY created_at DESC
+            LIMIT {limit};
+            """
+            cursor.execute(sql, tuple(params))
+            rows = cursor.fetchall()
+
+            history = []
+            for r in rows:
+                p_intent = json.loads(r[8]) if isinstance(r[8], str) and r[8].strip() else (r[8] or {})
+                r_sum = json.loads(r[9]) if isinstance(r[9], str) and r[9].strip() else (r[9] or {})
+                history.append({
+                    "id": r[0],
+                    "user_id": r[1],
+                    "prompt": r[2],
+                    "search_type": r[3],
+                    "origin": r[4],
+                    "destination": r[5],
+                    "departure_date": r[6],
+                    "return_date": r[7],
+                    "parsed_intent": p_intent,
+                    "results_summary": r_sum,
+                    "created_at": r[10],
+                    "updated_at": r[11],
+                })
+            return history
         finally:
             if self.db_engine != "postgresql":
                 conn.close()

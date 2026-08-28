@@ -42,7 +42,7 @@ class TestDuffelCache(unittest.TestCase):
         from unittest.mock import MagicMock, patch
         from duffel import DuffelClient
 
-        cfg = DuffelConfig(enable_cache=True, config_file="")
+        cfg = DuffelConfig(api_token="duffel_test_bPastoqe8ihxQjjKiUaJ7g8P-Lz7Y4h0uRHnYfSqX0W", enable_cache=True, postgres_enabled=False, config_file="")
         client = DuffelClient(config=cfg)
 
         mock_response = {
@@ -117,7 +117,7 @@ class TestDuffelCache(unittest.TestCase):
         from unittest.mock import patch
         from duffel import DuffelClient
 
-        cfg = DuffelConfig(enable_cache=True, config_file="")
+        cfg = DuffelConfig(api_token="duffel_test_bPastoqe8ihxQjjKiUaJ7g8P-Lz7Y4h0uRHnYfSqX0W", enable_cache=True, postgres_enabled=False, config_file="")
         client = DuffelClient(config=cfg)
 
         mock_response = {
@@ -190,7 +190,7 @@ class TestDuffelCache(unittest.TestCase):
         from duffel import DuffelClient
         from duffel.models.flights import FlightSliceQuery
 
-        cfg = DuffelConfig(enable_cache=True, config_file="")
+        cfg = DuffelConfig(api_token="duffel_test_bPastoqe8ihxQjjKiUaJ7g8P-Lz7Y4h0uRHnYfSqX0W", enable_cache=True, postgres_enabled=False, config_file="")
         client = DuffelClient(config=cfg)
 
         expired_mock_response = {
@@ -233,6 +233,83 @@ class TestDuffelCache(unittest.TestCase):
             offers = client.flights.search(slices=slices, passengers=passengers, return_offers=True)
             self.assertEqual(mock_post.call_count, 1)
             self.assertEqual(offers[0].id, "off_fresh_1")
+
+    def test_favorite_airline_differentiates_cache_key(self):
+        """Verify that searching with different favorite_airline values produces distinct cache keys."""
+        from src.duffel.client import DuffelClient
+        cfg = DuffelConfig(api_token="duffel_test_bPastoqe8ihxQjjKiUaJ7g8P-Lz7Y4h0uRHnYfSqX0W", enable_cache=True, postgres_enabled=False, config_file="")
+        client = DuffelClient(config=cfg)
+
+        key_delta = client.flights._build_optimized_cache_key(
+            origin="ATL",
+            destination="MCO",
+            target_date="2026-09-13",
+            target_return_date="2026-09-18",
+            favorite_airline="Delta",
+        )
+        key_southwest = client.flights._build_optimized_cache_key(
+            origin="ATL",
+            destination="MCO",
+            target_date="2026-09-13",
+            target_return_date="2026-09-18",
+            favorite_airline="Southwest",
+        )
+
+        self.assertNotEqual(key_delta, key_southwest)
+        self.assertIn('"favorite_airline": "delta"', key_delta)
+        self.assertIn('"favorite_airline": "southwest"', key_southwest)
+
+    def test_ai_search_different_prompts_differentiate_cache_key(self):
+        """Verify AI Search produces distinct cache keys for prompts specifying different airlines."""
+        from src.duffel.client import DuffelClient
+        from unittest.mock import MagicMock, patch
+        cfg = DuffelConfig(api_token="duffel_test_bPastoqe8ihxQjjKiUaJ7g8P-Lz7Y4h0uRHnYfSqX0W", enable_cache=True, postgres_enabled=False, config_file="")
+        client = DuffelClient(config=cfg)
+
+        with patch("src.duffel.services.ai_search.PromptExtractor.extract_natural_intent") as mock_intent:
+            mock_intent.side_effect = [
+                {
+                    "selected_types": ["flights"],
+                    "origin": "ATL",
+                    "destination": "MCO",
+                    "departure_date": "2026-09-15",
+                    "return_date": "2026-09-22",
+                    "preferred_airline": "Delta",
+                },
+                {
+                    "selected_types": ["flights"],
+                    "origin": "ATL",
+                    "destination": "MCO",
+                    "departure_date": "2026-09-15",
+                    "return_date": "2026-09-22",
+                    "preferred_airline": "Southwest",
+                },
+            ]
+            client.cache.get = MagicMock(return_value=None)
+            client.cache.set = MagicMock()
+
+            # Execute AI search for Delta prompt
+            with patch.object(client.ai_search, "_execute_single_service", return_value={"offers": []}):
+                client.ai_search.search_ai("cheapest roundtrip from atlanta to orlando from september 15 to september 22 with delta")
+                key_delta = client.cache.get.call_args[0][0]
+
+            # Execute AI search for Southwest prompt
+            with patch.object(client.ai_search, "_execute_single_service", return_value={"offers": []}):
+                client.ai_search.search_ai("cheapest roundtrip from atlanta to orlando from september 15 to september 22 with southwest")
+                key_southwest = client.cache.get.call_args[0][0]
+
+            self.assertNotEqual(key_delta, key_southwest)
+
+
+def tearDownModule():
+    """Automatically clean up all test databases and temporary test files upon test completion."""
+    import os
+    for test_file in ["jojira_duffel.db", "jojira_user_service.db", os.path.join("outputs", "jojira_orders.db")]:
+        if os.path.exists(test_file):
+            try:
+                os.remove(test_file)
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

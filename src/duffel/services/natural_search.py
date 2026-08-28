@@ -39,6 +39,7 @@ class NaturalSearchService(BaseService):
         """
         Execute unified natural language travel search.
         """
+        prompt = (prompt or "").lower().strip()
         overrides = overrides or {}
         intent = PromptExtractor.extract_natural_intent(prompt)
 
@@ -134,6 +135,8 @@ class NaturalSearchService(BaseService):
                 hash_key=hash_key,
                 meta=meta,
                 search_params=search_params,
+                intent=intent,
+                overrides=overrides,
             )
         else:
             single_type = selected_types[0]
@@ -161,6 +164,8 @@ class NaturalSearchService(BaseService):
                     force_refresh=force_refresh,
                     meta=meta,
                     search_params=search_params,
+                    intent=intent,
+                    overrides=overrides,
                 )
             elif single_type == "cars":
                 res = self._execute_car_search(
@@ -172,6 +177,8 @@ class NaturalSearchService(BaseService):
                     force_refresh=force_refresh,
                     meta=meta,
                     search_params=search_params,
+                    intent=intent,
+                    overrides=overrides,
                 )
             elif single_type == "attractions":
                 res = self._execute_attraction_search(
@@ -198,6 +205,18 @@ class NaturalSearchService(BaseService):
                     search_params=search_params,
                     intent=intent,
                 )
+
+        if not res or not isinstance(res, dict):
+            res = {
+                "status": "success",
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "search_type": selected_types[0] if selected_types else "flights",
+                "meta": meta,
+                "search_params": search_params,
+                "category_highlights": {},
+                "total_results": 0,
+                "results": [],
+            }
 
         if "results" in res and isinstance(res["results"], list):
             res["results"] = [o.to_dict() if hasattr(o, "to_dict") else o for o in res["results"]]
@@ -238,9 +257,17 @@ class NaturalSearchService(BaseService):
         hash_key: str,
         meta: dict[str, Any],
         search_params: dict[str, Any],
+        intent: Optional[dict[str, Any]] = None,
+        overrides: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
         """Executes combined travel bundle for selected_types."""
+        intent = intent or {}
+        overrides = overrides or {}
         component_errors: dict[str, str] = {}
+
+        pref_air = (intent.get("preferred_airline") or overrides.get("favorite_airline") or "").strip().lower()
+        pref_hotel = (intent.get("preferred_hotel_brand") or overrides.get("preferred_hotel_brand") or "").strip().lower()
+        pref_car = (intent.get("preferred_car_vendor") or overrides.get("preferred_car_vendor") or "").strip().lower()
 
         flights_list = []
         if "flights" in selected_types:
@@ -257,6 +284,14 @@ class NaturalSearchService(BaseService):
                         cabin_class=CabinClass(cabin_class.lower()),
                         force_refresh=force_refresh,
                     )
+                    if pref_air and flights_list:
+                        filtered_fl = []
+                        for fo in flights_list:
+                            owner_name = (getattr(fo, "owner", None) and getattr(fo.owner, "name", "")) or getattr(fo, "airline", "") or ""
+                            iata = (getattr(fo, "owner", None) and getattr(fo.owner, "iata_code", "")) or ""
+                            if self._is_airline_match(pref_air, owner_name, iata):
+                                filtered_fl.append(fo)
+                        flights_list = filtered_fl
                 except Exception as e:
                     component_errors["flights"] = str(e)
 
@@ -271,6 +306,14 @@ class NaturalSearchService(BaseService):
                         check_out_date=return_date,
                         rooms=rooms,
                     )
+                    if pref_hotel and stays_list:
+                        filtered_st = []
+                        for st in stays_list:
+                            acc = st.get("accommodation") if isinstance(st, dict) else getattr(st, "accommodation", {})
+                            acc_name = acc.get("name") if isinstance(acc, dict) else getattr(acc, "name", "")
+                            if pref_hotel in str(acc_name or "").lower():
+                                filtered_st.append(st)
+                        stays_list = filtered_st
                 except Exception as e:
                     component_errors["hotels"] = str(e)
 
@@ -287,6 +330,15 @@ class NaturalSearchService(BaseService):
                         dropoff_datetime=f"{return_date}T10:00:00Z",
                         driver_age=driver_age,
                     )
+                    if pref_car and cars_list:
+                        filtered_cr = []
+                        for cr in cars_list:
+                            sup = cr.get("supplier") if isinstance(cr, dict) else getattr(cr, "supplier", {})
+                            sup_name = sup.get("name") if isinstance(sup, dict) else getattr(sup, "name", "")
+                            vendor_name = cr.get("vendor") or getattr(cr, "vendor", "")
+                            if pref_car in str(sup_name or "").lower() or pref_car in str(vendor_name or "").lower():
+                                filtered_cr.append(cr)
+                        cars_list = filtered_cr
                 except Exception as e:
                     component_errors["cars"] = str(e)
 
@@ -475,6 +527,7 @@ class NaturalSearchService(BaseService):
 
         highlights = {}
         pref_air_param = favorite_airline or intent.get("preferred_airline") or ""
+        is_pref = bool(intent.get("is_preferred_airline")) or any(w in (favorite_airline or "").lower() for w in ["preferred", "favorite", "pref", "fav", "prefer"])
         if hasattr(self.client_app, "flights"):
             try:
                 opt_res = self.client_app.flights.search_optimized(
@@ -485,6 +538,7 @@ class NaturalSearchService(BaseService):
                     passengers_count=passengers_count,
                     cabin_class=cabin_class,
                     favorite_airline=pref_air_param,
+                    is_preferred=is_pref,
                     force_refresh=force_refresh,
                 )
                 if isinstance(opt_res, dict):
@@ -496,49 +550,6 @@ class NaturalSearchService(BaseService):
 
             except Exception as e:
                 print(f"[NATURAL SEARCH] Flight search notice: {e}")
-
-        # Apply preferred airline filtering if requested
-        pref_air = (favorite_airline or intent.get("preferred_airline") or "").lower()
-        if pref_air and raw_offers:
-            filtered = []
-            for o in raw_offers:
-                airline_name = getattr(o, "airline", None) or (o.get("airline") if isinstance(o, dict) else None)
-                airline_code = ""
-                owner = getattr(o, "owner", None) or (o.get("owner") if isinstance(o, dict) else None)
-                if isinstance(owner, dict):
-                    airline_name = airline_name or owner.get("name")
-                    airline_code = owner.get("iata_code") or ""
-                elif hasattr(owner, "name"):
-                    airline_name = airline_name or getattr(owner, "name", "")
-                    airline_code = getattr(owner, "iata_code", "") or ""
-
-                if self._is_airline_match(pref_air, str(airline_name or ""), str(airline_code or "")):
-                    filtered.append(o)
-
-            if not filtered:
-                pref_display = intent.get("preferred_airline") or favorite_airline or "Delta Air Lines"
-                pref_code = intent.get("airline_code") or "DL"
-                filtered = []
-                for idx, o in enumerate(raw_offers[:10]):
-                    item = o.to_dict() if hasattr(o, "to_dict") else (dict(o) if isinstance(o, dict) else {})
-                    if item:
-                        item["owner"] = {
-                            "name": pref_display,
-                            "iata_code": pref_code,
-                            "logo_symbol_url": f"https://assets.duffel.com/img/airlines/for-light-background/full-color-logo/{pref_code}.svg"
-                        }
-                        item["airline"] = pref_display
-                        if "slices" in item and isinstance(item["slices"], list):
-                            for slc in item["slices"]:
-                                if isinstance(slc, dict) and "segments" in slc and isinstance(slc["segments"], list):
-                                    for seg in slc["segments"]:
-                                        if isinstance(seg, dict):
-                                            seg["operating_carrier"] = {"name": pref_display, "iata_code": pref_code}
-                                            seg["marketing_carrier"] = {"name": pref_display, "iata_code": pref_code}
-                                            seg["operating_carrier_name"] = pref_display
-                        filtered.append(item)
-
-            raw_offers = filtered
 
 
         # Apply excluded airline filtering if requested
@@ -561,6 +572,20 @@ class NaturalSearchService(BaseService):
 
         dict_offers = [o.to_dict() if hasattr(o, "to_dict") else o for o in raw_offers]
 
+        if not dict_offers:
+            return {
+                "status": "success",
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "search_type": "flights",
+                "meta": meta,
+                "search_params": search_params,
+                "category_highlights": {},
+                "total_results": 0,
+                "results": [],
+                "top_offers": [],
+            }
+
+        pref_air = (favorite_airline or intent.get("preferred_airline") or "").lower().strip()
         if (pref_air or excluded) and dict_offers:
             dict_highlights = {
                 "cheapest_flight": dict_offers[0],
@@ -574,10 +599,10 @@ class NaturalSearchService(BaseService):
             }
         elif not highlights:
             dict_highlights = {
-                "cheapest_flight": dict_offers[0] if dict_offers else {"price": "USD 350.00", "airline": "American Airlines"},
-                "overall_cheapest": dict_offers[0] if dict_offers else {"price": "USD 350.00", "airline": "American Airlines"},
-                "fastest_flight": dict_offers[0] if dict_offers else {"duration": "7h 30m"},
-                "best_value": dict_offers[0] if dict_offers else {"price": "USD 380.00"},
+                "cheapest_flight": dict_offers[0],
+                "overall_cheapest": dict_offers[0],
+                "fastest_flight": dict_offers[0],
+                "best_value": dict_offers[0],
             }
         else:
             dict_highlights = {}
@@ -615,8 +640,12 @@ class NaturalSearchService(BaseService):
         force_refresh: bool,
         meta: dict[str, Any],
         search_params: dict[str, Any],
+        intent: Optional[dict[str, Any]] = None,
+        overrides: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
         """Executes single-type stay/hotel search with stay category highlights."""
+        intent = intent or {}
+        overrides = overrides or {}
         results = []
         error_detail: Optional[str] = None
         if hasattr(self.client_app, "stays"):
@@ -632,6 +661,17 @@ class NaturalSearchService(BaseService):
         else:
             error_detail = "Stays service is not available."
 
+        # Apply strict preferred hotel brand filtering if requested
+        pref_hotel = (intent.get("preferred_hotel_brand") or overrides.get("preferred_hotel_brand") or "").strip().lower()
+        if pref_hotel and results:
+            filtered_hotels = []
+            for r in results:
+                acc = r.get("accommodation") if isinstance(r, dict) else getattr(r, "accommodation", {})
+                acc_name = acc.get("name") if isinstance(acc, dict) else getattr(acc, "name", "")
+                if pref_hotel in str(acc_name or "").lower():
+                    filtered_hotels.append(r)
+            results = filtered_hotels
+
         if not results:
             if getattr(self.client.config, "test_mode", False):
                 results = [{
@@ -642,7 +682,16 @@ class NaturalSearchService(BaseService):
                 }]
             else:
                 reason = error_detail or f"No hotel availability found in {destination} for {check_in_date} to {check_out_date}."
-                raise DuffelException(f"Unable to search hotels. {reason}")
+                return {
+                    "status": "success",
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "search_type": "hotels",
+                    "meta": meta,
+                    "search_params": search_params,
+                    "category_highlights": {},
+                    "total_results": 0,
+                    "results": [],
+                }
 
         cheapest = min(results, key=lambda r: float(r.get("cheapest_rate_total_amount") or r.get("total_amount") or 999.0))
         best_value = results[0]
@@ -679,8 +728,12 @@ class NaturalSearchService(BaseService):
         force_refresh: bool,
         meta: dict[str, Any],
         search_params: dict[str, Any],
+        intent: Optional[dict[str, Any]] = None,
+        overrides: Optional[dict[str, Any]] = None,
     ) -> dict[str, Any]:
         """Executes single-type car rental search with car category highlights."""
+        intent = intent or {}
+        overrides = overrides or {}
         results = []
         error_detail: Optional[str] = None
         if hasattr(self.client_app, "cars"):
@@ -698,6 +751,18 @@ class NaturalSearchService(BaseService):
         else:
             error_detail = "Cars service is not available."
 
+        # Apply strict preferred car vendor filtering if requested
+        pref_car = (intent.get("preferred_car_vendor") or overrides.get("preferred_car_vendor") or "").strip().lower()
+        if pref_car and results:
+            filtered_cars = []
+            for c in results:
+                sup = c.get("supplier") if isinstance(c, dict) else getattr(c, "supplier", {})
+                sup_name = sup.get("name") if isinstance(sup, dict) else getattr(sup, "name", "")
+                vendor_name = c.get("vendor") or getattr(c, "vendor", "")
+                if pref_car in str(sup_name or "").lower() or pref_car in str(vendor_name or "").lower():
+                    filtered_cars.append(c)
+            results = filtered_cars
+
         if not results:
             if getattr(self.client.config, "test_mode", False):
                 results = [{
@@ -709,7 +774,16 @@ class NaturalSearchService(BaseService):
                 }]
             else:
                 reason = error_detail or f"No car rental availability found in {destination} for the requested dates."
-                raise DuffelException(f"Unable to search car rentals. {reason}")
+                return {
+                    "status": "success",
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "search_type": "cars",
+                    "meta": meta,
+                    "search_params": search_params,
+                    "category_highlights": {},
+                    "total_results": 0,
+                    "results": [],
+                }
 
         cheapest = min(results, key=lambda c: float(c.get("total_amount") or 999.0))
         best_val = results[0]

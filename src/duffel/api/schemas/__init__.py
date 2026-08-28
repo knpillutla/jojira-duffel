@@ -43,6 +43,10 @@ from .ai_search import (
     AIBookingResponse,
     AISearchRequest,
     AISearchResponse,
+    SaveAISearchHistoryRequest,
+    SaveAISearchHistoryResponse,
+    AISearchHistoryItem,
+    AISearchHistoryListResponse,
 )
 from .natural_search import (
     NaturalSearchMeta,
@@ -114,6 +118,10 @@ __all__ = [
     "AISearchResponse",
     "AIBookingRequest",
     "AIBookingResponse",
+    "SaveAISearchHistoryRequest",
+    "SaveAISearchHistoryResponse",
+    "AISearchHistoryItem",
+    "AISearchHistoryListResponse",
     "PopularPromptItem",
     "PopularPromptsResponse",
 ]

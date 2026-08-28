@@ -48,8 +48,10 @@ class UserPreferenceDAO:
                     )
                 self._pg_conn.autocommit = True
             except Exception as err:
-                print(f"[USER PREFERENCE DAO NOTICE] PostgreSQL connection fallback to SQLite: {err}")
-                self.db_engine = "sqlite_fallback"
+                err_msg = f"[POSTGRES ERROR] Failed to connect to PostgreSQL database ({self.host}:{self.port}/{self.database}): {err}. Exiting application."
+                print(f"\n{'=' * 80}\n{err_msg}\n{'=' * 80}\n")
+                import sys
+                sys.exit(1)
 
         self._init_db()
 

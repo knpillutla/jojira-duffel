@@ -130,3 +130,100 @@ class TestNaturalSearch:
         assert data["meta"]["is_bundle"] is True
         assert "category_highlights" in data
         assert "lowest_fare_package" in data["category_highlights"]
+
+    def test_hotel_strict_brand_filtering(self):
+        """Verify strict case-insensitive filtering for hotel brand names."""
+        from src.duffel.cli.parser import PromptExtractor
+        from src.duffel.services.natural_search import NaturalSearchService
+        from unittest.mock import MagicMock
+
+        intent = PromptExtractor.extract_natural_intent("stay at ritz-carlton in paris from 2026-10-01 to 2026-10-05")
+        self.assertEqual(intent.get("preferred_hotel_brand"), "Ritz-Carlton")
+
+        mock_app = MagicMock()
+        mock_app.stays.search.return_value = [
+            MagicMock(to_dict=lambda: {"id": "h1", "accommodation": {"name": "Ritz-Carlton Paris"}, "cheapest_rate_total_amount": "500.00"}),
+            MagicMock(to_dict=lambda: {"id": "h2", "accommodation": {"name": "Holiday Inn Paris"}, "cheapest_rate_total_amount": "150.00"}),
+        ]
+
+        svc = NaturalSearchService(http_client=MagicMock(), client=mock_app)
+        res = svc._execute_hotel_search(
+            destination="CDG", check_in_date="2026-10-01", check_out_date="2026-10-05",
+            rooms=1, passengers_count=1, force_refresh=True, meta={}, search_params={}, intent=intent, overrides={}
+        )
+
+        self.assertEqual(res["total_results"], 1)
+        self.assertEqual(res["results"][0]["accommodation"]["name"], "Ritz-Carlton Paris")
+
+    def test_car_strict_vendor_filtering(self):
+        """Verify strict case-insensitive filtering for car rental vendor names."""
+        from src.duffel.cli.parser import PromptExtractor
+        from src.duffel.services.natural_search import NaturalSearchService
+        from unittest.mock import MagicMock
+
+        intent = PromptExtractor.extract_natural_intent("rental car from hertz in orlando from 2026-09-15 to 2026-09-22")
+        self.assertEqual(intent.get("preferred_car_vendor"), "Hertz")
+
+        mock_app = MagicMock()
+        mock_app.cars.search.return_value = [
+            MagicMock(to_dict=lambda: {"id": "c1", "supplier": {"name": "Hertz"}, "vehicle": {"name": "SUV"}, "total_amount": "120.00"}),
+            MagicMock(to_dict=lambda: {"id": "c2", "supplier": {"name": "Avis"}, "vehicle": {"name": "Sedan"}, "total_amount": "100.00"}),
+        ]
+
+        svc = NaturalSearchService(http_client=MagicMock(), client=mock_app)
+        res = svc._execute_car_search(
+            origin="MCO", destination="MCO", pickup_datetime="2026-09-15T10:00:00Z",
+            dropoff_datetime="2026-09-22T10:00:00Z", driver_age=30, force_refresh=True,
+            meta={}, search_params={}, intent=intent, overrides={}
+        )
+
+        self.assertEqual(res["total_results"], 1)
+        self.assertEqual(res["results"][0]["supplier"]["name"], "Hertz")
+
+    def test_bundle_strict_provider_filtering(self):
+        """Verify strict carrier, hotel brand, and car vendor filtering in travel bundles."""
+        from src.duffel.cli.parser import PromptExtractor
+        from src.duffel.services.natural_search import NaturalSearchService
+        from unittest.mock import MagicMock
+
+        intent = PromptExtractor.extract_natural_intent("flight with delta, stay at marriott, and car with hertz from atl to mco from 2026-09-15 to 2026-09-22")
+        self.assertEqual(intent.get("preferred_airline"), "Delta Air Lines")
+        self.assertEqual(intent.get("preferred_hotel_brand"), "Marriott")
+        self.assertEqual(intent.get("preferred_car_vendor"), "Hertz")
+
+        mock_app = MagicMock()
+        mock_fl = MagicMock()
+        mock_fl.owner.name = "Delta Air Lines"
+        mock_fl.owner.iata_code = "DL"
+        mock_fl.total_amount = "300.00"
+        mock_fl.to_dict.return_value = {"id": "fl1", "total_amount": "300.00", "airline_name": "Delta Air Lines"}
+
+        mock_fl_other = MagicMock()
+        mock_fl_other.owner.name = "Frontier Airlines"
+        mock_fl_other.owner.iata_code = "F9"
+        mock_fl_other.total_amount = "50.00"
+        mock_fl_other.to_dict.return_value = {"id": "fl2", "total_amount": "50.00", "airline_name": "Frontier Airlines"}
+
+        mock_app.flights.search_exact.return_value = [mock_fl, mock_fl_other]
+        mock_app.stays.search.return_value = [
+            MagicMock(to_dict=lambda: {"id": "h1", "accommodation": {"name": "Marriott Marquis"}, "cheapest_rate_total_amount": "200.00"}),
+            MagicMock(to_dict=lambda: {"id": "h2", "accommodation": {"name": "Hilton Garden"}, "cheapest_rate_total_amount": "150.00"}),
+        ]
+        mock_app.cars.search.return_value = [
+            MagicMock(to_dict=lambda: {"id": "c1", "supplier": {"name": "Hertz"}, "total_amount": "100.00"}),
+            MagicMock(to_dict=lambda: {"id": "c2", "supplier": {"name": "Avis"}, "total_amount": "90.00"}),
+        ]
+
+        svc = NaturalSearchService(http_client=MagicMock(), client=mock_app)
+        res = svc._execute_bundle_search(
+            selected_types=["flights", "hotels", "cars"], origin="ATL", destination="MCO",
+            departure_date="2026-09-15", return_date="2026-09-22", passengers_count=1, cabin_class="economy",
+            rooms=1, driver_age=30, force_refresh=True, hash_key="test12", meta={}, search_params={},
+            intent=intent, overrides={}
+        )
+
+        self.assertEqual(res["total_results"], 1)
+        bnd = res["results"][0]
+        self.assertEqual(bnd["flight_offer"]["airline_name"], "Delta Air Lines")
+        self.assertEqual(bnd["hotel_stay"]["accommodation"]["name"], "Marriott Marquis")
+        self.assertEqual(bnd["car_rental"]["supplier"]["name"], "Hertz")

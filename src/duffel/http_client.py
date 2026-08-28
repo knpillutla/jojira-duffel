@@ -182,7 +182,7 @@ class HTTPClient:
                 print("=" * 80 + "\n")
                 return self._handle_http_error(err.code, err_body)
 
-            except (urllib.error.URLError, TimeoutError, socket.timeout) as err:
+            except (urllib.error.URLError, TimeoutError, socket.timeout, ConnectionError, OSError) as err:
                 elapsed_ms = (time.perf_counter() - start_time) * 1000.0
                 with self._lock:
                     self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": 0})

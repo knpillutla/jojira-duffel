@@ -48,10 +48,12 @@ class ItineraryDAO:
         """Creates a fresh connection based on configured db_engine."""
         if self.db_engine == "postgresql" and PSYCOPG2_AVAILABLE:
             try:
-                return psycopg2.connect(self.postgres_url)
+                return psycopg2.connect(self.postgres_url, connect_timeout=2)
             except Exception as err:
-                print(f"[ITINERARY DAO WARN] PostgreSQL connection failed, falling back to SQLite: {err}")
-                self.db_engine = "sqlite"
+                err_msg = f"[POSTGRES ERROR] Failed to connect to PostgreSQL database ({self.postgres_url}): {err}. Exiting application."
+                print(f"\n{'=' * 80}\n{err_msg}\n{'=' * 80}\n")
+                import sys
+                sys.exit(1)
         else:
             self.db_engine = "sqlite"
 

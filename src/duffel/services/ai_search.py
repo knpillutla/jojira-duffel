@@ -48,6 +48,7 @@ class AISearchService(BaseService):
         overrides = overrides or {}
         
         # Step 1: Extract intent using LLM
+        prompt = (prompt or "").lower().strip()
         intent = PromptExtractor.extract_natural_intent(prompt)
         selected_types = overrides.get("selected_types") or intent.get("selected_types") or ["flights"]
         
@@ -77,8 +78,15 @@ class AISearchService(BaseService):
         rooms = overrides.get("rooms") or intent.get("rooms") or 1
         driver_age = overrides.get("driver_age") or intent.get("driver_age") or 30
         
-        # Build cache key based on search intent
-        hash_input = f"ai_{sorted(selected_types)}_{origin}_{destination}_{departure_date}_{return_date}_{passengers_count}_{cabin_class}_{rooms}_{driver_age}"
+        # Build cache key based on search intent including prompt and airline preferences
+        import re
+        norm_prompt = re.sub(r"\s+", " ", prompt.lower().strip().strip(".,!?"))
+        fav_airline = (favorite_airline or overrides.get("favorite_airline") or intent.get("preferred_airline") or intent.get("favorite_airline") or "").strip().lower()
+        if fav_airline and not intent.get("preferred_airline"):
+            intent["preferred_airline"] = fav_airline.title()
+        excluded_airlines = sorted([x.lower().strip() for x in (intent.get("excluded_airlines") or overrides.get("excluded_airlines") or [])])
+
+        hash_input = f"ai_{norm_prompt}_{sorted(selected_types)}_{origin}_{destination}_{departure_date}_{return_date}_{passengers_count}_{cabin_class}_{rooms}_{driver_age}_{fav_airline}_{excluded_airlines}"
         hash_key = hashlib.md5(hash_input.encode("utf-8")).hexdigest()[:6]
         cache_key = f"duffel:ai:search:{hash_key}"
         
@@ -105,7 +113,7 @@ class AISearchService(BaseService):
                 cabin_class=cabin_class,
                 rooms=rooms,
                 driver_age=driver_age,
-                favorite_airline=favorite_airline,
+                favorite_airline=fav_airline,
                 force_refresh=force_refresh,
                 prompt=prompt,
                 intent=intent,

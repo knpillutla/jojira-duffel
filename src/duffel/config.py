@@ -17,6 +17,7 @@ class DuffelConfig:
     api_version: str = "v2"
     timeout: float = 5.0
     force_instant_booking: bool = False
+    default_order_mode: str = "hold"
     debug: bool = False
     test_mode: bool = False
     enable_cache: bool = True
@@ -96,6 +97,10 @@ class DuffelConfig:
                         self.timeout = float(cfg_data["timeout"])
                     if "force_instant_booking" in cfg_data:
                         self.force_instant_booking = bool(cfg_data["force_instant_booking"])
+                    if "default_order_mode" in cfg_data and cfg_data["default_order_mode"]:
+                        self.default_order_mode = str(cfg_data["default_order_mode"]).lower().strip()
+                    elif "default_booking_mode" in cfg_data and cfg_data["default_booking_mode"]:
+                        self.default_order_mode = str(cfg_data["default_booking_mode"]).lower().strip()
                     if "debug" in cfg_data:
                         self.debug = bool(cfg_data["debug"])
                     if "test_mode" in cfg_data:
@@ -194,6 +199,10 @@ class DuffelConfig:
             self.test_mode = os.environ["TEST_MODE"].strip().lower() in ("1", "true", "yes")
         if os.environ.get("MESSAGE_BROKER"):
             self.message_broker = os.environ["MESSAGE_BROKER"].lower()
+        if os.environ.get("DEFAULT_ORDER_MODE"):
+            self.default_order_mode = os.environ["DEFAULT_ORDER_MODE"].lower().strip()
+        elif os.environ.get("DEFAULT_BOOKING_MODE"):
+            self.default_order_mode = os.environ["DEFAULT_BOOKING_MODE"].lower().strip()
         if os.environ.get("RABBITMQ_HOST"):
             self.rabbitmq_host = os.environ["RABBITMQ_HOST"]
         if os.environ.get("RABBITMQ_PORT"):

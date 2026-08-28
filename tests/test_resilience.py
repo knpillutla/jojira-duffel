@@ -106,6 +106,37 @@ class TestDuffelResilience(unittest.TestCase):
         self.assertEqual(res, {"status": "ok"})
         self.assertEqual(mock_urlopen.call_count, 2)
 
+    @patch("urllib.request.urlopen")
+    def test_search_optimized_no_redundant_outer_retries(self, mock_urlopen):
+        """Verify search_optimized stops retrying once HTTPClient retries are exhausted."""
+        from src.duffel.client import DuffelClient
+        cfg = DuffelConfig(
+            api_token="duffel_test_123",
+            max_retries=3,
+            retry_backoff_factor=0.01,
+            retry_backoff_max=0.1,
+            enable_cache=False,
+        )
+        client = DuffelClient(config=cfg)
+
+        mock_urlopen.side_effect = urllib.error.URLError("Read timeout")
+
+        offers = client.flights.search_optimized(
+            origin="LHR",
+            destination="JFK",
+            target_date="2026-09-22",
+            target_return_date="2026-09-29",
+            min_duration_days=7,
+            max_duration_days=7,
+            flex_days=0,
+        )
+
+        self.assertEqual(offers, [])
+        # With flex_days=0, min/max=7, there is 1 query batch.
+        # HTTPClient max_retries=3 means 1 initial attempt + 3 retries = 4 urllib calls.
+        # Without redundant outer retries, urlopen call count must be exactly 4 (not 12).
+        self.assertEqual(mock_urlopen.call_count, 4)
+
 
 if __name__ == "__main__":
     unittest.main()

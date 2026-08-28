@@ -49,9 +49,14 @@ class DuffelCache:
                         "host": h,
                         "port": config.redis_port,
                         "db": config.redis_db,
-                        "socket_connect_timeout": 2.0,
+                        "socket_connect_timeout": 0.5,
+                        "socket_timeout": 0.5,
+                        "health_check_interval": 0,
                         "decode_responses": True,
                     }
+                    if hasattr(redis, "retry") and hasattr(redis.retry, "Retry") and hasattr(redis, "backoff") and hasattr(redis.backoff, "NoBackoff"):
+                        redis_kwargs["retry"] = redis.retry.Retry(redis.backoff.NoBackoff(), 0)
+
                     if config.redis_password:
                         redis_kwargs["password"] = config.redis_password
 
@@ -68,9 +73,11 @@ class DuffelCache:
                         print(f"\n[!] Redis Connection attempt to {h}:{config.redis_port} failed: {type(err).__name__}: {err}\n")
 
             if self.redis_client is None:
-                if self.debug:
-                    print(f"\n[!] WARNING: Redis Connection Failed ({type(last_err).__name__}: {last_err}). Falling back to In-Memory Cache.\n")
-                logger.warning("Redis connection unavailable (%s). Falling back to in-memory cache.", last_err)
+                err_msg = f"[REDIS ERROR] Failed to connect to Redis server at {config.redis_host}:{config.redis_port} ({type(last_err).__name__}: {last_err}). Exiting application."
+                logger.error(err_msg)
+                print(f"\n{'=' * 80}\n{err_msg}\n{'=' * 80}\n")
+                import sys
+                sys.exit(1)
 
     def clear_metrics(self) -> None:
         """Reset cache hits, misses, writes, and latency metrics."""
@@ -109,6 +116,7 @@ class DuffelCache:
                         print(f"  * Value : {raw_val[:300]}{'...' if len(raw_val) > 300 else ''}\n")
                     logger.debug("Redis Cache HIT for key: %s", key)
             except Exception as err:
+                self.redis_client = None
                 if self.debug:
                     print(f"\n[!] REDIS READ EXCEPTION: {type(err).__name__}: {err}\n")
                 logger.warning("Redis read error (%s). Checking in-memory cache.", err)
@@ -149,6 +157,7 @@ class DuffelCache:
             try:
                 return bool(self.redis_client.exists(key))
             except Exception as err:
+                self.redis_client = None
                 if self.debug:
                     print(f"\n[!] REDIS EXISTS CHECK EXCEPTION: {type(err).__name__}: {err}\n")
         if key in self.in_memory_store:
@@ -206,6 +215,7 @@ class DuffelCache:
                     print(f"  * Value : {json_val[:300]}{'...' if len(json_val) > 300 else ''}\n")
                 logger.debug("Stored key %s in Redis cache with TTL %ds", key, ttl)
             except Exception as err:
+                self.redis_client = None
                 if self.debug:
                     print(f"\n[!] REDIS WRITE EXCEPTION: {type(err).__name__}: {err}\n")
                 logger.warning("Redis write error (%s). Storing in memory.", err)

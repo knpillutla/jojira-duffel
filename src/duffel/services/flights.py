@@ -1007,6 +1007,16 @@ class FlightsService(BaseService):
         """
         from datetime import datetime, timedelta
 
+        if target_date and target_return_date and flex_days == 0:
+            try:
+                d1 = datetime.strptime(target_date.strip(), "%Y-%m-%d")
+                d2 = datetime.strptime(target_return_date.strip(), "%Y-%m-%d")
+                dur = (d2 - d1).days
+                if dur > 0:
+                    return [(target_date.strip(), target_return_date.strip(), dur)]
+            except Exception:
+                pass
+
         try:
             base_dep_dt = datetime.strptime(target_date, "%Y-%m-%d")
         except Exception:
@@ -1145,7 +1155,8 @@ class FlightsService(BaseService):
         max_duration_days: int = 14,
         flex_days: int = 3,
         passengers: Optional[list[Any]] = None,
-        cabin_class: Any = "economy"
+        cabin_class: Any = "economy",
+        favorite_airline: Optional[str] = None,
     ) -> str:
         """Build deterministic Redis key for Tier-1 aggregated multi-day search."""
         import json
@@ -1155,6 +1166,7 @@ class FlightsService(BaseService):
             for p in p_list
         ]
         cabin_str = getattr(cabin_class, "value", str(cabin_class)).lower()
+        fav_str = (favorite_airline or "").strip().lower()
         key_payload = {
             "origin": origin.upper(),
             "destination": destination.upper(),
@@ -1164,7 +1176,8 @@ class FlightsService(BaseService):
             "max_duration_days": max_duration_days,
             "flex_days": flex_days,
             "cabin_class": cabin_str,
-            "passengers": passengers_payload
+            "passengers": passengers_payload,
+            "favorite_airline": fav_str,
         }
         key_json = json.dumps(key_payload, sort_keys=True)
         return f"duffel:flights:search_optimized:{key_json}"
@@ -1222,6 +1235,7 @@ class FlightsService(BaseService):
         progress_callback: Optional[Any] = None,
         passengers_count: Optional[int] = None,
         favorite_airline: Optional[str] = None,
+        is_preferred: bool = False,
     ) -> Union[dict[str, Any], list[FlightOffer]]:
         """
         Search for cheapest flights within a flexible date window and trip duration range.
@@ -1247,7 +1261,8 @@ class FlightsService(BaseService):
             max_duration_days=max_duration_days,
             flex_days=flex_days,
             passengers=passengers,
-            cabin_class=cabin_class
+            cabin_class=cabin_class,
+            favorite_airline=favorite_airline,
         )
 
         # 1. Tier-1 Aggregated Multi-Day Search Cache Check (1-Read Instant Cache Hit)
@@ -1338,6 +1353,13 @@ class FlightsService(BaseService):
                         ]
                         queries.append(slices)
                 curr_dep += timedelta(days=1)
+        elif target_date and target_return_date and str(target_return_date).strip() and flex_days == 0:
+            dep_str = target_date.strip()
+            ret_str = target_return_date.strip()
+            queries = [[
+                FlightSliceQuery(origin=origin, destination=destination, departure_date=dep_str),
+                FlightSliceQuery(origin=destination, destination=origin, departure_date=ret_str),
+            ]]
         else:
             try:
                 base_ret_dt = datetime.strptime(target_return_date.strip(), "%Y-%m-%d")
@@ -1405,17 +1427,14 @@ class FlightsService(BaseService):
             offers_found = []
             err_msg = None
 
-            # Retry up to 3 times on transient rate limit / network errors
-            for attempt in range(3):
-                try:
-                    res = self.search(slices=q_slices, passengers=passengers, cabin_class=cabin_class, return_offers=True)
-                    if isinstance(res, list):
-                        offers_found = res
-                        err_msg = None
-                        break
-                except Exception as e:
-                    err_msg = str(e)
-                    time.sleep(0.4 * (attempt + 1))
+            # HTTPClient handles retries automatically; execute search directly
+            try:
+                res = self.search(slices=q_slices, passengers=passengers, cabin_class=cabin_class, return_offers=True)
+                if isinstance(res, list):
+                    offers_found = res
+                    err_msg = None
+            except Exception as e:
+                err_msg = str(e)
 
             q_elapsed_ms = (time.perf_counter() - q_start) * 1000.0
 
@@ -1462,8 +1481,11 @@ class FlightsService(BaseService):
                 return_date=target_return_date,
             )
             if scraped_fares:
+                fav_clean = (favorite_airline or "").strip().lower()
                 for sf in scraped_fares:
-                    all_offers.append(sf)
+                    sf_air = (sf.get("airline") or "").lower()
+                    if not fav_clean or fav_clean in sf_air or sf_air in fav_clean:
+                        all_offers.append(sf)
         except Exception as sc_err:
             print(f"[!] Web Scraper Engine notice: {sc_err}")
 
@@ -1480,6 +1502,40 @@ class FlightsService(BaseService):
                 unique_offers.append(o)
             elif not o_id:
                 unique_offers.append(o)
+
+        # Filter by favorite_airline: Preferred Mode (10 pref + 40 other) vs Exact Mode (up to 40 exact)
+        if favorite_airline and favorite_airline.strip() and unique_offers:
+            fav_clean = favorite_airline.strip().lower()
+            from .natural_search import NaturalSearchService
+            pref_matching = []
+            other_offers = []
+            for o in unique_offers:
+                o_air = ""
+                o_code = ""
+                if isinstance(o, dict):
+                    o_air = o.get("airline") or (o.get("owner") or {}).get("name") or ""
+                    o_code = (o.get("owner") or {}).get("iata_code") or ""
+                else:
+                    o_air = getattr(o, "airline", "") or getattr(getattr(o, "owner", {}), "name", "") or ""
+                    owner_obj = getattr(o, "owner", None)
+                    if hasattr(owner_obj, "name"):
+                        o_air = o_air or getattr(owner_obj, "name", "")
+                        o_code = getattr(owner_obj, "iata_code", "") or ""
+                    elif isinstance(owner_obj, dict):
+                        o_air = o_air or owner_obj.get("name", "")
+                        o_code = owner_obj.get("iata_code", "") or ""
+
+                if NaturalSearchService._is_airline_match(fav_clean, str(o_air), str(o_code)):
+                    pref_matching.append(o)
+                else:
+                    other_offers.append(o)
+
+            if is_preferred:
+                # Mode A: Preferred Airline Mode -> 10 preferred airline offers + 40 other airline offers (total 50)
+                unique_offers = pref_matching[:10] + other_offers[:40]
+            else:
+                # Mode B: Exact Search Mode -> Up to 40 offers where airline == requested carrier
+                unique_offers = pref_matching[:40]
 
         def get_offer_amount(o):
             if isinstance(o, dict):
@@ -1580,7 +1636,7 @@ class FlightsService(BaseService):
         combined_unique.sort(key=get_offer_amount)
 
         combined_airline_highlights = self.compute_all_airline_highlights(all_offers)
-        highlights = self.compute_category_highlights(combined_unique, all_airline_highlights=combined_airline_highlights)
+        highlights = self.compute_category_highlights(combined_unique, favorite_airline=favorite_airline or "", all_airline_highlights=combined_airline_highlights)
 
         non_stop_summaries = [self._build_offer_summary(o) for o in top_non_stop if o]
         non_stop_summaries = [s for s in non_stop_summaries if s is not None]

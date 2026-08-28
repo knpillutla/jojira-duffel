@@ -151,20 +151,59 @@ class PromptExtractor:
         preferred_airline = None
         airline_code = None
         airlines_map = {
+            "southwest airlines": ("Southwest Airlines", "WN"),
+            "southwest": ("Southwest Airlines", "WN"),
+            "wn": ("Southwest Airlines", "WN"),
+            "delta air lines": ("Delta Air Lines", "DL"),
+            "delta": ("Delta Air Lines", "DL"),
+            "dl": ("Delta Air Lines", "DL"),
             "american airlines": ("American Airlines", "AA"),
             "american": ("American Airlines", "AA"),
             "aa": ("American Airlines", "AA"),
-            "delta": ("Delta Air Lines", "DL"),
+            "united airlines": ("United Airlines", "UA"),
             "united": ("United Airlines", "UA"),
-            "air france": ("Air France", "AF"),
-            "lufthansa": ("Lufthansa", "LH"),
+            "ua": ("United Airlines", "UA"),
+            "jetblue airways": ("JetBlue Airways", "B6"),
+            "jetblue": ("JetBlue Airways", "B6"),
+            "b6": ("JetBlue Airways", "B6"),
+            "alaska airlines": ("Alaska Airlines", "AS"),
+            "alaska": ("Alaska Airlines", "AS"),
+            "as": ("Alaska Airlines", "AS"),
+            "hawaiian airlines": ("Hawaiian Airlines", "HA"),
+            "hawaiian": ("Hawaiian Airlines", "HA"),
+            "ha": ("Hawaiian Airlines", "HA"),
+            "frontier airlines": ("Frontier Airlines", "F9"),
+            "frontier": ("Frontier Airlines", "F9"),
+            "f9": ("Frontier Airlines", "F9"),
+            "spirit airlines": ("Spirit Airlines", "NK"),
+            "spirit": ("Spirit Airlines", "NK"),
+            "nk": ("Spirit Airlines", "NK"),
+            "allegiant air": ("Allegiant Air", "G4"),
+            "allegiant": ("Allegiant Air", "G4"),
+            "air canada": ("Air Canada", "AC"),
+            "ac": ("Air Canada", "AC"),
             "british airways": ("British Airways", "BA"),
+            "ba": ("British Airways", "BA"),
+            "virgin atlantic": ("Virgin Atlantic", "VS"),
+            "virgin": ("Virgin Atlantic", "VS"),
+            "vs": ("Virgin Atlantic", "VS"),
+            "lufthansa": ("Lufthansa", "LH"),
+            "lh": ("Lufthansa", "LH"),
+            "air france": ("Air France", "AF"),
+            "af": ("Air France", "AF"),
+            "klm": ("KLM Royal Dutch Airlines", "KL"),
+            "qantas": ("Qantas", "QF"),
+            "qf": ("Qantas", "QF"),
             "emirates": ("Emirates", "EK"),
+            "ek": ("Emirates", "EK"),
+            "qatar airways": ("Qatar Airways", "QR"),
+            "qatar": ("Qatar Airways", "QR"),
+            "singapore airlines": ("Singapore Airlines", "SQ"),
+            "cathay pacific": ("Cathay Pacific", "CX"),
             "ana": ("All Nippon Airways", "NH"),
+            "all nippon airways": ("All Nippon Airways", "NH"),
             "japan airlines": ("Japan Airlines", "JL"),
             "jal": ("Japan Airlines", "JL"),
-            "frontier": ("Frontier Airlines", "F9"),
-            "spirit": ("Spirit Airlines", "NK"),
         }
         for kw, (name, code) in airlines_map.items():
             if name in excluded_airlines:
@@ -173,6 +212,15 @@ class PromptExtractor:
                 preferred_airline = name
                 airline_code = code
                 break
+
+        # Fallback to regex pattern for 'with/on/by/flying <airline>' if not found in static map
+        if not preferred_airline:
+            m_air = re.search(r"\b(?:with|on|by|flying|via)\s+([a-z0-9\s]+?)(?=\s+from|\s+to|\s+for|\s+between|\s+on|\s+in|\s+under|\s+over|\s+with|\s*$)", text)
+            if m_air:
+                cand = m_air.group(1).strip()
+                reserved = {"economy", "business", "first", "flights", "hotels", "cars", "roundtrip", "one way", "return"}
+                if cand and cand not in reserved and len(cand) > 2:
+                    preferred_airline = cand.title()
 
 
 
@@ -207,6 +255,9 @@ class PromptExtractor:
             if t not in unique_types:
                 unique_types.append(t)
 
+        # Detect if user explicitly used "preferred" or "favorite" keywords
+        is_preferred_airline = any(w in text for w in ["preferred", "favorite", "pref", "fav", "prefer"])
+
         return {
             "selected_types": unique_types,
             "origin": origin,
@@ -222,6 +273,9 @@ class PromptExtractor:
             "cabin_class": allowed_cabins[0],
             "allowed_cabin_classes": allowed_cabins,
             "preferred_airline": preferred_airline or flight_info.get("preferred_airline"),
+            "is_preferred_airline": is_preferred_airline,
+            "preferred_hotel_brand": stay_info.get("preferred_hotel_brand"),
+            "preferred_car_vendor": car_info.get("preferred_car_vendor"),
             "airline_code": airline_code or flight_info.get("airline_code"),
             "excluded_airlines": excluded_airlines,
             "max_price_per_night": max_price_per_night or flight_info.get("max_price_per_night"),
@@ -423,6 +477,7 @@ class PromptExtractor:
     @staticmethod
     def _extract_flight_info_with_llm(prompt: str) -> Optional[dict[str, Any]]:
         """Use the configured LLM provider, falling back to other providers when available."""
+        prompt = (prompt or "").lower().strip()
         config = DuffelConfig()
         if config.llm_provider == "openai" and config.openai_enabled and config.openai_api_key:
             result = PromptExtractor._extract_flight_info_with_openai(prompt)
@@ -564,6 +619,7 @@ class PromptExtractor:
             "check_out_date": None,
             "guests_count": 1,
             "rooms": 1,
+            "preferred_hotel_brand": None,
         }
 
         loc_match = re.search(r"(?:in|at|around|for)\s+([a-z\s]+?)(?=\s+from|\s+on|\s+for|\s+check|\s*$)", text)
@@ -587,6 +643,19 @@ class PromptExtractor:
         if room_match:
             extracted["rooms"] = int(room_match.group(1))
 
+        hotel_brands_map = {
+            "ritz-carlton": "Ritz-Carlton", "ritz carlton": "Ritz-Carlton", "ritz": "Ritz-Carlton",
+            "marriott": "Marriott", "hilton": "Hilton", "hyatt": "Hyatt",
+            "holiday inn": "Holiday Inn", "intercontinental": "InterContinental",
+            "radisson": "Radisson", "sheraton": "Sheraton", "westin": "Westin",
+            "four seasons": "Four Seasons", "wyndham": "Wyndham", "best western": "Best Western",
+            "accor": "Accor",
+        }
+        for kw, brand in hotel_brands_map.items():
+            if re.search(r"\b" + re.escape(kw) + r"\b", text):
+                extracted["preferred_hotel_brand"] = brand
+                break
+
         return extracted
 
     @staticmethod
@@ -601,6 +670,7 @@ class PromptExtractor:
             "pickup_datetime": None,
             "dropoff_datetime": None,
             "driver_age": 30,
+            "preferred_car_vendor": None,
         }
 
         pick_match = re.search(r"(?:at|from|in)\s+([a-z0-9\s]+?)(?=\s+to|\s+from|\s+on|\s+for|\s*$)", text)
@@ -623,6 +693,16 @@ class PromptExtractor:
         age_match = re.search(r"(?:age\s*(\d+)|(\d+)\s*(?:years?\s*old|age|yo))", text)
         if age_match:
             extracted["driver_age"] = int(age_match.group(1) or age_match.group(2))
+
+        car_vendors_map = {
+            "hertz": "Hertz", "enterprise": "Enterprise", "avis": "Avis",
+            "budget": "Budget", "sixt": "Sixt", "national": "National",
+            "alamo": "Alamo", "thrifty": "Thrifty", "dollar": "Dollar", "europcar": "Europcar",
+        }
+        for kw, vendor in car_vendors_map.items():
+            if re.search(r"\b" + re.escape(kw) + r"\b", text):
+                extracted["preferred_car_vendor"] = vendor
+                break
 
         return extracted
 

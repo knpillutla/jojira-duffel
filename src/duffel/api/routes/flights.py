@@ -567,12 +567,12 @@ def book_flight(req: FlightBookingRequest, request: Request = None):
 
         if getattr(client.config, "force_instant_booking", False):
             order_type = "instant"
-        elif req.type and req.type.lower() == "instant":
-            order_type = "instant"
+        elif req.type and str(req.type).strip():
+            order_type = str(req.type).lower().strip()
         elif requires_instant:
             order_type = "instant"
         else:
-            order_type = "hold"
+            order_type = getattr(client.config, "default_order_mode", "hold").lower().strip()
 
         passengers = []
         for i, p in enumerate(req.passengers):
@@ -734,6 +734,8 @@ def book_flight(req: FlightBookingRequest, request: Request = None):
             "type": "flights",
             "order_id": getattr(order, "id", ""),
             "booking_reference": booking_ref,
+            "order_type": order_type,
+            "status": order_status,
             "promo_code": req.promo_code,
             "discount_amount": f"{disc_val:.2f}",
             "gross_amount": f"{gross_val:.2f}",
@@ -747,6 +749,8 @@ def book_flight(req: FlightBookingRequest, request: Request = None):
             **ord_dict,
             "order_id": getattr(order, "id", ""),
             "booking_reference": booking_ref,
+            "order_type": order_type,
+            "status": order_status,
             "message": msg,
             "total_amount": str(getattr(order, "total_amount", "0.00")),
             "total_currency": getattr(order, "total_currency", "USD"),
@@ -800,11 +804,16 @@ def book_flight(req: FlightBookingRequest, request: Request = None):
 
 @router.post("/air/orders/{order_id}/payments", summary="Pay Hold Order (Strategy A Step 2)")
 @router.post("/orders/{order_id}/payments", summary="Pay Hold Order Alias")
-def pay_hold_order(order_id: str, req: OrderPaymentRequest):
-    """Executes payment for an existing Duffel hold order."""
+@router.post("/orders/{order_id}/pay", summary="Pay/Confirm Hold Order for UI")
+@router.post("/flights/orders/{order_id}/pay", summary="Pay/Confirm Flight Hold Order")
+def pay_hold_order(order_id: str, req: OrderPaymentRequest = None):
+    """Executes payment for an existing Duffel hold order, updating DB status to instant/confirmed."""
     client = common.get_duffel_client()
     try:
-        payment_input = req.payment or (req.payments[0] if req.payments else None)
+        payment_input = None
+        if req:
+            payment_input = req.payment or (req.payments[0] if req.payments else None)
+
         payment_obj = None
         if payment_input:
             raw_data = {}
@@ -820,10 +829,27 @@ def pay_hold_order(order_id: str, req: OrderPaymentRequest):
                 raw=raw_data
             )
         res = client.flights.pay_order(order_id=order_id, payment=payment_obj)
+
+        # Update local database status to 'confirmed' and order_type to 'instant'
+        try:
+            from ...db.order_dao import OrderDAO
+            dao = OrderDAO()
+            dao.update_order_status(
+                duffel_order_id=order_id,
+                status="confirmed",
+                order_type="instant",
+                payment_status="paid"
+            )
+        except Exception as db_err:
+            print(f"[ORDER DAO NOTICE] DB status update notice: {db_err}")
+
         return {
             "status": "success",
-            "message": f"Payment successfully created for hold order '{order_id}'.",
+            "message": f"Payment successfully created for hold order '{order_id}'. Order is now confirmed.",
             "order_id": order_id,
+            "order_type": "instant",
+            "order_status": "confirmed",
+            "payment_status": "paid",
             "payment_details": res
         }
     except HTTPException:

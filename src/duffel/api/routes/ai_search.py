@@ -3,9 +3,19 @@ AI Search Route Controllers for Duffel REST API.
 Intelligent routing based on natural language prompt parsing with LLM.
 """
 
+from typing import Any, Optional
 from fastapi import APIRouter, HTTPException, Query, Request, status
 
-from ..schemas import AIBookingRequest, AIBookingResponse, AISearchRequest, AISearchResponse
+from ..schemas import (
+    AIBookingRequest,
+    AIBookingResponse,
+    AISearchRequest,
+    AISearchResponse,
+    SaveAISearchHistoryRequest,
+    SaveAISearchHistoryResponse,
+    AISearchHistoryListResponse,
+    AISearchHistoryItem,
+)
 from . import common
 from .bundles import book_bundle_endpoint
 from .cars import book_car_endpoint
@@ -193,4 +203,87 @@ def book_ai_endpoint(req: AIBookingRequest, request: Request):
     payload["search_type"] = search_type
     payload["source"] = req.source
     return AIBookingResponse(**payload)
+
+
+@router.post(
+    "/search/ai/history",
+    response_model=SaveAISearchHistoryResponse,
+    summary="Save AI Search Prompt & Results into History",
+)
+@router.post(
+    "/prompts/history",
+    response_model=SaveAISearchHistoryResponse,
+    summary="Save Search Prompt History (Alias)",
+)
+def save_ai_search_history_endpoint(req: SaveAISearchHistoryRequest):
+    """
+    Persists an AI search prompt, extracted parameters, and result summary into history table.
+    """
+    from ...db.order_dao import OrderDAO
+    dao = OrderDAO(config=common.get_duffel_client().config)
+    try:
+        saved = dao.save_ai_search_history(
+            prompt=req.prompt,
+            user_id=req.user_id or "guest_user",
+            search_type=req.search_type or "flights",
+            origin=req.origin,
+            destination=req.destination,
+            departure_date=req.departure_date,
+            return_date=req.return_date,
+            parsed_intent=req.parsed_intent,
+            results_summary=req.results_summary,
+        )
+        return SaveAISearchHistoryResponse(
+            status="success",
+            message="AI search prompt successfully saved to history.",
+            history_id=saved["id"],
+            user_id=saved["user_id"],
+            prompt=saved["prompt"],
+            created_at=saved["created_at"],
+        )
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed saving AI search prompt history: {str(err)}"
+        )
+
+
+@router.get(
+    "/search/ai/history",
+    response_model=AISearchHistoryListResponse,
+    summary="Retrieve AI Search Prompt History",
+)
+@router.get(
+    "/prompts/history",
+    response_model=AISearchHistoryListResponse,
+    summary="Retrieve Search Prompt History (Alias)",
+)
+def get_ai_search_history_endpoint(
+    user_id: Optional[str] = Query(None, description="Filter history by user_id or session_id"),
+    search_type: Optional[str] = Query(None, description="Filter history by search_type: flights, hotels, cars, or bundle"),
+    limit: int = Query(20, ge=1, le=100, description="Max history records returned"),
+):
+    """
+    Retrieves historical AI search prompts, extracted intent, and results summary for a user.
+    """
+    from ...db.order_dao import OrderDAO
+    dao = OrderDAO(config=common.get_duffel_client().config)
+    try:
+        records = dao.get_ai_search_history(
+            user_id=user_id,
+            search_type=search_type,
+            limit=limit,
+        )
+        history_items = [AISearchHistoryItem(**r) for r in records]
+        return AISearchHistoryListResponse(
+            status="success",
+            user_id=user_id,
+            total_records=len(history_items),
+            history=history_items,
+        )
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed retrieving AI search prompt history: {str(err)}"
+        )
 

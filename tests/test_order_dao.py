@@ -218,5 +218,16 @@ class TestOrderDAO(unittest.TestCase):
         self.assertEqual(len(fetched["template_days"]), 2)
 
 
+def tearDownModule():
+    """Automatically clean up all test databases and temporary test files upon test completion."""
+    import os
+    for test_file in ["jojira_duffel.db", "jojira_user_service.db", os.path.join("outputs", "jojira_orders.db")]:
+        if os.path.exists(test_file):
+            try:
+                os.remove(test_file)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     unittest.main()

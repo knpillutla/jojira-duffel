@@ -81,3 +81,50 @@ class AIBookingResponse(BaseModel):
     class Config:
         extra = "allow"  # Native booking response fields (order_id, booking_reference, etc.) are merged in
 
+
+class SaveAISearchHistoryRequest(BaseModel):
+    """Input Schema: Request body to save an AI Search Prompt & Result into search history."""
+    user_id: Optional[str] = Field("guest_user", description="Unique User ID or Session ID saving the search prompt")
+    prompt: str = Field(..., description="Natural language search prompt string e.g. 'cheapest roundtrip from atlanta to orlando'")
+    search_type: Optional[str] = Field("flights", description="Resolved search type: flights, hotels, cars, or bundle")
+    origin: Optional[str] = Field(None, description="Origin airport or city code e.g. ATL")
+    destination: Optional[str] = Field(None, description="Destination airport or city code e.g. MCO")
+    departure_date: Optional[str] = Field(None, description="Departure or check-in date YYYY-MM-DD")
+    return_date: Optional[str] = Field(None, description="Return or check-out date YYYY-MM-DD")
+    parsed_intent: Optional[dict[str, Any]] = Field(default_factory=dict, description="LLM-parsed search intent dictionary")
+    results_summary: Optional[dict[str, Any]] = Field(default_factory=dict, description="Summary of search results (total_items, highlights, top_price, etc.)")
+
+
+class SaveAISearchHistoryResponse(BaseModel):
+    """Output Schema: Response confirming AI Search Prompt has been saved to history."""
+    status: str = Field("success", description="Operation status: success")
+    message: str = Field("AI search prompt successfully saved to history.", description="Confirmation message")
+    history_id: str = Field(..., description="Unique generated History ID e.g. hist_ai_12345")
+    user_id: str = Field(..., description="User ID associated with history record")
+    prompt: str = Field(..., description="Saved prompt text")
+    created_at: str = Field(..., description="Timestamp ISO-8601 when history record was saved")
+
+
+class AISearchHistoryItem(BaseModel):
+    """Output Schema: Individual AI Search History Record."""
+    id: str = Field(..., description="Unique history record ID e.g. hist_ai_12345")
+    user_id: str = Field(..., description="User ID or session ID associated with this search history record")
+    prompt: str = Field(..., description="Original natural language search prompt")
+    search_type: str = Field(..., description="Resolved search type: flights, hotels, cars, or bundle")
+    origin: Optional[str] = Field(None, description="Origin location/code")
+    destination: Optional[str] = Field(None, description="Destination location/code")
+    departure_date: Optional[str] = Field(None, description="Departure date YYYY-MM-DD")
+    return_date: Optional[str] = Field(None, description="Return date YYYY-MM-DD")
+    parsed_intent: dict[str, Any] = Field(default_factory=dict, description="Extracted intent payload")
+    results_summary: dict[str, Any] = Field(default_factory=dict, description="Summary of top search results")
+    created_at: str = Field(..., description="Creation timestamp ISO-8601")
+    updated_at: str = Field(..., description="Last updated timestamp ISO-8601")
+
+
+class AISearchHistoryListResponse(BaseModel):
+    """Output Schema: Array list of retrieved AI Search History Records."""
+    status: str = Field("success", description="Operation status: success")
+    user_id: Optional[str] = Field(None, description="Filtered User ID or session ID")
+    total_records: int = Field(..., description="Total count of historical AI search prompts returned")
+    history: list[AISearchHistoryItem] = Field(..., description="List of historical AI search prompt records")
+

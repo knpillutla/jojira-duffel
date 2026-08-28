@@ -399,6 +399,136 @@ class TestFlightsService(unittest.TestCase):
         self.assertEqual(order.id, "ord_0000999")
         self.assertEqual(order.booking_reference, "PNR3StepOK")
 
+    def test_strict_favorite_airline_filtering(self):
+        """Verify that when favorite_airline is specified, non-matching airlines (e.g. Frontier) are strictly filtered out."""
+        from unittest.mock import patch
+        from duffel.models.flights import FlightOffer
+
+        mock_offers = [
+            FlightOffer.from_dict({
+                "id": "off_delta_1",
+                "total_amount": "150.00",
+                "total_currency": "USD",
+                "owner": {"name": "Delta Air Lines", "iata_code": "DL"},
+                "slices": []
+            }),
+            FlightOffer.from_dict({
+                "id": "off_frontier_1",
+                "total_amount": "38.00",
+                "total_currency": "USD",
+                "owner": {"name": "Frontier Airlines", "iata_code": "F9"},
+                "slices": []
+            }),
+        ]
+
+        with patch.object(self.client.flights, "search", return_value=mock_offers):
+            # Execute search_optimized requesting Delta
+            res = self.client.flights.search_optimized(
+                origin="ATL",
+                destination="MCO",
+                target_date="2026-09-15",
+                target_return_date="2026-09-22",
+                favorite_airline="Delta",
+                force_refresh=True,
+            )
+
+            offers = res if isinstance(res, list) else res.get("offers", [])
+            for o in offers:
+                owner_name = o.owner.get("name") if hasattr(o, "owner") and isinstance(o.owner, dict) else ""
+                self.assertIn("delta", owner_name.lower())
+                self.assertNotIn("frontier", owner_name.lower())
+
+    def test_case_insensitive_airline_matching(self):
+        """Verify that _is_airline_match is 100% case-insensitive across various casing styles and codes."""
+        from src.duffel.services.natural_search import NaturalSearchService
+
+        # Match delta in various cases
+        self.assertTrue(NaturalSearchService._is_airline_match("delta", "Delta Air Lines", "DL"))
+        self.assertTrue(NaturalSearchService._is_airline_match("DELTA", "delta air lines", "dl"))
+        self.assertTrue(NaturalSearchService._is_airline_match("Delta Air Lines", "DELTA", "DL"))
+        self.assertTrue(NaturalSearchService._is_airline_match("dl", "Delta Air Lines", "DL"))
+        self.assertTrue(NaturalSearchService._is_airline_match("DL", "delta", "dl"))
+
+        # Match southwest in various cases
+        self.assertTrue(NaturalSearchService._is_airline_match("southwest", "Southwest Airlines", "WN"))
+        self.assertTrue(NaturalSearchService._is_airline_match("SOUTHWEST", "southwest airlines", "wn"))
+        self.assertTrue(NaturalSearchService._is_airline_match("wn", "Southwest Airlines", "WN"))
+
+        # Negative checks
+        self.assertFalse(NaturalSearchService._is_airline_match("delta", "Frontier Airlines", "F9"))
+        self.assertFalse(NaturalSearchService._is_airline_match("southwest", "Delta Air Lines", "DL"))
+
+    def test_get_all_flight_data_and_filter_delta(self):
+        """Verify that retrieving flight data and filtering for 'delta' (case-insensitive) strictly isolates Delta flights."""
+        from unittest.mock import patch
+        from duffel.models.flights import FlightOffer
+
+        mock_raw_offers = [
+            FlightOffer.from_dict({"id": "off_1", "total_amount": "207.00", "owner": {"name": "Delta Air Lines", "iata_code": "DL"}}),
+            FlightOffer.from_dict({"id": "off_2", "total_amount": "190.00", "owner": {"name": "Frontier Airlines", "iata_code": "F9"}}),
+            FlightOffer.from_dict({"id": "off_3", "total_amount": "220.00", "owner": {"name": "DELTA AIR LINES", "iata_code": "dl"}}),
+            FlightOffer.from_dict({"id": "off_4", "total_amount": "250.00", "owner": {"name": "American Airlines", "iata_code": "AA"}}),
+        ]
+
+        with patch.object(self.client.flights, "search", return_value=mock_raw_offers):
+            # 1. Search with 'delta' (lowercase)
+            res_lower = self.client.flights.search_optimized(
+                origin="ATL", destination="MCO", target_date="2026-09-15", target_return_date="2026-09-22",
+                favorite_airline="delta", force_refresh=True
+            )
+            offers_lower = res_lower if isinstance(res_lower, list) else res_lower.get("offers", [])
+            self.assertEqual(len(offers_lower), 2)
+            for o in offers_lower:
+                self.assertIn("delta", o.owner.get("name").lower())
+
+            # 2. Search with 'DELTA' (uppercase)
+            res_upper = self.client.flights.search_optimized(
+                origin="ATL", destination="MCO", target_date="2026-09-15", target_return_date="2026-09-22",
+                favorite_airline="DELTA", force_refresh=True
+            )
+            offers_upper = res_upper if isinstance(res_upper, list) else res_upper.get("offers", [])
+            self.assertEqual(len(offers_upper), 2)
+            for o in offers_upper:
+                self.assertIn("delta", o.owner.get("name").lower())
+
+    def test_preferred_vs_exact_airline_modes(self):
+        """Verify Preferred Airline Mode (10 pref + 40 other = 50 total) vs Exact Airline Search Mode (40 exact)."""
+        mock_raw_offers = []
+        # Create 15 Delta offers and 50 United offers
+        for i in range(15):
+            mock_raw_offers.append(FlightOffer.from_dict({
+                "id": f"off_dl_{i}", "total_amount": f"{100 + i}.00", "owner": {"name": "Delta Air Lines", "iata_code": "DL"}
+            }))
+        for i in range(50):
+            mock_raw_offers.append(FlightOffer.from_dict({
+                "id": f"off_ua_{i}", "total_amount": f"{200 + i}.00", "owner": {"name": "United Airlines", "iata_code": "UA"}
+            }))
+
+        with patch.object(self.client.flights, "search", return_value=mock_raw_offers):
+            # Mode A: Preferred Airline Mode -> Returns 10 preferred + 40 other = 50 total offers
+            res_pref = self.client.flights.search_optimized(
+                origin="ATL", destination="MCO", target_date="2026-09-15", target_return_date="2026-09-22",
+                favorite_airline="Delta Air Lines", is_preferred=True, force_refresh=True
+            )
+            offers_pref = res_pref if isinstance(res_pref, list) else res_pref.get("offers", [])
+            self.assertEqual(len(offers_pref), 50)
+            # First 10 are Delta
+            for o in offers_pref[:10]:
+                self.assertEqual(o.owner.get("name"), "Delta Air Lines")
+            # Remaining 40 are United
+            for o in offers_pref[10:]:
+                self.assertEqual(o.owner.get("name"), "United Airlines")
+
+            # Mode B: Exact Airline Mode -> Returns up to 40 exact Delta offers (15 available)
+            res_exact = self.client.flights.search_optimized(
+                origin="ATL", destination="MCO", target_date="2026-09-15", target_return_date="2026-09-22",
+                favorite_airline="Delta Air Lines", is_preferred=False, force_refresh=True
+            )
+            offers_exact = res_exact if isinstance(res_exact, list) else res_exact.get("offers", [])
+            self.assertEqual(len(offers_exact), 15)
+            for o in offers_exact:
+                self.assertEqual(o.owner.get("name"), "Delta Air Lines")
+
 
 if __name__ == "__main__":
     unittest.main()

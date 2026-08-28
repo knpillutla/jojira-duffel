@@ -35,7 +35,7 @@ class CarOrderDAO:
             try:
                 import psycopg2
                 if self.url:
-                    self._pg_conn = psycopg2.connect(self.url)
+                    self._pg_conn = psycopg2.connect(self.url, connect_timeout=2)
                 else:
                     self._pg_conn = psycopg2.connect(
                         host=self.host,
@@ -47,8 +47,11 @@ class CarOrderDAO:
                     )
                 self._pg_conn.autocommit = True
                 self.db_engine = "postgresql"
-            except Exception:
-                self.db_engine = "sqlite_fallback"
+            except Exception as err:
+                err_msg = f"[POSTGRES ERROR] Failed to connect to PostgreSQL database ({self.host}:{self.port}/{self.database}): {err}. Exiting application."
+                print(f"\n{'=' * 80}\n{err_msg}\n{'=' * 80}\n")
+                import sys
+                sys.exit(1)
 
         self._init_db()
 

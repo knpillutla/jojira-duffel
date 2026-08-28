@@ -26,17 +26,20 @@ class BookedItineraryDAO:
             try:
                 import psycopg2
                 if self.config.postgres_url:
-                    return psycopg2.connect(self.config.postgres_url)
+                    return psycopg2.connect(self.config.postgres_url, connect_timeout=2)
                 return psycopg2.connect(
                     host=self.config.postgres_host,
                     port=self.config.postgres_port,
                     dbname=self.config.postgres_db,
                     user=self.config.postgres_user,
                     password=self.config.postgres_password,
+                    connect_timeout=2,
                 )
             except Exception as pg_err:
-                print(f"[BOOKED ITINERARY DAO NOTICE] PostgreSQL connection fallback to SQLite: {pg_err}")
-                self.db_engine = "sqlite"
+                err_msg = f"[POSTGRES ERROR] Failed to connect to PostgreSQL database ({self.config.postgres_host}:{self.config.postgres_port}/{self.config.postgres_db}): {pg_err}. Exiting application."
+                print(f"\n{'=' * 80}\n{err_msg}\n{'=' * 80}\n")
+                import sys
+                sys.exit(1)
 
         conn = sqlite3.connect("jojira_user_service.db")
         conn.row_factory = sqlite3.Row
