@@ -42,6 +42,20 @@ class MockProviderAdapter(BaseProviderAdapter):
         now_iso = datetime.now(timezone.utc).isoformat()
         exp_iso = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
 
+        fav_airline = str(payload.get("favorite_airline") or payload.get("preferred_airline") or "").lower()
+        if "delta" in fav_airline:
+            carrier_name, carrier_code = "Delta Air Lines", "DL"
+        elif "frontier" in fav_airline:
+            carrier_name, carrier_code = "Frontier Airlines", "F9"
+        elif "united" in fav_airline:
+            carrier_name, carrier_code = "United Airlines", "UA"
+        elif "duffel" in fav_airline:
+            carrier_name, carrier_code = "Duffel Airways", "ZZ"
+        elif fav_airline:
+            carrier_name, carrier_code = payload.get("favorite_airline") or payload.get("preferred_airline"), "AA"
+        else:
+            carrier_name, carrier_code = "American Airlines", "AA"
+
         return {
             "data": {
                 "id": req_id,
@@ -58,15 +72,14 @@ class MockProviderAdapter(BaseProviderAdapter):
                         "expires_at": exp_iso,
                         "total_amount": "450.00",
                         "total_currency": "USD",
-
                         "tax_amount": "50.00",
                         "tax_currency": "USD",
                         "base_amount": "400.00",
                         "base_currency": "USD",
                         "owner": {
-                            "iata_code": "AA",
-                            "name": "American Airlines",
-                            "logo_symbol_url": "https://assets.duffel.com/img/airlines/for-light-background/full-color-logo/AA.svg"
+                            "iata_code": carrier_code,
+                            "name": carrier_name,
+                            "logo_symbol_url": f"https://assets.duffel.com/img/airlines/for-light-background/full-color-logo/{carrier_code}.svg"
                         },
                         "slices": [
                             {
@@ -81,8 +94,8 @@ class MockProviderAdapter(BaseProviderAdapter):
                                         "destination": {"iata_code": destination, "name": destination},
                                         "departing_at": f"{departure_date}T08:00:00",
                                         "arriving_at": f"{departure_date}T15:30:00",
-                                        "operating_carrier": {"iata_code": "AA", "name": "American Airlines"},
-                                        "marketing_carrier": {"iata_code": "AA", "name": "American Airlines"},
+                                        "operating_carrier": {"iata_code": carrier_code, "name": carrier_name},
+                                        "marketing_carrier": {"iata_code": carrier_code, "name": carrier_name},
                                         "operating_carrier_flight_number": "100",
                                         "marketing_carrier_flight_number": "100",
                                         "stops": []

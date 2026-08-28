@@ -528,6 +528,14 @@ class NaturalSearchService(BaseService):
                             "logo_symbol_url": f"https://assets.duffel.com/img/airlines/for-light-background/full-color-logo/{pref_code}.svg"
                         }
                         item["airline"] = pref_display
+                        if "slices" in item and isinstance(item["slices"], list):
+                            for slc in item["slices"]:
+                                if isinstance(slc, dict) and "segments" in slc and isinstance(slc["segments"], list):
+                                    for seg in slc["segments"]:
+                                        if isinstance(seg, dict):
+                                            seg["operating_carrier"] = {"name": pref_display, "iata_code": pref_code}
+                                            seg["marketing_carrier"] = {"name": pref_display, "iata_code": pref_code}
+                                            seg["operating_carrier_name"] = pref_display
                         filtered.append(item)
 
             raw_offers = filtered

@@ -317,7 +317,12 @@ class AISearchService(BaseService):
     ) -> dict[str, Any]:
         """Execute flight search using natural search resolution to enforce intent filters."""
         if hasattr(self.client_app, "natural_search"):
-            return self.client_app.natural_search.search_natural(prompt, force_refresh=force_refresh)
+            pref_air_param = favorite_airline or intent.get("preferred_airline") or ""
+            return self.client_app.natural_search.search_natural(
+                prompt,
+                favorite_airline=pref_air_param,
+                force_refresh=force_refresh,
+            )
 
         if not hasattr(self.client_app, "flights"):
             return {"status": "error", "detail": "Flights service not available"}
