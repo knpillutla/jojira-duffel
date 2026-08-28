@@ -55,20 +55,24 @@ async def log_requests_and_responses(request: Request, call_next):
     if client and hasattr(client, "config") and client.config:
         is_debug = bool(getattr(client.config, "debug", False) or getattr(client.config, "debug_mode", False))
 
+    # Log request arrival immediately upon receiving
+    print(f"[REST REQUEST RECEIVED] {request.method} {request.url.path} | Time: {req_start_str}", flush=True)
+    logger.info("[REST REQUEST RECEIVED] %s %s | Time: %s", request.method, request.url.path, req_start_str)
+
     body_bytes = await request.body()
     body_str = body_bytes.decode("utf-8", errors="replace") if body_bytes else ""
 
     if is_debug:
-        print("\n" + "=" * 85)
-        print(f"[REST DEBUG REQUEST] {request.method} {request.url.path}")
-        print(f"   Request Received Time: {req_start_str}")
+        print("\n" + "=" * 85, flush=True)
+        print(f"[REST DEBUG REQUEST] {request.method} {request.url.path}", flush=True)
+        print(f"   Request Received Time: {req_start_str}", flush=True)
         if body_str.strip():
             try:
                 formatted_body = json.dumps(json.loads(body_str), indent=2)
-                print(f"   Request Body:\n{formatted_body}")
+                print(f"   Request Body:\n{formatted_body}", flush=True)
             except Exception:
-                print(f"   Request Body: {body_str}")
-        print("-" * 85)
+                print(f"   Request Body: {body_str}", flush=True)
+        print("-" * 85, flush=True)
 
     async def receive():
         return {"type": "http.request", "body": body_bytes}
@@ -129,19 +133,19 @@ async def log_requests_and_responses(request: Request, call_next):
                 pass
 
     # Print clean INFO-level request/response cycle summary box
-    print("\n" + "=" * 85)
-    print(f"[REST REQUEST SUMMARY] {request.method} {request.url.path}")
-    print(f"  * URL                       : {request.url}")
-    print(f"  * Request Received Time      : {req_start_str}")
-    print(f"  * Response Sent Time        : {req_end_str}")
-    print(f"  * Total Execution Time      : {duration_ms} ms ({duration_sec}s)")
-    print(f"  * Duffel API Calls Made     : {api_calls}")
-    print(f"  * Delayed Calls (429 Limit) : {delayed_calls}")
-    print(f"  * Cache Hit Status          : {cache_hit_str}")
-    print(f"  * Records Retrieved Cache   : {records_retrieved}")
-    print(f"  * Records Written Cache     : {records_written}")
-    print(f"  * HTTP Status Code          : {response.status_code}")
-    print("=" * 85 + "\n")
+    print("\n" + "=" * 85, flush=True)
+    print(f"[REST REQUEST SUMMARY] {request.method} {request.url.path}", flush=True)
+    print(f"  * URL                       : {request.url}", flush=True)
+    print(f"  * Request Received Time      : {req_start_str}", flush=True)
+    print(f"  * Response Sent Time        : {req_end_str}", flush=True)
+    print(f"  * Total Execution Time      : {duration_ms} ms ({duration_sec}s)", flush=True)
+    print(f"  * Duffel API Calls Made     : {api_calls}", flush=True)
+    print(f"  * Delayed Calls (429 Limit) : {delayed_calls}", flush=True)
+    print(f"  * Cache Hit Status          : {cache_hit_str}", flush=True)
+    print(f"  * Records Retrieved Cache   : {records_retrieved}", flush=True)
+    print(f"  * Records Written Cache     : {records_written}", flush=True)
+    print(f"  * HTTP Status Code          : {response.status_code}", flush=True)
+    print("=" * 85 + "\n", flush=True)
 
     return response
 
