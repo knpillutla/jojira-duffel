@@ -2,12 +2,41 @@
 Natural Language Prompt Extractor for Duffel CLI parameters.
 """
 
+from contextvars import ContextVar
 from datetime import datetime, timedelta
 import calendar
 import re
+import threading
 from typing import Any, Optional
 
 from ..config import DuffelConfig
+
+prompt_parser_meta: ContextVar[dict[str, Any]] = ContextVar("prompt_parser_meta", default={})
+
+
+class PromptParserTracker:
+    """Thread-safe global tracker for recording prompt parsing metadata across sync and async contexts."""
+    _meta: dict[int, dict[str, Any]] = {}
+    _lock = threading.Lock()
+    _latest: dict[str, Any] = {}
+
+    @classmethod
+    def set(cls, data: dict[str, Any]):
+        thread_id = threading.get_ident()
+        with cls._lock:
+            cls._meta[thread_id] = data
+            cls._latest = dict(data)
+
+    @classmethod
+    def get_latest(cls) -> dict[str, Any]:
+        with cls._lock:
+            return dict(cls._latest)
+
+    @classmethod
+    def clear(cls):
+        with cls._lock:
+            cls._meta.clear()
+            cls._latest = {}
 
 # Common airport/city IATA mapping for heuristic extraction
 CITY_IATA_MAP = {
@@ -375,7 +404,11 @@ class PromptExtractor:
         # Detect if user explicitly used "preferred" or "favorite" keywords
         is_preferred_airline = any(w in text for w in ["preferred", "favorite", "pref", "fav", "prefer"])
 
-        return {
+        inc_airlines = flight_info.get("included_airlines") or []
+        if preferred_airline and preferred_airline not in inc_airlines:
+            inc_airlines.insert(0, preferred_airline)
+
+        intent = {
             "selected_types": unique_types,
             "trip_type": trip_type,
             "origin": origin,
@@ -392,10 +425,11 @@ class PromptExtractor:
             "allowed_cabin_classes": allowed_cabins,
             "preferred_airline": preferred_airline or flight_info.get("preferred_airline"),
             "is_preferred_airline": is_preferred_airline,
+            "included_airlines": inc_airlines,
+            "excluded_airlines": excluded_airlines or flight_info.get("excluded_airlines", []),
             "preferred_hotel_brand": stay_info.get("preferred_hotel_brand"),
             "preferred_car_vendor": car_info.get("preferred_car_vendor"),
             "airline_code": airline_code or flight_info.get("airline_code"),
-            "excluded_airlines": excluded_airlines,
             "max_price_per_night": max_price_per_night or flight_info.get("max_price_per_night"),
 
             "rooms": stay_info.get("rooms", 1),
@@ -404,6 +438,24 @@ class PromptExtractor:
             "duration_days": flight_info.get("duration_days"),
             "slices": [s.to_dict() if hasattr(s, "to_dict") else s for s in slices],
         }
+
+        prev_meta = PromptParserTracker.get_latest()
+        if prev_meta and prev_meta.get("llm_used"):
+            meta = {
+                "engine": prev_meta.get("engine"),
+                "llm_used": True,
+                "extracted_json": intent,
+            }
+        else:
+            meta = {
+                "engine": prev_meta.get("engine", "Local Deterministic Engine (Built-in Regex)"),
+                "llm_used": False,
+                "extracted_json": intent,
+            }
+        prompt_parser_meta.set(meta)
+        PromptParserTracker.set(meta)
+
+        return intent
 
 
 
@@ -591,9 +643,13 @@ class PromptExtractor:
                 extracted["duration_days"] = int(duration_match.group(3)) * 7
             elif duration_match.group(4):
                 extracted["duration_days"] = int(duration_match.group(4)) * 7
-        else:
-            extracted["duration_days"] = None
+        extracted["duration_days"] = None
 
+        prompt_parser_meta.set({
+            "engine": "Local Deterministic Engine (Built-in Regex)",
+            "llm_used": False,
+            "extracted_json": extracted,
+        })
         return extracted
 
     @staticmethod
@@ -632,6 +688,8 @@ class PromptExtractor:
 
         normalized.setdefault("cabin_class", "economy")
         normalized.setdefault("passengers_count", 1)
+        normalized.setdefault("included_airlines", [])
+        normalized.setdefault("excluded_airlines", [])
         for flight_slice in normalized.get("slices", []):
             if isinstance(flight_slice, dict):
                 for field in ("origin", "destination"):
@@ -658,7 +716,7 @@ class PromptExtractor:
             "MUST be 'round_trip' ONLY if user explicitly requests a return flight or roundtrip. MUST be 'multi_city' if multiple destinations are requested.\n"
             "2. IATA CODES: You MUST resolve all city names strictly to 3-letter IATA airport codes in uppercase (e.g. 'Calgary' -> 'YYC', 'Atlanta' -> 'ATL', 'Columbus' -> 'CMH', 'Paris' -> 'CDG', 'London' -> 'LHR', 'New York' -> 'JFK'). NEVER return city names.\n"
             "3. SLICES & RETURN DATE: For 'one_way', return EXACTLY 1 slice with origin, destination, departure_date, and set target_return_date to null.\n"
-            "4. Return JSON with keys: trip_type, slices, target_return_date, cabin_class, passengers_count, duration_days. Use null for unknown values.\n"
+            "4. Return JSON with keys: trip_type, slices, target_return_date, cabin_class, passengers_count, duration_days, preferred_airline, included_airlines, excluded_airlines. Use null or empty arrays for unknown values.\n"
             "User request: " + prompt
         )
         payload = {
@@ -685,9 +743,23 @@ class PromptExtractor:
             content = response_data["choices"][0]["message"]["content"]
             result = json.loads(content)
             if isinstance(result, dict) and isinstance(result.get("slices"), list):
-                return PromptExtractor._normalize_flight_result(result)
-        except Exception:
-            pass
+                normalized = PromptExtractor._normalize_flight_result(result)
+                meta = {
+                    "engine": f"LLM Extractor (OpenAI - {config.openai_model})",
+                    "llm_used": True,
+                    "extracted_json": normalized,
+                }
+                prompt_parser_meta.set(meta)
+                PromptParserTracker.set(meta)
+                return normalized
+        except Exception as err:
+            err_msg = str(err)
+            if hasattr(err, "read"):
+                try:
+                    err_msg += f" | Body: {err.read().decode('utf-8', errors='replace')}"
+                except Exception:
+                    pass
+            print(f"[OPENAI LLM ERROR] Failed calling OpenAI API ({config.openai_model}): {err_msg}", flush=True)
         return None
 
     @staticmethod
@@ -709,7 +781,7 @@ class PromptExtractor:
             "MUST be 'round_trip' ONLY if user explicitly requests a return flight or roundtrip.\n"
             "2. IATA CODES: Resolve all city names strictly to 3-letter IATA airport codes in uppercase (e.g. 'Calgary' -> 'YYC', 'Columbus' -> 'CMH').\n"
             "3. SLICES & RETURN DATE: For 'one_way', return EXACTLY 1 slice with origin, destination, departure_date, and set target_return_date to null.\n"
-            "4. Return JSON with keys: trip_type, slices, target_return_date, cabin_class, passengers_count, duration_days.\n"
+            "4. Return JSON with keys: trip_type, slices, target_return_date, cabin_class, passengers_count, duration_days, preferred_airline, included_airlines, excluded_airlines.\n"
             f"User request: {prompt}"
         )
         payload = {
@@ -733,9 +805,23 @@ class PromptExtractor:
             response_text = response_data["candidates"][0]["content"]["parts"][0]["text"]
             result = json.loads(response_text)
             if isinstance(result, dict) and isinstance(result.get("slices"), list):
-                return PromptExtractor._normalize_flight_result(result)
-        except Exception:
-            pass
+                normalized = PromptExtractor._normalize_flight_result(result)
+                meta = {
+                    "engine": f"LLM Extractor (Gemini - {config.gemini_model})",
+                    "llm_used": True,
+                    "extracted_json": normalized,
+                }
+                prompt_parser_meta.set(meta)
+                PromptParserTracker.set(meta)
+                return normalized
+        except Exception as err:
+            err_msg = str(err)
+            if hasattr(err, "read"):
+                try:
+                    err_msg += f" | Body: {err.read().decode('utf-8', errors='replace')}"
+                except Exception:
+                    pass
+            print(f"[GEMINI LLM ERROR] Failed calling Gemini API ({config.gemini_model}): {err_msg}", flush=True)
         return None
 
     @staticmethod

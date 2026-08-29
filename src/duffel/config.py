@@ -318,8 +318,8 @@ class DuffelConfig:
         self.api_gateway_url = os.getenv("API_GATEWAY_URL", self.api_gateway_url or "http://localhost:8000").strip()
         self.user_service_port = int(os.getenv("PORT", getattr(self, "user_service_port", 8001)))
 
-        # 3. Load secrets from Azure Key Vault if enabled
-        if self.azure_keyvault_enabled or self.azure_keyvault_name:
+        # 3. Load secrets from Azure Key Vault if explicitly enabled
+        if self.azure_keyvault_enabled:
             try:
                 from .azure_vault import AzureKeyVaultClient
                 AzureKeyVaultClient.load_secrets_into_config(self)

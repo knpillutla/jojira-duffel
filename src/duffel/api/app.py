@@ -2,6 +2,7 @@
 FastAPI Application Initialization and Middleware Setup.
 """
 
+import logging
 from typing import Any
 
 from fastapi import FastAPI, Request
@@ -9,6 +10,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
 from .routes import router
+
+from ..cli.parser import PromptParserTracker, prompt_parser_meta
+
+logger = logging.getLogger("duffel.api")
 
 app = FastAPI(
     title="Jajira LLC - Duffel Flight REST API",
@@ -38,6 +43,8 @@ async def log_requests_and_responses(request: Request, call_next):
     req_start_dt = datetime.now()
     req_start_str = req_start_dt.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
     t0 = time.time()
+    prompt_parser_meta.set({})
+    PromptParserTracker.clear()
 
     # Reset per-request metrics on shared DuffelClient instance
     client = None
@@ -132,6 +139,18 @@ async def log_requests_and_responses(request: Request, call_next):
             except Exception:
                 pass
 
+    meta = PromptParserTracker.get_latest() or prompt_parser_meta.get({})
+    parser_engine = meta.get("engine", "N/A (Standard Request)")
+    llm_used_flag = "YES" if meta.get("llm_used") else ("NO" if "engine" in meta else "N/A")
+    extracted_json_val = meta.get("extracted_json")
+    if extracted_json_val is not None:
+        try:
+            json_display = json.dumps(extracted_json_val)
+        except Exception:
+            json_display = str(extracted_json_val)
+    else:
+        json_display = "N/A"
+
     # Print clean INFO-level request/response cycle summary box
     print("\n" + "=" * 85, flush=True)
     print(f"[REST REQUEST SUMMARY] {request.method} {request.url.path}", flush=True)
@@ -139,6 +158,9 @@ async def log_requests_and_responses(request: Request, call_next):
     print(f"  * Request Received Time      : {req_start_str}", flush=True)
     print(f"  * Response Sent Time        : {req_end_str}", flush=True)
     print(f"  * Total Execution Time      : {duration_ms} ms ({duration_sec}s)", flush=True)
+    print(f"  * Prompt Parser Engine      : {parser_engine}", flush=True)
+    print(f"  * LLM Used Evaluator        : {llm_used_flag}", flush=True)
+    print(f"  * Extracted Intent JSON     : {json_display}", flush=True)
     print(f"  * Duffel API Calls Made     : {api_calls}", flush=True)
     print(f"  * Delayed Calls (429 Limit) : {delayed_calls}", flush=True)
     print(f"  * Cache Hit Status          : {cache_hit_str}", flush=True)

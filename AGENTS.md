@@ -20,6 +20,10 @@
   5. `is_test` (BOOLEAN DEFAULT FALSE / INTEGER DEFAULT 0): Indicator flag used to identify test records for live production testing and troubleshooting.
 
 
+## Command Execution Policy
+
+- **Do Not Automatically Execute Commands**: Never automatically run shell/terminal commands, build scripts, deploy scripts, or scratchpad scripts unless explicitly requested by the user. Always show the command to the user or ask for confirmation first.
+
 ## Token Efficiency & Communication Policy
 
 
