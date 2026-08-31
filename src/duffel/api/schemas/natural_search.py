@@ -22,8 +22,10 @@ class NaturalSearchRequest(BaseModel):
     max_price: Optional[float] = Field(None, ge=0, description="Maximum price constraint")
     passengers_count: Optional[int] = Field(None, ge=1, le=9, description="Number of passengers")
     cabin_class: Optional[str] = Field(None, description="Cabin class: economy, business, etc.")
+    user_id: Optional[str] = Field(None, description="Optional user ID for search history & preferences recording")
     rooms: Optional[int] = Field(None, ge=1, le=10, description="Hotel rooms count")
     driver_age: Optional[int] = Field(None, ge=18, le=99, description="Car rental driver age")
+    user_location: Optional[str] = Field(None, description="User client location or GPS string e.g. 'New York (40.7128,-74.0060)'")
 
 
 class NaturalSearchMeta(BaseModel):

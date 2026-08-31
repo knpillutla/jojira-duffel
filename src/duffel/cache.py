@@ -207,6 +207,11 @@ class DuffelCache:
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
         with self._lock:
             self.read_latencies.append(elapsed_ms)
+        try:
+            from .timing import TimingTracker
+            TimingTracker.add_redis_read_time(elapsed_ms)
+        except Exception:
+            pass
         return res
 
     def exists(self, key: str) -> bool:
@@ -316,6 +321,11 @@ class DuffelCache:
         with self._lock:
             self.writes_count += 1
             self.write_latencies.append(elapsed_ms)
+        try:
+            from .timing import TimingTracker
+            TimingTracker.add_redis_write_time(elapsed_ms)
+        except Exception:
+            pass
         self._record_written_items(value)
 
     def delete(self, key: str) -> None:

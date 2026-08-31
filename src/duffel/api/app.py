@@ -32,6 +32,79 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi import HTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+
+
+@app.exception_handler(HTTPException)
+async def custom_http_exception_handler(request: Request, exc: HTTPException):
+    detail = exc.detail
+    message = str(detail)
+    error_code = "REQUEST_ERROR"
+    if "No Origin Found" in message or "origin" in message.lower():
+        error_code = "NO_ORIGIN_FOUND"
+        message = "No Origin Found. Please specify your departure origin city or airport in your query (e.g. 'Trip from Atlanta to Zurich') or include the X-User-Location header."
+    elif "No Destination Found" in message or "destination" in message.lower():
+        error_code = "NO_DESTINATION_FOUND"
+        message = "No Destination Found. Please specify your travel destination in your query."
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "status": "error",
+            "error_code": error_code,
+            "message": message,
+            "detail": detail if isinstance(detail, (dict, list)) else str(detail),
+            "path": str(request.url.path),
+        }
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "status": "error",
+            "error_code": "VALIDATION_ERROR",
+            "message": "Invalid request parameter format. Please check required fields.",
+            "detail": exc.errors(),
+            "path": str(request.url.path),
+        }
+    )
+
+
+@app.exception_handler(Exception)
+async def global_generic_exception_handler(request: Request, exc: Exception):
+    err_str = str(exc)
+    error_code = "INTERNAL_SERVER_ERROR"
+    status_code = 500
+
+    if "No Origin Found" in err_str:
+        error_code = "NO_ORIGIN_FOUND"
+        status_code = 400
+    elif "No Destination Found" in err_str:
+        error_code = "NO_DESTINATION_FOUND"
+        status_code = 400
+    elif "LLM" in err_str or "OpenAI" in err_str:
+        error_code = "LLM_EXECUTION_ERROR"
+        status_code = 502
+    elif "Duffel" in err_str or "duffel" in err_str.lower():
+        error_code = "DUFFEL_API_ERROR"
+        status_code = 502
+
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "status": "error",
+            "error_code": error_code,
+            "message": err_str,
+            "detail": err_str,
+            "path": str(request.url.path),
+        }
+    )
+
 
 @app.middleware("http")
 async def log_requests_and_responses(request: Request, call_next):
@@ -45,6 +118,11 @@ async def log_requests_and_responses(request: Request, call_next):
     t0 = time.time()
     prompt_parser_meta.set({})
     PromptParserTracker.clear()
+    try:
+        from ..timing import TimingTracker
+        TimingTracker.reset()
+    except Exception:
+        pass
 
     # Reset per-request metrics on shared DuffelClient instance
     client = None
@@ -195,6 +273,20 @@ async def log_requests_and_responses(request: Request, call_next):
         except Exception:
             pass
 
+    t_metrics = None
+    try:
+        from ..timing import TimingTracker
+        t_metrics = TimingTracker.get_metrics()
+    except Exception:
+        pass
+
+    redis_read_ms = t_metrics.redis_read_ms if t_metrics else 0.0
+    redis_write_ms = t_metrics.redis_write_ms if t_metrics else 0.0
+    llm_ms = t_metrics.llm_execution_ms if t_metrics else 0.0
+    duffel_api_ms = t_metrics.duffel_api_ms if t_metrics else 0.0
+    tracked_subtotal = redis_read_ms + redis_write_ms + llm_ms + duffel_api_ms
+    algo_ms = max(0.0, duration_ms - tracked_subtotal)
+
     # Print clean INFO-level request/response cycle summary box
     print("\n" + "=" * 85, flush=True)
     print(f"[REST REQUEST SUMMARY] {request.method} {request.url.path}", flush=True)
@@ -202,6 +294,13 @@ async def log_requests_and_responses(request: Request, call_next):
     print(f"  * Request Received Time      : {req_start_str}", flush=True)
     print(f"  * Response Sent Time        : {req_end_str}", flush=True)
     print(f"  * Total Execution Time      : {duration_ms} ms ({duration_sec}s)", flush=True)
+    print(f"  --- DETAILED TIME BREAKDOWN (PERFORMANCE METRICS) ---", flush=True)
+    print(f"  * Redis Cache Read Time     : {redis_read_ms:.2f} ms", flush=True)
+    print(f"  * Redis Cache Write Time    : {redis_write_ms:.2f} ms", flush=True)
+    print(f"  * LLM Execution Time        : {llm_ms:.2f} ms", flush=True)
+    print(f"  * Duffel API Call Time      : {duffel_api_ms:.2f} ms", flush=True)
+    print(f"  * Algorithm & Synthesis Time: {algo_ms:.2f} ms", flush=True)
+    print(f"  -----------------------------------------------------", flush=True)
     print(f"  * Prompt Parser Engine      : {parser_engine}", flush=True)
     print(f"  * LLM Used Evaluator        : {llm_used_flag}", flush=True)
     print(f"  * Extracted Intent JSON     : {json_display}", flush=True)

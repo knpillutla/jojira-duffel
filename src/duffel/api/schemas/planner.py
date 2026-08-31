@@ -58,6 +58,7 @@ class ItineraryPlannerRequest(BaseModel):
     rooms: Optional[int] = Field(None, ge=1, le=10, description="Number of hotel rooms (auto-calculated if omitted)")
     driver_age: int = Field(30, ge=18, le=99, description="Driver age for car rental")
     interests: Optional[list[str]] = Field(None, description="Travel interests e.g. ['Art', 'Food', 'History']")
+    user_location: Optional[str] = Field(None, description="User client location or GPS string e.g. 'New York (40.7128,-74.0060)'")
     user_id: Optional[str] = Field(None, description="Authenticated user ID to automatically record search history e.g. 'usr_0cba00ca3da1'")
     force_refresh: bool = Field(False, description="Set True to bypass Redis cache")
 

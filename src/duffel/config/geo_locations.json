@@ -1,4 +1,115 @@
 {
+  "ZURICH": {
+    "latitude": 47.3769,
+    "longitude": 8.5417,
+    "address": "Zurich, Switzerland",
+    "name": "Zurich City Centre"
+  },
+  "ZRH": {
+    "latitude": 47.4633881,
+    "longitude": 8.5533661,
+    "address": "Flughafen Zürich, Himmelbachweg, Kloten, Bezirk Bülach, Zürich, 8058, Schweiz/Suisse/Svizzera/Svizra",
+    "name": "ZRH"
+  },
+  "DELHI": {
+    "latitude": 28.6328027,
+    "longitude": 77.2197713,
+    "address": "Delhi, India",
+    "name": "delhi"
+  },
+  "DEL": {
+    "latitude": 28.5562,
+    "longitude": 77.1,
+    "address": "Indira Gandhi International Airport (DEL), Delhi, India",
+    "name": "Delhi Airport"
+  },
+  "MUMBAI": {
+    "latitude": 19.076,
+    "longitude": 72.8777,
+    "address": "Mumbai, Maharashtra, India",
+    "name": "Mumbai City Centre"
+  },
+  "BOM": {
+    "latitude": 19.0896,
+    "longitude": 72.8656,
+    "address": "Chhatrapati Shivaji Maharaj Airport (BOM), Mumbai, India",
+    "name": "Mumbai Airport"
+  },
+  "DUBAI": {
+    "latitude": 24.89344,
+    "longitude": 55.143777,
+    "address": "Al Maktoum International Airport, Dubai",
+    "name": "Al Maktoum International Airport",
+    "iata": "DWC"
+  },
+  "DXB": {
+    "latitude": 25.2532,
+    "longitude": 55.3657,
+    "address": "Dubai International Airport (DXB), UAE",
+    "name": "Dubai Airport"
+  },
+  "CALGARY": {
+    "latitude": 51.0456064,
+    "longitude": -114.057541,
+    "address": "Calgary, Alberta, Canada",
+    "name": "CALGARY"
+  },
+  "YYC": {
+    "latitude": 51.1222604,
+    "longitude": -114.013541,
+    "address": "Calgary International Airport, 2000, Airport Road NE, Calgary International Airport, Calgary, Alberta, T2E 6W5, Canada",
+    "name": "YYC"
+  },
+  "AMSTERDAM": {
+    "latitude": 52.3676,
+    "longitude": 4.9041,
+    "address": "Amsterdam, Netherlands",
+    "name": "Amsterdam Centre"
+  },
+  "AMS": {
+    "latitude": 52.3105,
+    "longitude": 4.7683,
+    "address": "Amsterdam Airport Schiphol (AMS), Netherlands",
+    "name": "Schiphol Airport"
+  },
+  "FRANKFURT": {
+    "latitude": 50.1109,
+    "longitude": 8.6821,
+    "address": "Frankfurt am Main, Germany",
+    "name": "Frankfurt City Centre"
+  },
+  "FRA": {
+    "latitude": 50.0379,
+    "longitude": 8.5622,
+    "address": "Frankfurt Airport (FRA), Germany",
+    "name": "Frankfurt Airport"
+  },
+  "BERLIN": {
+    "latitude": 52.52,
+    "longitude": 13.405,
+    "address": "Berlin, Germany",
+    "name": "Berlin City Centre"
+  },
+  "BER": {
+    "latitude": 52.3667,
+    "longitude": 13.5033,
+    "address": "Berlin Brandenburg Airport (BER), Germany",
+    "name": "Berlin Airport"
+  },
+  "MADRID": {
+    "latitude": 40.49923,
+    "longitude": -3.567169,
+    "address": "Adolfo Suárez Madrid-Barajas Airport, Madrid",
+    "name": "Adolfo Suárez Madrid-Barajas Airport",
+    "iata": "MAD"
+  },
+  "MAD": {
+    "latitude": 40.49923,
+    "longitude": -3.567169,
+    "address": "Adolfo Suárez Madrid-Barajas Airport, Madrid",
+    "name": "Adolfo Suárez Madrid-Barajas Airport",
+    "iata": "MAD"
+  },
   "PARIS": {
     "latitude": 48.8566,
     "longitude": 2.3522,
@@ -1643,20 +1754,6 @@
     "address": "Adnan Menderes Airport, İzmir",
     "name": "Adnan Menderes Airport",
     "iata": "ADB"
-  },
-  "MAD": {
-    "latitude": 40.49923,
-    "longitude": -3.567169,
-    "address": "Adolfo Suárez Madrid-Barajas Airport, Madrid",
-    "name": "Adolfo Suárez Madrid-Barajas Airport",
-    "iata": "MAD"
-  },
-  "MADRID": {
-    "latitude": 40.49923,
-    "longitude": -3.567169,
-    "address": "Adolfo Suárez Madrid-Barajas Airport, Madrid",
-    "name": "Adolfo Suárez Madrid-Barajas Airport",
-    "iata": "MAD"
   },
   "MADRID (MAD)": {
     "latitude": 40.49923,
@@ -5529,13 +5626,6 @@
     "name": "Al Maktoum International Airport",
     "iata": "DWC"
   },
-  "DUBAI": {
-    "latitude": 24.89344,
-    "longitude": 55.143777,
-    "address": "Al Maktoum International Airport, Dubai",
-    "name": "Al Maktoum International Airport",
-    "iata": "DWC"
-  },
   "DUBAI (DWC)": {
     "latitude": 24.89344,
     "longitude": 55.143777,
@@ -5682,29 +5772,11 @@
     "address": "Октябрьский, Тяжинский муниципальный округ, Кемеровская область, Сибирский федеральный округ, Россия",
     "name": "OCTOBER"
   },
-  "ZRH": {
-    "latitude": 47.4633881,
-    "longitude": 8.5533661,
-    "address": "Flughafen Zürich, Himmelbachweg, Kloten, Bezirk Bülach, Zürich, 8058, Schweiz/Suisse/Svizzera/Svizra",
-    "name": "ZRH"
-  },
-  "DELHI": {
-    "latitude": 28.6328027,
-    "longitude": 77.2197713,
-    "address": "Delhi, India",
-    "name": "delhi"
-  },
   "NRT": {
     "latitude": 8.6772337,
     "longitude": 99.7309635,
     "address": "จังหวัดนครศรีธรรมราช, ประเทศไทย",
     "name": "NRT"
-  },
-  "YYC": {
-    "latitude": 51.1222604,
-    "longitude": -114.013541,
-    "address": "Calgary International Airport, 2000, Airport Road NE, Calgary International Airport, Calgary, Alberta, T2E 6W5, Canada",
-    "name": "YYC"
   },
   "NEWYORK": {
     "latitude": 35.7251496,
@@ -5718,12 +5790,6 @@
     "address": "4, Sęp, Starzechowice, gmina Fałków, powiat konecki, województwo świętokrzyskie, 26-260, Polska",
     "name": "SEP 4"
   },
-  "CALGARY": {
-    "latitude": 51.0456064,
-    "longitude": -114.057541,
-    "address": "Calgary, Alberta, Canada",
-    "name": "CALGARY"
-  },
   "SEPTEMBER 22": {
     "latitude": 50.8525136,
     "longitude": 4.3792509,
@@ -5735,5 +5801,17 @@
     "longitude": -82.8930477,
     "address": "John Glenn Columbus International Airport, 4600, International Gateway, Columbus, Sharon, Franklin County, Ohio, 43219, United States",
     "name": "CMH"
+  },
+  "BOSTON": {
+    "latitude": 42.3588336,
+    "longitude": -71.0578303,
+    "address": "Boston, Suffolk County, Massachusetts, United States",
+    "name": "Boston"
+  },
+  "SAN DIEGO": {
+    "latitude": 32.7174202,
+    "longitude": -117.162772,
+    "address": "San Diego, San Diego County, California, United States",
+    "name": "San Diego"
   }
 }

@@ -30,11 +30,29 @@ def format_proper_title(text: str) -> str:
         w_upper = word.upper()
         if w_upper in uppercase_words:
             result.append(w_upper)
-        elif i > 0 and word.lower() in lowercase_words:
-            result.append(word.lower())
-        else:
+        elif i == 0 or word.lower() not in lowercase_words:
             result.append(word.capitalize())
+        else:
+            result.append(word.lower())
     return "".join(result)
+
+
+def calculate_haversine_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> tuple[float, float]:
+    """Calculates geodesic distance between two coordinates in kilometers and miles."""
+    try:
+        l1, g1, l2, g2 = float(lat1), float(lng1), float(lat2), float(lng2)
+        if not l1 or not g1 or not l2 or not g2 or (l1 == l2 and g1 == g2):
+            return 0.0, 0.0
+        r_km = 6371.0
+        dlat = math.radians(l2 - l1)
+        dlng = math.radians(g2 - g1)
+        a = math.sin(dlat / 2.0)**2 + math.cos(math.radians(l1)) * math.cos(math.radians(l2)) * math.sin(dlng / 2.0)**2
+        c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
+        dist_km = r_km * c
+        dist_mi = dist_km * 0.621371
+        return round(dist_km, 2), round(dist_mi, 2)
+    except Exception:
+        return 0.0, 0.0
 
 
 # LLM Usage & Call Metrics Tracking Counter
@@ -88,6 +106,10 @@ class TravelPlannerService(BaseService):
         rooms: Optional[int] = None,
         driver_age: int = 30,
         interests: Optional[list[str]] = None,
+        user_location: Optional[str] = None,
+        user_timezone: Optional[str] = None,
+        user_language: Optional[str] = None,
+        user_coordinates: Optional[str] = None,
         force_refresh: bool = False,
     ) -> dict[str, Any]:
 
@@ -97,16 +119,52 @@ class TravelPlannerService(BaseService):
         """
         # Extract intent if parameters missing
         from ..cli.parser import PromptExtractor
-        intent = PromptExtractor.extract_natural_intent(prompt)
+        intent = PromptExtractor.extract_natural_intent(prompt, user_location=user_location)
 
-        dest_raw = destination or intent.get("destination") or "Paris"
+        iata_city_map = {
+            "ZRH": "Zurich", "CDG": "Paris", "PAR": "Paris", "LHR": "London", "LON": "London",
+            "JFK": "New York", "NYC": "New York", "DEL": "Delhi", "BOM": "Mumbai", "DXB": "Dubai",
+            "YYC": "Calgary", "YVR": "Vancouver", "AMS": "Amsterdam", "FRA": "Frankfurt",
+            "BER": "Berlin", "MAD": "Madrid", "FCO": "Rome", "VIE": "Vienna", "LAX": "Los Angeles"
+        }
+
+        raw_dest_input = destination or intent.get("destination_city") or intent.get("destination")
+        if not raw_dest_input:
+            raise ValueError("No Destination Found. Please specify your travel destination city in your query or request body.")
+
+        dest_upper_input = str(raw_dest_input).upper()
+        if dest_upper_input in iata_city_map:
+            dest_raw = iata_city_map[dest_upper_input]
+        elif len(dest_upper_input) == 3 and dest_upper_input.isalpha():
+            dest_raw = raw_dest_input
+        else:
+            dest_raw = raw_dest_input
+
         dest_clean = format_proper_title(dest_raw)
-        dest_upper = dest_clean.upper()
+        dest_upper = PromptExtractor._resolve_iata(dest_clean)
+        if len(dest_upper) != 3 or not dest_upper.isalpha():
+            dest_upper = PromptExtractor.resolve_location_with_llm(dest_clean)
 
 
-        origin_code = (origin or (intent.get("origin") if len(intent.get("origin") or "") == 3 else None) or "ATL").upper()
-        if len(origin_code) != 3 or not origin_code.isalpha() or origin_code == dest_upper:
-            origin_code = "JFK" if dest_upper != "JFK" else "ATL"
+        # Resolve Origin with No Origin Found error check
+        resolved_origin = origin or intent.get("origin")
+        if not resolved_origin and user_location:
+            user_iata = PromptExtractor._resolve_iata(user_location)
+            if user_iata and len(user_iata) == 3 and user_iata.isalpha():
+                resolved_origin = user_iata
+
+        if not resolved_origin:
+            raise ValueError("No Origin Found. Please specify your departure origin city or airport in your prompt (e.g. 'Trip from Atlanta to Zurich') or include the X-User-Location header.")
+
+        origin_code = str(resolved_origin).strip().upper()
+        if len(origin_code) != 3 or not origin_code.isalpha():
+            origin_code = PromptExtractor._resolve_iata(origin_code)
+
+        if len(origin_code) != 3 or not origin_code.isalpha():
+            raise ValueError(f"No Origin Found. Could not resolve valid departure IATA airport code for origin '{resolved_origin}'.")
+
+        if origin_code == dest_upper:
+            raise ValueError(f"Origin airport '{origin_code}' cannot be the same as destination '{dest_upper}'. Please specify different origin and destination cities.")
 
         # Resolve duration days
         duration_days = days or 4
@@ -180,13 +238,27 @@ class TravelPlannerService(BaseService):
                 print(f"[PLANNER PG LOOKUP NOTICE] PostgreSQL check notice: {pg_err}")
 
 
-        # Map Center & Geo Coordinates
-        map_center = DESTINATION_GEO_MAP.get(
-            dest_upper,
-            {"latitude": 48.8566, "longitude": 2.3522, "address": f"{dest_clean} Central", "name": f"{dest_clean} City Center"}
-        )
-        base_lat = map_center.get("latitude", 48.8566)
-        base_lng = map_center.get("longitude", 2.3522)
+        # Map Center & Geo Coordinates Resolution
+        map_center = DESTINATION_GEO_MAP.get(dest_upper) or DESTINATION_GEO_MAP.get(dest_clean.upper()) or DESTINATION_GEO_MAP.get(str(raw_dest_input).upper())
+        if not map_center:
+            try:
+                from .locations import resolve_geo_location
+                resolved = resolve_geo_location(dest_clean)
+                if resolved:
+                    map_center = {
+                        "latitude": resolved["latitude"],
+                        "longitude": resolved["longitude"],
+                        "address": f"{dest_clean} City Centre",
+                        "name": f"{dest_clean} City Centre"
+                    }
+            except Exception:
+                pass
+
+        if not map_center:
+            map_center = {"latitude": 47.3769, "longitude": 8.5417, "address": f"{dest_clean} Central", "name": f"{dest_clean} City Center"}
+
+        base_lat = map_center.get("latitude", 47.3769)
+        base_lng = map_center.get("longitude", 8.5417)
 
         # Load System Prompt dynamically from system_prompts.json config file
         cfg = getattr(self.client, "config", None)
@@ -201,19 +273,146 @@ class TravelPlannerService(BaseService):
             "4. EXACT JSON ONLY: Return strictly valid JSON adhering to the specified schema."
         )
 
+        # =========================================================================
+        # STEP 1 (FIRST LLM CALL VIA AI SEARCH SERVICE):
+        # Perform AI Search first with the natural language prompt to extract intent,
+        # apply user preferences/filters, and fetch the cheapest live flight offer.
+        # =========================================================================
+        ai_search_svc = getattr(self.client_app, "ai_search", None)
+        if not ai_search_svc:
+            from .ai_search import AISearchService
+            ai_search_svc = AISearchService(self.http_client, cache=self.cache, adapter=self.adapter, client=self.client)
+
+        ai_overrides = {
+            "selected_types": ["flights"],
+            "user_location": user_location,
+        }
+        if origin_code:
+            ai_overrides["origin"] = origin_code
+        if dest_upper:
+            ai_overrides["destination"] = dest_upper
+        if start_date:
+            ai_overrides["departure_date"] = start_date
+        if end_date:
+            ai_overrides["return_date"] = end_date
+        if passengers_count:
+            ai_overrides["passengers_count"] = passengers_count
+
+        cheapest_flight_offer = None
+        try:
+            ai_search_res = ai_search_svc.search_ai(
+                prompt=prompt,
+                favorite_airline="",
+                force_refresh=force_refresh,
+                overrides=ai_overrides,
+            )
+            data_sec = ai_search_res.get("data", {}) if isinstance(ai_search_res, dict) else {}
+            offers = data_sec.get("offers", []) or data_sec.get("top_bundles", []) or []
+            if offers:
+                cheapest_flight_offer = offers[0]
+        except Exception as ai_err:
+            print(f"[PLANNER NOTICE] First-step AI Search flight lookup notice: {ai_err}", flush=True)
+
+        top_3_bundles, component_pricing, pricing_meta = self._fetch_live_pricing(
+            origin=origin_code,
+            destination=dest_upper,
+            departure_date=start_date,
+            return_date=end_date,
+            passengers_count=passengers_count,
+            rooms=rooms_calculated,
+            driver_age=driver_age,
+        )
+
+        outbound_dep = component_pricing.get("outbound_departure_time", "06:30 AM")
+        outbound_arr = component_pricing.get("outbound_arrival_time", "12:30 PM")
+        return_dep = component_pricing.get("return_departure_time", "05:00 PM")
+        return_arr = component_pricing.get("return_arrival_time", "11:00 PM")
+
+        if cheapest_flight_offer:
+            if cheapest_flight_offer.get("total_amount"):
+                component_pricing["flight_cost"] = float(cheapest_flight_offer["total_amount"]) / max(1, passengers_count)
+
+            fl_slices = cheapest_flight_offer.get("slices") or []
+            if fl_slices and isinstance(fl_slices[0], dict):
+                s1 = fl_slices[0]
+                dep_raw = s1.get("departing_at") or s1.get("departure_time")
+                arr_raw = s1.get("arriving_at") or s1.get("arrival_time")
+                if dep_raw and "T" in str(dep_raw):
+                    try:
+                        dt = datetime.fromisoformat(str(dep_raw).replace("Z", "+00:00"))
+                        outbound_dep = dt.strftime("%I:%M %p")
+                    except Exception:
+                        pass
+                if arr_raw and "T" in str(arr_raw):
+                    try:
+                        dt = datetime.fromisoformat(str(arr_raw).replace("Z", "+00:00"))
+                        outbound_arr = dt.strftime("%I:%M %p")
+                    except Exception:
+                        pass
+
+            if len(fl_slices) > 1 and isinstance(fl_slices[1], dict):
+                s2 = fl_slices[1]
+                ret_dep_raw = s2.get("departing_at") or s2.get("departure_time")
+                ret_arr_raw = s2.get("arriving_at") or s2.get("arrival_time")
+                if ret_dep_raw and "T" in str(ret_dep_raw):
+                    try:
+                        dt = datetime.fromisoformat(str(ret_dep_raw).replace("Z", "+00:00"))
+                        return_dep = dt.strftime("%I:%M %p")
+                    except Exception:
+                        pass
+                if ret_arr_raw and "T" in str(ret_arr_raw):
+                    try:
+                        dt = datetime.fromisoformat(str(ret_arr_raw).replace("Z", "+00:00"))
+                        return_arr = dt.strftime("%I:%M %p")
+                    except Exception:
+                        pass
+
+        # Check if flight arrival is after 12:00 PM to mandate Airport Terminal Lunch
+        is_late_arrival = False
+        if outbound_arr and "PM" in str(outbound_arr).upper():
+            try:
+                hour_num = int(str(outbound_arr).split(":")[0].strip())
+                if hour_num == 12 or (1 <= hour_num < 12):
+                    is_late_arrival = True
+            except Exception:
+                pass
+
+        lunch_instruction = (
+            f"AIRPORT LUNCH PROTOCOL (FLIGHT ARRIVAL AT {outbound_arr}): Outbound flight arrives at {outbound_arr} (after 12:00 PM). "
+            f"Schedule Day 1 Lunch IMMEDIATELY at an Airport Terminal Restaurant/Cafe upon landing (e.g. at 01:00 PM) before picking up rental car or traveling into the city center, "
+            f"otherwise it will be too late to pick up the rental car or eat. LUNCH MUST NEVER BE SCHEDULED AFTER 02:00 PM ON ANY DAY!"
+        ) if is_late_arrival else "LUNCH CUTOFF RULE: Lunch every day MUST NEVER be scheduled after 02:00 PM (schedule between 11:30 AM and 01:30 PM)."
+
+        evening_breakfast_instruction = (
+            "DAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n"
+            "- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM at best (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n"
+            "- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest (e.g. 05:45 PM - 07:45 PM). NEVER extend any attraction past 08:00 PM (NEVER 08:30 PM, 09:00 PM, or 10:45 PM).\n"
+            "- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (e.g. 08:00 PM - 09:30 PM). Never start dinner after 08:00 PM.\n"
+            "- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night', with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n"
+            "- NO OVERNIGHT / EARLY MORNING SLOTS: Under no circumstances should any activity, dinner, or hotel return be scheduled past 10:00 PM (never 10:30 PM, 11:00 PM, 12:00 AM, 01:00 AM, or 06:15 AM).\n"
+            "- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM. If sit-in breakfast is not possible due to morning time constraints or tight schedules, recommend a nearby local coffee shop, artisanal bakery, or quick cafe to grab coffee & pastries instead of a long sit-in breakfast."
+        )
+
+        # =========================================================================
+        # STEP 2 (SECOND LLM CALL FOR ITINERARY SYNTHESIS):
+        # Inject exact live flight timings from AI Search into the LLM prompt.
+        # =========================================================================
         user_prompt = (
             f"Plan a {duration_days}-day trip to {dest_clean} from {start_date} to {end_date} for {passengers_count} passenger(s). "
-            f"Style: {style}, Budget: {budget}. Included components: "
-            f"Flights={include_flights}, Hotels={include_hotels} ({rooms_calculated} rooms), Cars={include_cars} ({cars_calculated} car), Trains={include_trains}, Buses={include_buses}, "
+            f"Style: {style}, Budget: {budget}.\n"
+            f"EXACT LIVE FLIGHT SCHEDULE FROM AI SEARCH:\n"
+            f"- Outbound Flight: Departs {origin_code} at {outbound_dep}, Arrives in {dest_clean} at {outbound_arr}.\n"
+            f"- Return Flight: Departs {dest_clean} at {return_dep}, Arrives in {origin_code} at {return_arr}.\n"
+            f"{lunch_instruction}\n"
+            f"{evening_breakfast_instruction}\n"
+            f"TIMELINE REQUIREMENT: On Day 1, schedule all activities and hotel check-in strictly AFTER flight arrival at {outbound_arr}. "
+            f"On Final Day, schedule all activities and hotel check-out to wrap up before return flight departure at {return_dep}.\n"
+            f"Included components: Flights={include_flights}, Hotels={include_hotels} ({rooms_calculated} rooms), Cars={include_cars} ({cars_calculated} car), Trains={include_trains}, Buses={include_buses}, "
             f"Attractions={include_attractions}, Activities={include_activities}, SeasonalAttractions={include_seasonal_attractions}, SeasonalActivities={include_seasonal_activities}. Prompt details: '{prompt}'."
         )
 
-
-        from concurrent.futures import ThreadPoolExecutor
-        self.executor = ThreadPoolExecutor(max_workers=2)
-        # Parallel Concurrency: Submit LLM Orchestration and Sub-API Price Searches in parallel
-        future_llm = self.executor.submit(
-            self._orchestrate_llm_itinerary,
+        # STEP 3: Generate Day-by-Day Itinerary with LLM based on Live Flight Times
+        llm_itinerary_days, llm_meta = self._orchestrate_llm_itinerary(
             system_prompt,
             user_prompt,
             dest_clean,
@@ -224,30 +423,11 @@ class TravelPlannerService(BaseService):
             include_attractions,
             include_activities,
         )
-        future_pricing = self.executor.submit(
-            self._fetch_live_pricing,
-            origin_code,
-            dest_upper,
-            start_date,
-            end_date,
-            passengers_count,
-            rooms_calculated,
-            driver_age,
-        )
-
-        # Wait for parallel tasks to complete concurrently
-        llm_itinerary_days, llm_meta = future_llm.result()
-        top_3_bundles, component_pricing, pricing_meta = future_pricing.result()
-
-        if top_3_bundles:
-            top_3_bundles.sort(key=lambda b: float(b.get("total_package_price") or b.get("total_amount") or 0.0))
-
-
 
         # Compute Daily Total Costs & Attach Components to Daily Schedule
-        flight_cost = component_pricing.get("flight_cost", 450.0) * passengers_count if include_flights else 0.0
-        hotel_cost_per_night = component_pricing.get("hotel_cost_per_night", 160.0) * rooms_calculated if include_hotels else 0.0
-        car_cost_total = component_pricing.get("car_cost_total", 240.0) * cars_calculated if include_cars else 0.0
+        flight_cost = component_pricing.get("flight_cost", 0.0) * passengers_count if include_flights else 0.0
+        hotel_cost_per_night = component_pricing.get("hotel_cost_per_night", 0.0) * rooms_calculated if include_hotels else 0.0
+        car_cost_total = component_pricing.get("car_cost_total", 0.0) * cars_calculated if include_cars else 0.0
         car_cost_per_day = car_cost_total / max(1, duration_days)
 
         daily_itinerary = []
@@ -289,16 +469,46 @@ class TravelPlannerService(BaseService):
             day_activities_cost = 0.0
 
             if include_flights and d_num == 1:
-
                 day_items.append({
                     "id": f"item_fl_{d_num}",
                     "type": "flight",
-                    "name": f"Airline Flight ({origin_code} -> {dest_upper})",
-                    "description": f"Roundtrip flight for {passengers_count} passenger(s)",
+                    "name": f"Depart {origin_code} to {dest_clean}",
+                    "description": f"Outbound Flight from {origin_code} to {dest_clean} ({passengers_count} pax). Departure time: {outbound_dep} from {origin_code}, Arrival time: {outbound_arr} in {dest_clean}.",
                     "price": round(flight_cost, 2),
                     "currency": "USD",
-                    "time_slot": "08:30 AM - 02:30 PM",
-                    "geo_location": {"name": f"{dest_clean} Airport", "latitude": base_lat + 0.05, "longitude": base_lng + 0.05}
+                    "departure_time": outbound_dep,
+                    "arrival_time": outbound_arr,
+                    "time_slot": f"Departure from {origin_code}: {outbound_dep} | Arrival in {dest_clean}: {outbound_arr}",
+                    "address": f"{dest_clean} International Airport ({dest_upper})",
+                    "phone_number": "+1 800 555 0199",
+                    "geo_location": {
+                        "name": f"{dest_clean} Airport",
+                        "address": f"{dest_clean} International Airport ({dest_upper})",
+                        "phone_number": "+1 800 555 0199",
+                        "latitude": base_lat + 0.05,
+                        "longitude": base_lng + 0.05
+                    }
+                })
+            elif include_flights and d_num == duration_days:
+                day_items.append({
+                    "id": f"item_fl_ret_{d_num}",
+                    "type": "flight",
+                    "name": f"Depart {dest_clean} to {origin_code}",
+                    "description": f"Return Flight from {dest_clean} to {origin_code} ({passengers_count} pax). Departure time: {return_dep} from {dest_clean}, Arrival time: {return_arr} in {origin_code}.",
+                    "price": 0.0,
+                    "currency": "USD",
+                    "departure_time": return_dep,
+                    "arrival_time": return_arr,
+                    "time_slot": f"Departure from {dest_clean}: {return_dep} | Arrival in {origin_code}: {return_arr}",
+                    "address": f"{dest_clean} International Airport ({dest_upper})",
+                    "phone_number": "+1 800 555 0199",
+                    "geo_location": {
+                        "name": f"{dest_clean} Airport",
+                        "address": f"{dest_clean} International Airport ({dest_upper})",
+                        "phone_number": "+1 800 555 0199",
+                        "latitude": base_lat + 0.05,
+                        "longitude": base_lng + 0.05
+                    }
                 })
 
             if include_cars and d_num == 1:
@@ -309,61 +519,195 @@ class TravelPlannerService(BaseService):
                     "description": f"{duration_days}-day rental for {passengers_count} passenger(s)",
                     "price": round(car_cost_total, 2),
                     "currency": "USD",
-                    "time_slot": "10:00 AM",
-                    "geo_location": {"name": f"{dest_clean} Car Pickup", "latitude": base_lat + 0.05, "longitude": base_lng + 0.05}
+                    "departure_time": "01:15 PM",
+                    "arrival_time": "01:15 PM",
+                    "time_slot": "01:15 PM - Vehicle Rental Pickup",
+                    "address": f"Rental Center, {dest_clean} Airport",
+                    "phone_number": "+1 800 555 0244",
+                    "geo_location": {
+                        "name": f"{dest_clean} Car Pickup",
+                        "address": f"Rental Center, {dest_clean} Airport",
+                        "phone_number": "+1 800 555 0244",
+                        "latitude": base_lat + 0.05,
+                        "longitude": base_lng + 0.05
+                    }
                 })
 
-            if include_hotels:
+            if include_hotels and d_num == 1:
+                ht_slot = "02:15 PM - Hotel Check-in"
+                ht_dep = "02:15 PM"
                 day_items.append({
                     "id": f"item_ht_{d_num}",
                     "type": "hotel",
                     "name": f"Grand {dest_clean} Hotel ({rooms_calculated} Room(s))",
-                    "description": f"Night {d_num} of {duration_days}",
+                    "description": f"Check-in & Stay (Night 1 of {duration_days})",
                     "price": round(hotel_cost_per_night, 2),
                     "currency": "USD",
-                    "time_slot": "03:00 PM Check-in",
-                    "geo_location": {"name": f"Grand {dest_clean} Hotel", "latitude": base_lat, "longitude": base_lng}
+                    "departure_time": ht_dep,
+                    "arrival_time": ht_dep,
+                    "time_slot": ht_slot,
+                    "address": f"10 Central Avenue, {dest_clean}",
+                    "phone_number": "+1 800 555 0388",
+                    "geo_location": {
+                        "name": f"Grand {dest_clean} Hotel",
+                        "address": f"10 Central Avenue, {dest_clean}",
+                        "phone_number": "+1 800 555 0388",
+                        "latitude": base_lat,
+                        "longitude": base_lng
+                    }
                 })
 
             for act in day.get("activities", []):
-                act_price = float(act.get("price_per_person") or act.get("price") or 25.0) * passengers_count
-                day_activities_cost += act_price
+                act_title = act.get("title") or act.get("name") or act.get("activity_name") or act.get("activity") or ""
+                act_lower = act_title.strip().lower()
+                desc_str = (act.get("description") or "").lower()
 
-                act_title = act.get("title") or act.get("name") or act.get("activity_name") or act.get("activity")
+                # Filter out duplicate vehicle rental, hotel check-in, and flight items generated in activities list
+                if any(k in act_lower or k in desc_str for k in [
+                    "vehicle rental", "car rental", "rental car",
+                    "hotel check-in", "check-in", "check in", "hotel checkin",
+                    "outbound flight", "return flight", "flight arrival", "flight departure",
+                    "airport arrival", "airport departure", "arrive at airport", "arrival at airport",
+                    "landing at", "deplaning", "baggage claim", "airport transfer",
+                    "depart from", "flight from", "flight to"
+                ]):
+                    continue
+
+                # Clean and standardize "Return to Hotel" night rest cards
+                is_hotel_return = any(k in act_lower for k in ["return to hotel", "back to hotel", "rest for the night", "night rest", "hotel rest"])
+                if is_hotel_return:
+                    act_title = "Return to Hotel & Rest"
+                    act_price = 0.0
+                    act_slot = "09:30 PM - 10:00 PM (Night Rest)"
+                    dep_time = "09:30 PM"
+                    arr_time = "10:00 PM"
+                    act_type = "hotel"
+                else:
+                    act_price = float(act.get("price_per_person") or act.get("price") or 25.0) * passengers_count
+                    day_activities_cost += act_price
+                    act_slot = act.get("time_slot") or "01:00 PM"
+                    dep_time = act.get("departure_time") or act_slot.split("-")[0].strip() if "-" in act_slot else "01:00 PM"
+                    arr_time = act.get("arrival_time") or act_slot.split("-")[1].strip() if "-" in act_slot else "02:30 PM"
+                    act_type = "attraction" if act.get("category") in ["Sightseeing", "Culture"] else "activity"
+
                 if not act_title or act_title.strip().lower() in ["activity", "attraction"]:
-                    desc_str = act.get("description") or ""
-                    act_title = desc_str.split(".")[0][:50] if desc_str else f"{dest_clean} Experience"
+                    act_title = act.get("description", "").split(".")[0][:50] if act.get("description") else f"{dest_clean} Experience"
+
+                geo = act.get("geo_location") or {}
+                if isinstance(geo, dict):
+                    act_addr = geo.get("address") or act.get("address") or f"{act_title}, {dest_clean}"
+                    act_phone = geo.get("phone_number") or geo.get("phone") or act.get("phone_number") or "+1 800 555 0700"
+                    geo["address"] = act_addr
+                    geo["phone_number"] = act_phone
+                else:
+                    act_addr = f"{act_title}, {dest_clean}"
+                    act_phone = "+1 800 555 0700"
+                    geo = {
+                        "name": act_title,
+                        "address": act_addr,
+                        "phone_number": act_phone,
+                        "latitude": base_lat,
+                        "longitude": base_lng
+                    }
 
                 day_items.append({
                     "id": f"item_act_{d_num}_{pin_idx}",
-                    "type": "attraction" if act.get("category") in ["Sightseeing", "Culture"] else "activity",
+                    "type": act_type,
                     "name": act_title,
                     "title": act_title,
                     "activity_name": act_title,
                     "activity": act_title,
                     "attraction_name": act_title,
-                    "description": act.get("description") or act_title,
+                    "description": act.get("description") or f"Explore {act_title} in {dest_clean}.",
                     "price": round(act_price, 2),
                     "currency": "USD",
-                    "time_slot": act.get("time_slot", "01:00 PM"),
-                    "rating": act.get("rating", 4.7),
-                    "geo_location": act.get("geo_location")
+                    "departure_time": dep_time,
+                    "arrival_time": arr_time,
+                    "time_slot": act_slot,
+                    "address": act_addr,
+                    "phone_number": act_phone,
+                    "rating": float(act.get("rating") or 4.7),
+                    "reviews_count": int(act.get("reviews_count") or 450),
+                    "geo_location": geo
                 })
 
-                
                 # Add Map Pin
-                geo = act.get("geo_location", {})
                 map_pins.append({
                     "id": f"pin_{pin_idx}",
-                    "title": act.get("title"),
-                    "category": "attraction",
+                    "title": act_title,
+                    "category": act.get("category", "attraction"),
                     "latitude": geo.get("latitude", base_lat),
                     "longitude": geo.get("longitude", base_lng),
                     "day_number": d_num,
-                    "address": geo.get("address", f"{dest_clean} Landmark Area"),
+                    "address": act_addr,
+                    "phone_number": act_phone,
                     "rating": act.get("rating", 4.7)
                 })
                 pin_idx += 1
+
+            # Chronologically sort all items for the day by start time (06:30 AM < 08:00 AM < 10:00 AM < 01:00 PM < 03:00 PM < 07:30 PM)
+            def _parse_time_minutes(item: dict[str, Any]) -> int:
+                ts = str(item.get("time_slot") or item.get("departure_time") or "").upper().strip()
+                match = re.search(r"(\d{1,2}):(\d{2})\s*(AM|PM)", ts)
+                if match:
+                    h = int(match.group(1))
+                    m = int(match.group(2))
+                    ampm = match.group(3)
+                    if ampm == "PM" and h != 12:
+                        h += 12
+                    elif ampm == "AM" and h == 12:
+                        h = 0
+                    return h * 60 + m
+                if "BREAKFAST" in ts or "MORNING" in ts:
+                    return 480
+                if "LUNCH" in ts or "NOON" in ts:
+                    return 780
+                if "AFTERNOON" in ts:
+                    return 930
+                if "EVENING" in ts or "DINNER" in ts or "NIGHT" in ts:
+                    return 1170
+                return 720
+
+            day_items.sort(key=_parse_time_minutes)
+
+            # Compute distance in miles/km and transit mode relative to preceding activity
+            for item_idx in range(len(day_items)):
+                curr_item = day_items[item_idx]
+                if item_idx == 0:
+                    curr_item["distance_miles"] = 0.0
+                    curr_item["distance_km"] = 0.0
+                    curr_item["transit_mode"] = "walk"
+                    curr_item["transit_summary"] = "Starting point"
+                else:
+                    prev_item = day_items[item_idx - 1]
+                    prev_geo = prev_item.get("geo_location") or {}
+                    curr_geo = curr_item.get("geo_location") or {}
+
+                    p_lat = float(prev_geo.get("latitude") or base_lat)
+                    p_lng = float(prev_geo.get("longitude") or base_lng)
+                    c_lat = float(curr_geo.get("latitude") or base_lat)
+                    c_lng = float(curr_geo.get("longitude") or base_lng)
+
+                    dist_km, dist_mi = calculate_haversine_distance(p_lat, p_lng, c_lat, c_lng)
+                    prev_name = prev_item.get("name") or prev_item.get("title") or "previous stop"
+
+                    if dist_mi <= 0.8:
+                        t_mode = "walk"
+                        mins = max(5, int(dist_mi * 20))
+                        t_summary = f"Walk {dist_mi} mi ({dist_km} km) / ~{mins} mins from {prev_name}"
+                    elif dist_mi <= 15.0:
+                        t_mode = "drive"
+                        mins = max(10, int(dist_mi * 3))
+                        t_summary = f"Drive/Taxi {dist_mi} mi ({dist_km} km) / ~{mins} mins from {prev_name}"
+                    else:
+                        t_mode = "train"
+                        mins = max(20, int(dist_mi * 2))
+                        t_summary = f"Train/Express Drive {dist_mi} mi ({dist_km} km) / ~{mins} mins from {prev_name}"
+
+                    curr_item["distance_miles"] = dist_mi
+                    curr_item["distance_km"] = dist_km
+                    curr_item["transit_mode"] = t_mode
+                    curr_item["transit_summary"] = t_summary
 
             total_attractions_cost += day_activities_cost
             daily_total = (flight_cost if (include_flights and d_num == 1) else 0.0) + \
@@ -386,7 +730,7 @@ class TravelPlannerService(BaseService):
 
         # Synthesize Category Highlights (Cheapest, Moderate/Best Value, Luxury)
         is_live_pricing = pricing_meta.get("is_live_pricing", False)
-        pricing_src_str = pricing_meta.get("pricing_source", "synthetic_estimate")
+        pricing_src_str = pricing_meta.get("pricing_source", "estimated_package_pricing")
 
 
         category_highlights = {
@@ -786,11 +1130,12 @@ class TravelPlannerService(BaseService):
         if cfg and getattr(cfg, "openai_api_key", None) and getattr(cfg, "llm_provider", "") == "openai":
             try:
                 import openai
+                import time
                 client = openai.OpenAI(api_key=cfg.openai_api_key)
                 model_name = getattr(cfg, "openai_model", "gpt-4o-mini")
                 if model_name not in ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-3.5-turbo"]:
                     model_name = "gpt-4o-mini"
-
+                t0_llm = time.perf_counter()
                 response = client.chat.completions.create(
                     model=model_name,
                     messages=[
@@ -807,19 +1152,22 @@ class TravelPlannerService(BaseService):
                                 "      \"theme\": \"Day 1 Theme Title\",\n"
                                 "      \"activities\": [\n"
                                 "        {\n"
-                                "          \"title\": \"Louvre Museum Guided Tour\",\n"
-                                "          \"name\": \"Louvre Museum Guided Tour\",\n"
-                                "          \"time_slot\": \"Morning\",\n"
-                                "          \"category\": \"Culture\",\n"
-                                "          \"description\": \"Rich 2-sentence description of the activity.\",\n"
-                                "          \"price_per_person\": 35.0,\n"
-                                "          \"rating\": 4.9,\n"
-                                "          \"reviews_count\": 1250,\n"
+                                "          \"title\": \"Artisanal Cafe & Bakery Breakfast\",\n"
+                                "          \"name\": \"Artisanal Cafe & Bakery Breakfast\",\n"
+                                "          \"time_slot\": \"08:00 AM - Breakfast\",\n"
+                                "          \"category\": \"Breakfast\",\n"
+                                "          \"description\": \"Enjoy fresh croissants, espresso, and organic breakfast specials.\",\n"
+                                "          \"price_per_person\": 20.0,\n"
+                                "          \"rating\": 4.8,\n"
+                                "          \"reviews_count\": 850,\n"
+                                "          \"address\": \"12 Rue de Rivoli, 75001 Paris, France\",\n"
+                                "          \"phone_number\": \"+33 1 42 68 55 00\",\n"
                                 "          \"geo_location\": {\n"
-                                "            \"name\": \"Louvre Museum\",\n"
-                                "            \"address\": \"Rue de Rivoli, 75001 Paris\",\n"
-                                "            \"latitude\": 48.8606,\n"
-                                "            \"longitude\": 2.3376\n"
+                                "            \"name\": \"Le Petit Cafe\",\n"
+                                "            \"address\": \"12 Rue de Rivoli, 75001 Paris, France\",\n"
+                                "            \"phone_number\": \"+33 1 42 68 55 00\",\n"
+                                "            \"latitude\": 48.8566,\n"
+                                "            \"longitude\": 2.3522\n"
                                 "          }\n"
                                 "        }\n"
                                 "      ]\n"
@@ -833,7 +1181,16 @@ class TravelPlannerService(BaseService):
                     response_format={"type": "json_object"},
                     temperature=0.7
                 )
+                llm_dt = (time.perf_counter() - t0_llm) * 1000.0
+                try:
+                    from ..timing import TimingTracker
+                    TimingTracker.add_llm_time(llm_dt)
+                except Exception:
+                    pass
                 content = response.choices[0].message.content
+                print("\n=================== [RAW LLM ITINERARY RESPONSE] ===================")
+                print(content)
+                print("===================================================================\n", flush=True)
                 parsed = json.loads(content)
                 llm_meta = {
                     "is_live_llm": True,
@@ -859,62 +1216,9 @@ class TravelPlannerService(BaseService):
                     ItineraryDAO(config=cfg).log_llm_call(provider="openai", model=model_name, prompt=user_prompt, destination=destination, success=False, error_message=str(llm_err))
                 except Exception:
                     pass
+                raise RuntimeError(f"Live OpenAI LLM execution failed: {llm_err}")
 
-        # Intelligent Travel Synthesizer Engine Fallback
-        _LLM_METRICS_COUNTER["total_llm_calls"] += 1
-        _LLM_METRICS_COUNTER["template_fallback_calls"] += 1
-        _LLM_METRICS_COUNTER["last_call_timestamp"] = datetime.now(timezone.utc).isoformat()
-        try:
-            from ..db.itinerary_dao import ItineraryDAO
-            ItineraryDAO(config=cfg).log_llm_call(provider="template_synthesizer", model="template-engine-v1", prompt=user_prompt, destination=destination, success=True)
-        except Exception:
-            pass
-
-        activities_pool = [
-            ("Morning", f"Historic {destination} Landmarks & Walking Tour", "Culture", f"Explore iconic historic monuments and charming avenues in {destination}.", 0.004, 0.003, 20.0, 4.8),
-            ("Afternoon", f"{destination} Fine Art & Culinary Tasting", "Dining", f"Sample artisanal regional specialties and visit top galleries in {destination}.", -0.003, 0.005, 35.0, 4.9),
-            ("Evening", f"Sunset Scenic Overlook & River Cruise in {destination}", "Sightseeing", f"Experience breathtaking evening panoramic skyline views and waterfront cruise.", 0.002, -0.004, 30.0, 4.7),
-        ]
-
-        days_list = []
-        for day_idx in range(1, duration_days + 1):
-            curr_date = (start_dt + timedelta(days=day_idx - 1)).strftime("%Y-%m-%d")
-            theme = f"Day {day_idx}: Iconic {destination} Culture & Highlights" if day_idx == 1 else f"Day {day_idx}: Hidden Gems & Local Experiences"
-            
-            day_acts = []
-            if include_attractions or include_activities:
-                for slot, title, cat, desc, off_lat, off_lng, pr, rat in activities_pool:
-                    act_lat = round(base_lat + (off_lat * day_idx), 4)
-                    act_lng = round(base_lng + (off_lng * day_idx), 4)
-                    day_acts.append({
-                        "title": title,
-                        "name": title,
-                        "activity_name": title,
-                        "activity": title,
-                        "attraction_name": title,
-                        "time_slot": slot,
-                        "category": cat,
-                        "description": desc,
-                        "price_per_person": pr,
-                        "rating": rat,
-                        "reviews_count": 850 + (day_idx * 120),
-                        "geo_location": {
-                            "name": title,
-                            "address": f"{title}, {destination}",
-                            "latitude": act_lat,
-                            "longitude": act_lng
-                        }
-                    })
-
-
-            days_list.append({
-                "day_number": day_idx,
-                "date": curr_date,
-                "theme": theme,
-                "activities": day_acts
-            })
-
-        return days_list, llm_meta
+        raise RuntimeError("No enabled LLM provider (OpenAI or Gemini) configured for live itinerary generation.")
 
     def _fetch_live_pricing(
         self,
@@ -925,6 +1229,7 @@ class TravelPlannerService(BaseService):
         passengers_count: int,
         rooms: int,
         driver_age: int,
+        is_test: bool = False,
     ) -> tuple[list[dict[str, Any]], dict[str, float], dict[str, Any]]:
         """
         Fetches live component pricing and top 3 package bundles from Duffel services.
@@ -932,17 +1237,20 @@ class TravelPlannerService(BaseService):
         """
         top_3_bundles = []
         component_pricing = {
-            "flight_cost": 450.0,
-            "hotel_cost_per_night": 160.0,
-            "car_cost_total": 240.0
+            "flight_cost": 450.0 if is_test else 0.0,
+            "hotel_cost_per_night": 160.0 if is_test else 0.0,
+            "car_cost_total": 240.0 if is_test else 0.0
         }
         pricing_meta = {
-            "is_live_pricing": False,
-            "pricing_source": "synthetic_estimate"
+            "is_live_pricing": not is_test,
+            "pricing_source": "duffel_api_live" if not is_test else "estimated_package_pricing"
         }
 
         dest_formatted = format_proper_title(destination)
-        dest_iata = "CDG" if destination.upper() in ["PARIS", "PAR"] else ("LHR" if destination.upper() in ["LONDON", "LON"] else ("JFK" if destination.upper() in ["NEW YORK", "NYC"] else (destination.upper() if len(destination) == 3 else "CDG")))
+        from ..cli.parser import PromptExtractor
+        dest_iata = PromptExtractor._resolve_iata(destination)
+        if len(dest_iata) != 3 or not dest_iata.isalpha():
+            dest_iata = PromptExtractor.resolve_location_with_llm(destination)
 
         try:
             from .bundles import BundlesService
@@ -974,14 +1282,15 @@ class TravelPlannerService(BaseService):
                     bnd["package_name"] = format_proper_title(bnd.get("package_name") or bnd.get("name") or f"Curated Package for {dest_formatted}")
                     bnd["is_mock"] = False
                     bnd["source"] = "duffel_api_live"
-                    bnd["included_components"] = ["flights", "hotels", "cars", "attractions", "activities"]
+                    bnd["included_components"] = ["flights", "hotels", "cars", "attractions", "activities", "dining"]
                     bnd["bundle_contents"] = {
                         "flights": {"included": True, "description": f"Roundtrip Flights ({origin} -> {dest_iata})"},
-                        "hotels": {"included": True, "description": f"Hotel Stay in {dest_formatted} ({rooms} Room(s))"},
+                        "hotels": {"included": True, "description": f"Central Hotel Stay in {dest_formatted} ({rooms} Room(s))"},
                         "cars": {"included": True, "description": f"Car Rental (Driver Age {driver_age})"},
                         "attractions": {"included": True, "description": f"Curated Priority Landmark & Museum Passes in {dest_formatted}"},
                         "activities": {"included": True, "description": f"Scheduled Daily Guided Activities & Tours"},
-                        "summary_line": f"Includes Roundtrip Flights, Hotel Stay in {dest_formatted}, Car Rental, Priority Attraction Passes, & Guided Daily Activities."
+                        "dining": {"included": True, "description": f"Curated Daily Breakfast, Lunch, & Dinner Reservations at Top {dest_formatted} Cafes, Bistros, & Restaurants"},
+                        "summary_line": f"Includes Roundtrip Flights, Central Hotel in {dest_formatted}, Car Rental, Famous Landmark Passes, Daily Activities, & Daily Breakfast/Lunch/Dinner Reservations."
                     }
 
                 first_bnd = top_bnd_list[0]
@@ -991,69 +1300,72 @@ class TravelPlannerService(BaseService):
 
                 if fl.get("total_amount"):
                     component_pricing["flight_cost"] = float(fl.get("total_amount")) / passengers_count
+
+                # Extract live flight departure and arrival times
+                if fl:
+                    slices = fl.get("slices") or []
+                    if slices and isinstance(slices[0], dict):
+                        s1 = slices[0]
+                        dep_raw = s1.get("departing_at") or s1.get("departure_time")
+                        arr_raw = s1.get("arriving_at") or s1.get("arrival_time")
+                        if dep_raw and "T" in str(dep_raw):
+                            try:
+                                dt = datetime.fromisoformat(str(dep_raw).replace("Z", "+00:00"))
+                                component_pricing["outbound_departure_time"] = dt.strftime("%I:%M %p")
+                            except Exception:
+                                pass
+                        if arr_raw and "T" in str(arr_raw):
+                            try:
+                                dt = datetime.fromisoformat(str(arr_raw).replace("Z", "+00:00"))
+                                component_pricing["outbound_arrival_time"] = dt.strftime("%I:%M %p")
+                            except Exception:
+                                pass
+
+                    if len(slices) > 1 and isinstance(slices[1], dict):
+                        s2 = slices[1]
+                        ret_dep_raw = s2.get("departing_at") or s2.get("departure_time")
+                        ret_arr_raw = s2.get("arriving_at") or s2.get("arrival_time")
+                        if ret_dep_raw and "T" in str(ret_dep_raw):
+                            try:
+                                dt = datetime.fromisoformat(str(ret_dep_raw).replace("Z", "+00:00"))
+                                component_pricing["return_departure_time"] = dt.strftime("%I:%M %p")
+                            except Exception:
+                                pass
+                        if ret_arr_raw and "T" in str(ret_arr_raw):
+                            try:
+                                dt = datetime.fromisoformat(str(ret_arr_raw).replace("Z", "+00:00"))
+                                component_pricing["return_arrival_time"] = dt.strftime("%I:%M %p")
+                            except Exception:
+                                pass
+
                 if st.get("cheapest_rate_total_amount"):
                     component_pricing["hotel_cost_per_night"] = float(st.get("cheapest_rate_total_amount")) / max(1, rooms)
                 if cr.get("total_amount"):
                     component_pricing["car_cost_total"] = float(cr.get("total_amount"))
         except Exception as bnd_err:
-            print(f"[PLANNER NOTICE] Live bundle search fallback: {bnd_err}")
-            top_3_bundles = [
-                {
-                    "bundle_id": f"bnd_mock_0001_{destination[:3].lower()}",
-                    "package_name": format_proper_title(f"Economy Explorer Package for {dest_formatted}"),
-                    "total_package_price": 712.50,
-                    "currency": "USD",
-                    "savings_amount": 37.50,
-                    "is_mock": True,
-                    "source": "synthetic_estimate",
-                    "included_components": ["flights", "hotels", "cars", "attractions", "activities"],
-                    "bundle_contents": {
-                        "flights": {"included": True, "description": f"Roundtrip Economy Flights ({origin} -> {dest_iata})"},
-                        "hotels": {"included": True, "description": f"3-Star Comfort Hotel in {dest_formatted} ({rooms} Room(s))"},
-                        "cars": {"included": True, "description": f"Compact Car Rental"},
-                        "attractions": {"included": True, "description": f"Standard City Attraction Passes in {dest_formatted}"},
-                        "activities": {"included": True, "description": f"Curated Walking & Sightseeing Tours"},
-                        "summary_line": f"Includes Economy Flights, Comfort Hotel in {dest_formatted}, Compact Car Rental, City Attraction Passes, & Walking Tours."
+            print(f"[PLANNER NOTICE] Live bundle search notice: {bnd_err}")
+            if is_test:
+                top_3_bundles = [
+                    {
+                        "bundle_id": f"bnd_mock_0001_{destination[:3].lower()}",
+                        "package_name": format_proper_title(f"Economy Explorer Package for {dest_formatted}"),
+                        "total_package_price": 712.50,
+                        "currency": "USD",
+                        "savings_amount": 37.50,
+                        "is_mock": True,
+                        "source": "estimated_package_pricing",
+                        "included_components": ["flights", "hotels", "cars", "attractions", "activities"],
+                        "bundle_contents": {
+                            "flights": {"included": True, "description": f"Roundtrip Economy Flights ({origin} -> {dest_iata})"},
+                            "hotels": {"included": True, "description": f"3-Star Comfort Hotel in {dest_formatted} ({rooms} Room(s))"},
+                            "cars": {"included": True, "description": f"Compact Car Rental"},
+                            "attractions": {"included": True, "description": f"Standard City Attraction Passes in {dest_formatted}"},
+                            "activities": {"included": True, "description": f"Curated Walking & Sightseeing Tours"},
+                            "summary_line": f"Includes Economy Flights, Comfort Hotel in {dest_formatted}, Compact Car Rental, City Attraction Passes, & Walking Tours."
+                        }
                     }
-                },
-                {
-                    "bundle_id": f"bnd_mock_0002_{destination[:3].lower()}",
-                    "package_name": format_proper_title(f"Comfort & Central Stay Package in {dest_formatted}"),
-                    "total_package_price": 945.00,
-                    "currency": "USD",
-                    "savings_amount": 50.00,
-                    "is_mock": True,
-                    "source": "synthetic_estimate",
-                    "included_components": ["flights", "hotels", "cars", "attractions", "activities"],
-                    "bundle_contents": {
-                        "flights": {"included": True, "description": f"Roundtrip Standard Flights ({origin} -> {dest_iata})"},
-                        "hotels": {"included": True, "description": f"4-Star Central City Hotel in {dest_formatted} ({rooms} Room(s))"},
-                        "cars": {"included": True, "description": f"Midsize SUV Car Rental"},
-                        "attractions": {"included": True, "description": f"Priority Guided Museum & Monument Passes in {dest_formatted}"},
-                        "activities": {"included": True, "description": f"Artisanal Culinary & Local Secret Walks"},
-                        "summary_line": f"Includes Standard Flights, 4-Star Hotel in {dest_formatted}, SUV Rental, Priority Museum Passes, & Culinary Experiences."
-                    }
-                },
-                {
-                    "bundle_id": f"bnd_mock_0003_{destination[:3].lower()}",
-                    "package_name": format_proper_title(f"Signature Luxury Suite & SUV Package in {dest_formatted}"),
-                    "total_package_price": 1425.00,
-                    "currency": "USD",
-                    "savings_amount": 75.00,
-                    "is_mock": True,
-                    "source": "synthetic_estimate",
-                    "included_components": ["flights", "hotels", "cars", "attractions", "activities"],
-                    "bundle_contents": {
-                        "flights": {"included": True, "description": f"Business Class Roundtrip Flights ({origin} -> {dest_iata})"},
-                        "hotels": {"included": True, "description": f"5-Star Luxury Suite Hotel in {dest_formatted} ({rooms} Room(s))"},
-                        "cars": {"included": True, "description": f"Premium Luxury SUV Rental"},
-                        "attractions": {"included": True, "description": f"VIP After-Hours Museum & Private Access Passes in {dest_formatted}"},
-                        "activities": {"included": True, "description": f"Michelin-Starred Dining & Private Yacht Cruise"},
-                        "summary_line": f"Includes Business Class Flights, 5-Star Luxury Suite in {dest_formatted}, Premium SUV, VIP Private Museum Access, & Yacht Cruise."
-                    }
-                }
-            ]
-
-
+                ]
+            else:
+                top_3_bundles = []
 
         return top_3_bundles, component_pricing, pricing_meta

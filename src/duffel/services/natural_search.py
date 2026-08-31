@@ -41,10 +41,14 @@ class NaturalSearchService(BaseService):
         """
         prompt = (prompt or "").lower().strip()
         overrides = overrides or {}
-        intent = PromptExtractor.extract_natural_intent(prompt)
+        user_loc = overrides.get("user_location")
+        intent = PromptExtractor.extract_natural_intent(prompt, user_location=user_loc)
 
         selected_types = overrides.get("selected_types") or intent.get("selected_types") or ["flights"]
-        origin = (overrides.get("origin") or intent.get("origin") or "ATL").upper()
+        raw_origin = overrides.get("origin") or intent.get("origin")
+        if any(t in selected_types for t in ["flights", "bundle"]) and not raw_origin:
+            raise ValueError("No Origin Found. Please specify your departure origin city or airport in your prompt (e.g. 'Flight from Atlanta to Paris') or include the X-User-Location header.")
+        origin = str(raw_origin or "ATL").upper()
         destination = (overrides.get("destination") or intent.get("destination") or "CDG").upper()
         departure_date = overrides.get("departure_date") or intent.get("departure_date") or "2026-10-01"
 

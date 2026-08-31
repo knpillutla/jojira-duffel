@@ -2,7 +2,8 @@
 Unified Natural Search Route Controllers for Duffel REST API.
 """
 
-from fastapi import APIRouter, HTTPException, Query, status
+from typing import Optional
+from fastapi import APIRouter, Header, HTTPException, Query, status
 
 from ...exceptions import DuffelException
 from ..schemas import NaturalSearchRequest, NaturalSearchResponse
@@ -16,20 +17,27 @@ router = APIRouter(tags=["Unified Natural Search API"])
     response_model=NaturalSearchResponse,
     summary="Unified Multi-Category Natural Language Travel Search",
 )
-def search_natural_endpoint(req: NaturalSearchRequest):
+def search_natural_endpoint(
+    req: NaturalSearchRequest,
+    x_user_location: Optional[str] = Header(None, alias="X-User-Location"),
+    x_user_timezone: Optional[str] = Header(None, alias="X-User-Timezone"),
+    x_user_language: Optional[str] = Header(None, alias="X-User-Language"),
+    x_user_coordinates: Optional[str] = Header(None, alias="X-User-Coordinates"),
+):
     """
     Search across Flights, Hotels, Cars, Attractions, or any combination using natural language prompts.
-    Returns a combined travel bundle if >1 type is selected, or specific data if 1 type is selected.
-    Includes metadata indicating search classification (flights, hotels, cars, attractions, or bundle)
-    and full category highlights for UI rendering.
+    Accepts X-User-Location, X-User-Timezone, X-User-Language, and X-User-Coordinates headers.
     """
     client = common.get_duffel_client()
+    user_location = x_user_location or req.user_location
     try:
         if not hasattr(client, "natural_search"):
             from ...services.natural_search import NaturalSearchService
             client.natural_search = NaturalSearchService(client.http_client, cache=client.cache, adapter=client.adapter, client=client)
 
         overrides = {}
+        if user_location:
+            overrides["user_location"] = user_location
         if req.selected_types:
             overrides["selected_types"] = req.selected_types
         if req.origin:
@@ -61,6 +69,25 @@ def search_natural_endpoint(req: NaturalSearchRequest):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=result.get("message") or result.get("error") or "Validation error",
             )
+
+        if req.user_id:
+            try:
+                from ...user_service.db.search_history_dao import SearchHistoryDAO
+                from ...cli.parser import PromptExtractor
+                history_dao = SearchHistoryDAO()
+                intent = PromptExtractor.extract_natural_intent(req.prompt)
+                extracted_prefs = intent.get("preferences") or {}
+
+                history_dao.record_search(
+                    user_id=req.user_id,
+                    prompt=req.prompt,
+                    destination=req.destination or intent.get("destination"),
+                    origin=req.origin or intent.get("origin"),
+                    trip_duration_days=intent.get("duration_days"),
+                    preferences=extracted_prefs,
+                )
+            except Exception as h_err:
+                print(f"[NATURAL SEARCH NOTICE] Failed to record search history: {h_err}")
 
         return NaturalSearchResponse(**result)
     except HTTPException:

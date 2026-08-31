@@ -49,7 +49,8 @@ class AISearchService(BaseService):
         
         # Step 1: Extract intent using LLM
         prompt = (prompt or "").lower().strip()
-        intent = PromptExtractor.extract_natural_intent(prompt)
+        user_loc = overrides.get("user_location")
+        intent = PromptExtractor.extract_natural_intent(prompt, user_location=user_loc)
         selected_types = overrides.get("selected_types") or intent.get("selected_types") or ["flights"]
         
         # Normalize types to lowercase

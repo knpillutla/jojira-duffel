@@ -15,7 +15,7 @@ class DuffelConfig:
     api_token: str = ""
     base_url: str = "https://api.duffel.com"
     api_version: str = "v2"
-    timeout: float = 5.0
+    timeout: float = 20.0
     force_instant_booking: bool = False
     default_order_mode: str = "hold"
     azure_keyvault_enabled: bool = False

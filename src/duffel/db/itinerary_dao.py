@@ -71,10 +71,9 @@ class ItineraryDAO:
                 ddl = """
                 CREATE SCHEMA IF NOT EXISTS planner;
 
-                CREATE TABLE IF NOT EXISTS planner.generated_itineraries (
+                CREATE TABLE IF NOT EXISTS generated_itineraries (
                     id VARCHAR(100) PRIMARY KEY,
                     prompt TEXT NOT NULL,
-
                     parent_itinerary_id VARCHAR(100),
                     destination VARCHAR(100) NOT NULL,
                     start_date VARCHAR(20),
@@ -93,6 +92,26 @@ class ItineraryDAO:
                 );
                 CREATE INDEX IF NOT EXISTS idx_gen_itin_dest ON generated_itineraries(destination);
                 CREATE INDEX IF NOT EXISTS idx_gen_itin_parent ON generated_itineraries(parent_itinerary_id);
+
+                CREATE TABLE IF NOT EXISTS planner.generated_itineraries (
+                    id VARCHAR(100) PRIMARY KEY,
+                    prompt TEXT NOT NULL,
+                    parent_itinerary_id VARCHAR(100),
+                    destination VARCHAR(100) NOT NULL,
+                    start_date VARCHAR(20),
+                    end_date VARCHAR(20),
+                    duration_days INTEGER,
+                    passengers_count INTEGER DEFAULT 1,
+                    version INTEGER DEFAULT 1,
+                    liked INTEGER DEFAULT 0,
+                    likes_count INTEGER DEFAULT 0,
+                    feedback_notes TEXT,
+                    payload TEXT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    created_by VARCHAR(100) DEFAULT 'system',
+                    updated_by VARCHAR(100) DEFAULT 'system'
+                );
 
                 CREATE TABLE IF NOT EXISTS itinerary_templates (
                     id VARCHAR(100) PRIMARY KEY,
@@ -190,10 +209,13 @@ class ItineraryDAO:
             for tbl in ["generated_itineraries", "itinerary_templates"]:
                 for col_name, pg_type, sq_type in cols_to_add:
                     try:
-                        col_type = pg_type if self.db_engine == "postgresql" else sq_type
-                        alt_sql = f"ALTER TABLE {tbl} ADD COLUMN {col_name} {col_type};"
-                        cursor.execute(alt_sql)
-                        if self.db_engine != "postgresql":
+                        if self.db_engine == "postgresql":
+                            alt_sql = f"ALTER TABLE {tbl} ADD COLUMN IF NOT EXISTS {col_name} {pg_type};"
+                            cursor.execute(alt_sql)
+                            conn.commit()
+                        else:
+                            alt_sql = f"ALTER TABLE {tbl} ADD COLUMN {col_name} {sq_type};"
+                            cursor.execute(alt_sql)
                             conn.commit()
                     except Exception:
                         pass

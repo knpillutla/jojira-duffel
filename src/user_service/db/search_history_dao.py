@@ -90,6 +90,7 @@ class SearchHistoryDAO:
             cols = [
                 ("bundles_json", "JSONB", "TEXT"),
                 ("itinerary_json", "JSONB", "TEXT"),
+                ("preferences_json", "JSONB", "TEXT"),
                 ("itinerary_id", "VARCHAR(100)", "TEXT"),
                 ("is_test", "BOOLEAN DEFAULT FALSE", "INTEGER DEFAULT 0"),
             ]
@@ -118,8 +119,9 @@ class SearchHistoryDAO:
         bundles: Optional[list[dict[str, Any]]] = None,
         itinerary: Optional[dict[str, Any]] = None,
         itinerary_id: Optional[str] = None,
+        preferences: Optional[dict[str, Any]] = None,
     ) -> str:
-        """Records a new search query along with its generated package bundles and draft itinerary."""
+        """Records a new search query along with its generated package bundles, draft itinerary, and extracted preferences."""
         conn = self._get_connection()
         try:
             cursor = conn.cursor()
@@ -127,22 +129,23 @@ class SearchHistoryDAO:
             hist_id = f"sch_{hashlib.md5(f'{user_id}_{prompt}_{now_iso}'.encode()).hexdigest()[:10]}"
             bundles_json_str = json.dumps(bundles or [])
             itin_json_str = json.dumps(itinerary or {})
+            prefs_json_str = json.dumps(preferences or {})
 
             if self.db_engine == "postgresql":
                 sql = """
-                INSERT INTO users.user_search_history (id, user_id, prompt, destination, origin, trip_duration_days, bundles_json, itinerary_json, itinerary_id, created_at, updated_at, created_by, updated_by)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                INSERT INTO users.user_search_history (id, user_id, prompt, destination, origin, trip_duration_days, bundles_json, itinerary_json, preferences_json, itinerary_id, created_at, updated_at, created_by, updated_by)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
                 """
-                cursor.execute(sql, (hist_id, user_id, prompt, destination, origin, trip_duration_days, bundles_json_str, itin_json_str, itinerary_id, now_iso, now_iso, user_id, user_id))
+                cursor.execute(sql, (hist_id, user_id, prompt, destination, origin, trip_duration_days, bundles_json_str, itin_json_str, prefs_json_str, itinerary_id, now_iso, now_iso, user_id, user_id))
             else:
                 sql = """
-                INSERT INTO user_search_history (id, user_id, prompt, destination, origin, trip_duration_days, bundles_json, itinerary_json, itinerary_id, created_at, updated_at, created_by, updated_by)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                INSERT INTO user_search_history (id, user_id, prompt, destination, origin, trip_duration_days, bundles_json, itinerary_json, preferences_json, itinerary_id, created_at, updated_at, created_by, updated_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """
-                cursor.execute(sql, (hist_id, user_id, prompt, destination, origin, trip_duration_days, bundles_json_str, itin_json_str, itinerary_id, now_iso, now_iso, user_id, user_id))
+                cursor.execute(sql, (hist_id, user_id, prompt, destination, origin, trip_duration_days, bundles_json_str, itin_json_str, prefs_json_str, itinerary_id, now_iso, now_iso, user_id, user_id))
                 conn.commit()
 
-            print(f"[SEARCH HISTORY DAO] Logged search for user '{user_id}': '{prompt}'.")
+            print(f"[SEARCH HISTORY DAO] Logged search for user '{user_id}': '{prompt}'. Preferences: {preferences or {}}.")
             return hist_id
         finally:
             conn.close()

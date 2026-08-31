@@ -30,8 +30,10 @@ class AISearchRequest(BaseModel):
     max_price: Optional[float] = Field(None, ge=0, description="Override extracted maximum price constraint")
     passengers_count: Optional[int] = Field(None, ge=1, le=9, description="Override extracted passenger count")
     cabin_class: Optional[str] = Field(None, description="Override extracted cabin class: economy, business, etc.")
+    user_id: Optional[str] = Field(None, description="Optional user ID for search history & preferences recording")
     rooms: Optional[int] = Field(None, ge=1, le=10, description="Override extracted hotel rooms count")
     driver_age: Optional[int] = Field(None, ge=18, le=99, description="Override extracted car rental driver age")
+    user_location: Optional[str] = Field(None, description="User client location or GPS string e.g. 'New York (40.7128,-74.0060)'")
 
 
 class AISearchResponse(BaseModel):

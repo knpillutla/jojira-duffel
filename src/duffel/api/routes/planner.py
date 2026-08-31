@@ -2,7 +2,8 @@
 AI Travel Planner REST API routes for Duffel FastAPI.
 """
 
-from fastapi import APIRouter, HTTPException, status
+from typing import Optional
+from fastapi import APIRouter, Header, HTTPException, status
 
 from ..schemas.planner import (
     ItineraryPlannerRequest,
@@ -26,13 +27,20 @@ router = APIRouter(prefix="/api/v1", tags=["AI Travel Planner"])
     response_model=ItineraryPlannerResponse,
     summary="Generate AI Day-by-Day Travel Itinerary (Alias)",
 )
-def generate_itinerary_endpoint(req: ItineraryPlannerRequest):
+def generate_itinerary_endpoint(
+    req: ItineraryPlannerRequest,
+    x_user_location: Optional[str] = Header(None, alias="X-User-Location"),
+    x_user_timezone: Optional[str] = Header(None, alias="X-User-Timezone"),
+    x_user_language: Optional[str] = Header(None, alias="X-User-Language"),
+    x_user_coordinates: Optional[str] = Header(None, alias="X-User-Coordinates"),
+):
     """
     Generates a comprehensive day-by-day travel itinerary complete with attraction geo-coordinates
     for interactive map rendering and pairs it with the Top 3 live travel package bundle prices (Flight + Hotel + Car).
-    Enforces a strict 30-day maximum trip duration guardrail.
+    Accepts X-User-Location, X-User-Timezone, X-User-Language, and X-User-Coordinates headers.
     """
     client = common.get_duffel_client()
+    user_location = x_user_location or req.user_location
     try:
         if not hasattr(client, "planner"):
             from ....duffel.services.planner import TravelPlannerService
@@ -60,6 +68,10 @@ def generate_itinerary_endpoint(req: ItineraryPlannerRequest):
             rooms=req.rooms,
             driver_age=req.driver_age,
             interests=req.interests,
+            user_location=user_location,
+            user_timezone=x_user_timezone,
+            user_language=x_user_language,
+            user_coordinates=x_user_coordinates,
             force_refresh=req.force_refresh,
         )
 
@@ -71,12 +83,17 @@ def generate_itinerary_endpoint(req: ItineraryPlannerRequest):
                 from ...user_service.db.search_history_dao import SearchHistoryDAO
                 history_dao = SearchHistoryDAO()
 
+                from ....duffel.cli.parser import PromptExtractor
+                intent = PromptExtractor.extract_natural_intent(req.prompt)
+                extracted_prefs = intent.get("preferences") or {}
+
                 history_dao.record_search(
                     user_id=req.user_id,
                     prompt=req.prompt,
                     destination=req.destination or res.get("meta_data", {}).get("destination"),
                     origin=req.origin or res.get("meta_data", {}).get("origin"),
                     trip_duration_days=req.days or req.trip_duration_days,
+                    preferences=extracted_prefs,
                 )
             except Exception as h_err:
                 print(f"[PLANNER NOTICE] Failed to record search history: {h_err}")

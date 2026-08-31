@@ -214,11 +214,11 @@ class PromptExtractor:
     """Extracts structured search parameters from natural language prompts."""
 
     @staticmethod
-    def extract_natural_intent(prompt: str) -> dict[str, Any]:
+    def extract_natural_intent(prompt: str, user_location: Optional[str] = None) -> dict[str, Any]:
         """
         Extract multi-category natural language search intent and parameters.
         Returns dict containing selected_types (list of 'flights', 'hotels', 'cars', 'attractions')
-        and extracted search criteria.
+        and extracted search criteria. Accepts user_location header for nearest origin fallback.
         """
         text = prompt.lower()
         selected_types: list[str] = []
@@ -256,7 +256,7 @@ class PromptExtractor:
         if any(w in text for w in ["attraction", "attractions", "things to do", "sightseeing", "tour", "tours", "activities", "visit", "museum", "landmarks", "itinerary", "places to see"]):
             selected_types.append("attractions")
 
-        flight_info = PromptExtractor.extract_flight_info(prompt)
+        flight_info = PromptExtractor.extract_flight_info(prompt, user_location=user_location)
         stay_info = PromptExtractor.extract_stay_info(prompt)
         car_info = PromptExtractor.extract_car_info(prompt)
 
@@ -273,6 +273,17 @@ class PromptExtractor:
                     origin = PromptExtractor._resolve_iata(route_match.group(1).strip())
                 if not destination:
                     destination = PromptExtractor._resolve_iata(route_match.group(2).strip())
+
+        # Fallback origin to user's location header if origin is still missing
+        if not origin and user_location:
+            user_iata = PromptExtractor._resolve_iata(user_location)
+            if user_iata and len(user_iata) == 3 and user_iata != destination:
+                origin = user_iata
+                if slices and isinstance(slices[0], dict):
+                    slices[0]["origin"] = user_iata
+                else:
+                    slices = [{"origin": user_iata, "destination": destination, "departure_date": None}]
+                    flight_info["slices"] = slices
 
         trip_type = flight_info.get("trip_type")
         dep_date = first_slice.get("departure_date") or stay_info.get("check_in_date") or flight_info.get("from_date") or flight_info.get("departure_date")
@@ -537,6 +548,16 @@ class PromptExtractor:
             "slices": [s.to_dict() if hasattr(s, "to_dict") else s for s in slices],
         }
 
+        # Check if key parameters are missing or unmapped, and call LLM pre-processing enrichment
+        needs_enrichment = (
+            not intent.get("origin") or len(str(intent.get("origin"))) != 3 or
+            not intent.get("destination") or len(str(intent.get("destination"))) != 3 or
+            not intent.get("departure_date") or
+            intent.get("duration_days") is None
+        )
+        if needs_enrichment:
+            intent = PromptExtractor.enrich_missing_intent_with_llm(prompt, intent, user_location=user_location)
+
         prev_meta = PromptParserTracker.get_latest()
         if prev_meta and prev_meta.get("llm_used"):
             meta = {
@@ -576,13 +597,13 @@ class PromptExtractor:
 
 
     @staticmethod
-    def extract_flight_info(prompt: str) -> dict[str, Any]:
+    def extract_flight_info(prompt: str, user_location: Optional[str] = None) -> dict[str, Any]:
         """
         Extract flight search parameters from natural text.
 
         Returns dict with keys: trip_type, slices, cabin_class, passengers_count
         """
-        llm_result = PromptExtractor._extract_flight_info_with_llm(prompt)
+        llm_result = PromptExtractor._extract_flight_info_with_llm(prompt, user_location=user_location)
         if llm_result is not None:
             return llm_result
 
@@ -787,16 +808,16 @@ class PromptExtractor:
         return extracted
 
     @staticmethod
-    def _extract_flight_info_with_llm(prompt: str) -> Optional[dict[str, Any]]:
+    def _extract_flight_info_with_llm(prompt: str, user_location: Optional[str] = None) -> Optional[dict[str, Any]]:
         """Use the configured LLM provider, falling back to other providers when available."""
         prompt = (prompt or "").lower().strip()
         config = DuffelConfig()
         if config.llm_provider == "openai" and config.openai_enabled and config.openai_api_key:
-            result = PromptExtractor._extract_flight_info_with_openai(prompt)
+            result = PromptExtractor._extract_flight_info_with_openai(prompt, user_location=user_location)
             if result is not None:
                 return result
         if config.gemini_enabled and config.gemini_api_key:
-            return PromptExtractor._extract_flight_info_with_gemini(prompt)
+            return PromptExtractor._extract_flight_info_with_gemini(prompt, user_location=user_location)
         return None
 
     @staticmethod
@@ -907,6 +928,21 @@ class PromptExtractor:
         if isinstance(exc, list):
             normalized["excluded_airlines"] = [x for x in exc if _is_valid_airline(x)]
 
+        # Extract meal preferences & dietary restrictions from prompt or LLM result
+        raw_prefs = result.get("preferences") or {}
+        pref_meals = raw_prefs.get("meal_preferences") or normalized.get("meal_preferences") or []
+        pref_cuisines = raw_prefs.get("favorite_cuisines") or normalized.get("favorite_cuisines") or []
+        pref_dietary = raw_prefs.get("dietary_restrictions") or normalized.get("dietary_restrictions") or []
+
+        normalized["preferences"] = {
+            "meal_preferences": pref_meals,
+            "favorite_cuisines": pref_cuisines,
+            "dietary_restrictions": pref_dietary,
+        }
+        normalized["meal_preferences"] = pref_meals
+        normalized["favorite_cuisines"] = pref_cuisines
+        normalized["dietary_restrictions"] = pref_dietary
+
         normalized.setdefault("cabin_class", "economy")
         normalized.setdefault("passengers_count", 1)
         normalized.setdefault("included_airlines", [])
@@ -920,7 +956,7 @@ class PromptExtractor:
         return normalized
 
     @staticmethod
-    def _extract_flight_info_with_openai(prompt: str) -> Optional[dict[str, Any]]:
+    def _extract_flight_info_with_openai(prompt: str, user_location: Optional[str] = None) -> Optional[dict[str, Any]]:
         """Ask OpenAI GPT-4.1-mini to normalize a flight request to JSON."""
         config = DuffelConfig()
         if not config.openai_enabled or not config.openai_api_key:
@@ -939,7 +975,10 @@ class PromptExtractor:
             "4. PRICE RANGE: Extract 'min_price' (float or null) and 'max_price' (float or null) if user specifies budget or price limits.\n"
             "5. AIRLINES: Set 'preferred_airline', 'included_airlines', and 'excluded_airlines' ONLY if user explicitly names a recognized airline or alliance (e.g. 'Delta', 'United', 'American', 'British Airways'). NEVER treat date strings like 'on sep 8' or prepositions as airlines! Set to null or empty array if no airline is explicitly requested.\n"
             "6. STOPOVERS & BREAKS: If user requests a stay in a destination for N days (e.g. 'for 21 days in Hyderabad') with a break in an intermediate city (e.g. 'with a 1 week break in London'), add the break duration (+7 days) to the destination stay duration so the total trip length is 28 days: Slice 1: ATL -> LHR on start date (Oct 1); Slice 2: LHR -> HYD 7 days later (Oct 8); Slice 3: HYD -> ATL 21 days after arriving in HYD (Oct 29, total 28 days from start). Set trip_type: 'multi_city'.\n"
-            "7. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines.\n"
+            "7. MEAL PREFERENCES & DIET: Extract meal preferences, favorite cuisines, and dietary restrictions mentioned (e.g. 'vegetarian', 'vegan', 'halal', 'kosher', 'gluten-free', 'Italian', 'French', 'Japanese', 'fine dining', 'street food') in 'preferences': { 'meal_preferences': [...], 'favorite_cuisines': [...], 'dietary_restrictions': [...] }.\n"
+            "8. SAFE HOTEL SELECTION: For hotel recommendations, prioritize central, safe, and secure hotels for families, adults, and solo/single travelers. Strictly avoid dangerous neighborhoods, high-crime areas, noisy nightclub strips, or areas with gang activity.\n"
+            f"{'10. USER LOCATION & NEAREST ORIGIN AIRPORT: User location is ' + repr(user_location) + '. If prompt does NOT explicitly specify a departure city or origin airport, resolve user location to nearest standard 3-letter IATA origin airport (e.g. New York -> JFK, Atlanta -> ATL, London -> LHR). Set top-level origin and slices.[0].origin to this nearest IATA code.' if user_location else ''}\n"
+            "9. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines, preferences.\n"
             "User request: " + prompt
         )
         payload = {
@@ -961,8 +1000,16 @@ class PromptExtractor:
                 },
                 method="POST",
             )
+            import time
+            t0 = time.perf_counter()
             with urlopen(request, timeout=15) as response:
                 response_data = json.loads(response.read().decode("utf-8"))
+            llm_dt_ms = (time.perf_counter() - t0) * 1000.0
+            try:
+                from ..timing import TimingTracker
+                TimingTracker.add_llm_time(llm_dt_ms)
+            except Exception:
+                pass
             content = response_data["choices"][0]["message"]["content"]
             result = json.loads(content)
             if isinstance(result, dict):
@@ -1006,7 +1053,9 @@ class PromptExtractor:
             "4. PRICE RANGE: Extract 'min_price' and 'max_price'.\n"
             "5. AIRLINES: Set 'preferred_airline', 'included_airlines', and 'excluded_airlines' ONLY if user explicitly names a recognized airline (e.g. 'Delta', 'United'). NEVER treat date strings like 'sep 8' as airlines.\n"
             "6. STOPOVERS & BREAKS: If user requests a destination stay for N days with a break in an intermediate city (+7 days), sum stay + break duration for total trip length (28 days). Set trip_type: 'multi_city' and populate 'slices' array with sequential flight legs.\n"
-            "7. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines.\n"
+            "7. MEAL PREFERENCES & DIET: Extract meal preferences, favorite cuisines, and dietary restrictions in 'preferences': { 'meal_preferences': [...], 'favorite_cuisines': [...], 'dietary_restrictions': [...] }.\n"
+            "8. SAFE HOTEL SELECTION: For hotel recommendations, prioritize central, safe, and secure hotels for families, adults, and solo/single travelers. Strictly avoid dangerous neighborhoods, high-crime areas, noisy nightclub strips, or areas with gang activity.\n"
+            "9. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines, preferences.\n"
             f"User request: {prompt}"
         )
         payload = {
@@ -1025,8 +1074,16 @@ class PromptExtractor:
                 headers={"Content-Type": "application/json"},
                 method="POST",
             )
+            import time
+            t0 = time.perf_counter()
             with urlopen(request, timeout=15) as response:
                 response_data = json.loads(response.read().decode("utf-8"))
+            llm_dt_ms = (time.perf_counter() - t0) * 1000.0
+            try:
+                from ..timing import TimingTracker
+                TimingTracker.add_llm_time(llm_dt_ms)
+            except Exception:
+                pass
             response_text = response_data["candidates"][0]["content"]["parts"][0]["text"]
             result = json.loads(response_text)
             if isinstance(result, dict) and isinstance(result.get("slices"), list):
@@ -1150,8 +1207,10 @@ class PromptExtractor:
 
     @staticmethod
     def _resolve_iata(val: str) -> str:
+        # Strip parenthetical GPS coordinates e.g. 'New York (40.7128,-74.0060)' -> 'New York'
+        val_clean = re.sub(r"\s*\([^)]*\)", "", str(val or "")).strip()
         # Strip trailing date clauses like 'from september 15' or 'on oct 1'
-        clean = re.sub(r"\s+(?:from|on|for|in|during|departing|returning)\s+.*$", "", val.strip(), flags=re.IGNORECASE)
+        clean = re.sub(r"\s+(?:from|on|for|in|during|departing|returning)\s+.*$", "", val_clean, flags=re.IGNORECASE)
         clean = clean.strip().lower()
 
         # Remove trailing state names/abbreviations e.g. 'columbus, oh' -> 'columbus'
@@ -1177,4 +1236,154 @@ class PromptExtractor:
         if m_iata:
             return m_iata.group(1).upper()
 
-        return val.upper()
+        # Fallback to LLM for unmapped cities, regions, or obscure location names
+        llm_resolved = PromptExtractor.resolve_location_with_llm(val_clean)
+        if llm_resolved and len(llm_resolved) == 3 and llm_resolved.isalpha():
+            return llm_resolved.upper()
+
+        return val_clean.upper()
+
+    _LLM_IATA_CACHE: dict[str, str] = {}
+
+    @staticmethod
+    def resolve_location_with_llm(location: str) -> str:
+        """
+        Resolves unmapped city, island, region, or landmark string to a 3-letter IATA airport code using LLM.
+        """
+        if not location:
+            return ""
+        clean_loc = re.sub(r"\s*\([^)]*\)", "", str(location)).strip()
+        clean_loc = re.sub(r"\s+(?:from|on|for|in|during|departing|returning)\s+.*$", "", clean_loc, flags=re.IGNORECASE).strip()
+        if len(clean_loc) == 3 and clean_loc.isalpha():
+            return clean_loc.upper()
+
+        key = clean_loc.lower()
+        if key in PromptExtractor._LLM_IATA_CACHE:
+            return PromptExtractor._LLM_IATA_CACHE[key]
+
+        config = DuffelConfig()
+        instruction = (
+            f"Resolve the city, region, island, or location '{clean_loc}' to its primary commercial 3-letter uppercase IATA airport code.\n"
+            "Respond ONLY with a JSON object: {\"iata\": \"XXX\", \"city_name\": \"City Name\"}.\n"
+            "Examples:\n"
+            "  'Reykjavik' -> {\"iata\": \"KEF\", \"city_name\": \"Reykjavik\"}\n"
+            "  'Cochin' -> {\"iata\": \"COK\", \"city_name\": \"Kochi\"}\n"
+            "  'Santorini' -> {\"iata\": \"JTR\", \"city_name\": \"Santorini\"}\n"
+            "  'Bali' -> {\"iata\": \"DPS\", \"city_name\": \"Bali\"}\n"
+            "  'Mahe' -> {\"iata\": \"SEZ\", \"city_name\": \"Mahe\"}"
+        )
+
+        try:
+            import json
+            from urllib.request import Request, urlopen
+            if config.openai_enabled and config.openai_api_key:
+                payload = {
+                    "model": config.openai_model,
+                    "messages": [{"role": "system", "content": instruction}],
+                    "temperature": 0,
+                    "response_format": {"type": "json_object"},
+                }
+                req = Request(
+                    "https://api.openai.com/v1/chat/completions",
+                    data=json.dumps(payload).encode("utf-8"),
+                    headers={"Authorization": f"Bearer {config.openai_api_key}", "Content-Type": "application/json"},
+                    method="POST"
+                )
+                import time
+                t0 = time.perf_counter()
+                with urlopen(req, timeout=5) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                llm_dt_ms = (time.perf_counter() - t0) * 1000.0
+                try:
+                    from ..timing import TimingTracker
+                    TimingTracker.add_llm_time(llm_dt_ms)
+                except Exception:
+                    pass
+
+                content = data["choices"][0]["message"]["content"]
+                parsed = json.loads(content)
+                code = str(parsed.get("iata") or "").strip().upper()
+                if len(code) == 3 and code.isalpha():
+                    PromptExtractor._LLM_IATA_CACHE[key] = code
+                    return code
+        except Exception as err:
+            print(f"[LLM IATA RESOLVER NOTICE] Failed LLM resolution for '{clean_loc}': {err}", flush=True)
+
+        return clean_loc.upper()
+
+    @staticmethod
+    def enrich_missing_intent_with_llm(prompt: str, current_intent: dict[str, Any], user_location: Optional[str] = None) -> dict[str, Any]:
+        """
+        Dedicated pre-processing LLM call to resolve and enrich missing or unmapped parameters (origin IATA, destination IATA, dates, duration).
+        """
+        config = DuffelConfig()
+        if not ((config.openai_enabled and config.openai_api_key) or (config.gemini_enabled and config.gemini_api_key)):
+            return current_intent
+
+        today = datetime.now().strftime("%Y-%m-%d")
+        instruction = (
+            f"Today is {today}. Analyze this travel query and resolve all missing/unmapped travel parameters as JSON.\n"
+            f"User Location: '{user_location or 'Not provided'}'\n"
+            f"Current extracted parameters: origin='{current_intent.get('origin')}', destination='{current_intent.get('destination')}', departure_date='{current_intent.get('departure_date')}', duration_days={current_intent.get('duration_days')}\n"
+            "STRICT ENRICHMENT RULES:\n"
+            "1. ORIGIN IATA: If departure origin is NOT specified in query, resolve the user's location to the nearest standard 3-letter IATA departure airport code (e.g. 'Atlanta' -> 'ATL', 'New York' -> 'JFK', 'London' -> 'LHR').\n"
+            "2. DESTINATION IATA & CITY: Resolve destination city to standard 3-letter IATA code and full city title (e.g. 'Paris' -> 'CDG', 'Zurich' -> 'ZRH', 'Cochin' -> 'COK', 'Reykjavik' -> 'KEF', 'Bali' -> 'DPS', 'Santorini' -> 'JTR').\n"
+            "3. DATES & DURATION: Extract start departure date (YYYY-MM-DD) and trip duration in days (integer).\n"
+            "4. Respond ONLY with JSON: {\"origin_iata\": \"XXX\", \"destination_iata\": \"YYY\", \"destination_city\": \"City Name\", \"departure_date\": \"YYYY-MM-DD\", \"return_date\": \"YYYY-MM-DD\", \"duration_days\": N, \"passengers_count\": N}.\n"
+            f"User Query: {prompt}"
+        )
+
+        try:
+            import json
+            import time
+            from urllib.request import Request, urlopen
+            if config.openai_enabled and config.openai_api_key:
+                payload = {
+                    "model": config.openai_model,
+                    "messages": [{"role": "system", "content": instruction}],
+                    "temperature": 0,
+                    "response_format": {"type": "json_object"},
+                }
+                req = Request(
+                    "https://api.openai.com/v1/chat/completions",
+                    data=json.dumps(payload).encode("utf-8"),
+                    headers={"Authorization": f"Bearer {config.openai_api_key}", "Content-Type": "application/json"},
+                    method="POST"
+                )
+                t0 = time.perf_counter()
+                with urlopen(req, timeout=8) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                llm_dt_ms = (time.perf_counter() - t0) * 1000.0
+                try:
+                    from ..timing import TimingTracker
+                    TimingTracker.add_llm_time(llm_dt_ms)
+                except Exception:
+                    pass
+
+                content = data["choices"][0]["message"]["content"]
+                enriched = json.loads(content)
+                if isinstance(enriched, dict):
+                    if enriched.get("origin_iata") and (not current_intent.get("origin") or len(str(current_intent.get("origin"))) != 3):
+                        orig_code = str(enriched["origin_iata"]).strip().upper()
+                        current_intent["origin"] = orig_code
+                        if current_intent.get("slices") and isinstance(current_intent["slices"][0], dict):
+                            current_intent["slices"][0]["origin"] = orig_code
+                    if enriched.get("destination_iata") and (not current_intent.get("destination") or len(str(current_intent.get("destination"))) != 3):
+                        dest_code = str(enriched["destination_iata"]).strip().upper()
+                        current_intent["destination"] = dest_code
+                        if current_intent.get("slices") and isinstance(current_intent["slices"][0], dict):
+                            current_intent["slices"][0]["destination"] = dest_code
+                    if enriched.get("destination_city"):
+                        current_intent["destination_city"] = enriched["destination_city"]
+                    if enriched.get("departure_date") and not current_intent.get("departure_date"):
+                        current_intent["departure_date"] = enriched["departure_date"]
+                        current_intent["from_date"] = enriched["departure_date"]
+                    if enriched.get("return_date") and not current_intent.get("return_date"):
+                        current_intent["return_date"] = enriched["return_date"]
+                        current_intent["to_date"] = enriched["return_date"]
+                    if enriched.get("duration_days") and current_intent.get("duration_days") is None:
+                        current_intent["duration_days"] = int(enriched["duration_days"])
+        except Exception as err:
+            print(f"[ENRICHMENT LLM NOTICE] Pre-processing LLM enrichment notice: {err}", flush=True)
+
+        return current_intent

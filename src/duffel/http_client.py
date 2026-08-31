@@ -148,6 +148,11 @@ class HTTPClient:
                     with self._lock:
                         self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": response.status})
                         self._current_api_calls = getattr(self, "_current_api_calls", 0) + 1
+                    try:
+                        from .timing import TimingTracker
+                        TimingTracker.add_duffel_api_time(elapsed_ms)
+                    except Exception:
+                        pass
 
                     res_body = response.read().decode("utf-8")
                     if not res_body.strip():

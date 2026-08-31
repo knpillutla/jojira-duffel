@@ -4,7 +4,7 @@ Intelligent routing based on natural language prompt parsing with LLM.
 """
 
 from typing import Any, Optional
-from fastapi import APIRouter, HTTPException, Query, Request, status
+from fastapi import APIRouter, Header, HTTPException, Query, Request, status
 
 from ..schemas import (
     AIBookingRequest,
@@ -65,18 +65,19 @@ def _resolve_search_type(req: AIBookingRequest) -> str:
     response_model=AISearchResponse,
     summary="Intelligent AI-Powered Multi-Service Travel Search",
 )
-def search_ai_endpoint(req: AISearchRequest):
+def search_ai_endpoint(
+    req: AISearchRequest,
+    x_user_location: Optional[str] = Header(None, alias="X-User-Location"),
+    x_user_timezone: Optional[str] = Header(None, alias="X-User-Timezone"),
+    x_user_language: Optional[str] = Header(None, alias="X-User-Language"),
+    x_user_coordinates: Optional[str] = Header(None, alias="X-User-Coordinates"),
+):
     """
     Intelligent AI Search that parses natural language prompts and routes to appropriate service(s).
-    
-    Flow:
-    1. Parse prompt using LLM to extract intent (flights, hotels, cars, combinations)
-    2. If single type: invoke that service, return its native response format
-    3. If multiple types: invoke bundle service, return bundle response format
-    4. Results: top 20 offers sorted by total price ascending
-    5. Cached in Redis with dynamic TTL
+    Accepts X-User-Location, X-User-Timezone, X-User-Language, and X-User-Coordinates headers.
     """
     client = common.get_duffel_client()
+    user_location = x_user_location or req.user_location
     try:
         # Ensure AI Search service is attached
         if not hasattr(client, "ai_search"):
@@ -85,6 +86,8 @@ def search_ai_endpoint(req: AISearchRequest):
 
         # Build overrides from optional parameters
         overrides = {}
+        if user_location:
+            overrides["user_location"] = user_location
         if req.selected_types:
             overrides["selected_types"] = req.selected_types
         if req.origin:
@@ -117,6 +120,25 @@ def search_ai_endpoint(req: AISearchRequest):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=result.get("message") or result.get("error") or "Validation error",
             )
+
+        if req.user_id:
+            try:
+                from ...user_service.db.search_history_dao import SearchHistoryDAO
+                from ...cli.parser import PromptExtractor
+                history_dao = SearchHistoryDAO()
+                intent = PromptExtractor.extract_natural_intent(req.prompt)
+                extracted_prefs = intent.get("preferences") or {}
+
+                history_dao.record_search(
+                    user_id=req.user_id,
+                    prompt=req.prompt,
+                    destination=req.destination or intent.get("destination"),
+                    origin=req.origin or intent.get("origin"),
+                    trip_duration_days=intent.get("duration_days"),
+                    preferences=extracted_prefs,
+                )
+            except Exception as h_err:
+                print(f"[AI SEARCH NOTICE] Failed to record search history: {h_err}")
 
         return AISearchResponse(**result)
     except HTTPException:
