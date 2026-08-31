@@ -40,6 +40,7 @@ def normalize_bundle_types(bundle_types) -> list[str]:
 
 
 @router.post("/bundles/search", response_model=BundleSearchResponse, summary="Search Bundled Travel Packages")
+@router.post("/bundles/search-optimized", response_model=BundleSearchResponse, summary="Optimized Travel Packages Search")
 def search_bundles_endpoint(req: BundleSearchRequest):
     """
     Search for combined Flight + Hotel Stay + Car Rental travel package bundles.

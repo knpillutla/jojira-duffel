@@ -12,7 +12,7 @@ from .frontier import FrontierScraper
 class ScraperRegistry:
     """Registry managing and executing modular web scrapers concurrently."""
 
-    def __init__(self, enabled: bool = True):
+    def __init__(self, enabled: bool = False):
         self.enabled = enabled
         self._scrapers: list[BaseWebScraper] = [FrontierScraper()]
 

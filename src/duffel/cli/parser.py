@@ -63,7 +63,10 @@ CITY_IATA_MAP = {
     "victoria": "YYJ",
     "yyj": "YYJ",
 
-    # USA & Americas
+    "europe": "LHR",
+    "europe hub": "LHR",
+    "asia": "SIN",
+    "india": "DEL",
     "london": "LHR",
     "lhr": "LHR",
     "lon": "LHR",
@@ -110,8 +113,20 @@ CITY_IATA_MAP = {
     "bos": "BOS",
     "washington": "IAD",
     "iad": "IAD",
-    "dallas": "DFW",
-    "dfw": "DFW",
+    "hyderabad": "HYD",
+    "hyderabad,india": "HYD",
+    "hyderabad, india": "HYD",
+    "hyd": "HYD",
+    "delhi": "DEL",
+    "del": "DEL",
+    "mumbai": "BOM",
+    "bom": "BOM",
+    "bangalore": "BLR",
+    "blr": "BLR",
+    "chennai": "MAA",
+    "maa": "MAA",
+    "kolkata": "CCU",
+    "ccu": "CCU",
     "houston": "IAH",
     "iah": "IAH",
     "denver": "DEN",
@@ -247,17 +262,95 @@ class PromptExtractor:
 
         slices = flight_info.get("slices") or []
         first_slice = slices[0] if slices and isinstance(slices[0], dict) else {}
-        origin = first_slice.get("origin") or car_info.get("pickup_location")
-        destination = first_slice.get("destination") or stay_info.get("location") or car_info.get("dropoff_location")
+        origin = flight_info.get("origin") or first_slice.get("origin") or car_info.get("pickup_location")
+        destination = flight_info.get("destination") or first_slice.get("destination") or stay_info.get("location") or car_info.get("dropoff_location")
         
+        # Fallback regex search for route e.g. "from Atlanta to Columbus, OH" if origin or destination is missing
+        if not origin or not destination:
+            route_match = re.search(r"from\s+([a-z0-9\s,]+?)\s+to\s+([a-z0-9\s,]+?)(?=\s+(?:from|on|for|in|during|departing|returning|between|with|under|\d)|\s*$)", text, re.IGNORECASE)
+            if route_match:
+                if not origin:
+                    origin = PromptExtractor._resolve_iata(route_match.group(1).strip())
+                if not destination:
+                    destination = PromptExtractor._resolve_iata(route_match.group(2).strip())
+
         trip_type = flight_info.get("trip_type")
-        dep_date = first_slice.get("departure_date") or stay_info.get("check_in_date")
-        if trip_type == "one_way":
-            ret_date = None
-        else:
-            ret_date = flight_info.get("target_return_date") or stay_info.get("check_out_date")
-            if not ret_date and len(slices) > 1:
-                ret_date = slices[1].get("departure_date")
+        dep_date = first_slice.get("departure_date") or stay_info.get("check_in_date") or flight_info.get("from_date") or flight_info.get("departure_date")
+        ret_date = flight_info.get("to_date") or flight_info.get("target_return_date") or stay_info.get("check_out_date")
+        if not ret_date and len(slices) > 1 and isinstance(slices[1], dict):
+            ret_date = slices[1].get("departure_date")
+
+        from_date = flight_info.get("from_date") or dep_date
+        to_date = flight_info.get("to_date") or ret_date
+
+
+
+        duration = flight_info.get("duration") if flight_info.get("duration") is not None else flight_info.get("duration_days")
+
+        if from_date and to_date and duration is None:
+            try:
+                d1 = datetime.strptime(from_date, "%Y-%m-%d")
+                d2 = datetime.strptime(to_date, "%Y-%m-%d")
+                dur = (d2 - d1).days
+                if dur > 0:
+                    duration = dur
+            except Exception:
+                pass
+
+        if from_date and duration and not to_date:
+            try:
+                d1 = datetime.strptime(from_date, "%Y-%m-%d")
+                to_date = (d1 + timedelta(days=int(duration))).strftime("%Y-%m-%d")
+                ret_date = to_date
+            except Exception:
+                pass
+
+        is_explicit_one_way = any(w in text for w in ["one way", "oneway", "single"])
+        if is_explicit_one_way:
+            trip_type = "one_way"
+        elif from_date and to_date and not trip_type and ("between" in text or " to " in text):
+            trip_type = "round_trip"
+
+        # Extract min and max price range
+        min_price = flight_info.get("min_price")
+        max_price = flight_info.get("max_price")
+
+        price_range_match = re.search(
+            r"(?:price|budget|cost)?\s*(?:between|from)?\s*\$?\s*(\d+(?:\.\d+)?)\s*(?:to|and|-|\s+to\s+)\s*\$?\s*(\d+(?:\.\d+)?)\s*(?:dollars|\$|\b)",
+            text,
+            flags=re.IGNORECASE
+        )
+        if price_range_match:
+            try:
+                val1 = float(price_range_match.group(1))
+                val2 = float(price_range_match.group(2))
+                if val1 < 1900 and val2 < 1900 and val1 > 0 and val2 > val1:
+                    if min_price is None:
+                        min_price = val1
+                    if max_price is None:
+                        max_price = val2
+            except Exception:
+                pass
+
+        if max_price is None:
+            max_m = re.search(r"(?:under|less than|max|up to|below|budget of)\s*\$?\s*(\d+(?:\.\d+)?)\s*(?:dollars|\$)?\b", text)
+            if max_m:
+                try:
+                    val = float(max_m.group(1))
+                    if val < 1900:
+                        max_price = val
+                except Exception:
+                    pass
+
+        if min_price is None:
+            min_m = re.search(r"(?:over|more than|above|min|at least|from \$)\s*\$?\s*(\d+(?:\.\d+)?)\s*(?:dollars|\$)?\b", text)
+            if min_m:
+                try:
+                    val = float(min_m.group(1))
+                    if val < 1900:
+                        min_price = val
+                except Exception:
+                    pass
 
         # Extract adults & kids count (defaulting to 1 adult if unlisted)
         adult_match = re.search(r"(\d+)\s*adult", text)
@@ -368,8 +461,6 @@ class PromptExtractor:
                 if cand and cand not in reserved and len(cand) > 2:
                     preferred_airline = cand.title()
 
-
-
         # Extract allowed cabin classes
         allowed_cabins = []
         if "premium" in text:
@@ -385,7 +476,6 @@ class PromptExtractor:
 
         if not allowed_cabins:
             allowed_cabins = [flight_info.get("cabin_class", "economy")]
-
 
         if not selected_types:
             if origin and destination:
@@ -408,13 +498,21 @@ class PromptExtractor:
         if preferred_airline and preferred_airline not in inc_airlines:
             inc_airlines.insert(0, preferred_airline)
 
+        resolved_trip_type = trip_type or ("round_trip" if (from_date and to_date) else "one_way")
+        resolved_dep_date = from_date or dep_date
+        resolved_ret_date = to_date if resolved_trip_type != "one_way" else None
+
         intent = {
             "selected_types": unique_types,
-            "trip_type": trip_type,
+            "trip_type": resolved_trip_type,
             "origin": origin,
             "destination": destination,
-            "departure_date": dep_date,
-            "return_date": ret_date,
+            "departure_date": resolved_dep_date,
+            "return_date": resolved_ret_date,
+            "from_date": from_date or resolved_dep_date,
+            "to_date": to_date or resolved_ret_date,
+            "min_price": min_price,
+            "max_price": max_price,
             "passengers": {
                 "adults": adults,
                 "children": children,
@@ -435,7 +533,7 @@ class PromptExtractor:
             "rooms": stay_info.get("rooms", 1),
             "driver_age": car_info.get("driver_age", 30),
             "interests": [],
-            "duration_days": flight_info.get("duration_days"),
+            "duration_days": duration,
             "slices": [s.to_dict() if hasattr(s, "to_dict") else s for s in slices],
         }
 
@@ -609,15 +707,37 @@ class PromptExtractor:
                     "departure_date": dep_date
                 })
 
-        # If round trip detected with 1 slice and 2 dates, auto add return slice
-        if extracted["trip_type"] == "round_trip" and len(extracted["slices"]) == 1 and len(dates) >= 2:
-            orig_first = extracted["slices"][0]["origin"]
-            dest_first = extracted["slices"][0]["destination"]
-            extracted["slices"].append({
-                "origin": dest_first,
-                "destination": orig_first,
-                "departure_date": dates[1]
-            })
+        # If round trip or 2 dates detected with 1 slice, auto add return slice
+        if len(dates) >= 2:
+            from_date = dates[0]
+            to_date = dates[1]
+            extracted["from_date"] = from_date
+            extracted["to_date"] = to_date
+            extracted["target_return_date"] = to_date
+            try:
+                d1 = datetime.strptime(from_date, "%Y-%m-%d")
+                d2 = datetime.strptime(to_date, "%Y-%m-%d")
+                dur = (d2 - d1).days
+                if dur > 0:
+                    extracted["duration"] = dur
+                    extracted["duration_days"] = dur
+            except Exception:
+                pass
+
+            if not extracted.get("trip_type") or extracted.get("trip_type") == "one_way":
+                if any(w in text for w in ["round trip", "between", " to ", "return", "back and forth"]) or not any(w in text for w in ["one way", "oneway", "single"]):
+                    extracted["trip_type"] = "round_trip"
+
+            if extracted["trip_type"] == "round_trip" and len(extracted["slices"]) == 1:
+                orig_first = extracted["slices"][0]["origin"]
+                dest_first = extracted["slices"][0]["destination"]
+                extracted["slices"].append({
+                    "origin": dest_first,
+                    "destination": orig_first,
+                    "departure_date": to_date
+                })
+        elif len(dates) == 1:
+            extracted["from_date"] = dates[0]
 
         # 4. Extract Cabin Class
         if "business" in text:
@@ -633,17 +753,31 @@ class PromptExtractor:
             extracted["passengers_count"] = int(pax_match.group(1))
 
         # 6. Extract trip duration (days / weeks)
+        extracted.setdefault("duration", None)
+        extracted.setdefault("duration_days", None)
         duration_match = re.search(r"(?:for\s+(\d+)\s*days?|(\d+)\s*days?\s*trip|for\s+(\d+)\s*weeks?|(\d+)\s*weeks?\s*trip)", text)
         if duration_match:
+            dur = None
             if duration_match.group(1):
-                extracted["duration_days"] = int(duration_match.group(1))
+                dur = int(duration_match.group(1))
             elif duration_match.group(2):
-                extracted["duration_days"] = int(duration_match.group(2))
+                dur = int(duration_match.group(2))
             elif duration_match.group(3):
-                extracted["duration_days"] = int(duration_match.group(3)) * 7
+                dur = int(duration_match.group(3)) * 7
             elif duration_match.group(4):
-                extracted["duration_days"] = int(duration_match.group(4)) * 7
-        extracted["duration_days"] = None
+                dur = int(duration_match.group(4)) * 7
+            if dur is not None:
+                extracted["duration"] = dur
+                extracted["duration_days"] = dur
+
+        if extracted.get("from_date") and extracted.get("duration") and not extracted.get("to_date"):
+            try:
+                d1 = datetime.strptime(extracted["from_date"], "%Y-%m-%d")
+                calculated_to = (d1 + timedelta(days=extracted["duration"])).strftime("%Y-%m-%d")
+                extracted["to_date"] = calculated_to
+                extracted["target_return_date"] = calculated_to
+            except Exception:
+                pass
 
         prompt_parser_meta.set({
             "engine": "Local Deterministic Engine (Built-in Regex)",
@@ -669,7 +803,50 @@ class PromptExtractor:
     def _normalize_flight_result(result: dict[str, Any]) -> dict[str, Any]:
         """Normalize provider output to the field names and enum values used by the CLI."""
         normalized = dict(result)
-        trip_type = str(normalized.get("trip_type") or "").lower().replace("-", "_").replace(" ", "_")
+        slices = normalized.get("slices") or []
+        first_slice = slices[0] if slices and isinstance(slices[0], dict) else {}
+
+        origin = normalized.get("origin") or first_slice.get("origin")
+        destination = normalized.get("destination") or first_slice.get("destination")
+
+        if origin:
+            normalized["origin"] = PromptExtractor._resolve_iata(str(origin))
+        if destination:
+            normalized["destination"] = PromptExtractor._resolve_iata(str(destination))
+
+        from_date = normalized.get("from_date") or first_slice.get("departure_date") or normalized.get("departure_date")
+        to_date = normalized.get("to_date") or normalized.get("target_return_date") or normalized.get("return_date")
+        if not to_date and len(slices) > 1 and isinstance(slices[1], dict):
+            to_date = slices[1].get("departure_date")
+
+        if not slices and normalized.get("origin") and normalized.get("destination"):
+            normalized["slices"] = [{
+                "origin": normalized["origin"],
+                "destination": normalized["destination"],
+                "departure_date": from_date
+            }]
+            slices = normalized["slices"]
+
+        duration = normalized.get("duration") if normalized.get("duration") is not None else normalized.get("duration_days")
+
+        if from_date and to_date and duration is None:
+            try:
+                d1 = datetime.strptime(from_date, "%Y-%m-%d")
+                d2 = datetime.strptime(to_date, "%Y-%m-%d")
+                dur = (d2 - d1).days
+                if dur > 0:
+                    duration = dur
+            except Exception:
+                pass
+
+        if from_date and duration and not to_date:
+            try:
+                d1 = datetime.strptime(from_date, "%Y-%m-%d")
+                to_date = (d1 + timedelta(days=int(duration))).strftime("%Y-%m-%d")
+            except Exception:
+                pass
+
+        raw_trip_type = str(normalized.get("trip_type") or "").lower().replace("-", "_").replace(" ", "_")
         normalized["trip_type"] = {
             "oneway": "one_way",
             "one_way": "one_way",
@@ -678,13 +855,57 @@ class PromptExtractor:
             "round_trip": "round_trip",
             "multicity": "multi_city",
             "multi_city": "multi_city",
-        }.get(trip_type, normalized.get("trip_type"))
+        }.get(raw_trip_type, normalized.get("trip_type") or ("round_trip" if (from_date and to_date) else "one_way"))
 
-        # If trip_type is one_way, force target_return_date to None and keep only 1 slice
-        if normalized.get("trip_type") == "one_way":
+        if normalized.get("trip_type") == "one_way" and not (from_date and to_date and "between" in str(result).lower()):
             normalized["target_return_date"] = None
+            normalized["to_date"] = None
             if isinstance(normalized.get("slices"), list) and len(normalized["slices"]) > 1:
                 normalized["slices"] = [normalized["slices"][0]]
+        else:
+            normalized["target_return_date"] = to_date
+
+        min_price = normalized.get("min_price")
+        max_price = normalized.get("max_price")
+        try:
+            min_price = float(min_price) if min_price is not None else None
+        except Exception:
+            min_price = None
+        try:
+            max_price = float(max_price) if max_price is not None else None
+        except Exception:
+            max_price = None
+
+        normalized["min_price"] = min_price
+        normalized["max_price"] = max_price
+        normalized["from_date"] = from_date
+        normalized["to_date"] = to_date
+        normalized["duration_days"] = duration
+        normalized["departure_date"] = from_date
+        normalized["return_date"] = to_date if normalized["trip_type"] != "one_way" else None
+
+        # Clean up invalid airline extractions (e.g. dates, months, 'sep 8')
+        def _is_valid_airline(val: Any) -> bool:
+            if not val or not isinstance(val, str):
+                return False
+            s = val.strip().lower()
+            if any(m in s for m in ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec", "2026", "2027"]):
+                return False
+            if any(w in s for w in ["on ", "from ", "to ", "in ", "during ", "departing", "returning"]):
+                return False
+            return len(s) >= 2
+
+        pref = normalized.get("preferred_airline")
+        if pref and not _is_valid_airline(pref):
+            normalized["preferred_airline"] = None
+
+        inc = normalized.get("included_airlines")
+        if isinstance(inc, list):
+            normalized["included_airlines"] = [x for x in inc if _is_valid_airline(x)]
+
+        exc = normalized.get("excluded_airlines")
+        if isinstance(exc, list):
+            normalized["excluded_airlines"] = [x for x in exc if _is_valid_airline(x)]
 
         normalized.setdefault("cabin_class", "economy")
         normalized.setdefault("passengers_count", 1)
@@ -712,11 +933,13 @@ class PromptExtractor:
         instruction = (
             f"Today is {today}. Extract the flight request as JSON only.\n"
             "STRICT RULES:\n"
-            "1. trip_type: MUST be 'one_way' if user specifies 'oneway', 'one way', 'single', or does not specify a return flight. "
-            "MUST be 'round_trip' ONLY if user explicitly requests a return flight or roundtrip. MUST be 'multi_city' if multiple destinations are requested.\n"
-            "2. IATA CODES: You MUST resolve all city names strictly to 3-letter IATA airport codes in uppercase (e.g. 'Calgary' -> 'YYC', 'Atlanta' -> 'ATL', 'Columbus' -> 'CMH', 'Paris' -> 'CDG', 'London' -> 'LHR', 'New York' -> 'JFK'). NEVER return city names.\n"
-            "3. SLICES & RETURN DATE: For 'one_way', return EXACTLY 1 slice with origin, destination, departure_date, and set target_return_date to null.\n"
-            "4. Return JSON with keys: trip_type, slices, target_return_date, cabin_class, passengers_count, duration_days, preferred_airline, included_airlines, excluded_airlines. Use null or empty arrays for unknown values.\n"
+            "1. trip_type: MUST be 'one_way' if user explicitly says 'one way', 'oneway', or 'single' (even if two dates or date range are specified). MUST be 'round_trip' if user requests roundtrip/return or specifies two dates without saying one way. MUST be 'multi_city' for multiple destinations.\n"
+            "2. IATA CODES & SLICES: Resolve all city names strictly to 3-letter IATA airport codes in uppercase (e.g. 'Calgary' -> 'YYC', 'Atlanta' -> 'ATL', 'Columbus' -> 'CMH', 'Paris' -> 'CDG', 'London' -> 'LHR', 'New York' -> 'JFK', 'Zurich' -> 'ZRH'). Set top-level 'origin' to departure IATA code, top-level 'destination' to arrival IATA code, and populate 'slices': [{'origin': 'ATL', 'destination': 'CMH', 'departure_date': 'YYYY-MM-DD'}]. NEVER return city names or empty slices.\n"
+            "3. DATES & DURATION: Extract 'from_date' (YYYY-MM-DD start date), 'to_date' (YYYY-MM-DD end date), and 'duration_days' (integer duration of trip in days).\n"
+            "4. PRICE RANGE: Extract 'min_price' (float or null) and 'max_price' (float or null) if user specifies budget or price limits.\n"
+            "5. AIRLINES: Set 'preferred_airline', 'included_airlines', and 'excluded_airlines' ONLY if user explicitly names a recognized airline or alliance (e.g. 'Delta', 'United', 'American', 'British Airways'). NEVER treat date strings like 'on sep 8' or prepositions as airlines! Set to null or empty array if no airline is explicitly requested.\n"
+            "6. STOPOVERS & BREAKS: If user requests a stay in a destination for N days (e.g. 'for 21 days in Hyderabad') with a break in an intermediate city (e.g. 'with a 1 week break in London'), add the break duration (+7 days) to the destination stay duration so the total trip length is 28 days: Slice 1: ATL -> LHR on start date (Oct 1); Slice 2: LHR -> HYD 7 days later (Oct 8); Slice 3: HYD -> ATL 21 days after arriving in HYD (Oct 29, total 28 days from start). Set trip_type: 'multi_city'.\n"
+            "7. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines.\n"
             "User request: " + prompt
         )
         payload = {
@@ -742,7 +965,7 @@ class PromptExtractor:
                 response_data = json.loads(response.read().decode("utf-8"))
             content = response_data["choices"][0]["message"]["content"]
             result = json.loads(content)
-            if isinstance(result, dict) and isinstance(result.get("slices"), list):
+            if isinstance(result, dict):
                 normalized = PromptExtractor._normalize_flight_result(result)
                 meta = {
                     "engine": f"LLM Extractor (OpenAI - {config.openai_model})",
@@ -777,11 +1000,13 @@ class PromptExtractor:
         instruction = (
             f"Extract this flight request as JSON. Today is {today}.\n"
             "STRICT RULES:\n"
-            "1. trip_type: MUST be 'one_way' if user specifies 'oneway', 'one way', 'single', or does not specify a return flight. "
-            "MUST be 'round_trip' ONLY if user explicitly requests a return flight or roundtrip.\n"
-            "2. IATA CODES: Resolve all city names strictly to 3-letter IATA airport codes in uppercase (e.g. 'Calgary' -> 'YYC', 'Columbus' -> 'CMH').\n"
-            "3. SLICES & RETURN DATE: For 'one_way', return EXACTLY 1 slice with origin, destination, departure_date, and set target_return_date to null.\n"
-            "4. Return JSON with keys: trip_type, slices, target_return_date, cabin_class, passengers_count, duration_days, preferred_airline, included_airlines, excluded_airlines.\n"
+            "1. trip_type: MUST be 'one_way' if user explicitly says 'one way', 'oneway', or 'single'. MUST be 'round_trip' for roundtrip/return. MUST be 'multi_city' for stopovers or multi-city breaks.\n"
+            "2. IATA CODES & SLICES: Resolve city names strictly to 3-letter IATA codes in uppercase (e.g. 'Atlanta' -> 'ATL', 'Columbus' -> 'CMH'). Set top-level 'origin', 'destination', and 'slices': [{'origin': 'ATL', 'destination': 'CMH', 'departure_date': 'YYYY-MM-DD'}].\n"
+            "3. DATES & DURATION: Extract 'from_date', 'to_date', and 'duration_days'.\n"
+            "4. PRICE RANGE: Extract 'min_price' and 'max_price'.\n"
+            "5. AIRLINES: Set 'preferred_airline', 'included_airlines', and 'excluded_airlines' ONLY if user explicitly names a recognized airline (e.g. 'Delta', 'United'). NEVER treat date strings like 'sep 8' as airlines.\n"
+            "6. STOPOVERS & BREAKS: If user requests a destination stay for N days with a break in an intermediate city (+7 days), sum stay + break duration for total trip length (28 days). Set trip_type: 'multi_city' and populate 'slices' array with sequential flight legs.\n"
+            "7. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines.\n"
             f"User request: {prompt}"
         )
         payload = {
@@ -936,6 +1161,13 @@ class PromptExtractor:
             return CITY_IATA_MAP[clean]
         if clean_no_state in CITY_IATA_MAP:
             return CITY_IATA_MAP[clean_no_state]
+
+        # Fuzzy matching for city typos e.g. 'columnbus' -> 'columbus' (CMH)
+        import difflib
+        matches = difflib.get_close_matches(clean_no_state, CITY_IATA_MAP.keys(), n=1, cutoff=0.7)
+        if matches:
+            return CITY_IATA_MAP[matches[0]]
+
         if len(clean) == 3 and clean.isalpha():
             return clean.upper()
         if len(clean_no_state) == 3 and clean_no_state.isalpha():

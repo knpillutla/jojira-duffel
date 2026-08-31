@@ -73,6 +73,138 @@ class AISearchService(BaseService):
         departure_date = overrides.get("departure_date") or intent.get("departure_date") or "2026-10-01"
         return_date = overrides.get("return_date") or intent.get("return_date") or "2026-10-08"
 
+        # Immediate input validation before cache or Duffel API calls
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        if departure_date and departure_date < today_str:
+            err_msg = f"Departure date '{departure_date}' is in the past. Search dates must be today ({today_str}) or in the future."
+            return {
+                "status": "error",
+                "error": "invalid_past_date",
+                "message": err_msg,
+                "meta_data": {
+                    "type": "ai_search",
+                    "search_type": selected_types[0] if selected_types else "flights",
+                    "prompt": prompt,
+                    "parsed_intent": intent,
+                    "error": err_msg,
+                },
+                "data": {
+                    "ai_summary": f"Cannot complete search: {err_msg}",
+                    "category_highlights": {},
+                    "search_type": selected_types[0] if selected_types else "flights",
+                    "total_items": 0,
+                    "offers": [],
+                    "top_bundles": [],
+                    "raw_data": {},
+                },
+            }
+
+        if return_date and return_date < today_str:
+            err_msg = f"Return date '{return_date}' is in the past. Search dates must be today ({today_str}) or in the future."
+            return {
+                "status": "error",
+                "error": "invalid_past_date",
+                "message": err_msg,
+                "meta_data": {
+                    "type": "ai_search",
+                    "search_type": selected_types[0] if selected_types else "flights",
+                    "prompt": prompt,
+                    "parsed_intent": intent,
+                    "error": err_msg,
+                },
+                "data": {
+                    "ai_summary": f"Cannot complete search: {err_msg}",
+                    "category_highlights": {},
+                    "search_type": selected_types[0] if selected_types else "flights",
+                    "total_items": 0,
+                    "offers": [],
+                    "top_bundles": [],
+                    "raw_data": {},
+                },
+            }
+
+        if departure_date and return_date and departure_date > return_date:
+            err_msg = f"Departure date '{departure_date}' cannot be after return date '{return_date}'."
+            return {
+                "status": "error",
+                "error": "invalid_date_range",
+                "message": err_msg,
+                "meta_data": {
+                    "type": "ai_search",
+                    "search_type": selected_types[0] if selected_types else "flights",
+                    "prompt": prompt,
+                    "parsed_intent": intent,
+                    "error": err_msg,
+                },
+                "data": {
+                    "ai_summary": f"Cannot complete search: {err_msg}",
+                    "category_highlights": {},
+                    "search_type": selected_types[0] if selected_types else "flights",
+                    "total_items": 0,
+                    "offers": [],
+                    "top_bundles": [],
+                    "raw_data": {},
+                },
+            }
+
+        # Check for max 30 days date range window limit
+        from_d_str = intent.get("from_date") or departure_date
+        to_d_str = intent.get("to_date") or return_date
+        if from_d_str and to_d_str:
+            try:
+                fd = datetime.strptime(from_d_str, "%Y-%m-%d")
+                td = datetime.strptime(to_d_str, "%Y-%m-%d")
+                diff_days = (td - fd).days
+                if diff_days > 30:
+                    err_msg = f"Search date range between '{from_d_str}' and '{to_d_str}' ({diff_days} days) exceeds the maximum allowed search window of 30 days. Please narrow your search window to 30 days or less."
+                    return {
+                        "status": "error",
+                        "error": "date_range_exceeded",
+                        "message": err_msg,
+                        "meta_data": {
+                            "type": "ai_search",
+                            "search_type": selected_types[0] if selected_types else "flights",
+                            "prompt": prompt,
+                            "parsed_intent": intent,
+                            "error": err_msg,
+                        },
+                        "data": {
+                            "ai_summary": f"Cannot complete search: {err_msg}",
+                            "category_highlights": {},
+                            "search_type": selected_types[0] if selected_types else "flights",
+                            "total_items": 0,
+                            "offers": [],
+                            "top_bundles": [],
+                            "raw_data": {},
+                        },
+                    }
+            except Exception:
+                pass
+
+        if ("flights" in selected_types or len(selected_types) > 1) and origin and destination and origin == destination:
+            err_msg = f"Origin airport '{origin}' and destination airport '{destination}' cannot be identical."
+            return {
+                "status": "error",
+                "error": "invalid_route",
+                "message": err_msg,
+                "meta_data": {
+                    "type": "ai_search",
+                    "search_type": selected_types[0] if selected_types else "flights",
+                    "prompt": prompt,
+                    "parsed_intent": intent,
+                    "error": err_msg,
+                },
+                "data": {
+                    "ai_summary": f"Cannot complete search: {err_msg}",
+                    "category_highlights": {},
+                    "search_type": selected_types[0] if selected_types else "flights",
+                    "total_items": 0,
+                    "offers": [],
+                    "top_bundles": [],
+                    "raw_data": {},
+                },
+            }
+
         passengers_count = overrides.get("passengers_count") or intent.get("passengers_count") or 1
         cabin_class = (overrides.get("cabin_class") or intent.get("cabin_class") or "economy").lower()
         rooms = overrides.get("rooms") or intent.get("rooms") or 1
@@ -172,11 +304,28 @@ class AISearchService(BaseService):
         highlights = self._synthesize_highlights(items, search_type)
         ai_summary = self._generate_ai_summary(prompt, search_type, items, highlights, destination)
 
+        def _is_ns(item: Any) -> bool:
+            o = item.get("flight_offer") if isinstance(item, dict) and "flight_offer" in item else item
+            if not isinstance(o, dict):
+                return False
+            if o.get("max_stops") == 0 or o.get("stops") == 0:
+                return True
+            slices = o.get("slices") or []
+            if isinstance(slices, list) and len(slices) > 0:
+                return all(len(s.get("segments", [])) <= 1 for s in slices if isinstance(s, dict))
+            return False
+
+        non_stop_items = [x for x in items if _is_ns(x)]
+        non_stop_items.sort(key=lambda x: float(x.get("total_amount") or x.get("total_package_price") or 0.0))
+        lowest_non_stop_offers = non_stop_items[:10]
+
         data_section = {
             "ai_summary": ai_summary,
             "category_highlights": highlights,
             "search_type": search_type,
             "total_items": len(items),
+            "lowest_non_stop_offers": lowest_non_stop_offers,
+            "total_non_stop_offers": len(non_stop_items),
             "offers": items if search_type != "bundle" else [],
             "top_bundles": items if search_type == "bundle" else [],
             "raw_data": raw_data,
@@ -189,9 +338,10 @@ class AISearchService(BaseService):
             "data": data_section,
         }
 
-        # Cache result
+        # Cache result (120s for no data found, 3600s for valid results)
         if self.cache and self.cache.enabled:
-            self.cache.set(cache_key, response_envelope, ttl_seconds=3600)
+            ttl_sec = 120 if (not items or len(items) == 0) else 3600
+            self.cache.set(cache_key, response_envelope, ttl_seconds=ttl_sec)
 
         return response_envelope
 

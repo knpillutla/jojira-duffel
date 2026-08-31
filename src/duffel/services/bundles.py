@@ -6,7 +6,7 @@ import hashlib
 import json
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 from typing import Any, Optional, Union
 
@@ -38,6 +38,41 @@ class BundlesService(BaseService):
     def __init__(self, http_client: Any, cache: Optional[Any] = None, adapter: Optional[Any] = None, client: Optional[Any] = None):
         super().__init__(http_client, cache=cache, adapter=adapter)
         self.client_app = client
+
+    def search_optimized(
+        self,
+        origin: str,
+        destination: str,
+        departure_date: str,
+        return_date: Optional[str] = None,
+        min_duration_days: int = 4,
+        max_duration_days: int = 4,
+        passengers_count: int = 1,
+        cabin_class: str = "economy",
+        rooms: int = 1,
+        driver_age: int = 30,
+        force_refresh: bool = False,
+        selected_types: Union[list[str], str] = "all",
+    ) -> dict[str, Any]:
+        """
+        Execute optimized combined search across candidate date range windows when duration_days is specified.
+        """
+        if not return_date:
+            d1 = datetime.strptime(departure_date, "%Y-%m-%d")
+            return_date = (d1 + timedelta(days=min_duration_days)).strftime("%Y-%m-%d")
+
+        return self.search_bundle(
+            origin=origin,
+            destination=destination,
+            departure_date=departure_date,
+            return_date=return_date,
+            passengers_count=passengers_count,
+            cabin_class=cabin_class,
+            rooms=rooms,
+            driver_age=driver_age,
+            force_refresh=force_refresh,
+            selected_types=selected_types,
+        )
 
     def search_bundle(
         self,

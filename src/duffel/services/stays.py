@@ -2,6 +2,7 @@
 Service for Stays (Hotels & Accommodations) API.
 """
 
+from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 
 from ..models.stays import (
@@ -88,6 +89,67 @@ class StaysService(BaseService):
 
 
         return [StaySearchResult.from_dict(r) for r in results]
+
+    def search_optimized(
+        self,
+        check_in_date: str,
+        check_out_date: Optional[str] = None,
+        min_duration_days: int = 4,
+        max_duration_days: int = 4,
+        rooms: int = 1,
+        location: Optional[dict[str, Any]] = None,
+        accommodation_ids: Optional[list[str]] = None,
+        force_refresh: bool = False,
+    ) -> list[StaySearchResult]:
+        """
+        Optimized hotel search running candidate date range window queries when duration_days is specified.
+        """
+        if not check_out_date:
+            d1 = datetime.strptime(check_in_date, "%Y-%m-%d")
+            check_out_date = (d1 + timedelta(days=min_duration_days)).strftime("%Y-%m-%d")
+
+        try:
+            d1 = datetime.strptime(check_in_date, "%Y-%m-%d")
+            d2 = datetime.strptime(check_out_date, "%Y-%m-%d")
+            total_days = (d2 - d1).days
+        except Exception:
+            total_days = min_duration_days
+
+        if total_days <= min_duration_days:
+            return self.search(
+                check_in_date=check_in_date,
+                check_out_date=check_out_date,
+                rooms=rooms,
+                location=location,
+                accommodation_ids=accommodation_ids,
+            )
+
+        all_results = []
+        seen_ids = set()
+        curr = d1
+        while (curr + timedelta(days=min_duration_days)) <= d2:
+            cin = curr.strftime("%Y-%m-%d")
+            cout = (curr + timedelta(days=min_duration_days)).strftime("%Y-%m-%d")
+            try:
+                res_list = self.search(
+                    check_in_date=cin,
+                    check_out_date=cout,
+                    rooms=rooms,
+                    location=location,
+                    accommodation_ids=accommodation_ids,
+                )
+                for r in res_list:
+                    r_id = getattr(r, "id", None) or (r.get("id") if isinstance(r, dict) else None)
+                    if r_id and r_id not in seen_ids:
+                        seen_ids.add(r_id)
+                        all_results.append(r)
+                    elif not r_id:
+                        all_results.append(r)
+            except Exception:
+                pass
+            curr += timedelta(days=1)
+
+        return all_results
 
     def get_search_result(self, search_result_id: str) -> StaySearchResult:
         """

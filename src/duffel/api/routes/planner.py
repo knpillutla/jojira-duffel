@@ -35,7 +35,7 @@ def generate_itinerary_endpoint(req: ItineraryPlannerRequest):
     client = common.get_duffel_client()
     try:
         if not hasattr(client, "planner"):
-            from ...services.planner import TravelPlannerService
+            from ....duffel.services.planner import TravelPlannerService
             client.planner = TravelPlannerService(client.http_client, cache=client.cache, adapter=client.adapter, client=client)
 
         res = client.planner.generate_itinerary(

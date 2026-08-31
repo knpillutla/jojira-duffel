@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 import math
 import os
 import re
@@ -208,8 +209,8 @@ class TravelPlannerService(BaseService):
         )
 
 
-
-
+        from concurrent.futures import ThreadPoolExecutor
+        self.executor = ThreadPoolExecutor(max_workers=2)
         # Parallel Concurrency: Submit LLM Orchestration and Sub-API Price Searches in parallel
         future_llm = self.executor.submit(
             self._orchestrate_llm_itinerary,

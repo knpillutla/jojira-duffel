@@ -3,7 +3,7 @@ Natural Language Search Service orchestrating single-category (flights, hotels, 
 and multi-category travel package bundle searches with explicit response metadata and category highlights.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 import os
@@ -60,6 +60,63 @@ class NaturalSearchService(BaseService):
         rooms = overrides.get("rooms") or intent.get("rooms") or 1
         driver_age = overrides.get("driver_age") or intent.get("driver_age") or 30
 
+        # Immediate input validation before cache or Duffel API calls
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        if departure_date and departure_date < today_str:
+            return {
+                "status": "error",
+                "error": "invalid_past_date",
+                "message": f"Departure date '{departure_date}' is in the past. Search dates must be today ({today_str}) or in the future.",
+                "total_results": 0,
+                "results": [],
+            }
+
+        if return_date and return_date < today_str:
+            return {
+                "status": "error",
+                "error": "invalid_past_date",
+                "message": f"Return date '{return_date}' is in the past. Search dates must be today ({today_str}) or in the future.",
+                "total_results": 0,
+                "results": [],
+            }
+
+        if departure_date and return_date and departure_date > return_date:
+            return {
+                "status": "error",
+                "error": "invalid_date_range",
+                "message": f"Departure date '{departure_date}' cannot be after return date '{return_date}'.",
+                "total_results": 0,
+                "results": [],
+            }
+
+        # Check for max 30 days date range window limit
+        from_d_str = intent.get("from_date") or departure_date
+        to_d_str = intent.get("to_date") or return_date
+        if from_d_str and to_d_str:
+            try:
+                fd = datetime.strptime(from_d_str, "%Y-%m-%d")
+                td = datetime.strptime(to_d_str, "%Y-%m-%d")
+                diff_days = (td - fd).days
+                if diff_days > 30:
+                    return {
+                        "status": "error",
+                        "error": "date_range_exceeded",
+                        "message": f"Search date range between '{from_d_str}' and '{to_d_str}' ({diff_days} days) exceeds the maximum allowed search window of 30 days. Please narrow your search window to 30 days or less.",
+                        "total_results": 0,
+                        "results": [],
+                    }
+            except Exception:
+                pass
+
+        if ("flights" in selected_types or len(selected_types) > 1) and origin and destination and origin == destination:
+            return {
+                "status": "error",
+                "error": "invalid_route",
+                "message": f"Origin airport '{origin}' and destination airport '{destination}' cannot be identical.",
+                "total_results": 0,
+                "results": [],
+            }
+
         # Check Cache with normalized prompt text
         norm_prompt = re.sub(r"\s+", " ", prompt.lower().strip().strip(".,!?"))
         hash_input = f"nat_{norm_prompt}_{selected_types}_{origin}_{destination}_{departure_date}_{return_date}_{passengers_count}_{cabin_class}_{rooms}_{driver_age}"
@@ -95,7 +152,6 @@ class NaturalSearchService(BaseService):
                 bundle_for = f"Attractions & Sightseeing in {destination}"
                 bundle_description = f"Specific single-category search for top sights and activities in {destination}."
 
-        from datetime import datetime, timedelta, timezone
         now_utc = datetime.now(timezone.utc)
         default_ttl = getattr(self.cache, "ttl", 3600) if self.cache else 3600
         default_expires_at = (now_utc + timedelta(seconds=default_ttl)).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -233,8 +289,6 @@ class NaturalSearchService(BaseService):
         results_list = res.get("results") or []
         if self.cache and hasattr(self.cache, "calculate_earliest_ttl"):
             ttl_sec, exp_at = self.cache.calculate_earliest_ttl(results_list)
-        else:
-            from datetime import datetime, timedelta, timezone
             ttl_sec = 3600
             exp_at = (datetime.now(timezone.utc) + timedelta(seconds=3600)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -282,15 +336,43 @@ class NaturalSearchService(BaseService):
                 component_errors["flights"] = "Flights service is not available."
             else:
                 try:
-                    flights_list = self.client_app.flights.search_exact(
-                        origin=origin,
-                        destination=destination,
-                        departure_date=departure_date,
-                        return_date=return_date,
-                        passengers=[Passenger(type="adult") for _ in range(passengers_count)],
-                        cabin_class=CabinClass(cabin_class.lower()),
-                        force_refresh=force_refresh,
-                    )
+                    dur_days = intent.get("duration_days")
+                    use_optimized = False
+                    if dur_days and return_date:
+                        try:
+                            d1 = datetime.strptime(departure_date, "%Y-%m-%d")
+                            d2 = datetime.strptime(return_date, "%Y-%m-%d")
+                            if dur_days < (d2 - d1).days:
+                                use_optimized = True
+                        except Exception:
+                            pass
+
+                    if use_optimized and hasattr(self.client_app.flights, "search_optimized"):
+                        opt_res = self.client_app.flights.search_optimized(
+                            origin=origin,
+                            destination=destination,
+                            target_date=departure_date,
+                            target_return_date=return_date,
+                            min_duration_days=dur_days,
+                            max_duration_days=dur_days,
+                            passengers_count=passengers_count,
+                            cabin_class=cabin_class,
+                            force_refresh=force_refresh,
+                        )
+                        if isinstance(opt_res, dict):
+                            flights_list = opt_res.get("top_offers") or opt_res.get("results") or []
+                        else:
+                            flights_list = list(opt_res)
+                    else:
+                        flights_list = self.client_app.flights.search_exact(
+                            origin=origin,
+                            destination=destination,
+                            departure_date=departure_date,
+                            return_date=return_date,
+                            passengers=[Passenger(type="adult") for _ in range(passengers_count)],
+                            cabin_class=CabinClass(cabin_class.lower()),
+                            force_refresh=force_refresh,
+                        )
                     if pref_air and flights_list:
                         filtered_fl = []
                         for fo in flights_list:
@@ -308,11 +390,38 @@ class NaturalSearchService(BaseService):
                 component_errors["hotels"] = "Stays service is not available."
             else:
                 try:
-                    stays_list = self.client_app.stays.search(
-                        check_in_date=departure_date,
-                        check_out_date=return_date,
-                        rooms=rooms,
-                    )
+                    dur_days = intent.get("duration_days")
+                    use_window_stay = False
+                    if dur_days and departure_date and return_date:
+                        try:
+                            d1 = datetime.strptime(departure_date, "%Y-%m-%d")
+                            d2 = datetime.strptime(return_date, "%Y-%m-%d")
+                            if dur_days < (d2 - d1).days:
+                                use_window_stay = True
+                        except Exception:
+                            pass
+
+                    if use_window_stay:
+                        all_st = []
+                        d1 = datetime.strptime(departure_date, "%Y-%m-%d")
+                        d2 = datetime.strptime(return_date, "%Y-%m-%d")
+                        curr = d1
+                        while (curr + timedelta(days=dur_days)) <= d2:
+                            cin = curr.strftime("%Y-%m-%d")
+                            cout = (curr + timedelta(days=dur_days)).strftime("%Y-%m-%d")
+                            try:
+                                objs = self.client_app.stays.search(check_in_date=cin, check_out_date=cout, rooms=rooms)
+                                all_st.extend(objs)
+                            except Exception:
+                                pass
+                            curr += timedelta(days=1)
+                        stays_list = all_st
+                    else:
+                        stays_list = self.client_app.stays.search(
+                            check_in_date=departure_date,
+                            check_out_date=return_date,
+                            rooms=rooms,
+                        )
                     if pref_hotel and stays_list:
                         filtered_st = []
                         for st in stays_list:
@@ -330,13 +439,46 @@ class NaturalSearchService(BaseService):
                 component_errors["cars"] = "Cars service is not available."
             else:
                 try:
-                    cars_list = self.client_app.cars.search(
-                        pickup_location=destination,
-                        dropoff_location=destination,
-                        pickup_datetime=f"{departure_date}T10:00:00Z",
-                        dropoff_datetime=f"{return_date}T10:00:00Z",
-                        driver_age=driver_age,
-                    )
+                    dur_days = intent.get("duration_days")
+                    use_window_car = False
+                    if dur_days and departure_date and return_date:
+                        try:
+                            d1 = datetime.strptime(departure_date, "%Y-%m-%d")
+                            d2 = datetime.strptime(return_date, "%Y-%m-%d")
+                            if dur_days < (d2 - d1).days:
+                                use_window_car = True
+                        except Exception:
+                            pass
+
+                    if use_window_car:
+                        all_cr = []
+                        d1 = datetime.strptime(departure_date, "%Y-%m-%d")
+                        d2 = datetime.strptime(return_date, "%Y-%m-%d")
+                        curr = d1
+                        while (curr + timedelta(days=dur_days)) <= d2:
+                            p_dt = f"{curr.strftime('%Y-%m-%d')}T10:00:00Z"
+                            d_dt = f"{(curr + timedelta(days=dur_days)).strftime('%Y-%m-%d')}T10:00:00Z"
+                            try:
+                                cobjs = self.client_app.cars.search(
+                                    pickup_location=destination,
+                                    dropoff_location=destination,
+                                    pickup_datetime=p_dt,
+                                    dropoff_datetime=d_dt,
+                                    driver_age=driver_age,
+                                )
+                                all_cr.extend(cobjs)
+                            except Exception:
+                                pass
+                            curr += timedelta(days=1)
+                        cars_list = all_cr
+                    else:
+                        cars_list = self.client_app.cars.search(
+                            pickup_location=destination,
+                            dropoff_location=destination,
+                            pickup_datetime=f"{departure_date}T10:00:00Z",
+                            dropoff_datetime=f"{return_date}T10:00:00Z",
+                            driver_age=driver_age,
+                        )
                     if pref_car and cars_list:
                         filtered_cr = []
                         for cr in cars_list:
@@ -634,6 +776,20 @@ class NaturalSearchService(BaseService):
                     dict_highlights[k] = str(v)
 
 
+        def _is_non_stop_offer(o: dict[str, Any]) -> bool:
+            if not o or not isinstance(o, dict):
+                return False
+            if o.get("max_stops") == 0 or o.get("stops") == 0:
+                return True
+            slices = o.get("slices") or []
+            if isinstance(slices, list) and len(slices) > 0:
+                return all(len(s.get("segments", [])) <= 1 for s in slices if isinstance(s, dict))
+            return False
+
+        non_stop_list = [o for o in dict_offers if _is_non_stop_offer(o)]
+        non_stop_list.sort(key=lambda o: float(o.get("total_amount") or 0.0))
+        lowest_non_stop = non_stop_list[:10]
+
         return {
             "status": "success",
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -641,6 +797,8 @@ class NaturalSearchService(BaseService):
             "meta": meta,
             "search_params": search_params,
             "category_highlights": dict_highlights,
+            "lowest_non_stop_offers": lowest_non_stop,
+            "total_non_stop_offers": len(non_stop_list),
             "total_results": len(dict_offers),
             "results": dict_offers,
             "top_offers": dict_offers,
@@ -667,14 +825,41 @@ class NaturalSearchService(BaseService):
         overrides = overrides or {}
         results = []
         error_detail: Optional[str] = None
+        dur_days = intent.get("duration_days")
+        use_window_loop = False
+        if dur_days and check_in_date and check_out_date:
+            try:
+                d1 = datetime.strptime(check_in_date, "%Y-%m-%d")
+                d2 = datetime.strptime(check_out_date, "%Y-%m-%d")
+                if dur_days < (d2 - d1).days:
+                    use_window_loop = True
+            except Exception:
+                pass
+
         if hasattr(self.client_app, "stays"):
             try:
-                stay_objs = self.client_app.stays.search(
-                    check_in_date=check_in_date,
-                    check_out_date=check_out_date,
-                    rooms=rooms,
-                )
-                results = [s.to_dict() if hasattr(s, "to_dict") else getattr(s, "__dict__", {}) for s in stay_objs]
+                if use_window_loop:
+                    all_stay_objs = []
+                    d1 = datetime.strptime(check_in_date, "%Y-%m-%d")
+                    d2 = datetime.strptime(check_out_date, "%Y-%m-%d")
+                    curr = d1
+                    while (curr + timedelta(days=dur_days)) <= d2:
+                        cin = curr.strftime("%Y-%m-%d")
+                        cout = (curr + timedelta(days=dur_days)).strftime("%Y-%m-%d")
+                        try:
+                            objs = self.client_app.stays.search(check_in_date=cin, check_out_date=cout, rooms=rooms)
+                            all_stay_objs.extend(objs)
+                        except Exception:
+                            pass
+                        curr += timedelta(days=1)
+                    results = [s.to_dict() if hasattr(s, "to_dict") else getattr(s, "__dict__", {}) for s in all_stay_objs]
+                else:
+                    stay_objs = self.client_app.stays.search(
+                        check_in_date=check_in_date,
+                        check_out_date=check_out_date,
+                        rooms=rooms,
+                    )
+                    results = [s.to_dict() if hasattr(s, "to_dict") else getattr(s, "__dict__", {}) for s in stay_objs]
             except Exception as e:
                 error_detail = str(e)
         else:
@@ -755,16 +940,51 @@ class NaturalSearchService(BaseService):
         overrides = overrides or {}
         results = []
         error_detail: Optional[str] = None
+        dur_days = intent.get("duration_days")
+        from_d = intent.get("from_date") or intent.get("departure_date")
+        to_d = intent.get("to_date") or intent.get("return_date")
+        use_window_loop = False
+        if dur_days and from_d and to_d:
+            try:
+                d1 = datetime.strptime(from_d, "%Y-%m-%d")
+                d2 = datetime.strptime(to_d, "%Y-%m-%d")
+                if dur_days < (d2 - d1).days:
+                    use_window_loop = True
+            except Exception:
+                pass
+
         if hasattr(self.client_app, "cars"):
             try:
-                car_objs = self.client_app.cars.search(
-                    pickup_location=destination,
-                    dropoff_location=destination,
-                    pickup_datetime=pickup_datetime,
-                    dropoff_datetime=dropoff_datetime,
-                    driver_age=driver_age,
-                )
-                results = [c.to_dict() if hasattr(c, "to_dict") else getattr(c, "__dict__", {}) for c in car_objs]
+                if use_window_loop:
+                    all_car_objs = []
+                    d1 = datetime.strptime(from_d, "%Y-%m-%d")
+                    d2 = datetime.strptime(to_d, "%Y-%m-%d")
+                    curr = d1
+                    while (curr + timedelta(days=dur_days)) <= d2:
+                        p_dt = f"{curr.strftime('%Y-%m-%d')}T10:00:00Z"
+                        d_dt = f"{(curr + timedelta(days=dur_days)).strftime('%Y-%m-%d')}T10:00:00Z"
+                        try:
+                            objs = self.client_app.cars.search(
+                                pickup_location=destination,
+                                dropoff_location=destination,
+                                pickup_datetime=p_dt,
+                                dropoff_datetime=d_dt,
+                                driver_age=driver_age,
+                            )
+                            all_car_objs.extend(objs)
+                        except Exception:
+                            pass
+                        curr += timedelta(days=1)
+                    results = [c.to_dict() if hasattr(c, "to_dict") else getattr(c, "__dict__", {}) for c in all_car_objs]
+                else:
+                    car_objs = self.client_app.cars.search(
+                        pickup_location=destination,
+                        dropoff_location=destination,
+                        pickup_datetime=pickup_datetime,
+                        dropoff_datetime=dropoff_datetime,
+                        driver_age=driver_age,
+                    )
+                    results = [c.to_dict() if hasattr(c, "to_dict") else getattr(c, "__dict__", {}) for c in car_objs]
             except Exception as e:
                 error_detail = str(e)
         else:

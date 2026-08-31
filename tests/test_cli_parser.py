@@ -108,6 +108,48 @@ class TestPromptExtractor(unittest.TestCase):
         self.assertEqual(info["dropoff_datetime"], "2026-12-07T10:00:00Z")
         self.assertEqual(info["driver_age"], 25)
 
+    @patch("duffel.cli.parser.PromptExtractor._extract_flight_info_with_llm", return_value=None)
+    def test_extract_natural_intent_between_two_dates(self, _mock_llm):
+        prompt = "flights from JFK to ZRH between 2026-09-17 and 2026-09-25"
+        intent = PromptExtractor.extract_natural_intent(prompt)
+        self.assertIn("from_date", intent)
+        self.assertIn("to_date", intent)
+        self.assertIn("duration_days", intent)
+        self.assertEqual(intent["from_date"], "2026-09-17")
+        self.assertEqual(intent["to_date"], "2026-09-25")
+        self.assertEqual(intent["duration_days"], 8)
+        self.assertEqual(intent["departure_date"], "2026-09-17")
+        self.assertEqual(intent["return_date"], "2026-09-25")
+        self.assertEqual(intent["trip_type"], "round_trip")
+
+    @patch("duffel.cli.parser.PromptExtractor._extract_flight_info_with_llm", return_value=None)
+    def test_extract_natural_intent_one_way(self, _mock_llm):
+        prompt = "one way flight from JFK to ZRH on 2026-09-17"
+        intent = PromptExtractor.extract_natural_intent(prompt)
+        self.assertEqual(intent["from_date"], "2026-09-17")
+        self.assertIsNone(intent["to_date"])
+        self.assertIsNone(intent["duration_days"])
+        self.assertEqual(intent["trip_type"], "one_way")
+
+
+    @patch("duffel.cli.parser.PromptExtractor._extract_flight_info_with_llm", return_value=None)
+    def test_extract_natural_intent_price_range(self, _mock_llm):
+        prompt = "flights from JFK to ZRH between 2026-09-17 and 2026-09-25 between $200 and $500"
+        intent = PromptExtractor.extract_natural_intent(prompt)
+        self.assertIn("min_price", intent)
+        self.assertIn("max_price", intent)
+        self.assertEqual(intent["min_price"], 200.0)
+        self.assertEqual(intent["max_price"], 500.0)
+
+    @patch("duffel.cli.parser.PromptExtractor._extract_flight_info_with_llm", return_value=None)
+    def test_extract_natural_intent_max_price_only(self, _mock_llm):
+        prompt = "flights from JFK to ZRH under $350"
+        intent = PromptExtractor.extract_natural_intent(prompt)
+        self.assertIsNone(intent["min_price"])
+        self.assertEqual(intent["max_price"], 350.0)
+
 
 if __name__ == "__main__":
     unittest.main()
+
+

@@ -27,11 +27,7 @@ class DuffelConfig:
     api_gateway_url: str = ""
     user_service_port: int = 5000
     debug: bool = False
-    test_mode: bool = False
-
-    @property
-    def debug_mode(self) -> bool:
-        return self.debug
+    enable_web_scrapers: bool = False
     enable_cache: bool = True
     redis_host: str = "localhost"
     redis_port: int = 6379

@@ -2,6 +2,7 @@
 Service for Duffel Flights API.
 """
 
+from datetime import datetime, timedelta, timezone
 import json
 from typing import Any, Optional, Union
 
@@ -424,8 +425,8 @@ class FlightsService(BaseService):
 
         # Search web scrapers for direct web fares (e.g. Frontier, Spirit) if available
         try:
-            from .scrapers import ScraperRegistry
-            registry = ScraperRegistry(enabled=True)
+            use_scrapers = getattr(getattr(self.client, "config", None), "enable_web_scrapers", False)
+            registry = ScraperRegistry(enabled=use_scrapers)
             if summaries:
                 s0 = summaries[0]
                 scraped_fares = registry.search_all_scrapers(
@@ -538,7 +539,6 @@ class FlightsService(BaseService):
         Calculates dynamic Redis cache TTL in seconds based on the earliest expiry date
         among all offers combined in the search response.
         """
-        from datetime import datetime, timezone
         if default_ttl is None:
             default_ttl = getattr(self.client.config, "cache_ttl_seconds", 3600)
 
@@ -600,7 +600,6 @@ class FlightsService(BaseService):
             if cached_data is not None:
                 if return_offers and "offers" in cached_data:
                     raw_offers = cached_data.get("offers", [])
-                    from datetime import datetime, timezone
                     now_iso = datetime.now(timezone.utc).isoformat()
 
                     # Check if ANY offer in cached response has expired
@@ -799,7 +798,6 @@ class FlightsService(BaseService):
         """
         Generate a short-lived Client Component Key.
         """
-        from datetime import datetime
         res = self.adapter.create_component_client_key()
         data = res.get("data", {})
         key_val = data.get("component_client_key") or data.get("client_key") or data.get("id")
@@ -1005,8 +1003,6 @@ class FlightsService(BaseService):
         Calculate candidate (departure_date, return_date, duration_days) tuples
         that will be queried by search_optimized.
         """
-        from datetime import datetime, timedelta
-
         if target_date and target_return_date and flex_days == 0:
             try:
                 d1 = datetime.strptime(target_date.strip(), "%Y-%m-%d")
@@ -1249,6 +1245,12 @@ class FlightsService(BaseService):
             passengers = [Passenger(type="adult") for _ in range(count)]
 
 
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        if target_date and target_date < today_str:
+            raise ValueError(f"Departure date '{target_date}' is in the past. Search dates must be today ({today_str}) or in the future.")
+        if target_return_date and target_return_date < today_str:
+            raise ValueError(f"Return date '{target_return_date}' is in the past. Search dates must be today ({today_str}) or in the future.")
+
         self.client.clear_metrics()
         search_start_time = time.perf_counter()
 
@@ -1270,7 +1272,6 @@ class FlightsService(BaseService):
             cached_opt = self.cache.get(opt_cache_key)
             if cached_opt is not None and isinstance(cached_opt, dict) and "offers" in cached_opt:
                 raw_offers = cached_opt["offers"]
-                from datetime import datetime, timezone
                 now_iso = datetime.now(timezone.utc).isoformat()
 
                 # Check if ANY offer in cached response has expired
@@ -1467,8 +1468,8 @@ class FlightsService(BaseService):
 
         # Query Web Scraper Engine (e.g. Frontier, Spirit direct web fares) per candidate batch date pair
         try:
-            from .scrapers import ScraperRegistry
-            registry = ScraperRegistry(enabled=True)
+            use_scrapers = getattr(getattr(self.client, "config", None), "enable_web_scrapers", False)
+            registry = ScraperRegistry(enabled=use_scrapers)
             fav_clean = (favorite_airline or "").strip().lower()
             for q_slices in queries:
                 if not q_slices:

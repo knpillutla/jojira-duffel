@@ -112,6 +112,12 @@ def search_ai_endpoint(req: AISearchRequest):
             overrides=overrides,
         )
         
+        if isinstance(result, dict) and result.get("status") == "error":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=result.get("message") or result.get("error") or "Validation error",
+            )
+
         return AISearchResponse(**result)
     except HTTPException:
         raise

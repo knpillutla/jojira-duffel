@@ -14,6 +14,7 @@ router = APIRouter(tags=["Cars (Car Rentals) API"])
 
 
 @router.post("/cars/search", response_model=CarSearchResponse, summary="Search Rental Cars")
+@router.post("/cars/search-optimized", response_model=CarSearchResponse, summary="Optimized Car Rental Search")
 def search_cars_endpoint(req: CarSearchRequest):
     """Search for rental car offers by pickup/dropoff locations, datetimes, and driver age."""
     client = common.get_duffel_client()

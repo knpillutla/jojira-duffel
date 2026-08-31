@@ -2,6 +2,7 @@
 Service for Car Rentals API.
 """
 
+from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 
 from ..adapters.mock_adapter import MockProviderAdapter
@@ -129,6 +130,67 @@ class CarsService(BaseService):
 
 
         return [CarOffer.from_dict(o) for o in raw_offers]
+
+    def search_optimized(
+        self,
+        pickup_location: str,
+        dropoff_location: str,
+        pickup_date: str,
+        dropoff_date: Optional[str] = None,
+        min_duration_days: int = 4,
+        max_duration_days: int = 4,
+        driver_age: int = 30,
+        force_refresh: bool = False,
+    ) -> list[CarOffer]:
+        """
+        Optimized car rental search running candidate date range window queries when duration_days is specified.
+        """
+        if not dropoff_date:
+            d1 = datetime.strptime(pickup_date, "%Y-%m-%d")
+            dropoff_date = (d1 + timedelta(days=min_duration_days)).strftime("%Y-%m-%d")
+
+        try:
+            d1 = datetime.strptime(pickup_date, "%Y-%m-%d")
+            d2 = datetime.strptime(dropoff_date, "%Y-%m-%d")
+            total_days = (d2 - d1).days
+        except Exception:
+            total_days = min_duration_days
+
+        if total_days <= min_duration_days:
+            return self.search(
+                pickup_location=pickup_location,
+                dropoff_location=dropoff_location,
+                pickup_datetime=f"{pickup_date}T10:00:00Z",
+                dropoff_datetime=f"{dropoff_date}T10:00:00Z",
+                driver_age=driver_age,
+            )
+
+        all_results = []
+        seen_ids = set()
+        curr = d1
+        while (curr + timedelta(days=min_duration_days)) <= d2:
+            p_dt = f"{curr.strftime('%Y-%m-%d')}T10:00:00Z"
+            d_dt = f"{(curr + timedelta(days=min_duration_days)).strftime('%Y-%m-%d')}T10:00:00Z"
+            try:
+                res_list = self.search(
+                    pickup_location=pickup_location,
+                    dropoff_location=dropoff_location,
+                    pickup_datetime=p_dt,
+                    dropoff_datetime=d_dt,
+                    driver_age=driver_age,
+                )
+                for c in res_list:
+                    c_id = getattr(c, "id", None) or (c.get("id") if isinstance(c, dict) else None)
+                    if c_id and c_id not in seen_ids:
+                        seen_ids.add(c_id)
+                        all_results.append(c)
+                    elif not c_id:
+                        all_results.append(c)
+            except Exception:
+                pass
+            curr += timedelta(days=1)
+
+        return all_results
 
     def get_offer(self, offer_id: str) -> CarOffer:
         """

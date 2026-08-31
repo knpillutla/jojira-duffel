@@ -97,6 +97,7 @@ def normalize_location(
 
 
 @router.post("/stays/search", response_model=StaySearchResponse, summary="Search Stays (Hotels)")
+@router.post("/stays/search-optimized", response_model=StaySearchResponse, summary="Optimized Stays Search (Hotels)")
 def search_stays_endpoint(req: StaySearchRequest):
     """Search for hotel accommodation availability by check-in/check-out dates, location, or accommodation IDs."""
     client = common.get_duffel_client()

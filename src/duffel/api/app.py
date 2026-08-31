@@ -151,6 +151,50 @@ async def log_requests_and_responses(request: Request, call_next):
     else:
         json_display = "N/A"
 
+    total_records_returned = 0
+    if res_str.strip():
+        try:
+            res_json = json.loads(res_str)
+            if isinstance(res_json, dict):
+                if "total_records" in res_json:
+                    total_records_returned = _safe_int(res_json["total_records"])
+                elif "total_results" in res_json:
+                    total_records_returned = _safe_int(res_json["total_results"])
+                elif "total_bundles_found" in res_json:
+                    total_records_returned = _safe_int(res_json["total_bundles_found"])
+                elif "total_offers_found" in res_json:
+                    total_records_returned = _safe_int(res_json["total_offers_found"])
+                elif "total_items" in res_json:
+                    total_records_returned = _safe_int(res_json["total_items"])
+                elif "data" in res_json and isinstance(res_json["data"], dict):
+                    d = res_json["data"]
+                    if "total_items" in d:
+                        total_records_returned = _safe_int(d["total_items"])
+                    elif "total_results" in d:
+                        total_records_returned = _safe_int(d["total_results"])
+                    elif "total_records" in d:
+                        total_records_returned = _safe_int(d["total_records"])
+                    elif "offers" in d and isinstance(d["offers"], list):
+                        total_records_returned = len(d["offers"])
+                    elif "results" in d and isinstance(d["results"], list):
+                        total_records_returned = len(d["results"])
+                    elif "top_bundles" in d and isinstance(d["top_bundles"], list):
+                        total_records_returned = len(d["top_bundles"])
+                elif "results" in res_json and isinstance(res_json["results"], list):
+                    total_records_returned = len(res_json["results"])
+                elif "offers" in res_json and isinstance(res_json["offers"], list):
+                    total_records_returned = len(res_json["offers"])
+                elif "top_offers" in res_json and isinstance(res_json["top_offers"], list):
+                    total_records_returned = len(res_json["top_offers"])
+                elif "top_bundles" in res_json and isinstance(res_json["top_bundles"], list):
+                    total_records_returned = len(res_json["top_bundles"])
+                elif "data" in res_json and isinstance(res_json["data"], list):
+                    total_records_returned = len(res_json["data"])
+            elif isinstance(res_json, list):
+                total_records_returned = len(res_json)
+        except Exception:
+            pass
+
     # Print clean INFO-level request/response cycle summary box
     print("\n" + "=" * 85, flush=True)
     print(f"[REST REQUEST SUMMARY] {request.method} {request.url.path}", flush=True)
@@ -166,6 +210,7 @@ async def log_requests_and_responses(request: Request, call_next):
     print(f"  * Cache Hit Status          : {cache_hit_str}", flush=True)
     print(f"  * Records Retrieved Cache   : {records_retrieved}", flush=True)
     print(f"  * Records Written Cache     : {records_written}", flush=True)
+    print(f"  * Total Records Returned    : {total_records_returned}", flush=True)
     print(f"  * HTTP Status Code          : {response.status_code}", flush=True)
     print("=" * 85 + "\n", flush=True)
 

@@ -55,6 +55,13 @@ def search_natural_endpoint(req: NaturalSearchRequest):
             force_refresh=req.force_refresh,
             overrides=overrides,
         )
+
+        if isinstance(result, dict) and result.get("status") == "error":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=result.get("message") or result.get("error") or "Validation error",
+            )
+
         return NaturalSearchResponse(**result)
     except HTTPException:
         raise

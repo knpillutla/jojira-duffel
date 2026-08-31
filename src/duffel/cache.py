@@ -247,10 +247,38 @@ class DuffelCache:
             return len(raw.encode("utf-8")) if isinstance(raw, str) else len(raw)
         return 0
 
+    def is_empty_result(self, value: Any) -> bool:
+        """Check if a search result payload contains no data / empty items."""
+        if value is None:
+            return True
+        if isinstance(value, (list, tuple, set)) and len(value) == 0:
+            return True
+        if isinstance(value, dict):
+            if len(value) == 0:
+                return True
+            res_list = value.get("results") or value.get("offers") or value.get("top_offers") or value.get("top_bundles")
+            if res_list is not None and isinstance(res_list, list) and len(res_list) == 0:
+                return True
+            if value.get("total_results") == 0 or value.get("total_bundles_found") == 0 or value.get("total_items") == 0:
+                return True
+            if "data" in value and isinstance(value["data"], dict):
+                inner = value["data"]
+                inner_items = inner.get("offers") or inner.get("results") or inner.get("top_bundles")
+                if inner_items is not None and isinstance(inner_items, list) and len(inner_items) == 0:
+                    return True
+                if inner.get("total_items") == 0 or inner.get("total_results") == 0:
+                    return True
+        return False
+
     def set(self, key: str, value: Any, ttl_seconds: Optional[int] = None) -> None:
-        """Store or update value in cache with TTL."""
+        """Store or update value in cache with TTL. Empty/no-data results write with 120s (2 min) TTL."""
         t0 = time.perf_counter()
-        ttl = ttl_seconds if ttl_seconds is not None else self.ttl
+        if ttl_seconds is not None:
+            ttl = ttl_seconds
+        elif self.is_empty_result(value):
+            ttl = 120  # Negative cache TTL for empty / no-data search results (2 minutes)
+        else:
+            ttl = self.ttl
 
         try:
             json_val = json.dumps(value)
@@ -413,6 +441,10 @@ class DuffelCache:
         raw_records = records or []
         if isinstance(raw_records, dict):
             raw_records = [raw_records]
+
+        if not raw_records or len(raw_records) == 0:
+            expires_at_dt = now_utc + timedelta(seconds=120)
+            return 120, expires_at_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         for rec in raw_records:
             if not rec:
