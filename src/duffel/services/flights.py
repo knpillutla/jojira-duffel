@@ -527,12 +527,29 @@ class FlightsService(BaseService):
         """Check if an offer is a non-stop (0 stops) flight across all slices."""
         if not offer:
             return False
-        slices = getattr(offer, "slices", []) if hasattr(offer, "slices") else (offer.get("slices", []) if isinstance(offer, dict) else [])
-        for slc in slices:
-            segs = getattr(slc, "segments", []) if hasattr(slc, "segments") else (slc.get("segments", []) if isinstance(slc, dict) else [])
-            if len(segs) > 1:
+        if isinstance(offer, dict):
+            if offer.get("max_stops") == 0 or offer.get("stops") == 0 or offer.get("legs") in ["Non-stop", "Direct", "Nonstop"]:
+                return True
+            slices = offer.get("slices") or offer.get("slice_details") or []
+            if not slices:
                 return False
-        return True
+            for slc in slices:
+                if isinstance(slc, dict):
+                    segs = slc.get("segments") or []
+                    if len(segs) > 1:
+                        return False
+            return True
+        else:
+            if getattr(offer, "max_stops", None) == 0 or getattr(offer, "stops", None) == 0:
+                return True
+            slices = getattr(offer, "slices", []) or []
+            if not slices:
+                return False
+            for slc in slices:
+                segs = getattr(slc, "segments", []) if hasattr(slc, "segments") else (slc.get("segments", []) if isinstance(slc, dict) else [])
+                if len(segs) > 1:
+                    return False
+            return True
 
     def _calculate_earliest_ttl(self, offers: list, default_ttl: Optional[int] = None) -> int:
         """

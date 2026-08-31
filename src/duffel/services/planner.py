@@ -239,6 +239,9 @@ class TravelPlannerService(BaseService):
         llm_itinerary_days, llm_meta = future_llm.result()
         top_3_bundles, component_pricing, pricing_meta = future_pricing.result()
 
+        if top_3_bundles:
+            top_3_bundles.sort(key=lambda b: float(b.get("total_package_price") or b.get("total_amount") or 0.0))
+
 
 
         # Compute Daily Total Costs & Attach Components to Daily Schedule
@@ -958,6 +961,8 @@ class TravelPlannerService(BaseService):
                 selected_types=["flights", "hotels", "cars"],
             )
             top_bnd_list = res.get("top_bundles", [])
+            # Sort bundles strictly by total package price ascending
+            top_bnd_list.sort(key=lambda b: float(b.get("total_package_price") or b.get("total_amount") or 0.0))
             top_3_bundles = top_bnd_list[:3]
 
             if top_bnd_list:

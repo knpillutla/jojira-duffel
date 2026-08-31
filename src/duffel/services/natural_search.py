@@ -779,11 +779,16 @@ class NaturalSearchService(BaseService):
         def _is_non_stop_offer(o: dict[str, Any]) -> bool:
             if not o or not isinstance(o, dict):
                 return False
-            if o.get("max_stops") == 0 or o.get("stops") == 0:
+            if o.get("max_stops") == 0 or o.get("stops") == 0 or o.get("legs") in ["Non-stop", "Direct", "Nonstop"]:
                 return True
-            slices = o.get("slices") or []
+            slices = o.get("slices") or o.get("slice_details") or []
             if isinstance(slices, list) and len(slices) > 0:
-                return all(len(s.get("segments", [])) <= 1 for s in slices if isinstance(s, dict))
+                for s in slices:
+                    if isinstance(s, dict):
+                        segs = s.get("segments") or []
+                        if len(segs) > 1:
+                            return False
+                return True
             return False
 
         non_stop_list = [o for o in dict_offers if _is_non_stop_offer(o)]
