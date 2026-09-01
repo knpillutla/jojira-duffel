@@ -102,32 +102,15 @@ class DuffelCLI:
 
             # 2. Clear PostgreSQL / SQLite Tables
             try:
-                from ..db.itinerary_module_dao import ItineraryModuleDAO
-                from ..db.itinerary_dao import ItineraryDAO
-                cfg = getattr(self.client, "config", None)
-                mod_dao = ItineraryModuleDAO(config=cfg)
-                conn = mod_dao._get_connection()
-                try:
-                    cur = conn.cursor()
-                    if mod_dao.db_engine == "postgresql":
-                        cur.execute("TRUNCATE TABLE itinerary_modules, itineraries, itinerary_versions RESTART IDENTITY CASCADE;")
-                        try:
-                            cur.execute("TRUNCATE TABLE planner.itinerary_modules RESTART IDENTITY CASCADE;")
-                        except Exception:
-                            pass
-                    else:
-                        cur.execute("DELETE FROM itinerary_modules;")
-                        try:
-                            cur.execute("DELETE FROM itineraries;")
-                            cur.execute("DELETE FROM itinerary_versions;")
-                        except Exception:
-                            pass
-                    conn.commit()
-                    print("[+] Cleared PostgreSQL / SQLite itinerary and modular caching tables successfully.")
-                finally:
-                    conn.close()
+                from ..db.db_cleaner import DatabaseCleaner
+                cleaner = DatabaseCleaner(config=getattr(self.client, "config", None))
+                cleared_tables = cleaner.clear_itinerary_and_cache_tables()
+                if cleared_tables:
+                    print(f"[+] Successfully cleared database tables: {', '.join(cleared_tables)}")
+                else:
+                    print("[i] No itinerary or cache database tables found to clear.")
             except Exception as pg_err:
-                print(f"[!] Notice clearing database tables: {pg_err}")
+                print(f"[!] Error clearing database tables: {pg_err}")
             print("\n[+] Cache & Database Flush Complete.")
         else:
             print("\nOperation cancelled. Cache intact.")

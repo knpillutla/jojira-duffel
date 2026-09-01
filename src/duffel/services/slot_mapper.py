@@ -24,7 +24,8 @@ class SlotMapper:
 
         if isinstance(time_val, dict):
             ts = str(
-                time_val.get("departure_time")
+                time_val.get("start_time")
+                or time_val.get("departure_time")
                 or time_val.get("arrival_time")
                 or time_val.get("time_slot")
                 or time_val.get("time")

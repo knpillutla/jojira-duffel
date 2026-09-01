@@ -1,9 +1,9 @@
 """
-Thread-safe performance timing tracker for Duffel API, LLM, Redis, and Algorithm execution.
+Thread-safe and context-safe performance timing tracker for Duffel API, LLM, Redis, and Algorithm execution.
 """
 
+from contextvars import ContextVar
 from dataclasses import dataclass
-import threading
 import time
 from typing import Any, Optional
 
@@ -18,21 +18,24 @@ class PerformanceMetrics:
     algorithm_synthesis_ms: float = 0.0
 
 
-_local = threading.local()
+_current_metrics: ContextVar[PerformanceMetrics] = ContextVar("_current_metrics", default=PerformanceMetrics())
 
 
 class TimingTracker:
-    """Thread-local timing tracker for fine-grained performance breakdown."""
+    """Context-safe timing tracker for fine-grained performance breakdown across async/sync tasks."""
 
     @staticmethod
     def reset() -> None:
-        _local.metrics = PerformanceMetrics()
+        _current_metrics.set(PerformanceMetrics())
 
     @staticmethod
     def get_metrics() -> PerformanceMetrics:
-        if not hasattr(_local, "metrics"):
-            _local.metrics = PerformanceMetrics()
-        return _local.metrics
+        try:
+            return _current_metrics.get()
+        except LookupError:
+            m = PerformanceMetrics()
+            _current_metrics.set(m)
+            return m
 
     @staticmethod
     def add_llm_time(ms: float) -> None:
@@ -58,3 +61,24 @@ class TimingTracker:
     def add_algorithm_time(ms: float) -> None:
         m = TimingTracker.get_metrics()
         m.algorithm_synthesis_ms += max(0.0, float(ms))
+
+
+from contextlib import contextmanager
+
+
+class StepLogger:
+    """Step execution logger tracking start, completion, and total elapsed execution time."""
+
+    @staticmethod
+    @contextmanager
+    def step(step_num: int, total_steps: int, step_name: str, details: str = ""):
+        prefix = f"[STEP {step_num}/{total_steps}]"
+        detail_str = f" ({details})" if details else ""
+        print(f"\n{prefix} START: {step_name}{detail_str}...", flush=True)
+        t0 = time.perf_counter()
+        try:
+            yield
+        finally:
+            dt_ms = (time.perf_counter() - t0) * 1000.0
+            print(f"{prefix} COMPLETED: {step_name} in {dt_ms:.2f} ms ({dt_ms / 1000.0:.3f}s)", flush=True)
+

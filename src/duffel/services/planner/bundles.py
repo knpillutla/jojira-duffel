@@ -1,126 +1,53 @@
 from typing import Any, Optional
 from .classifier import format_proper_title
+from .titles import generate_contextual_bundle_title
 
 
-def generate_contextual_bundle_title(
-    destination: str,
-    tier: str = "moderate",
-    index: int = 1,
-    prompt: str = "",
-    activities: Optional[list[str]] = None,
-    is_road_trip: bool = False,
-    origin: str = "",
-) -> str:
-    """
-    Dynamically generates contextual, non-hardcoded package & bundle titles based on:
-    - Road Trips: 'shortest' (Fast Direct Route), 'scenic' (Scenic Byways & Panoramas), 'longest' (Extended Explorer)
-    - Flight Vacations: 'cheapest' (Budget Saver), 'moderate' (Balanced Choice), 'luxury' (Signature Luxury)
-    - Real Generated Itinerary Activities & Intent Keywords.
-    """
-    dest = format_proper_title(destination)
-    orig = format_proper_title(origin) if origin else ""
-    p_lower = (prompt or "").lower()
-    acts = activities or []
 
-    act1 = ""
-    act2 = ""
-    for a in acts:
-        a_clean = str(a).strip()
-        if not a_clean or any(w in a_clean.lower() for w in ["check-in", "hotel", "airport", "flight", "rest"]):
-            continue
-        if not act1:
-            act1 = a_clean
-        elif not act2 and a_clean != act1:
-            act2 = a_clean
-            break
 
-    tier_clean = tier.lower()
-
-    # 1. Road Trip Bundle Titles (Shortest, Scenic, Longest)
-    if is_road_trip or tier_clean in ["shortest", "scenic", "longest"]:
-        route_header = f"{orig} to {dest}" if orig and orig.lower() != dest.lower() else dest
-        if "short" in tier_clean or index == 0:
-            act_snippet = f" & {act1}" if act1 else " & Express Waypoints"
-            return format_proper_title(f"Shortest Route: Direct {route_header} Highway{act_snippet}")
-        elif "scen" in tier_clean or index == 1:
-            act_snippet = f" & {act1}" if act1 else " & Panoramic Lookouts"
-            return format_proper_title(f"Scenic Route: {route_header} Byways & Nature Trails{act_snippet}")
-        else:
-            act_snippet = f" & {act1}" if act1 else " & Historic Towns"
-            return format_proper_title(f"Longest Route: Extended {route_header} Regional Explorer{act_snippet}")
-
-    # 2. Flight & Vacation Travel Thematic Titles (Cheapest, Moderate, Luxury)
-    is_romantic = any(w in p_lower for w in ["romantic", "honeymoon", "couples", "anniversary", "romance", "intimate"])
-    is_family = any(w in p_lower for w in ["family", "kids", "children", "child", "toddler", "family-friendly"])
-    is_culinary = any(w in p_lower for w in ["food", "culinary", "wine", "dining", "gourmet", "tasting", "bistro", "sommelier", "gastronomy", "foodie"])
-    is_adventure = any(w in p_lower for w in ["adventure", "hiking", "outdoor", "nature", "trails", "mountains", "beach", "surf", "ski", "kayak"])
-    is_luxury_req = any(w in p_lower for w in ["luxury", "vip", "michelin", "five star", "5 star", "first class", "penthouse", "exclusive"])
-
-    is_tier_cheap = "cheap" in tier_clean or "budget" in tier_clean or index == 0
-    is_tier_lux = "lux" in tier_clean or index == 2
-
-    if is_romantic:
-        if is_tier_cheap:
-            act_snippet = f" & {act1}" if act1 else " & Intimate Sunset Walks"
-            return format_proper_title(f"Romantic Saver: Cozy {dest} Cafes{act_snippet}")
-        elif is_tier_lux:
-            act_snippet = f" at {act1}" if act1 else ""
-            return format_proper_title(f"Signature Romance: VIP {dest} Champagne & Michelin Dining{act_snippet}")
-        else:
-            act_snippet = f" & {act1}" if act1 else " & Historic Promenade"
-            return format_proper_title(f"Romantic Getaway: Scenic {dest} Sunset{act_snippet}")
-
-    if is_family:
-        if is_tier_cheap:
-            act_snippet = f": {act1}" if act1 else " Parks & Iconic Sights"
-            return format_proper_title(f"Family Budget Saver: Essential {dest}{act_snippet}")
-        elif is_tier_lux:
-            act_snippet = f" & Private {act1}" if act1 else " & Private Guided Discovery"
-            return format_proper_title(f"Signature Family VIP: Luxury {dest} Suite{act_snippet}")
-        else:
-            act_snippet = f" & {act1}" if act1 else " & Interactive Landmarks"
-            return format_proper_title(f"Classic Family Explorer: {dest} Highlights{act_snippet}")
-
-    if is_culinary:
-        if is_tier_cheap:
-            return format_proper_title(f"Foodie Saver: Essential {dest} Street Food & Local Bistros")
-        elif is_tier_lux:
-            act_snippet = f" & {act1}" if act1 else ""
-            return format_proper_title(f"Signature Gastronomy: Sommelier Wine Tour & Fine Dining in {dest}{act_snippet}")
-        else:
-            act_snippet = f" & {act1}" if act1 else " & Food Market Tour"
-            return format_proper_title(f"Gourmet Journey: Classic {dest} Culinary Walk{act_snippet}")
-
-    if is_adventure:
-        if is_tier_cheap:
-            act_snippet = f": {act1}" if act1 else " Trails & Lakes"
-            return format_proper_title(f"Adventure Saver: Essential {dest}{act_snippet}")
-        elif is_tier_lux:
-            act_snippet = f" & {act1}" if act1 else ""
-            return format_proper_title(f"Signature Luxury: Exclusive {dest} Mountain Panorama & Spa{act_snippet}")
-        else:
-            act_snippet = f" & {act1}" if act1 else " & Nature Trails"
-            return format_proper_title(f"Scenic Explorer: {dest} Outdoor Highlights{act_snippet}")
-
-    if is_tier_cheap:
-        if act1 and act2:
-            return format_proper_title(f"Budget Saver: Essential {dest} ({act1} & {act2})")
-        elif act1:
-            return format_proper_title(f"Budget Saver: Essential {dest} & {act1}")
-        else:
-            return format_proper_title(f"Budget Saver: Essential {dest} City Highlights")
-    elif is_tier_lux or is_luxury_req:
-        if act1:
-            return format_proper_title(f"Signature Luxury: VIP {dest} Experience & Private {act1}")
-        else:
-            return format_proper_title(f"Signature Luxury: Exclusive {dest} VIP Experience & Fine Dining")
-    else:
-        if act1 and act2:
-            return format_proper_title(f"Balanced Choice: {dest} Highlights ({act1} & {act2})")
-        elif act1:
-            return format_proper_title(f"Balanced Choice: Classic {dest} Culture & {act1}")
-        else:
-            return format_proper_title(f"Balanced Choice: Classic {dest} Culture & Sightseeing")
+def adapt_itinerary_for_tier(
+    base_itinerary: list[dict[str, Any]],
+    tier_id: str,
+    mult: float,
+    h_tier: str,
+    c_tier: str,
+    f_tier: str,
+    cars_count: int,
+) -> list[dict[str, Any]]:
+    """Adapts item titles and pricing in daily itinerary for a specific package tier."""
+    if not base_itinerary:
+        return []
+    adapted = []
+    for day in base_itinerary:
+        d_copy = {k: v for k, v in day.items() if k != "items"}
+        d_items = []
+        for it in day.get("items", []):
+            it_copy = dict(it)
+            it_type = (it_copy.get("type") or "").lower()
+            if it_type == "car":
+                it_copy["name"] = f"Rental Vehicle: {c_tier} ({cars_count} car)"
+                it_copy["title"] = it_copy["name"]
+                if not it_copy.get("is_return"):
+                    p_base = float(it_copy.get("price") or 180.0)
+                    it_copy["price"] = round(p_base * (1.15 if tier_id == "luxury" else (0.85 if tier_id == "budget" else 1.0)), 2)
+                    it_copy["price_display"] = f"USD {it_copy['price']:.2f}"
+            elif it_type == "flight":
+                it_copy["name"] = f"Flight: {f_tier}"
+                it_copy["title"] = it_copy["name"]
+                if not it_copy.get("is_return"):
+                    p_base = float(it_copy.get("price") or 250.0)
+                    it_copy["price"] = round(p_base * mult, 2)
+                    it_copy["price_display"] = f"USD {it_copy['price']:.2f}"
+            elif it_type == "hotel":
+                it_copy["name"] = f"Hotel Stay: {h_tier}"
+                it_copy["title"] = it_copy["name"]
+                p_base = float(it_copy.get("price") or 140.0)
+                it_copy["price"] = round(p_base * mult, 2)
+                it_copy["price_display"] = f"USD {it_copy['price']:.2f}"
+            d_items.append(it_copy)
+        d_copy["items"] = d_items
+        adapted.append(d_copy)
+    return adapted
 
 
 def build_top_3_bundles(
@@ -140,36 +67,58 @@ def build_top_3_bundles(
     is_hotel_tbd: bool,
     is_car_tbd: bool,
     activities_total_cost: float = 0.0,
+    base_itinerary: Optional[list[dict[str, Any]]] = None,
+    start_date: str = "",
+    end_date: str = "",
+    outbound_dep: str = "",
+    return_arr: str = "",
+    include_flights: bool = True,
+    include_hotels: bool = True,
+    include_cars: bool = True,
 ) -> list[dict[str, Any]]:
-    """Builds top 3 bundles: Shortest/Scenic/Longest for road trips, Cheapest/Moderate/Luxury for flights."""
+    """Builds top 3 bundles: Budget, Balanced, Luxury with dedicated summary and data."""
     hotel_total = 0.0 if is_hotel_tbd else (hotel_cost_per_night * max(1, duration_days - 1))
     flight_total = flight_cost * passengers_count if not is_road_trip else 0.0
     car_total = 0.0 if is_car_tbd else car_cost_total
 
-    if is_road_trip:
-        tiers = [
-            ("shortest", "Shortest Route", 0.85, "Direct highway route with fastest travel time and express corridor waypoints."),
-            ("scenic", "Scenic Route", 1.0, "Scenic byways, national/state parks, mountain lookouts, and panoramic viewpoints."),
-            ("longest", "Longest Route", 1.25, "Comprehensive regional explorer covering historic towns and extended waypoints."),
-        ]
-    elif is_cruise:
-        tiers = [
-            ("interior_oceanview", "Value Cruise", 0.85, "Oceanview stateroom, full dining, and curated harbor walking tours."),
-            ("balcony_veranda", "Balcony Cruise", 1.0, "Private balcony stateroom, shore excursion credits, and specialty dining."),
-            ("suite_concierge", "Luxury Suite Cruise", 1.4, "Penthouse suite, concierge service, VIP shore tours, and premium beverage package."),
-        ]
-    else:
-        tiers = [
-            ("cheapest", "Budget Saver", 0.80, "Best value airfare, cozy 3-star hotel nearby attractions, and essential highlights."),
-            ("moderate", "Balanced Choice", 1.0, "Premium direct flights, top-rated 4-star hotel, rental car, and prime activities."),
-            ("luxury", "Signature Luxury VIP", 1.5, "First class / business flights, 5-star luxury resort suite, SUV rental, and VIP tours."),
-        ]
+    tiers = [
+        (
+            "budget",
+            "Budget Saver",
+            0.80,
+            "Best value route with 3-star lodging, compact rental vehicle, and self-guided iconic landmarks.",
+            "3-Star Boutique Hotels & Historic Inns",
+            "Economy / Compact Sedan",
+            "Economy Value Airfare",
+            "Casual Local Diners & Self-Guided Sightseeing",
+        ),
+        (
+            "balanced",
+            "Balanced Choice",
+            1.00,
+            "Optimal comfort with top-rated 4-star hotels, midsize SUV, curated dining, and priority landmark access.",
+            "4-Star Downtown Boutique Hotels (Hilton / Marriott / Autograph)",
+            "Midsize Sedan / Standard SUV",
+            "Main Cabin Direct Flights with Seat Selection",
+            "Top-Rated Regional Bistros & Guided Cultural Tours",
+        ),
+        (
+            "luxury",
+            "Signature Luxury VIP",
+            1.50,
+            "Ultimate indulgence featuring 5-star luxury suites, premium SUV, fine dining, and private concierge tours.",
+            "5-Star Luxury Resort Suites (The Adolphus / Ritz-Carlton / Four Seasons)",
+            "Premium Luxury Full-Size SUV (Cadillac Escalade / BMW X5)",
+            "First Class / Business Class Direct Flights",
+            "Michelin-Starred / Chef's Tasting Menus & Private VIP Guided Access",
+        ),
+    ]
 
     bundles = []
-    for idx, (tier_id, tier_label, mult, tier_desc) in enumerate(tiers):
+    for idx, (tier_id, tier_label, mult, tier_desc, h_tier, c_tier, f_tier, d_tier) in enumerate(tiers):
         t_flight = round(flight_total * (mult if not is_road_trip else 1.0), 2)
         t_hotel = round(hotel_total * mult, 2)
-        t_car = round(car_total * (1.1 if idx == 2 else (0.9 if idx == 0 else 1.0)), 2)
+        t_car = round(car_total * (1.15 if idx == 2 else (0.85 if idx == 0 else 1.0)), 2)
         t_act = round(activities_total_cost * mult, 2)
         t_total = round(t_flight + t_hotel + t_car + t_act, 2)
 
@@ -183,12 +132,57 @@ def build_top_3_bundles(
             origin=origin_code
         )
 
+        tier_itinerary = adapt_itinerary_for_tier(
+            base_itinerary=base_itinerary or [],
+            tier_id=tier_id,
+            mult=mult,
+            h_tier=h_tier,
+            c_tier=c_tier,
+            f_tier=f_tier,
+            cars_count=cars_count,
+        )
+
+        tier_pricing = {
+            "flight_cost": round(flight_cost * mult, 2),
+            "hotel_cost_per_night": round(hotel_cost_per_night * mult, 2),
+            "car_cost_total": t_car,
+            "outbound_departure_time": outbound_dep,
+            "return_arrival_time": return_arr,
+        }
+
+        from .summary import build_trip_summary
+        tier_summary = build_trip_summary(
+            dest_clean=dest_clean,
+            origin_code=origin_code,
+            start_date=start_date,
+            end_date=end_date,
+            duration_days=duration_days,
+            passengers_count=passengers_count,
+            rooms_count=rooms_count,
+            cars_count=cars_count,
+            include_flights=include_flights,
+            include_hotels=include_hotels,
+            include_cars=include_cars,
+            is_road_trip=is_road_trip,
+            is_cruise=is_cruise,
+            outbound_dep=outbound_dep,
+            return_arr=return_arr,
+            component_pricing=tier_pricing,
+            daily_itinerary=tier_itinerary,
+            top_3_bundles=[],
+        )
+
         bundles.append({
             "bundle_id": f"bundle_{tier_id}",
             "tier": tier_id,
+            "tier_label": tier_label,
             "package_name": p_name,
             "name": p_name,
             "description": tier_desc,
+            "hotel_tier": h_tier,
+            "car_tier": c_tier if (is_road_trip or not is_cruise) else "N/A",
+            "flight_tier": f_tier if not is_road_trip else "Ground Road Trip",
+            "dining_and_activities_style": d_tier,
             "total_price": t_total,
             "price_per_person": round(t_total / max(1, passengers_count), 2),
             "currency": "USD",
@@ -200,6 +194,12 @@ def build_top_3_bundles(
                 "activities": t_act,
             },
             "highlights": opt_highlights[:4],
+            "summary": tier_summary,
+            "data": {
+                "summary": tier_summary,
+                "daily_itinerary": tier_itinerary,
+                "highlights": opt_highlights[:4],
+            }
         })
 
     return bundles

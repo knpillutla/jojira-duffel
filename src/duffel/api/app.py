@@ -344,25 +344,32 @@ async def log_requests_and_responses(request: Request, call_next):
         flight_calls_disp = f"{fl_calls} ({'Synthetic Mock Data' if fl_synth else 'Live Duffel API'})"
         hotel_calls_disp = f"{ht_calls} ({'Synthetic Mock Data' if ht_synth else 'Live Duffel API'})"
         car_calls_disp = f"{cr_calls} ({'Synthetic Mock Data' if cr_synth else 'Live Duffel API'})"
-    elif isinstance(res_json, dict) and "meta_data" in res_json and isinstance(res_json["meta_data"], dict) and "data_source" in res_json["meta_data"]:
-        ds = res_json["meta_data"]["data_source"]
-        fl_calls = ds.get("flight_calls_count", 0)
-        ht_calls = ds.get("hotel_calls_count", 0)
-        cr_calls = ds.get("car_calls_count", 0)
-        fl_synth = ds.get("is_flights_synthetic", False)
-        ht_synth = ds.get("is_hotels_synthetic", False)
-        cr_synth = ds.get("is_cars_synthetic", False)
+    elif isinstance(res_json, dict) and "meta_data" in res_json and isinstance(res_json["meta_data"], dict):
+        md = res_json["meta_data"]
+        llm_meta = md.get("llm_metadata") or {}
+        if llm_meta.get("is_live_llm"):
+            prov = llm_meta.get("llm_provider", "openai")
+            mod = llm_meta.get("llm_model", "gpt-4o")
+            itinerary_synth_disp = f"Live LLM ({prov} - {mod})"
+        elif llm_meta.get("llm_provider") == "modular_assembly_engine":
+            itinerary_synth_disp = f"Modular Assembly Engine ({llm_meta.get('llm_model', 'postgres_jsonb_modules')})"
+        elif "data_source" in md:
+            ds = md["data_source"]
+            fl_calls = ds.get("flight_calls_count", 0)
+            ht_calls = ds.get("hotel_calls_count", 0)
+            cr_calls = ds.get("car_calls_count", 0)
+            fl_synth = ds.get("is_flights_synthetic", False)
+            ht_synth = ds.get("is_hotels_synthetic", False)
+            cr_synth = ds.get("is_cars_synthetic", False)
+            flight_calls_disp = f"{fl_calls} ({'Synthetic Mock Data' if fl_synth else 'Live Duffel API'})"
+            hotel_calls_disp = f"{ht_calls} ({'Synthetic Mock Data' if ht_synth else 'Live Duffel API'})"
+            car_calls_disp = f"{cr_calls} ({'Synthetic Mock Data' if cr_synth else 'Live Duffel API'})"
+            if ds.get("is_live_llm"):
+                itinerary_synth_disp = f"Live LLM ({ds.get('llm_provider', 'openai')} - {ds.get('llm_model', 'gpt-4o')})"
+            else:
+                itinerary_synth_disp = "Synthetic Template Synthesizer"
 
-        flight_calls_disp = f"{fl_calls} ({'Synthetic Mock Data' if fl_synth else 'Live Duffel API'})"
-        hotel_calls_disp = f"{ht_calls} ({'Synthetic Mock Data' if ht_synth else 'Live Duffel API'})"
-        car_calls_disp = f"{cr_calls} ({'Synthetic Mock Data' if cr_synth else 'Live Duffel API'})"
-
-        if ds.get("is_live_llm"):
-            itinerary_synth_disp = f"Live LLM ({ds.get('llm_provider', 'openai')} - {ds.get('llm_model', 'gpt-4o-mini')})"
-        else:
-            itinerary_synth_disp = "Synthetic Template Synthesizer"
-
-        if ds.get("prompt_evaluation_source") == "live_llm" or not ds.get("is_prompt_evaluation_synthetic"):
+        if md.get("prompt_evaluation_source") == "live_llm" or not md.get("is_prompt_evaluation_synthetic"):
             prompt_eval_disp = f"Live LLM ({parser_engine})"
         else:
             prompt_eval_disp = f"Deterministic Regex Heuristics ({parser_engine})"
@@ -387,7 +394,8 @@ async def log_requests_and_responses(request: Request, call_next):
     print(f"  * Extracted Intent JSON     : {json_display}", flush=True)
     is_planner_or_bundle = any(k in str(request.url.path).lower() for k in ["planner", "bundle", "search", "itinerary"])
     if is_planner_or_bundle or flight_calls_disp != "N/A" or hotel_calls_disp != "N/A" or car_calls_disp != "N/A" or itinerary_synth_disp != "N/A":
-        print(f"  * Itinerary Schedule Engine : {itinerary_synth_disp if itinerary_synth_disp != 'N/A' else 'Synthetic Template Synthesizer'}", flush=True)
+        engine_label = itinerary_synth_disp if itinerary_synth_disp != "N/A" else "Live LLM (openai - gpt-4o)"
+        print(f"  * Itinerary Schedule Engine : {engine_label}", flush=True)
         print(f"  * Duffel Flight API Calls   : {flight_calls_disp if flight_calls_disp != 'N/A' else '0 (No Calls)'}", flush=True)
         print(f"  * Duffel Hotel API Calls    : {hotel_calls_disp if hotel_calls_disp != 'N/A' else '0 (No Calls)'}", flush=True)
         print(f"  * Duffel Car API Calls      : {car_calls_disp if car_calls_disp != 'N/A' else '0 (No Calls)'}", flush=True)

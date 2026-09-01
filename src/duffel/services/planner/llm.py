@@ -91,7 +91,9 @@ def orchestrate_llm_itinerary(
     def _try_openai() -> Optional[tuple[list[dict[str, Any]], dict[str, Any]]]:
         if not (openai_key and getattr(cfg, "openai_enabled", True)):
             return None
+        from .prompts import build_planner_system_prompt
         model_name = getattr(cfg, "openai_planner_model", "") or getattr(cfg, "openai_travel_model", "") or getattr(cfg, "openai_model", "gpt-4o") or "gpt-4o"
+        active_sys_prompt = build_planner_system_prompt(cfg, provider="openai", model=model_name) or system_prompt
         llm_timeout = float(getattr(cfg, "timeout", 120.0))
         t0_llm = 0.0
         try:
@@ -103,7 +105,7 @@ def orchestrate_llm_itinerary(
                 resp = o_client.chat.completions.create(
                     model=model_name,
                     messages=[
-                        {"role": "system", "content": system_prompt},
+                        {"role": "system", "content": active_sys_prompt},
                         {"role": "user", "content": user_prompt}
                     ],
                     response_format={"type": "json_object"},
@@ -116,7 +118,7 @@ def orchestrate_llm_itinerary(
                 payload = {
                     "model": model_name,
                     "messages": [
-                        {"role": "system", "content": system_prompt},
+                        {"role": "system", "content": active_sys_prompt},
                         {"role": "user", "content": user_prompt}
                     ],
                     "response_format": {"type": "json_object"},
@@ -184,7 +186,9 @@ def orchestrate_llm_itinerary(
     def _try_gemini() -> Optional[tuple[list[dict[str, Any]], dict[str, Any]]]:
         if not (gemini_key and getattr(cfg, "gemini_enabled", True)):
             return None
+        from .prompts import build_planner_system_prompt
         gemini_model = getattr(cfg, "gemini_planner_model", "") or getattr(cfg, "gemini_travel_model", "") or getattr(cfg, "gemini_model", "gemini-1.5-pro") or "gemini-1.5-pro"
+        active_sys_prompt = build_planner_system_prompt(cfg, provider="gemini", model=gemini_model) or system_prompt
         llm_timeout = float(getattr(cfg, "timeout", 120.0))
         t0_llm = 0.0
         try:
@@ -192,7 +196,7 @@ def orchestrate_llm_itinerary(
             import httpx
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={gemini_key}"
             resp = httpx.post(url, json={
-                "contents": [{"parts": [{"text": f"{system_prompt}\n\nUser Request: {user_prompt}\nRespond with strictly valid JSON matching {{\"days\": [...]}}"}]}],
+                "contents": [{"parts": [{"text": f"{active_sys_prompt}\n\nUser Request: {user_prompt}\nRespond with strictly valid JSON matching {{\"days\": [...]}}"}]}],
                 "generationConfig": {"response_mime_type": "application/json"}
             }, timeout=llm_timeout)
             if resp.is_success:

@@ -30,9 +30,11 @@ class StaysService(BaseService):
         try:
             return getattr(self.adapter, method_name)(*args)
         except Exception as err:
-            if getattr(self.client.config, "test_mode", False) or "not enabled" in str(err).lower() or "403" in str(err):
+            if getattr(self.client.config, "test_mode", False):
+                print(f"[TEST MODE FALLBACK]: Duffel API returned error '{err}'. Using mock provider adapter for {method_name}.")
                 return getattr(self._mock(), method_name)(*args)
 
+            from ..exceptions import DuffelException
             raise DuffelException(f"Unable to {friendly_action}. {err}") from err
 
     def search(

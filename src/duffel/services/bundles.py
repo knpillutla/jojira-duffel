@@ -223,31 +223,37 @@ class BundlesService(BaseService):
         is_car_price_tbd = False
 
         if ("stays" in selected_types or "hotels" in selected_types) and not st_summaries:
-            is_hotel_price_tbd = True
-            st_summaries = [{
-                "id": "sres_bundle_tbd",
-                "accommodation": {"id": "acc_tbd", "name": f"Hotel in {destination.upper()}", "rating": 4.5},
-                "cheapest_rate_total_amount": "TBD",
-                "cheapest_rate_currency": "USD",
-                "is_price_tbd": True,
-                "price_display": "TBD",
-                "price_amount": 0.0
-            }]
-            component_errors.pop("hotels", None)
+            if is_test_mode:
+                is_hotel_price_tbd = True
+                st_summaries = [{
+                    "id": "sres_bundle_tbd",
+                    "accommodation": {"id": "acc_tbd", "name": f"Hotel in {destination.upper()}", "rating": 4.5},
+                    "cheapest_rate_total_amount": "TBD",
+                    "cheapest_rate_currency": "USD",
+                    "is_price_tbd": True,
+                    "price_display": "TBD",
+                    "price_amount": 0.0
+                }]
+                component_errors.pop("hotels", None)
+            elif "hotels" not in component_errors:
+                component_errors["hotels"] = f"No accommodations available in {destination.upper()} for {departure_date} to {return_date}."
 
         if "cars" in selected_types and not cr_summaries:
-            is_car_price_tbd = True
-            cr_summaries = [{
-                "id": "off_car_bundle_tbd",
-                "supplier": {"name": "Rental Provider"},
-                "vehicle": {"category": "Standard", "name": "Rental Vehicle"},
-                "total_amount": "TBD",
-                "total_currency": "USD",
-                "is_price_tbd": True,
-                "price_display": "TBD",
-                "price_amount": 0.0
-            }]
-            component_errors.pop("cars", None)
+            if is_test_mode:
+                is_car_price_tbd = True
+                cr_summaries = [{
+                    "id": "off_car_bundle_tbd",
+                    "supplier": {"name": "Rental Provider"},
+                    "vehicle": {"category": "Standard", "name": "Rental Vehicle"},
+                    "total_amount": "TBD",
+                    "total_currency": "USD",
+                    "is_price_tbd": True,
+                    "price_display": "TBD",
+                    "price_amount": 0.0
+                }]
+                component_errors.pop("cars", None)
+            elif "cars" not in component_errors:
+                component_errors["cars"] = f"No car rentals available in {destination.upper()} for {departure_date} to {return_date}."
 
         if is_test_mode:
             component_errors.clear()

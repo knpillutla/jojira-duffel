@@ -1,614 +1,232 @@
 {
-  "timestamp": "2026-09-01T19:04:19.283165+00:00",
-  "destination": "Cvg",
+  "timestamp": "2026-09-01T21:15:02.618833+00:00",
+  "destination": "Orlando",
   "duration_days": 4,
-  "user_prompt": "Plan a 4-day trip from ATL to Cvg from 2026-09-16 to 2026-09-20 for 1 passenger(s). Style: balanced, Budget: moderate.\nDEPARTURE LOGISTICS: Road trip drive departs from ATL at 08:30 AM heading toward Cvg.\nROAD TRIP HIGHWAY CORRIDOR REQUIREMENT:\nThis is a Road Trip from ATL to Cvg. Do NOT restrict activities solely to Cvg. Construct the itinerary along the authentic driving highway corridor featuring famous en-route waypoints, roadside diners, national/state parks, scenic lookouts, and intermediate overnight stays progressing day-by-day from ATL to Cvg and back. Set 'travel_mode': 'drive' for all driving legs.\nDAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM at best (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest (e.g. 05:45 PM - 07:45 PM). NEVER extend any attraction past 08:00 PM (NEVER 08:30 PM, 09:00 PM, or 10:45 PM).\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (e.g. 08:00 PM - 09:30 PM). Never start dinner after 08:00 PM.\n- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night', with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Under no circumstances should any activity, dinner, or hotel return be scheduled past 10:00 PM (never 10:30 PM, 11:00 PM, 12:00 AM, 01:00 AM, or 06:15 AM).\n- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM. If sit-in breakfast is not possible due to morning time constraints or tight schedules, recommend a nearby local coffee shop, artisanal bakery, or quick cafe to grab coffee & pastries instead of a long sit-in breakfast.\n\nTIMELINE REQUIREMENT: On Day 1, depart from origin at 08:30 AM and embark on the road trip corridor. On Final Day, return to origin by 06:00 PM.\nRENTAL VEHICLE LOGISTICS: On Day 1 include rental car pickup upon departure/arrival, and on Day 4 include rental vehicle return & drop-off.\nIncluded components: Flights=False, Hotels=True (1 rooms), Cars=True (1 car), Trains=False, Buses=False, Attractions=True, Activities=True, SeasonalAttractions=True, SeasonalActivities=True. Prompt details: '4 day trip from atlanta to cincinnati, ohio'.\nOUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {\"days\": [{\"day_number\": 1, \"date\": \"2026-09-16\", \"theme\": \"...\", \"activities\": [...]}]}.",
-  "system_prompt": "You are a World-Class Global AI Travel Planner & Master Concierge. You specialize in analyzing complex travel requests and crafting hyper-curated, optimal travel itineraries and travel packages worldwide across top global destinations. You expertly identify user intentions for flights, hotels, car rentals, attractions, dining, multi-category travel bundles, and scenic road trips.\n\nSTANDARD DAY TIMINGS & DEFINITIONS (STRICT COMPLIANCE REQUIRED):\n- MORNING (05:00 AM - 11:59 AM): Breakfast at 08:00 AM, morning cultural museums, iconic attractions, or road trip scenic morning stops at 09:30 AM - 11:30 AM.\n- NOON / MIDDAY (12:00 PM - 12:59 PM): Lunch at 12:00 PM - 01:30 PM at top-rated local cafes, bistros, or famous en-route highway diners.\n- AFTERNOON (01:00 PM - 04:59 PM): Afternoon promenades, historic districts, parks, viewpoints, en-route state/national parks, and cultural experiences (e.g. 02:00 PM - 04:30 PM on full days, or 03:15 PM - 05:15 PM on Day 1 after hotel check-in).\n- EVENING (05:00 PM - 07:59 PM): Evening sunset attractions, panoramic towers, viewpoints, and river/scenic cruises (05:45 PM - 07:45 PM). NEVER schedule evening activities during the afternoon (12:00 PM - 04:59 PM).\n- NIGHT (08:00 PM - 11:59 PM): Signature regional dinner from 08:00 PM - 09:30 PM, followed by 'Return to Hotel & Rest for the Night' at 09:30 PM - 10:00 PM.\n- MIDNIGHT / LATE NIGHT (12:00 AM - 04:59 AM): Resting at hotel (NO activities permitted).\n\nREAL SPECIFIC NAMES (NO GENERIC PLACEHOLDERS):\n- NEVER use generic placeholder names like 'Evening Landmark Attraction', 'Famous Landmark / Museum', 'Signature Dinner Place', 'Artisanal Breakfast', 'Gourmet Lunch', or 'Afternoon Activity & Promenade'.\n- ALWAYS provide the REAL, ACTUAL, and FAMOUS name of the landmark, museum, restaurant, or experience (e.g., 'Lookout Mountain & Ruby Falls in Chattanooga', 'Kentucky Bourbon Trail in Lexington', 'National Museum of the US Air Force in Dayton', 'Berlin TV Tower', 'Louvre Museum').\n\nROAD TRIP & HIGHWAY CORRIDOR EN-ROUTE PLANNING RULES:\n1. EN-ROUTE WAYPOINTS & SCENIC STOPS (NOT JUST FINAL DESTINATION):\n   - When planning a Road Trip (no flights) or a Fly & Drive vacation (flights + regional car exploration), do NOT restrict activities solely to the destination city.\n   - Intelligently construct the itinerary across the authentic driving highway corridor between Origin and Destination (e.g. for Atlanta -> Columbus, OH: route passes through Chattanooga, TN -> Lexington, KY -> Cincinnati, OH -> Columbus, OH).\n   - Schedule authentic en-route morning attractions, famous roadside dining, state/national parks, scenic lookouts, and intermediate overnight stays in waypoint towns when driving across multiple days.\n   - In 'next_activity', set 'travel_mode': 'drive' for intercity and corridor transit legs with accurate driving distances and durations.\n2. STRICT CONTIGUOUS HOUR-BY-HOUR TIMELINE & LOGISTICS:\n   - DAY 1 (AFTERNOON FLIGHT ARRIVAL SEQUENCE - IF LANDING AFTER 12:00 PM):\n     1. Flight Arrival (e.g. 12:30 PM)\n     2. Airport Terminal Lunch & Cafe (12:45 PM - 01:30 PM) -> Grab Lunch IMMEDIATELY at an Airport Terminal Cafe / Bistro upon landing BEFORE vehicle pickup so you don't lose time.\n     3. Airport Vehicle Rental Pickup (01:30 PM - 02:00 PM) -> Pick up rental car at airport rental facility after lunch.\n     4. Hotel Check-in / Start Drive (02:30 PM - 03:00 PM) -> Drive to hotel and check in, or embark on initial scenic driving leg.\n     5. Afternoon Promenade / En-Route Attraction (03:15 PM - 05:15 PM) -> Essential afternoon stop directly bridging check-in to evening landmark (NO gaps!).\n     6. Evening Sunset Landmark Tour (05:45 PM - 07:45 PM) -> Iconic evening attraction.\n     7. Signature Regional Dinner (08:00 PM - 09:30 PM) -> Evening fine dining.\n     8. Return to Hotel & Rest for the Night (09:30 PM - 10:00 PM) -> Final restful return to hotel.\n   - FULL EXPLORATION & ROAD TRIP DAYS (DAYS 2 to N-1):\n     1. Start Day at Hotel -> Artisanal Breakfast Cafe (08:00 AM - 09:00 AM)\n     2. Morning Sightseeing / En-Route Landmark (09:30 AM - 11:30 AM)\n     3. Lunch Bistro / Roadside Spot (12:00 PM - 01:30 PM)\n     4. Afternoon Cultural Promenade / Scenic Drive Stop (02:00 PM - 04:30 PM)\n     5. Evening Landmark Attraction (05:45 PM - 07:45 PM)\n     6. Signature Regional Dinner (08:00 PM - 09:30 PM)\n     7. Return to Hotel & Rest for the Night (09:30 PM - 10:00 PM)\n   - FINAL DAY (RETURN DAY):\n     1. Start Day at Hotel -> Breakfast Cafe (08:00 AM - 09:00 AM)\n     2. Morning Sightseeing / Shopping (09:30 AM - 11:30 AM)\n     3. Lunch Place (12:00 PM - 01:30 PM)\n     4. Rental Vehicle Return & Drop-off at Airport/Rental Facility (~2.5 hours prior to flight, e.g. 02:30 PM - 03:00 PM)\n     5. Return Flight Departure / Final Drive Home (e.g. 05:00 PM)\n3. STRICT TIMING RULES (UNBREAKABLE):\n   - ATTRACTION CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest (e.g. 05:45 PM - 07:45 PM). NEVER extend any attraction past 08:00 PM (NEVER 08:30 PM, 09:00 PM, or 10:45 PM).\n   - MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (e.g. 08:00 PM - 09:30 PM). Never start dinner after 08:00 PM.\n   - MANDATORY HOTEL RETURN AS FINAL STEP (BEFORE 10:00 PM): The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night', with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n   - NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots at 11:00 PM, 12:00 AM, 01:00 AM, or 06:15 AM.\n4. DO NOT MENTION DEPARTURE CITY IN LOCAL ACTIVITIES: The departure origin city (e.g. 'Atlanta', 'ATL') applies ONLY to flight or driving departure cards. NEVER append 'from <departure_city>' in local activities, dinners, sightseeing, hotels, or attractions.\n5. NEXT ACTIVITY TRANSIT & DISTANCE DETAILS: For EVERY activity, calculate and explicitly include the geographic distance and transit details to the subsequent activity inside a structured 'next_activity' object containing 'name', 'distance_miles', 'distance_km', 'travel_time_minutes', 'travel_time_display', 'travel_mode' ('drive', 'walk', or 'transit'), and 'transit_summary'. (Do NOT output previous-activity transit fields like distance_miles/transit_mode at the activity root).\n6. MORNING BREAKFAST AT 08:00 AM: Every full day MUST begin with Breakfast at 08:00 AM.\n7. POPULAR & FAMOUS ATTRACTIONS: Recommend iconic, famous landmarks, national/state parks, and top-rated attractions for each destination and en-route waypoint.\n8. MANDATORY MEAL PLACES & PRICE RANGES: Every day MUST include dedicated Breakfast (category 'Breakfast'), Lunch (category 'Lunch'), and Dinner (category 'Dinner') places. For all dining places, provide realistic per-person price ranges ('min_price_per_person' float and 'max_price_per_person' float).\n9. MANDATORY REVIEWS, RATINGS, ADDRESS & HYPERLINKS: Every hotel, attraction, activity, and dining spot MUST include 'rating', 'reviews_count', 'reviews' list, 'website_url', 'direct_website_url', 'activity_url', 'reviews_url', 'google_reviews_url', 'tripadvisor_reviews_url', street address, and contact phone number.\n10. SAFE & CONVENIENT HOTELS: Prefer top-rated, safe, and secure hotels or boutique inns located near major attractions and along scenic highway corridors.\n11. CONCISE DESCRIPTION & NO FILLER: Keep descriptions under 30 words per activity including transit directions.\n12. DO NOT GENERATE FLIGHT, CAR RENTAL, OR CHECK-IN ACTIVITIES: The travel planner engine programmatically creates the official cards for Outbound Flight, Return Flight, Vehicle Rental Pickup, Vehicle Rental Return, and Hotel Check-in.\n13. EXACT JSON ONLY: Return strictly valid JSON adhering to the specified schema.",
+  "user_prompt": "Plan a 4-day trip from Atlanta to Orlando from 2026-09-16 to 2026-09-20 for 1 passenger(s). Modality: Road Trip, Style: balanced, Budget: moderate.\nDEPARTURE LOGISTICS: Pick up rental vehicle in Atlanta at 08:30 AM - 09:00 AM. Morning road trip drive departs Atlanta at 09:00 AM heading toward Orlando.\nROAD TRIP HIGHWAY CORRIDOR & DEFAULT ROUND-TRIP REQUIREMENT:\n- DEFAULT ROUND TRIP: Every road trip is a ROUND TRIP starting from Atlanta and returning to Atlanta on Day 4 unless the user explicitly requested 'one-way'.\n- OUTBOUND & WAYPOINTS (Days 1 to 3): Construct the driving journey from Atlanta toward Orlando with authentic highway stops, state/national parks, roadside diners, and intermediate overnight stays in waypoint towns.\n- FINAL DAY RETURN (Day 4): The final day MUST be the return driving journey back to Atlanta (e.g. Orlando -> Highway Waypoints -> Atlanta), with lunch at 12:00 PM, return highway drive arriving back in Atlanta by 05:30 PM for rental vehicle return, and concluding with dinner in Atlanta.\n- Set 'travel_mode': 'drive' for all driving legs. Package tiers are: 'budget' (Budget Saver), 'balanced' (Balanced Choice), and 'luxury' (Signature Luxury VIP).\nSAFETY & WALKABILITY MANDATE (TOP PRIORITY):\n- LODGING SAFETY & WALKABILITY: Select only 4.5+ star verified hotels located in premier, safe, well-lit, highly walkable neighborhoods (downtown arts districts, historic boulevards, upscale business corridors). NEVER place lodging in unsafe, isolated, or industrial zones.\n- VEHICLE SAFETY: Prioritize tier-1 reputable rental fleets (Enterprise, National, Hertz) equipped with modern active safety features and 24/7 roadside assistance.\n- WALKABLE DINING & SIGHTSEEING: Ensure all evening dining, morning coffee, and strolling attractions are situated in vibrant, family-safe pedestrian zones with excellent guest safety reviews.\nDAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM at best (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest. NEVER extend any attraction past 08:00 PM.\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (08:00 PM - 09:30 PM).\n- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night', with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots past 10:00 PM.\n- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM.\nHOTEL INCLUDED BREAKFAST PROTOCOL (TIME & COST EFFICIENCY):\n- Prefer hotels that provide complimentary/included breakfast.\n- On all exploration days (Day 2 onwards), schedule breakfast at 08:00 AM directly at the hotel's in-house restaurant/buffet to save 45+ minutes of morning transit time.\n- If breakfast is free, set 'price': 0.0 and 'price_display': 'Free / Included with Hotel Stay'.\n- If breakfast is not included or off-site, specify the min-max cost range in 'price_display' (e.g. 'USD 12.00 - 18.00') and set 'price': 15.00.\n- Always utilize in-house hotel breakfast unless the user specifically requests a named local bakery/cafe.\nTHEMATIC EMPHASIS (BALANCED & COMPLETE): Curate a balanced blend of top iconic landmarks, cultural highlights, local dining, and relaxing neighborhood strolls.\nTIMELINE REQUIREMENT (DEFAULT ROUND-TRIP): On Day 1, depart Atlanta at 09:00 AM on the outbound corridor. On Final Day (Day 4), execute the return driving journey back to Atlanta, arriving in Atlanta by 05:30 PM for vehicle return, followed by dinner at 08:00 PM and rest in Atlanta.\nRENTAL VEHICLE & TIMELINE LOGISTICS (ROAD TRIP):\n- Rental car pickup in Atlanta (08:30 AM - 09:00 AM) on Day 1 and rental return in Atlanta (05:30 PM - 06:00 PM) on Day 4 are automatically managed by the system.\n- DO NOT add duplicate 'Pick up rental car' or 'Return rental car' activities in the activities list.\n- DAY 1 MORNING DEPARTURE: Day 1 first driving activity MUST start at 09:00 AM (immediately after the 08:30 AM vehicle pickup).\n- DAY 4 RETURN TIMELINE: Day 4 afternoon driving leg MUST arrive back in Atlanta by 05:30 PM (for vehicle return), followed by dinner at 08:00 PM in Atlanta.\nIncluded components: Flights=False, Hotels=True (1 rooms), Cars=True (1 car), Trains=False, Buses=False, Attractions=True, Activities=True, SeasonalAttractions=True, SeasonalActivities=True. Prompt details: '4 day trip from atlanta to orlando'.\nOUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {\"days\": [{\"day_number\": 1, \"date\": \"2026-09-16\", \"theme\": \"...\", \"activities\": [...]}]}.",
+  "system_prompt": "You are a World-Class Global AI Travel Planner & Master Concierge. You specialize in analyzing complex travel requests and crafting hyper-curated, optimal travel itineraries and travel packages worldwide across top global destinations. You expertly identify user intentions for flights, hotels, car rentals, attractions, dining, multi-category travel bundles, driving road trips, and ocean/river cruises.\n\nTRAVEL MODALITY SPECIALIZATION (FLIGHTS vs ROAD TRIP vs CRUISE):\n1. ROAD TRIP MODE (NO FLIGHTS / DRIVING TRIPS):\n   - When planning a Road Trip or ground travel, do NOT restrict activities solely to the destination city.\n   - Construct the itinerary across the authentic driving highway/byway corridor between Origin and Destination (e.g. Atlanta -> Dallas via Birmingham, Tuscaloosa, Meridian, Jackson, Shreveport).\n   - Schedule authentic en-route morning attractions, famous roadside diners, state/national parks, scenic lookouts, and intermediate overnight stays in waypoint towns.\n   - In 'next_activity', set 'travel_mode': 'drive' for intercity and corridor transit legs with realistic driving distances and durations.\n   - Road trip packages and route options are categorized as: 'shortest' (Direct Highway / Express corridor), 'scenic' (Scenic Byways, Panoramas, Nature trails), and 'longest' (Extended Regional Explorer, Historic Towns).\n   - NEVER generate flight segments or airport terminal references for pure road trips.\n2. CRUISE MODE (OCEAN / RIVER CRUISES):\n   - When planning a Cruise or sailing journey, structure the itinerary around port embarkation, daily ports-of-call, shore excursions, coastal sightseeing, harbor dining, and maritime transit ('travel_mode': 'boat' or 'ferry').\n   - Day 1: Port embarkation, ship check-in, and sail-away viewing. Final Day: Port debarkation and departure.\n3. FLIGHT & VACATION TRAVEL MODE:\n   - Structure around flight arrival logistics, airport transfers, hotel check-in, city sightseeing highlights, and return flight departure logistics.\n   - Packages are categorized as: 'cheapest' (Budget Saver), 'moderate' (Balanced Choice), and 'luxury' (Signature Luxury VIP).\n\nSTANDARD DAY TIMINGS & DEFINITIONS (STRICT COMPLIANCE REQUIRED):\n- MORNING (05:00 AM - 11:59 AM): Breakfast at 08:00 AM, morning cultural museums, iconic attractions, or road trip scenic morning stops at 09:30 AM - 11:30 AM.\n- NOON / MIDDAY (12:00 PM - 12:59 PM): Lunch at 12:00 PM - 01:30 PM at top-rated local cafes, bistros, or famous en-route highway diners.\n- AFTERNOON (01:00 PM - 04:59 PM): Afternoon promenades, historic districts, parks, viewpoints, en-route state/national parks, and cultural experiences (e.g. 02:00 PM - 04:30 PM on full days, or 03:15 PM - 05:15 PM on Day 1 after hotel check-in).\n- EVENING (05:00 PM - 07:59 PM): Evening sunset attractions, panoramic towers, viewpoints, and river/scenic cruises (05:45 PM - 07:45 PM). NEVER schedule evening activities during the afternoon (12:00 PM - 04:59 PM).\n- NIGHT (08:00 PM - 11:59 PM): Signature regional dinner from 08:00 PM - 09:30 PM, followed by 'Return to Hotel & Rest for the Night' at 09:30 PM - 10:00 PM.\n- MIDNIGHT / LATE NIGHT (12:00 AM - 04:59 AM): Resting at hotel (NO activities permitted).\n\nREAL SPECIFIC NAMES (NO GENERIC PLACEHOLDERS):\n- NEVER use generic placeholder names like 'Evening Landmark Attraction', 'Famous Landmark / Museum', 'Signature Dinner Place', 'Artisanal Breakfast', 'Gourmet Lunch', or 'Afternoon Activity & Promenade'.\n- ALWAYS provide the REAL, ACTUAL, and FAMOUS name of the landmark, museum, restaurant, or experience.\n\nSTRICT TIMING RULES (UNBREAKABLE):\n- ATTRACTION CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest. NEVER extend any attraction past 08:00 PM.\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (08:00 PM - 09:30 PM).\n- MANDATORY HOTEL RETURN AS FINAL STEP (BEFORE 10:00 PM): The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night' (09:30 PM - 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots past 10:00 PM.\n- EXACT JSON ONLY: Return strictly valid JSON adhering to the specified schema.",
   "llm_metadata": {
     "is_live_llm": true,
     "llm_provider": "openai",
-    "llm_model": "gpt-4o-mini"
+    "llm_model": "gpt-4o"
   },
   "itinerary_days": [
     {
       "day_number": 1,
       "date": "2026-09-16",
-      "theme": "Scenic Drive to Chattanooga",
+      "theme": "Journey to Orlando via Scenic Highway",
       "activities": [
         {
-          "name": "Morning Departure from Atlanta",
-          "description": "Depart from Atlanta at 08:30 AM heading towards Chattanooga.",
-          "next_activity": {
-            "name": "First Stop: Lookout Mountain & Ruby Falls",
-            "distance_miles": 117,
-            "distance_km": 188,
-            "travel_time_minutes": 120,
-            "travel_time_display": "2 hours",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to Lookout Mountain."
-          }
+          "time": "08:30 AM - 09:00 AM",
+          "description": "Pick up rental vehicle in Atlanta",
+          "location": "Enterprise Rent-A-Car, Atlanta, GA",
+          "travel_mode": "drive"
         },
         {
-          "name": "Lookout Mountain & Ruby Falls",
-          "description": "Explore the stunning waterfalls and enjoy scenic views.",
-          "rating": 4.7,
-          "reviews_count": 1200,
-          "reviews": [
-            "Stunning views and great hiking!",
-            "A must-visit in Chattanooga."
-          ],
-          "website_url": "https://www.rubyfalls.com/",
-          "direct_website_url": "https://www.rubyfalls.com/",
-          "activity_url": "https://www.rubyfalls.com/",
-          "reviews_url": "https://www.rubyfalls.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/Ruby+Falls/@35.0103,-85.3321",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g54946-d102254-Reviews-Ruby_Falls-Chattanooga_Tennessee.html",
-          "address": "1720 Scenic Hwy, Chattanooga, TN 37409",
-          "contact_phone": "+1 423-821-2544",
-          "next_activity": {
-            "name": "Lunch at The Blue Plate",
-            "distance_miles": 4,
-            "distance_km": 6.4,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Short drive to local diner."
-          }
+          "time": "09:00 AM - 11:30 AM",
+          "description": "Drive from Atlanta to Macon via I-75",
+          "location": "I-75 S, Georgia",
+          "travel_mode": "drive"
         },
         {
-          "name": "Lunch at The Blue Plate",
-          "description": "Enjoy hearty American comfort food.",
-          "rating": 4.5,
-          "reviews_count": 450,
-          "reviews": [
-            "Great service and delicious food!",
-            "A local favorite."
-          ],
-          "website_url": "https://www.blueplatechatt.com/",
-          "direct_website_url": "https://www.blueplatechatt.com/",
-          "activity_url": "https://www.blueplatechatt.com/",
-          "reviews_url": "https://www.blueplatechatt.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/The+Blue+Plate/@35.0364,-85.3030",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g54946-d830383-Reviews-The_Blue_Plate-Chattanooga_Tennessee.html",
-          "address": "19 E Main St, Chattanooga, TN 37408",
-          "contact_phone": "+1 423-265-1465",
-          "next_activity": {
-            "name": "Drive to Nashville",
-            "distance_miles": 134,
-            "distance_km": 216,
-            "travel_time_minutes": 120,
-            "travel_time_display": "2 hours",
-            "travel_mode": "drive",
-            "transit_summary": "Continue driving to Nashville."
-          }
+          "time": "11:30 AM - 12:30 PM",
+          "description": "Explore Ocmulgee Mounds National Historical Park",
+          "location": "Macon, GA",
+          "travel_mode": "walk"
         },
         {
-          "name": "Scenic Evening at Parthenon",
-          "description": "Visit the full-scale replica of the Parthenon.",
-          "rating": 4.6,
-          "reviews_count": 800,
-          "reviews": [
-            "A beautiful sight, especially at sunset!",
-            "Great photo opportunities."
-          ],
-          "website_url": "https://www.nashville.gov/departments/parks/locations/parthenon",
-          "direct_website_url": "https://www.nashville.gov/departments/parks/locations/parthenon",
-          "activity_url": "https://www.nashville.gov/departments/parks/locations/parthenon",
-          "reviews_url": "https://www.nashville.gov/departments/parks/locations/parthenon",
-          "google_reviews_url": "https://www.google.com/maps/place/Parthenon/@36.1498,-86.8000",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g55229-d105357-Reviews-Parthenon-Nashville_Tennessee.html",
-          "address": "2500 West End Ave, Nashville, TN 37203",
-          "contact_phone": "+1 615-862-8431",
-          "next_activity": {
-            "name": "Dinner at The Pharmacy Burger Parlor & Beer Garden",
-            "distance_miles": 2,
-            "distance_km": 3.2,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Short drive to dinner location."
-          }
+          "time": "12:30 PM - 01:30 PM",
+          "description": "Lunch at The Rookery",
+          "location": "Macon, GA",
+          "price": 20.0,
+          "price_display": "USD 15.00 - 25.00"
         },
         {
-          "name": "Dinner at The Pharmacy Burger Parlor & Beer Garden",
-          "description": "Enjoy gourmet burgers and local beer.",
-          "rating": 4.7,
-          "reviews_count": 1200,
-          "reviews": [
-            "Best burgers in Nashville!",
-            "Great outdoor seating."
-          ],
-          "website_url": "https://thepharmacyburger.com/",
-          "direct_website_url": "https://thepharmacyburger.com/",
-          "activity_url": "https://thepharmacyburger.com/",
-          "reviews_url": "https://thepharmacyburger.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/The+Pharmacy+Burger+Parlor/@36.1565,-86.7574",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g55229-d1916816-Reviews-The_Pharmacy_Burger_Parlor_Beer_Garden-Nashville_Tennessee.html",
-          "address": "731 McFerrin Ave, Nashville, TN 37206",
-          "contact_phone": "+1 615-650-8585",
-          "next_activity": {
-            "name": "Hotel Check-in at The Hermitage Hotel",
-            "distance_miles": 3,
-            "distance_km": 4.8,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to hotel for check-in."
-          }
+          "time": "01:30 PM - 04:00 PM",
+          "description": "Drive from Macon to Valdosta",
+          "location": "I-75 S, Georgia",
+          "travel_mode": "drive"
         },
         {
-          "name": "Hotel Check-in at The Hermitage Hotel",
-          "description": "Luxurious hotel with central location.",
-          "rating": 4.8,
-          "reviews_count": 500,
-          "reviews": [
-            "Elegant stay, excellent service.",
-            "Perfect location for exploring."
-          ],
-          "website_url": "https://www.thehermitagehotel.com/",
-          "direct_website_url": "https://www.thehermitagehotel.com/",
-          "activity_url": "https://www.thehermitagehotel.com/",
-          "reviews_url": "https://www.thehermitagehotel.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/The+Hermitage+Hotel/@36.1627,-86.7830",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Hotel_Review-g55229-d105393-Reviews-The_Hermitage_Hotel-Nashville_Tennessee.html",
-          "address": "231 6th Ave N, Nashville, TN 37219",
-          "contact_phone": "+1 615-244-3121"
+          "time": "04:00 PM - 05:30 PM",
+          "description": "Visit Wild Adventures Theme Park",
+          "location": "Valdosta, GA",
+          "travel_mode": "walk"
+        },
+        {
+          "time": "05:30 PM - 06:30 PM",
+          "description": "Drive from Valdosta to Lake City",
+          "location": "I-75 S, Florida",
+          "travel_mode": "drive"
+        },
+        {
+          "time": "06:30 PM - 08:00 PM",
+          "description": "Check into Hampton Inn & Suites Lake City",
+          "location": "Lake City, FL",
+          "travel_mode": "walk"
+        },
+        {
+          "time": "08:00 PM - 09:30 PM",
+          "description": "Dinner at Cedar River Seafood",
+          "location": "Lake City, FL",
+          "price": 30.0,
+          "price_display": "USD 25.00 - 35.00"
+        },
+        {
+          "time": "09:30 PM - 10:00 PM",
+          "description": "Return to Hotel & Rest for the Night",
+          "location": "Hampton Inn & Suites Lake City"
         }
       ]
     },
     {
       "day_number": 2,
       "date": "2026-09-17",
-      "theme": "Cultural Exploration in Nashville",
+      "theme": "Arrival in Orlando and Exploration",
       "activities": [
         {
-          "name": "Breakfast at Biscuit Love",
-          "description": "Indulge in Southern biscuits and comfort food.",
-          "rating": 4.5,
-          "reviews_count": 900,
-          "reviews": [
-            "Amazing biscuits!",
-            "A must-try in Nashville."
-          ],
-          "website_url": "https://biscuitlove.com/",
-          "direct_website_url": "https://biscuitlove.com/",
-          "activity_url": "https://biscuitlove.com/",
-          "reviews_url": "https://biscuitlove.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/Biscuit+Love/@36.1622,-86.7852",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g55229-d850777-Reviews-Biscuit_Love-Nashville_Tennessee.html",
-          "address": "316 11th Ave S, Nashville, TN 37203",
-          "contact_phone": "+1 615-490-9580",
-          "next_activity": {
-            "name": "Visit Country Music Hall of Fame",
-            "distance_miles": 0.5,
-            "distance_km": 0.8,
-            "travel_time_minutes": 5,
-            "travel_time_display": "5 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Short drive to the Hall of Fame."
-          }
+          "time": "08:00 AM - 09:00 AM",
+          "description": "Breakfast at Hampton Inn & Suites Lake City",
+          "location": "Lake City, FL",
+          "price": 0.0,
+          "price_display": "Free / Included with Hotel Stay"
         },
         {
-          "name": "Country Music Hall of Fame",
-          "description": "Explore the history of country music.",
-          "rating": 4.8,
-          "reviews_count": 1500,
-          "reviews": [
-            "Incredible exhibits!",
-            "A must-see for music lovers."
-          ],
-          "website_url": "https://www.countrymusichalloffame.org/",
-          "direct_website_url": "https://www.countrymusichalloffame.org/",
-          "activity_url": "https://www.countrymusichalloffame.org/",
-          "reviews_url": "https://www.countrymusichalloffame.org/",
-          "google_reviews_url": "https://www.google.com/maps/place/Country+Music+Hall+of+Fame/@36.1581,-86.7823",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g55229-d105395-Reviews-Country_Music_Hall_of_Fame-Nashville_Tennessee.html",
-          "address": "222 5th Ave S, Nashville, TN 37203",
-          "contact_phone": "+1 615-416-2001",
-          "next_activity": {
-            "name": "Lunch at Hattie B's Hot Chicken",
-            "distance_miles": 1,
-            "distance_km": 1.6,
-            "travel_time_minutes": 5,
-            "travel_time_display": "5 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Quick drive for lunch."
-          }
+          "time": "09:00 AM - 11:30 AM",
+          "description": "Drive from Lake City to Orlando",
+          "location": "I-75 S and Florida's Turnpike",
+          "travel_mode": "drive"
         },
         {
-          "name": "Lunch at Hattie B's Hot Chicken",
-          "description": "Savor Nashville's famous hot chicken.",
-          "rating": 4.6,
-          "reviews_count": 2000,
-          "reviews": [
-            "Best hot chicken I've ever had!",
-            "A true Nashville experience."
-          ],
-          "website_url": "https://hattieb.com/",
-          "direct_website_url": "https://hattieb.com/",
-          "activity_url": "https://hattieb.com/",
-          "reviews_url": "https://hattieb.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/Hattie+B's+Hot+Chicken/@36.1559,-86.7831",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g55229-d2015868-Reviews-Hattie_Bs_Hot_Chicken-Nashville_Tennessee.html",
-          "address": "112 19th Ave S, Nashville, TN 37203",
-          "contact_phone": "+1 615-678-4806",
-          "next_activity": {
-            "name": "Afternoon at The Johnny Cash Museum",
-            "distance_miles": 1,
-            "distance_km": 1.6,
-            "travel_time_minutes": 5,
-            "travel_time_display": "5 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Short drive to museum."
-          }
+          "time": "11:30 AM - 12:30 PM",
+          "description": "Check into Aloft Orlando Downtown",
+          "location": "Orlando, FL",
+          "travel_mode": "walk"
         },
         {
-          "name": "The Johnny Cash Museum",
-          "description": "Explore the life of the legendary artist.",
-          "rating": 4.7,
-          "reviews_count": 900,
-          "reviews": [
-            "Very informative and well-done.",
-            "A great tribute to Johnny Cash."
-          ],
-          "website_url": "https://www.johnnycashmuseum.com/",
-          "direct_website_url": "https://www.johnnycashmuseum.com/",
-          "activity_url": "https://www.johnnycashmuseum.com/",
-          "reviews_url": "https://www.johnnycashmuseum.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/Johnny+Cash+Museum/@36.1585,-86.7855",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g55229-d560070-Reviews-Johnny_Cash_Museum-Nashville_Tennessee.html",
-          "address": "119 3rd Ave S, Nashville, TN 37201",
-          "contact_phone": "+1 615-255-3307",
-          "next_activity": {
-            "name": "Evening at The Grand Ole Opry",
-            "distance_miles": 8,
-            "distance_km": 12.9,
-            "travel_time_minutes": 20,
-            "travel_time_display": "20 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to the iconic venue."
-          }
+          "time": "12:30 PM - 01:30 PM",
+          "description": "Lunch at The Boheme",
+          "location": "Orlando, FL",
+          "price": 25.0,
+          "price_display": "USD 20.00 - 30.00"
         },
         {
-          "name": "The Grand Ole Opry Show",
-          "description": "Enjoy a live performance at the famous venue.",
-          "rating": 4.8,
-          "reviews_count": 2000,
-          "reviews": [
-            "An unforgettable experience!",
-            "The heart of country music."
-          ],
-          "website_url": "https://www.opry.com/",
-          "direct_website_url": "https://www.opry.com/",
-          "activity_url": "https://www.opry.com/",
-          "reviews_url": "https://www.opry.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/The+Grand+Ole+Opry/@36.1954,-86.6910",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g55229-d154676-Reviews-Grand_Ole_Opry-Nashville_Tennessee.html",
-          "address": "2804 Opryland Dr, Nashville, TN 37214",
-          "contact_phone": "+1 615-871-6779",
-          "next_activity": {
-            "name": "Dinner at Opry Backstage Grill",
-            "distance_miles": 0.5,
-            "distance_km": 0.8,
-            "travel_time_minutes": 5,
-            "travel_time_display": "5 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Quick drive for dinner."
-          }
+          "time": "01:30 PM - 04:00 PM",
+          "description": "Visit the Orlando Science Center",
+          "location": "Orlando, FL",
+          "travel_mode": "walk"
         },
         {
-          "name": "Dinner at Opry Backstage Grill",
-          "description": "Enjoy a casual dining experience with Southern cuisine.",
-          "rating": 4.5,
-          "reviews_count": 600,
-          "reviews": [
-            "Great food after a show!",
-            "Perfect location."
-          ],
-          "website_url": "https://www.opry.com/restaurants/opry-backstage-grill/",
-          "direct_website_url": "https://www.opry.com/restaurants/opry-backstage-grill/",
-          "activity_url": "https://www.opry.com/restaurants/opry-backstage-grill/",
-          "reviews_url": "https://www.opry.com/restaurants/opry-backstage-grill/",
-          "google_reviews_url": "https://www.google.com/maps/place/Opry+Backstage+Grill/@36.1950,-86.6898",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g55229-d1019094-Reviews-Opry_Backstage_Grill-Nashville_Tennessee.html",
-          "address": "2804 Opryland Dr, Nashville, TN 37214",
-          "contact_phone": "+1 615-889-3040",
-          "next_activity": {
-            "name": "Return to Hotel & Rest for the Night",
-            "distance_miles": 0.5,
-            "distance_km": 0.8,
-            "travel_time_minutes": 5,
-            "travel_time_display": "5 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Drive back to hotel."
-          }
+          "time": "04:00 PM - 05:00 PM",
+          "description": "Stroll through Lake Eola Park",
+          "location": "Orlando, FL",
+          "travel_mode": "walk"
         },
         {
-          "name": "Return to Hotel & Rest for the Night",
-          "description": "Final return to The Hermitage Hotel.",
-          "next_activity": {
-            "name": "End of Day 2",
-            "distance_miles": 0,
-            "distance_km": 0,
-            "travel_time_minutes": 0,
-            "travel_time_display": "0 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "N/A"
-          }
+          "time": "05:00 PM - 07:30 PM",
+          "description": "Relax and explore Downtown Orlando",
+          "location": "Orlando, FL",
+          "travel_mode": "walk"
+        },
+        {
+          "time": "08:00 PM - 09:30 PM",
+          "description": "Dinner at Kres Chophouse",
+          "location": "Orlando, FL",
+          "price": 40.0,
+          "price_display": "USD 35.00 - 45.00"
+        },
+        {
+          "time": "09:30 PM - 10:00 PM",
+          "description": "Return to Hotel & Rest for the Night",
+          "location": "Aloft Orlando Downtown"
         }
       ]
     },
     {
       "day_number": 3,
       "date": "2026-09-18",
-      "theme": "Drive to Cincinnati",
+      "theme": "Theme Park Adventure",
       "activities": [
         {
-          "name": "Breakfast at The Pancake Pantry",
-          "description": "Dine on delicious pancakes in a cozy atmosphere.",
-          "rating": 4.6,
-          "reviews_count": 800,
-          "reviews": [
-            "Best pancakes ever!",
-            "A must-visit for breakfast."
-          ],
-          "website_url": "https://pancakepantry.com/",
-          "direct_website_url": "https://pancakepantry.com/",
-          "activity_url": "https://pancakepantry.com/",
-          "reviews_url": "https://pancakepantry.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/Pancake+Pantry/@36.1255,-86.8290",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g55229-d467420-Reviews-Pancake_Pantry-Nashville_Tennessee.html",
-          "address": "1796 21st Ave S, Nashville, TN 37212",
-          "contact_phone": "+1 615-383-9333",
-          "next_activity": {
-            "name": "Drive to Cincinnati",
-            "distance_miles": 120,
-            "distance_km": 193,
-            "travel_time_minutes": 110,
-            "travel_time_display": "1 hour 50 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Head towards Cincinnati."
-          }
+          "time": "08:00 AM - 09:00 AM",
+          "description": "Breakfast at Aloft Orlando Downtown",
+          "location": "Orlando, FL",
+          "price": 0.0,
+          "price_display": "Free / Included with Hotel Stay"
         },
         {
-          "name": "Lunch at Skyline Chili",
-          "description": "Famous for Cincinnati-style chili served over spaghetti.",
-          "rating": 4.4,
-          "reviews_count": 1000,
-          "reviews": [
-            "Unique and delicious chili!",
-            "A Cincinnati classic."
-          ],
-          "website_url": "https://www.skylinechili.com/",
-          "direct_website_url": "https://www.skylinechili.com/",
-          "activity_url": "https://www.skylinechili.com/",
-          "reviews_url": "https://www.skylinechili.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/Skyline+Chili/@39.1024,-84.5136",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60993-d515121-Reviews-Skyline_Chili-Cincinnati_Ohio.html",
-          "address": "100 W 4th St, Cincinnati, OH 45202",
-          "contact_phone": "+1 513-421-2000",
-          "next_activity": {
-            "name": "Explore Cincinnati Zoo & Botanical Garden",
-            "distance_miles": 2,
-            "distance_km": 3.2,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Short drive to the zoo."
-          }
+          "time": "09:00 AM - 04:00 PM",
+          "description": "Full Day at Universal Studios Florida",
+          "location": "Orlando, FL",
+          "travel_mode": "walk"
         },
         {
-          "name": "Cincinnati Zoo & Botanical Garden",
-          "description": "Visit one of the oldest zoos in the U.S.",
-          "rating": 4.7,
-          "reviews_count": 2100,
-          "reviews": [
-            "Amazing animal exhibits!",
-            "A great family outing."
-          ],
-          "website_url": "https://cincinnatizoo.org/",
-          "direct_website_url": "https://cincinnatizoo.org/",
-          "activity_url": "https://cincinnatizoo.org/",
-          "reviews_url": "https://cincinnatizoo.org/",
-          "google_reviews_url": "https://www.google.com/maps/place/Cincinnati+Zoo/@39.1482,-84.5025",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60993-d102266-Reviews-Cincinnati_Zoo_Botanical_Garden-Cincinnati_Ohio.html",
-          "address": "3400 Vine St, Cincinnati, OH 45209",
-          "contact_phone": "+1 513-281-4700",
-          "next_activity": {
-            "name": "Evening at Smale Riverfront Park",
-            "distance_miles": 3,
-            "distance_km": 4.8,
-            "travel_time_minutes": 15,
-            "travel_time_display": "15 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to the park."
-          }
+          "time": "04:00 PM - 05:30 PM",
+          "description": "Relax at CityWalk",
+          "location": "Orlando, FL",
+          "travel_mode": "walk"
         },
         {
-          "name": "Smale Riverfront Park",
-          "description": "Relax at the scenic park along the Ohio River.",
-          "rating": 4.8,
-          "reviews_count": 1500,
-          "reviews": [
-            "Beautiful park with stunning views!",
-            "Great for families."
-          ],
-          "website_url": "https://www.cincinnati-oh.gov/parks/parks/smale-riverfront-park/",
-          "direct_website_url": "https://www.cincinnati-oh.gov/parks/parks/smale-riverfront-park/",
-          "activity_url": "https://www.cincinnati-oh.gov/parks/parks/smale-riverfront-park/",
-          "reviews_url": "https://www.cincinnati-oh.gov/parks/parks/smale-riverfront-park/",
-          "google_reviews_url": "https://www.google.com/maps/place/Smale+Riverfront+Park/@39.0998,-84.5088",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60993-d114838-Reviews-Smale_Riverfront_Park-Cincinnati_Ohio.html",
-          "address": "100 Broadway, Cincinnati, OH 45202",
-          "contact_phone": "+1 513-352-4080",
-          "next_activity": {
-            "name": "Dinner at Montgomery Inn",
-            "distance_miles": 4,
-            "distance_km": 6.4,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Short drive to dinner."
-          }
+          "time": "08:00 PM - 09:30 PM",
+          "description": "Dinner at The Cowfish Sushi Burger Bar",
+          "location": "Orlando, FL",
+          "price": 35.0,
+          "price_display": "USD 30.00 - 40.00"
         },
         {
-          "name": "Dinner at Montgomery Inn",
-          "description": "Known for its famous ribs and BBQ.",
-          "rating": 4.5,
-          "reviews_count": 700,
-          "reviews": [
-            "Best BBQ in Cincinnati!",
-            "A must-try."
-          ],
-          "website_url": "https://www.montgomeryinn.com/",
-          "direct_website_url": "https://www.montgomeryinn.com/",
-          "activity_url": "https://www.montgomeryinn.com/",
-          "reviews_url": "https://www.montgomeryinn.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/Montgomery+Inn/@39.1771,-84.3556",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60993-d518886-Reviews-Montgomery_Inn-Cincinnati_Ohio.html",
-          "address": "9440 Montgomery Rd, Montgomery, OH 45242",
-          "contact_phone": "+1 513-791-3482",
-          "next_activity": {
-            "name": "Hotel Check-in at 21c Museum Hotel Cincinnati",
-            "distance_miles": 10,
-            "distance_km": 16.1,
-            "travel_time_minutes": 15,
-            "travel_time_display": "15 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to hotel for check-in."
-          }
-        },
-        {
-          "name": "Hotel Check-in at 21c Museum Hotel Cincinnati",
-          "description": "Chic hotel with contemporary art installations.",
-          "rating": 4.6,
-          "reviews_count": 650,
-          "reviews": [
-            "Unique experience with art everywhere.",
-            "Great location!"
-          ],
-          "website_url": "https://www.21cmuseumhotels.com/cincinnati/",
-          "direct_website_url": "https://www.21cmuseumhotels.com/cincinnati/",
-          "activity_url": "https://www.21cmuseumhotels.com/cincinnati/",
-          "reviews_url": "https://www.21cmuseumhotels.com/cincinnati/",
-          "google_reviews_url": "https://www.google.com/maps/place/21c+Museum+Hotel+Cincinnati/@39.0991,-84.5110",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Hotel_Review-g60993-d203649-Reviews-21c_Museum_Hotel_Cincinnati-Cincinnati_Ohio.html",
-          "address": "609 Walnut St, Cincinnati, OH 45202",
-          "contact_phone": "+1 513-578-6600"
+          "time": "09:30 PM - 10:00 PM",
+          "description": "Return to Hotel & Rest for the Night",
+          "location": "Aloft Orlando Downtown"
         }
       ]
     },
     {
       "day_number": 4,
       "date": "2026-09-19",
-      "theme": "Cincinnati Exploration & Return",
+      "theme": "Return to Atlanta",
       "activities": [
         {
-          "name": "Breakfast at Taste of Belgium",
-          "description": "Savor Belgian waffles and brunch specialties.",
-          "rating": 4.6,
-          "reviews_count": 600,
-          "reviews": [
-            "Delicious waffles!",
-            "Perfect brunch spot."
-          ],
-          "website_url": "https://tasteofbelgium.com/",
-          "direct_website_url": "https://tasteofbelgium.com/",
-          "activity_url": "https://tasteofbelgium.com/",
-          "reviews_url": "https://tasteofbelgium.com/",
-          "google_reviews_url": "https://www.google.com/maps/place/Taste+of+Belgium/@39.1031,-84.5090",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60993-d206578-Reviews-Taste_of_Belgium-Cincinnati_Ohio.html",
-          "address": "12 W 14th St, Cincinnati, OH 45202",
-          "contact_phone": "+1 513-651-2233",
-          "next_activity": {
-            "name": "Morning at Cincinnati Art Museum",
-            "distance_miles": 2,
-            "distance_km": 3.2,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to the museum."
-          }
+          "time": "08:00 AM - 09:00 AM",
+          "description": "Breakfast at Aloft Orlando Downtown",
+          "location": "Orlando, FL",
+          "price": 0.0,
+          "price_display": "Free / Included with Hotel Stay"
         },
         {
-          "name": "Cincinnati Art Museum",
-          "description": "Explore a diverse collection of art.",
-          "rating": 4.7,
-          "reviews_count": 1100,
-          "reviews": [
-            "Beautiful exhibits!",
-            "A great cultural experience."
-          ],
-          "website_url": "https://www.cincinnatiartmuseum.org/",
-          "direct_website_url": "https://www.cincinnatiartmuseum.org/",
-          "activity_url": "https://www.cincinnatiartmuseum.org/",
-          "reviews_url": "https://www.cincinnatiartmuseum.org/",
-          "google_reviews_url": "https://www.google.com/maps/place/Cincinnati+Art+Museum/@39.1350,-84.5085",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60993-d102423-Reviews-Cincinnati_Art_Museum-Cincinnati_Ohio.html",
-          "address": "953 Eden Park Dr, Cincinnati, OH 45202",
-          "contact_phone": "+1 513-721-5200",
-          "next_activity": {
-            "name": "Lunch at Findlay Market",
-            "distance_miles": 3,
-            "distance_km": 4.8,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to the market."
-          }
+          "time": "09:00 AM - 12:00 PM",
+          "description": "Drive from Orlando to Tifton",
+          "location": "Florida's Turnpike and I-75 N",
+          "travel_mode": "drive"
         },
         {
-          "name": "Lunch at Findlay Market",
-          "description": "Enjoy local food vendors and fresh produce.",
-          "rating": 4.5,
-          "reviews_count": 2000,
-          "reviews": [
-            "Great atmosphere and food!",
-            "A Cincinnati gem."
-          ],
-          "website_url": "https://www.findlaymarket.org/",
-          "direct_website_url": "https://www.findlaymarket.org/",
-          "activity_url": "https://www.findlaymarket.org/",
-          "reviews_url": "https://www.findlaymarket.org/",
-          "google_reviews_url": "https://www.google.com/maps/place/Findlay+Market/@39.1106,-84.5171",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60993-d102266-Reviews-Findlay_Market-Cincinnati_Ohio.html",
-          "address": "1801 Elm St, Cincinnati, OH 45212",
-          "contact_phone": "+1 513-665-4839",
-          "next_activity": {
-            "name": "Return Drive to Atlanta",
-            "distance_miles": 350,
-            "distance_km": 563,
-            "travel_time_minutes": 330,
-            "travel_time_display": "5 hours 30 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Head back to Atlanta."
-          }
+          "time": "12:00 PM - 01:00 PM",
+          "description": "Lunch at Pit Stop BBQ & Grill",
+          "location": "Tifton, GA",
+          "price": 18.0,
+          "price_display": "USD 15.00 - 20.00"
         },
         {
-          "name": "Return Drive to Atlanta",
-          "description": "Drive back to Atlanta, concluding the trip.",
-          "next_activity": {
-            "name": "Rental Vehicle Return at Atlanta Airport",
-            "distance_miles": 20,
-            "distance_km": 32,
-            "travel_time_minutes": 25,
-            "travel_time_display": "25 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "Return vehicle at the airport."
-          }
+          "time": "01:00 PM - 04:00 PM",
+          "description": "Drive from Tifton to Atlanta",
+          "location": "I-75 N, Georgia",
+          "travel_mode": "drive"
         },
         {
-          "name": "Rental Vehicle Return at Atlanta Airport",
-          "description": "Drop off the rental car at the airport.",
-          "next_activity": {
-            "name": "End of Trip",
-            "distance_miles": 0,
-            "distance_km": 0,
-            "travel_time_minutes": 0,
-            "travel_time_display": "0 minutes",
-            "travel_mode": "drive",
-            "transit_summary": "N/A"
-          }
+          "time": "04:00 PM - 05:30 PM",
+          "description": "Return rental vehicle in Atlanta",
+          "location": "Enterprise Rent-A-Car, Atlanta, GA",
+          "travel_mode": "walk"
+        },
+        {
+          "time": "08:00 PM - 09:30 PM",
+          "description": "Dinner at South City Kitchen Midtown",
+          "location": "Atlanta, GA",
+          "price": 40.0,
+          "price_display": "USD 35.00 - 45.00"
+        },
+        {
+          "time": "09:30 PM - 10:00 PM",
+          "description": "Return to Home & Rest for the Night",
+          "location": "Atlanta, GA"
         }
       ]
     }

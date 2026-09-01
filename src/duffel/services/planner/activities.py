@@ -143,16 +143,22 @@ def enrich_activity_urls_and_geo(
     act_index: int = 0
 ) -> dict[str, Any]:
     """Enriches an activity with direct URLs, Google reviews, TripAdvisor links, and geo-location."""
-    a_name = act_dict.get("name") or act_dict.get("title") or "Attraction"
+    a_name = act_dict.get("name") or act_dict.get("title") or act_dict.get("activity") or "Attraction"
+    if "name" not in act_dict:
+        act_dict["name"] = a_name
+    if "title" not in act_dict:
+        act_dict["title"] = a_name
     a_cat = act_dict.get("category") or "Attraction"
     a_rat = float(act_dict.get("rating") or 4.8)
 
-    a_enc = urllib.parse.quote_plus(f"{a_name} {location_tag}")
+    loc_clean = act_dict.get("location")
+    effective_loc = loc_clean if (loc_clean and loc_clean.lower() != "drive") else location_tag
+    a_enc = urllib.parse.quote_plus(f"{a_name} {effective_loc}")
     a_site = f"https://www.google.com/search?q={a_enc}+official+site"
     a_grev = f"https://www.google.com/maps/search/?api=1&query={a_enc}+reviews"
     a_trev = f"https://www.tripadvisor.com/Search?q={a_enc}"
 
-    act_dict["reviews"] = generate_activity_reviews(a_name, a_cat, a_rat, location_tag)
+    act_dict["reviews"] = generate_activity_reviews(a_name, a_cat, a_rat, effective_loc)
     act_dict["website_url"] = a_site
     act_dict["direct_website_url"] = a_site
     act_dict["activity_url"] = a_site
@@ -163,7 +169,7 @@ def enrich_activity_urls_and_geo(
     if not act_dict.get("geo_location") or not act_dict["geo_location"].get("latitude"):
         act_dict["geo_location"] = {
             "name": a_name,
-            "address": act_dict.get("address") or f"{a_name}, {location_tag}",
+            "address": act_dict.get("address") or f"{a_name}, {effective_loc}",
             "phone_number": act_dict.get("phone_number") or "+1 800 555 0199",
             "latitude": round(base_lat + 0.003 * day_num + 0.001 * act_index, 4),
             "longitude": round(base_lng - 0.002 * day_num - 0.001 * act_index, 4),

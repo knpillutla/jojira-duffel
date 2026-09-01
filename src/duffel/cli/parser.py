@@ -1318,6 +1318,50 @@ class PromptExtractor:
 
         return val_clean.upper()
 
+    @staticmethod
+    def _resolve_city_name(val: str) -> str:
+        """
+        Resolves an IATA code or raw location string into its full city name (e.g. 'ATL' -> 'Atlanta', 'DFW' -> 'Dallas', 'Sedona' -> 'Sedona').
+        If no airport mapping exists, preserves the cleaned city name as-is.
+        """
+        if not val:
+            return ""
+        val_clean = re.sub(r"\s*\([^)]*\)", "", str(val)).strip()
+        val_clean = re.sub(r"^(?:to|in|for|visit|trip\s+to|from)\s+", "", val_clean, flags=re.IGNORECASE).strip()
+        val_upper = val_clean.upper()
+
+        iata_map = {
+            "ATL": "Atlanta", "DFW": "Dallas", "JFK": "New York", "EWR": "New York", "LGA": "New York",
+            "LAX": "Los Angeles", "SFO": "San Francisco", "ORD": "Chicago", "MIA": "Miami", "BOS": "Boston",
+            "SEA": "Seattle", "SAN": "San Diego", "MCO": "Orlando", "IAD": "Washington", "DCA": "Washington",
+            "CDG": "Paris", "ORY": "Paris", "LHR": "London", "LGW": "London", "HND": "Tokyo", "NRT": "Tokyo",
+            "ZRH": "Zurich", "FCO": "Rome", "MAD": "Madrid", "BCN": "Barcelona", "AMS": "Amsterdam",
+            "YYZ": "Toronto", "YVR": "Vancouver", "YYC": "Calgary", "YUL": "Montreal", "YEG": "Edmonton",
+            "DXB": "Dubai", "SIN": "Singapore", "SYD": "Sydney", "MEL": "Melbourne",
+            "DEL": "Delhi", "BOM": "Mumbai", "BLR": "Bangalore", "HYD": "Hyderabad", "MAA": "Chennai",
+            "COK": "Kochi", "GOI": "Goa", "DPS": "Bali", "BKK": "Bangkok", "HKG": "Hong Kong",
+            "CMH": "Columbus", "DEN": "Denver", "LAS": "Las Vegas", "PHX": "Phoenix", "IAH": "Houston",
+            "HOU": "Houston", "AUS": "Austin", "SAT": "San Antonio", "BNA": "Nashville", "CLT": "Charlotte",
+            "RDU": "Raleigh", "TPA": "Tampa", "FLL": "Fort Lauderdale", "RSW": "Fort Myers", "MSY": "New Orleans",
+            "PDX": "Portland", "SLC": "Salt Lake City", "DTW": "Detroit", "MSP": "Minneapolis", "STL": "St. Louis",
+            "MCI": "Kansas City", "PIT": "Pittsburgh", "IND": "Indianapolis", "CLE": "Cleveland", "CVG": "Cincinnati",
+            "MEM": "Memphis", "BWI": "Baltimore", "PHL": "Philadelphia", "ABQ": "Albuquerque", "ANC": "Anchorage",
+            "HNL": "Honolulu", "OGG": "Maui", "KOA": "Kona", "LIH": "Kauai", "SJU": "San Juan",
+            "KEF": "Reykjavik", "DUB": "Dublin", "EDI": "Edinburgh", "MAN": "Manchester", "BER": "Berlin",
+            "MUC": "Munich", "FRA": "Frankfurt", "VIE": "Vienna", "GVA": "Geneva", "MXP": "Milan",
+            "VCE": "Venice", "FLR": "Florence", "NAP": "Naples", "ATH": "Athens", "LIS": "Lisbon",
+            "OPO": "Porto", "CPH": "Copenhagen", "ARN": "Stockholm", "OSL": "Oslo", "HEL": "Helsinki",
+            "WAW": "Warsaw", "PRG": "Prague", "BUD": "Budapest", "IST": "Istanbul", "CAI": "Cairo",
+            "JNB": "Johannesburg", "CPT": "Cape Town", "NBO": "Nairobi", "EZE": "Buenos Aires",
+            "GRU": "Sao Paulo", "GIG": "Rio de Janeiro", "SCL": "Santiago", "BOG": "Bogota", "LIM": "Lima",
+            "MEX": "Mexico City", "CUN": "Cancun", "PTY": "Panama City", "SJO": "San Jose",
+        }
+        if val_upper in iata_map:
+            return iata_map[val_upper]
+
+        words = val_clean.split()
+        return " ".join(w.capitalize() for w in words)
+
     _LLM_IATA_CACHE: dict[str, str] = {}
 
     @staticmethod
