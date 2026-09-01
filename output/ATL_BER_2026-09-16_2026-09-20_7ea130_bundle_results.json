@@ -1,0 +1,1648 @@
+{
+  "status": "success",
+  "timestamp": "2026-09-01 10:03:38",
+  "meta_data": {
+    "type": "bundles",
+    "search_params": {
+      "origin": "ATL",
+      "destination": "BER",
+      "departure_date": "2026-09-16",
+      "return_date": "2026-09-20",
+      "passengers_count": 1,
+      "cabin_class": "economy",
+      "rooms": 1,
+      "driver_age": 30,
+      "force_refresh": false
+    },
+    "geo_location": {
+      "origin": {
+        "code": "ATL",
+        "latitude": 33.6407,
+        "longitude": -84.4277
+      },
+      "destination": {
+        "code": "BER",
+        "latitude": 52.3667,
+        "longitude": 13.5033
+      }
+    },
+    "service_execution_summary": {
+      "flight_calls_count": 1,
+      "hotel_calls_count": 1,
+      "car_calls_count": 1,
+      "total_calls_count": 3,
+      "is_flights_synthetic": false,
+      "flights_data_source": "live_duffel_api",
+      "is_hotels_synthetic": false,
+      "hotels_data_source": "live_duffel_api",
+      "is_cars_synthetic": false,
+      "cars_data_source": "live_duffel_api",
+      "is_hotel_price_tbd": true,
+      "is_car_price_tbd": true
+    }
+  },
+  "data": {
+    "total_bundles_found": 5,
+    "category_highlights": {
+      "lowest_fare_package": {
+        "bundle_id": "bnd_0001_7ea130",
+        "total_package_price": 1130.43,
+        "total_price_display": "USD 1130.43 + car rental + hotels",
+        "individual_price_sum": 1189.93,
+        "bundle_savings": 59.5,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h5v8d6KMjlHpjF",
+          "price": "USD 1189.93",
+          "total_amount": 1189.93,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt",
+          "leg_codes": "IAD, FRA, FRA",
+          "duration": "29h 5m",
+          "duration_minutes": 1745,
+          "duration_hours": 29.08,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T07:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "07:45:00",
+              "arrival_at": "2026-09-20T13:45:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "13:45:00",
+              "duration": "12h 0m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T07:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "07:45:00",
+          "return_arrival_at": "2026-09-20T13:45:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "13:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "direct_express_package": {
+        "bundle_id": "bnd_0001_7ea130",
+        "total_package_price": 1130.43,
+        "total_price_display": "USD 1130.43 + car rental + hotels",
+        "individual_price_sum": 1189.93,
+        "bundle_savings": 59.5,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h5v8d6KMjlHpjF",
+          "price": "USD 1189.93",
+          "total_amount": 1189.93,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt",
+          "leg_codes": "IAD, FRA, FRA",
+          "duration": "29h 5m",
+          "duration_minutes": 1745,
+          "duration_hours": 29.08,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T07:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "07:45:00",
+              "arrival_at": "2026-09-20T13:45:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "13:45:00",
+              "duration": "12h 0m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T07:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "07:45:00",
+          "return_arrival_at": "2026-09-20T13:45:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "13:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "curated_value_package": {
+        "bundle_id": "bnd_0001_7ea130",
+        "total_package_price": 1130.43,
+        "total_price_display": "USD 1130.43 + car rental + hotels",
+        "individual_price_sum": 1189.93,
+        "bundle_savings": 59.5,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h5v8d6KMjlHpjF",
+          "price": "USD 1189.93",
+          "total_amount": 1189.93,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt",
+          "leg_codes": "IAD, FRA, FRA",
+          "duration": "29h 5m",
+          "duration_minutes": 1745,
+          "duration_hours": 29.08,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T07:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "07:45:00",
+              "arrival_at": "2026-09-20T13:45:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "13:45:00",
+              "duration": "12h 0m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T07:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "07:45:00",
+          "return_arrival_at": "2026-09-20T13:45:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "13:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "signature_luxury_package": {
+        "bundle_id": "bnd_0005_7ea130",
+        "total_package_price": 1140.03,
+        "total_price_display": "USD 1140.03 + car rental + hotels",
+        "individual_price_sum": 1200.03,
+        "bundle_savings": 60.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h3YNQkvrOaccyT",
+          "price": "USD 1200.03",
+          "total_amount": 1200.03,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt, Washington",
+          "leg_codes": "IAD, FRA, FRA, IAD",
+          "duration": "31h 57m",
+          "duration_minutes": 1917,
+          "duration_hours": 31.95,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T10:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "10:45:00",
+              "arrival_at": "2026-09-20T19:37:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "19:37:00",
+              "duration": "14h 52m",
+              "stops": 2
+            }
+          ],
+          "return_departure_at": "2026-09-20T10:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "10:45:00",
+          "return_arrival_at": "2026-09-20T19:37:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "19:37:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "overall_lowest": {
+        "bundle_id": "bnd_0001_7ea130",
+        "total_package_price": 1130.43,
+        "total_price_display": "USD 1130.43 + car rental + hotels",
+        "individual_price_sum": 1189.93,
+        "bundle_savings": 59.5,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h5v8d6KMjlHpjF",
+          "price": "USD 1189.93",
+          "total_amount": 1189.93,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt",
+          "leg_codes": "IAD, FRA, FRA",
+          "duration": "29h 5m",
+          "duration_minutes": 1745,
+          "duration_hours": 29.08,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T07:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "07:45:00",
+              "arrival_at": "2026-09-20T13:45:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "13:45:00",
+              "duration": "12h 0m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T07:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "07:45:00",
+          "return_arrival_at": "2026-09-20T13:45:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "13:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "overall_cheapest": {
+        "bundle_id": "bnd_0001_7ea130",
+        "total_package_price": 1130.43,
+        "total_price_display": "USD 1130.43 + car rental + hotels",
+        "individual_price_sum": 1189.93,
+        "bundle_savings": 59.5,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h5v8d6KMjlHpjF",
+          "price": "USD 1189.93",
+          "total_amount": 1189.93,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt",
+          "leg_codes": "IAD, FRA, FRA",
+          "duration": "29h 5m",
+          "duration_minutes": 1745,
+          "duration_hours": 29.08,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T07:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "07:45:00",
+              "arrival_at": "2026-09-20T13:45:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "13:45:00",
+              "duration": "12h 0m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T07:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "07:45:00",
+          "return_arrival_at": "2026-09-20T13:45:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "13:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "nonstop_flight_bundle": {
+        "bundle_id": "bnd_0001_7ea130",
+        "total_package_price": 1130.43,
+        "total_price_display": "USD 1130.43 + car rental + hotels",
+        "individual_price_sum": 1189.93,
+        "bundle_savings": 59.5,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h5v8d6KMjlHpjF",
+          "price": "USD 1189.93",
+          "total_amount": 1189.93,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt",
+          "leg_codes": "IAD, FRA, FRA",
+          "duration": "29h 5m",
+          "duration_minutes": 1745,
+          "duration_hours": 29.08,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T07:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "07:45:00",
+              "arrival_at": "2026-09-20T13:45:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "13:45:00",
+              "duration": "12h 0m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T07:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "07:45:00",
+          "return_arrival_at": "2026-09-20T13:45:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "13:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "best_value_bundle": {
+        "bundle_id": "bnd_0001_7ea130",
+        "total_package_price": 1130.43,
+        "total_price_display": "USD 1130.43 + car rental + hotels",
+        "individual_price_sum": 1189.93,
+        "bundle_savings": 59.5,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h5v8d6KMjlHpjF",
+          "price": "USD 1189.93",
+          "total_amount": 1189.93,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt",
+          "leg_codes": "IAD, FRA, FRA",
+          "duration": "29h 5m",
+          "duration_minutes": 1745,
+          "duration_hours": 29.08,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T07:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "07:45:00",
+              "arrival_at": "2026-09-20T13:45:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "13:45:00",
+              "duration": "12h 0m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T07:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "07:45:00",
+          "return_arrival_at": "2026-09-20T13:45:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "13:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "luxury_bundle": {
+        "bundle_id": "bnd_0005_7ea130",
+        "total_package_price": 1140.03,
+        "total_price_display": "USD 1140.03 + car rental + hotels",
+        "individual_price_sum": 1200.03,
+        "bundle_savings": 60.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h3YNQkvrOaccyT",
+          "price": "USD 1200.03",
+          "total_amount": 1200.03,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt, Washington",
+          "leg_codes": "IAD, FRA, FRA, IAD",
+          "duration": "31h 57m",
+          "duration_minutes": 1917,
+          "duration_hours": 31.95,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T10:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "10:45:00",
+              "arrival_at": "2026-09-20T19:37:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "19:37:00",
+              "duration": "14h 52m",
+              "stops": 2
+            }
+          ],
+          "return_departure_at": "2026-09-20T10:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "10:45:00",
+          "return_arrival_at": "2026-09-20T19:37:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "19:37:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      }
+    },
+    "top_bundles": [
+      {
+        "bundle_id": "bnd_0001_7ea130",
+        "total_package_price": 1130.43,
+        "total_price_display": "USD 1130.43 + car rental + hotels",
+        "individual_price_sum": 1189.93,
+        "bundle_savings": 59.5,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h5v8d6KMjlHpjF",
+          "price": "USD 1189.93",
+          "total_amount": 1189.93,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt",
+          "leg_codes": "IAD, FRA, FRA",
+          "duration": "29h 5m",
+          "duration_minutes": 1745,
+          "duration_hours": 29.08,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T07:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "07:45:00",
+              "arrival_at": "2026-09-20T13:45:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "13:45:00",
+              "duration": "12h 0m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T07:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "07:45:00",
+          "return_arrival_at": "2026-09-20T13:45:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "13:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      {
+        "bundle_id": "bnd_0002_7ea130",
+        "total_package_price": 1130.43,
+        "total_price_display": "USD 1130.43 + car rental + hotels",
+        "individual_price_sum": 1189.93,
+        "bundle_savings": 59.5,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h5v8d6KMjlHpjd",
+          "price": "USD 1189.93",
+          "total_amount": 1189.93,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt",
+          "leg_codes": "IAD, FRA, FRA",
+          "duration": "28h 5m",
+          "duration_minutes": 1685,
+          "duration_hours": 28.08,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T07:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "07:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T07:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "07:55:00",
+              "duration": "16h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T07:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "07:45:00",
+              "arrival_at": "2026-09-20T13:45:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "13:45:00",
+              "duration": "12h 0m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T07:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "07:45:00",
+          "return_arrival_at": "2026-09-20T13:45:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "13:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      {
+        "bundle_id": "bnd_0003_7ea130",
+        "total_package_price": 1130.43,
+        "total_price_display": "USD 1130.43 + car rental + hotels",
+        "individual_price_sum": 1189.93,
+        "bundle_savings": 59.5,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h64M4phTCLbC65",
+          "price": "USD 1189.93",
+          "total_amount": 1189.93,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt",
+          "leg_codes": "IAD, FRA, FRA",
+          "duration": "30h 5m",
+          "duration_minutes": 1805,
+          "duration_hours": 30.08,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T06:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "06:45:00",
+              "arrival_at": "2026-09-20T13:45:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "13:45:00",
+              "duration": "13h 0m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T06:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "06:45:00",
+          "return_arrival_at": "2026-09-20T13:45:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "13:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      {
+        "bundle_id": "bnd_0004_7ea130",
+        "total_package_price": 1130.43,
+        "total_price_display": "USD 1130.43 + car rental + hotels",
+        "individual_price_sum": 1189.93,
+        "bundle_savings": 59.5,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h64M4phTCLbC6V",
+          "price": "USD 1189.93",
+          "total_amount": 1189.93,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt",
+          "leg_codes": "IAD, FRA, FRA",
+          "duration": "29h 5m",
+          "duration_minutes": 1745,
+          "duration_hours": 29.08,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T07:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "07:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T07:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "07:55:00",
+              "duration": "16h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T06:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "06:45:00",
+              "arrival_at": "2026-09-20T13:45:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "13:45:00",
+              "duration": "13h 0m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T06:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "06:45:00",
+          "return_arrival_at": "2026-09-20T13:45:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "13:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      {
+        "bundle_id": "bnd_0005_7ea130",
+        "total_package_price": 1140.03,
+        "total_price_display": "USD 1140.03 + car rental + hotels",
+        "individual_price_sum": 1200.03,
+        "bundle_savings": 60.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y1h3YNQkvrOaccyT",
+          "price": "USD 1200.03",
+          "total_amount": 1200.03,
+          "currency": "USD",
+          "airline": "Lufthansa",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Berlin (BER)",
+          "destination_name": "Berlin",
+          "destination_code": "BER",
+          "max_stops": 2,
+          "legs": "2-Stops",
+          "leg_names": "Washington, Frankfurt, Frankfurt, Washington",
+          "leg_codes": "IAD, FRA, FRA, IAD",
+          "duration": "31h 57m",
+          "duration_minutes": 1917,
+          "duration_hours": 31.95,
+          "departure_at": "2026-09-16T09:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "09:50:00",
+          "arrival_at": "2026-09-17T08:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "08:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-05T03:59:00Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-05T03:59:00Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "BER",
+              "departure_at": "2026-09-16T09:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "09:50:00",
+              "arrival_at": "2026-09-17T08:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "08:55:00",
+              "duration": "17h 5m",
+              "stops": 2
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "BER",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T10:45:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "10:45:00",
+              "arrival_at": "2026-09-20T19:37:00",
+              "arrival_date": "2026-09-20",
+              "arrival_time": "19:37:00",
+              "duration": "14h 52m",
+              "stops": 2
+            }
+          ],
+          "return_departure_at": "2026-09-20T10:45:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "10:45:00",
+          "return_arrival_at": "2026-09-20T19:37:00",
+          "return_arrival_date": "2026-09-20",
+          "return_arrival_time": "19:37:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in BER",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      }
+    ],
+    "service_execution_summary": {
+      "flight_calls_count": 1,
+      "hotel_calls_count": 1,
+      "car_calls_count": 1,
+      "total_calls_count": 3,
+      "is_flights_synthetic": false,
+      "flights_data_source": "live_duffel_api",
+      "is_hotels_synthetic": false,
+      "hotels_data_source": "live_duffel_api",
+      "is_cars_synthetic": false,
+      "cars_data_source": "live_duffel_api",
+      "is_hotel_price_tbd": true,
+      "is_car_price_tbd": true
+    },
+    "performance_metrics": {
+      "total_calls": 1,
+      "min_ms": 4844.365800032392,
+      "max_ms": 4844.365800032392,
+      "avg_ms": 4844.365800032392
+    },
+    "cache_metrics": {
+      "enabled": true,
+      "backend": "redis",
+      "redis_host": "127.0.0.1",
+      "total_reads": 6,
+      "hits": 0,
+      "tier1_hits": 0,
+      "tier2_hits": 0,
+      "aggregated_cache_hits": 0,
+      "individual_cache_hits": 0,
+      "misses": 6,
+      "hit_percentage": 0.0,
+      "miss_percentage": 100.0,
+      "writes": 3,
+      "read_min_ms": 1.15,
+      "read_max_ms": 3.29,
+      "read_avg_ms": 2.19,
+      "write_min_ms": 4.31,
+      "write_max_ms": 40.18,
+      "write_avg_ms": 19.48,
+      "ttl_seconds": 3600
+    },
+    "output_file": "output\\ATL_BER_2026-09-16_2026-09-20_7ea130_bundle_results.json"
+  }
+}

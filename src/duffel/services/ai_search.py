@@ -71,8 +71,13 @@ class AISearchService(BaseService):
                 origin = "JFK" if destination != "JFK" else "LHR"
 
 
-        departure_date = overrides.get("departure_date") or intent.get("departure_date") or "2026-10-01"
-        return_date = overrides.get("return_date") or intent.get("return_date") or "2026-10-08"
+        now_dt = datetime.now()
+        default_dur = int(intent.get("duration_days") or intent.get("duration") or 4)
+        def_dep = (now_dt + timedelta(days=15)).strftime("%Y-%m-%d")
+        def_ret = (now_dt + timedelta(days=15 + default_dur)).strftime("%Y-%m-%d")
+
+        departure_date = overrides.get("departure_date") or intent.get("departure_date") or def_dep
+        return_date = overrides.get("return_date") or intent.get("return_date") or def_ret
 
         # Immediate input validation before cache or Duffel API calls
         today_str = datetime.now().strftime("%Y-%m-%d")
@@ -343,6 +348,9 @@ class AISearchService(BaseService):
             "meta_data": meta_data,
             "data": data_section,
         }
+
+        # Export debug JSON output file if debug is enabled in config
+        self.save_debug_output(f"ai_search_{search_type}_{hashlib.md5(prompt.encode()).hexdigest()[:8]}.json", response_envelope)
 
         # Cache result (120s for no data found, 3600s for valid results)
         if self.cache and self.cache.enabled:

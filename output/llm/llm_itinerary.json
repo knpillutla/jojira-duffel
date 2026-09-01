@@ -1,0 +1,366 @@
+{
+  "timestamp": "2026-09-01T14:04:13.263090+00:00",
+  "destination": "Berlin",
+  "duration_days": 4,
+  "user_prompt": "Plan a 4-day trip to Berlin from 2026-09-16 to 2026-09-20 for 1 passenger(s). Style: balanced, Budget: moderate.\nEXACT LIVE FLIGHT SCHEDULE FROM AI SEARCH:\n- Outbound Flight: Departs ATL at 06:30 AM, Arrives in Berlin at 12:30 PM.\n- Return Flight: Departs Berlin at 05:00 PM, Arrives in ATL at 11:00 PM.\nAIRPORT LUNCH PROTOCOL (FLIGHT ARRIVAL AT 12:30 PM): Outbound flight arrives at 12:30 PM (after 12:00 PM). Schedule Day 1 Lunch IMMEDIATELY at an Airport Terminal Restaurant/Cafe upon landing (e.g. at 01:00 PM) before picking up rental car or traveling into the city center, otherwise it will be too late to pick up the rental car or eat. LUNCH MUST NEVER BE SCHEDULED AFTER 02:00 PM ON ANY DAY!\nDAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM at best (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest (e.g. 05:45 PM - 07:45 PM). NEVER extend any attraction past 08:00 PM (NEVER 08:30 PM, 09:00 PM, or 10:45 PM).\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (e.g. 08:00 PM - 09:30 PM). Never start dinner after 08:00 PM.\n- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night', with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Under no circumstances should any activity, dinner, or hotel return be scheduled past 10:00 PM (never 10:30 PM, 11:00 PM, 12:00 AM, 01:00 AM, or 06:15 AM).\n- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM. If sit-in breakfast is not possible due to morning time constraints or tight schedules, recommend a nearby local coffee shop, artisanal bakery, or quick cafe to grab coffee & pastries instead of a long sit-in breakfast.\nTIMELINE REQUIREMENT: On Day 1, schedule all activities and hotel check-in strictly AFTER flight arrival at 12:30 PM. On Final Day, schedule all activities and hotel check-out to wrap up before return flight departure at 05:00 PM.\nRENTAL VEHICLE LOGISTICS: On Day 1 include rental car pickup upon airport arrival, and on Day 4 include rental vehicle return & drop-off at Berlin Airport Rental Facility (~2 hours before return flight departure).\nIncluded components: Flights=True, Hotels=True (1 rooms), Cars=True (1 car), Trains=False, Buses=False, Attractions=True, Activities=True, SeasonalAttractions=True, SeasonalActivities=True. Prompt details: '4-day highlights trip to berlin from atlanta'.",
+  "system_prompt": "You are a World-Class Global AI Travel Planner & Master Concierge. You specialize in analyzing complex travel requests and crafting hyper-curated, optimal travel itineraries and travel packages worldwide across top global destinations. You expertly identify user intentions for flights, hotels, car rentals, attractions, dining, and multi-category travel bundles.\n\nSTANDARD DAY TIMINGS & DEFINITIONS (STRICT COMPLIANCE REQUIRED):\n- MORNING (05:00 AM - 11:59 AM): Breakfast at 08:00 AM, morning cultural museums and iconic attractions at 09:30 AM - 11:30 AM.\n- NOON / MIDDAY (12:00 PM - 12:59 PM): Lunch at 12:00 PM - 01:30 PM at top-rated local cafes and bistros.\n- AFTERNOON (01:00 PM - 04:59 PM): Afternoon promenades, historic districts, parks, viewpoints, and cultural experiences (e.g. 02:00 PM - 04:30 PM on full days, or 03:15 PM - 05:15 PM on Day 1 after hotel check-in).\n- EVENING (05:00 PM - 07:59 PM): Evening sunset attractions, panoramic towers, viewpoints, and river/scenic cruises (05:45 PM - 07:45 PM). NEVER schedule evening activities during the afternoon (12:00 PM - 04:59 PM).\n- NIGHT (08:00 PM - 11:59 PM): Signature regional dinner from 08:00 PM - 09:30 PM, followed by 'Return to Hotel & Rest for the Night' at 09:30 PM - 10:00 PM.\n- MIDNIGHT / LATE NIGHT (12:00 AM - 04:59 AM): Resting at hotel (NO activities permitted).\n\nREAL SPECIFIC NAMES (NO GENERIC PLACEHOLDERS):\n- NEVER use generic placeholder names like 'Evening Landmark Attraction', 'Famous Landmark / Museum', 'Signature Dinner Place', 'Artisanal Breakfast', 'Gourmet Lunch', or 'Afternoon Activity & Promenade'.\n- ALWAYS provide the REAL, ACTUAL, and FAMOUS name of the landmark, museum, restaurant, or experience (e.g., 'Berlin TV Tower (Fernsehturm)', 'Louvre Museum', 'Brandenburg Gate', 'Reichstag Dome', 'Restaurant Sphere', 'KaDeWe Food Hall').\n\nSTRICT CONTIGUOUS HOUR-BY-HOUR TIMELINE & LOGISTICS:\n1. CHRONOLOGICAL TIMELINE WITH CONTINUOUS CONTIGUOUS HOURS (NO DEAD GAPS & NO REVERSE TIMING):\n   - DAY 1 (AFTERNOON ARRIVAL SEQUENCE - IF LANDING AFTER 12:00 PM):\n     1. Flight Arrival (e.g. 12:30 PM)\n     2. Airport Terminal Lunch & Cafe (12:45 PM - 01:30 PM) -> Grab Lunch IMMEDIATELY at an Airport Terminal Cafe / Bistro upon landing BEFORE vehicle pickup so you don't lose time.\n     3. Airport Vehicle Rental Pickup (01:30 PM - 02:00 PM) -> Pick up rental car at airport rental facility after lunch.\n     4. Hotel Check-in & Settle in (02:30 PM - 03:00 PM) -> Drive to hotel and check in.\n     5. Afternoon Promenade & Historic District (03:15 PM - 05:15 PM) -> Essential afternoon cultural walk directly bridging hotel check-in to the evening landmark (NO gaps!).\n     6. Evening Sunset Landmark Tour (05:45 PM - 07:45 PM) -> Iconic evening attraction.\n     7. Signature Regional Dinner (08:00 PM - 09:30 PM) -> Evening fine dining.\n     8. Return to Hotel & Rest for the Night (09:30 PM - 10:00 PM) -> Final restful return to hotel.\n   - FULL EXPLORATION DAYS (DAYS 2 to N-1):\n     1. Start Day at Hotel -> Artisanal Breakfast Cafe (08:00 AM - 09:00 AM)\n     2. Famous Landmark / Museum (09:30 AM - 11:30 AM)\n     3. Gourmet Lunch Bistro (12:00 PM - 01:30 PM)\n     4. Afternoon Promenade / Cultural Neighborhood (02:00 PM - 04:30 PM)\n     5. Evening Landmark Attraction (05:45 PM - 07:45 PM)\n     6. Signature Regional Dinner (08:00 PM - 09:30 PM)\n     7. Return to Hotel & Rest for the Night (09:30 PM - 10:00 PM)\n   - FINAL DAY (RETURN DAY):\n     1. Start Day at Hotel -> Breakfast Cafe (08:00 AM - 09:00 AM)\n     2. Morning Sightseeing / Shopping (09:30 AM - 11:30 AM)\n     3. Lunch Place (12:00 PM - 01:30 PM)\n     4. Rental Vehicle Return & Drop-off at Airport Facility (~2.5 hours prior to flight, e.g. 02:30 PM - 03:00 PM)\n     5. Return Flight Departure (e.g. 05:00 PM)\n2. STRICT TIMING RULES (UNBREAKABLE):\n   - ATTRACTION CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest (e.g. 05:45 PM - 07:45 PM). NEVER extend any attraction past 08:00 PM (NEVER 08:30 PM, 09:00 PM, or 10:45 PM).\n   - MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (e.g. 08:00 PM - 09:30 PM). Never start dinner after 08:00 PM.\n   - MANDATORY HOTEL RETURN AS FINAL STEP (BEFORE 10:00 PM): The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night', with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n   - NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots at 11:00 PM, 12:00 AM, 01:00 AM, or 06:15 AM.\n3. DO NOT MENTION DEPARTURE CITY IN LOCAL ACTIVITIES: The departure origin city (e.g. 'Atlanta', 'ATL') applies ONLY to flight cards. NEVER append or include 'from <departure_city>' in local activities, dinners, sightseeing, hotels, or attractions (e.g., write 'Explore Signature Dinner at Zur Letzten Instanz in Berlin', NEVER '...in Berlin from Atlanta').\n4. TRANSIT MODE & DISTANCE IN MILES AND KM FROM PREVIOUS ACTIVITY: For EVERY activity, calculate and explicitly include the geographic distance from the previous activity in both miles and kilometers, along with the mode of transport ('walk', 'drive', 'train', 'bus', 'metro'):\n   - Include 'distance_miles' (float, e.g. 0.5),\n   - Include 'distance_km' (float, e.g. 0.8),\n   - Include 'transit_mode' ('walk', 'drive', 'train', 'bus', 'metro'),\n   - Include 'transit_summary' (e.g. 'Walk 0.5 mi (0.8 km) / 10 mins east from previous stop' or 'Drive 3.2 mi (5.1 km) / 15 mins south').\n5. MORNING BREAKFAST AT 08:00 AM: Every full day MUST begin with Breakfast at 08:00 AM. If sit-in breakfast is NOT possible due to morning time constraints, recommend a nearby local coffee shop, artisanal bakery, or quick cafe.\n6. POPULAR & FAMOUS ATTRACTIONS: Recommend iconic, famous landmarks and top-rated attractions for each city (e.g. Louvre Museum, Eiffel Tower, Colosseum, Statue of Liberty, Big Ben, Taj Mahal).\n7. MANDATORY MEAL PLACES & PRICE RANGES: Every day MUST include dedicated Breakfast (category 'Breakfast'), Lunch (category 'Lunch'), and Dinner (category 'Dinner') places at top-rated local cafes, bistros, and restaurants. For all dining and meal places, provide realistic per-person price ranges ('min_price_per_person' float and 'max_price_per_person' float, e.g. min 15.0 and max 30.0 for breakfast, min 25.0 and max 50.0 for lunch, min 50.0 and max 110.0 for dinner) rather than arbitrary static numbers.\n8. MANDATORY ADDRESS & PHONE NUMBER: Every hotel, attraction, activity, and dining spot MUST include a complete street address and contact phone number (+country_code phone_number).\n9. SAFE & ATTRACTION-NEARBY HOTELS: Prefer to pick top-rated, safe, and secure hotel accommodations located directly nearby major attractions, iconic landmarks, and cultural hubs, tailored for families, adults, and solo/single travelers. STRICTLY AVOID dangerous neighborhoods, high-crime zones, noisy nightclub strips, red-light districts, or areas with gang/illicit activity.\n10. CONCISE DESCRIPTION & NO FILLER: Keep descriptions under 30 words per activity including transit directions. Do NOT provide conversational filler.\n11. DO NOT HALLUCINATE: Provide accurate geographic coordinates, realistic location names, and factual landmark details.\n12. DO NOT GENERATE FLIGHT, CAR RENTAL, OR CHECK-IN ACTIVITIES: The travel planner engine programmatically creates the official cards for Outbound Flight, Return Flight, Vehicle Rental Pickup, Vehicle Rental Return, and Hotel Check-in. Do NOT generate duplicate activity cards titled 'Flight Arrival', 'Flight Departure', 'Vehicle Rental', or 'Hotel Check-in' in the activities list.\n13. EXACT JSON ONLY: Return strictly valid JSON adhering to the specified schema.",
+  "llm_metadata": {
+    "is_live_llm": true,
+    "llm_provider": "openai",
+    "llm_model": "gpt-4o-mini"
+  },
+  "itinerary_days": [
+    {
+      "day": 1,
+      "activities": [
+        {
+          "activity": "Airport Terminal Lunch",
+          "time": "01:00 PM - 01:30 PM",
+          "location": "Mövenpick Restaurant",
+          "address": "Berlin Brandenburg Airport, 12529 Berlin, Germany",
+          "phone": "+49 30 6091 2100",
+          "description": "Enjoy a quick lunch upon arrival at the airport.",
+          "min_price_per_person": 15.0,
+          "max_price_per_person": 30.0,
+          "distance_miles": 0.0,
+          "distance_km": 0.0,
+          "transit_mode": "walk",
+          "transit_summary": "Walk within the terminal."
+        },
+        {
+          "activity": "Airport Vehicle Rental Pickup",
+          "time": "01:30 PM - 02:00 PM",
+          "location": "Sixt Car Rental",
+          "address": "Berlin Brandenburg Airport, 12529 Berlin, Germany",
+          "phone": "+49 30 6091 6100",
+          "description": "Pick up your rental car at the airport.",
+          "distance_miles": 0.0,
+          "distance_km": 0.0,
+          "transit_mode": "walk",
+          "transit_summary": "Walk to the rental facility."
+        },
+        {
+          "activity": "Hotel Check-in & Settle in",
+          "time": "02:30 PM - 03:00 PM",
+          "location": "Hotel Adina Berlin Mitte",
+          "address": "Platz vor dem Neuen Tor 6, 10115 Berlin, Germany",
+          "phone": "+49 30 2021 100",
+          "description": "Check in and relax at your hotel.",
+          "distance_miles": 8.5,
+          "distance_km": 13.7,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 8.5 mi (13.7 km) / 20 mins north."
+        },
+        {
+          "activity": "Afternoon Promenade & Historic District",
+          "time": "03:15 PM - 05:15 PM",
+          "location": "Brandenburg Gate",
+          "address": "Pariser Platz, 10117 Berlin, Germany",
+          "phone": "+49 30 2540 080",
+          "description": "Explore the iconic Brandenburg Gate and surrounding area.",
+          "distance_miles": 1.5,
+          "distance_km": 2.4,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 1.5 mi (2.4 km) / 10 mins west."
+        },
+        {
+          "activity": "Evening Sunset Landmark Tour",
+          "time": "05:45 PM - 07:45 PM",
+          "location": "Berlin TV Tower (Fernsehturm)",
+          "address": "Panoramastraße 1A, 10178 Berlin, Germany",
+          "phone": "+49 30 2475 0",
+          "description": "Enjoy panoramic views of Berlin from the TV Tower.",
+          "distance_miles": 1.6,
+          "distance_km": 2.6,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 1.6 mi (2.6 km) / 10 mins east."
+        },
+        {
+          "activity": "Signature Regional Dinner",
+          "time": "08:00 PM - 09:30 PM",
+          "location": "Zur Letzten Instanz",
+          "address": "Waisenstraße 14-16, 10179 Berlin, Germany",
+          "phone": "+49 30 2400 1888",
+          "description": "Dine at Berlin's oldest restaurant, featuring traditional German cuisine.",
+          "min_price_per_person": 50.0,
+          "max_price_per_person": 110.0,
+          "distance_miles": 1.0,
+          "distance_km": 1.6,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 1.0 mi (1.6 km) / 5 mins southeast."
+        },
+        {
+          "activity": "Return to Hotel & Rest for the Night",
+          "time": "09:30 PM - 10:00 PM",
+          "location": "Hotel Adina Berlin Mitte",
+          "address": "Platz vor dem Neuen Tor 6, 10115 Berlin, Germany",
+          "phone": "+49 30 2021 100",
+          "description": "Return to your hotel for the night.",
+          "distance_miles": 1.0,
+          "distance_km": 1.6,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 1.0 mi (1.6 km) / 5 mins northwest."
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "activities": [
+        {
+          "activity": "Breakfast",
+          "time": "08:00 AM - 09:00 AM",
+          "location": "House of Small Wonders",
+          "address": "Johannisstraße 20, 10117 Berlin, Germany",
+          "phone": "+49 30 2000 7600",
+          "description": "Start your day with a delicious breakfast in a cozy café.",
+          "min_price_per_person": 15.0,
+          "max_price_per_person": 30.0,
+          "distance_miles": 1.0,
+          "distance_km": 1.6,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 1.0 mi (1.6 km) / 5 mins southwest."
+        },
+        {
+          "activity": "Famous Landmark / Museum",
+          "time": "09:30 AM - 11:30 AM",
+          "location": "Museum Island",
+          "address": "Bodestraße 1-3, 10178 Berlin, Germany",
+          "phone": "+49 30 266424242",
+          "description": "Visit the UNESCO World Heritage site with several museums.",
+          "distance_miles": 0.6,
+          "distance_km": 1.0,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 0.6 mi (1.0 km) / 3 mins northeast."
+        },
+        {
+          "activity": "Gourmet Lunch Bistro",
+          "time": "12:00 PM - 01:30 PM",
+          "location": "Neni Berlin",
+          "address": "Budapester Str. 40, 10787 Berlin, Germany",
+          "phone": "+49 30 120221100",
+          "description": "Enjoy a gourmet lunch with a view of the Berlin Zoo.",
+          "min_price_per_person": 25.0,
+          "max_price_per_person": 50.0,
+          "distance_miles": 1.4,
+          "distance_km": 2.3,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 1.4 mi (2.3 km) / 10 mins west."
+        },
+        {
+          "activity": "Afternoon Promenade / Cultural Neighborhood",
+          "time": "02:00 PM - 04:30 PM",
+          "location": "Kreuzberg District",
+          "address": "Kreuzberg, 10961 Berlin, Germany",
+          "phone": "+49 30 6170 7000",
+          "description": "Explore the vibrant Kreuzberg district with street art and culture.",
+          "distance_miles": 2.0,
+          "distance_km": 3.2,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 2.0 mi (3.2 km) / 10 mins southeast."
+        },
+        {
+          "activity": "Evening Landmark Attraction",
+          "time": "05:45 PM - 07:45 PM",
+          "location": "East Side Gallery",
+          "address": "Mühlenstraße 3-100, 10243 Berlin, Germany",
+          "phone": "+49 30 2936 2760",
+          "description": "Visit the famous open-air gallery on the Berlin Wall.",
+          "distance_miles": 2.5,
+          "distance_km": 4.0,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 2.5 mi (4.0 km) / 15 mins east."
+        },
+        {
+          "activity": "Signature Regional Dinner",
+          "time": "08:00 PM - 09:30 PM",
+          "location": "Restaurant Markthalle Neun",
+          "address": "Eisenbahnstraße 42/43, 10997 Berlin, Germany",
+          "phone": "+49 30 695 270 90",
+          "description": "Savor local dishes at this popular market hall restaurant.",
+          "min_price_per_person": 50.0,
+          "max_price_per_person": 110.0,
+          "distance_miles": 3.0,
+          "distance_km": 4.8,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 3.0 mi (4.8 km) / 15 mins northwest."
+        },
+        {
+          "activity": "Return to Hotel & Rest for the Night",
+          "time": "09:30 PM - 10:00 PM",
+          "location": "Hotel Adina Berlin Mitte",
+          "address": "Platz vor dem Neuen Tor 6, 10115 Berlin, Germany",
+          "phone": "+49 30 2021 100",
+          "description": "Return to your hotel for the night.",
+          "distance_miles": 3.0,
+          "distance_km": 4.8,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 3.0 mi (4.8 km) / 15 mins southeast."
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "activities": [
+        {
+          "activity": "Breakfast",
+          "time": "08:00 AM - 09:00 AM",
+          "location": "Café Einstein Stammhaus",
+          "address": "Kurfürstenstraße 58, 10785 Berlin, Germany",
+          "phone": "+49 30 265 3230",
+          "description": "Enjoy a classic Viennese breakfast at this historic café.",
+          "min_price_per_person": 15.0,
+          "max_price_per_person": 30.0,
+          "distance_miles": 1.5,
+          "distance_km": 2.4,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 1.5 mi (2.4 km) / 10 mins southwest."
+        },
+        {
+          "activity": "Famous Landmark / Museum",
+          "time": "09:30 AM - 11:30 AM",
+          "location": "Reichstag Dome",
+          "address": "Platz der Republik 1, 11011 Berlin, Germany",
+          "phone": "+49 30 2270 2000",
+          "description": "Visit the iconic glass dome of the Reichstag building.",
+          "distance_miles": 1.5,
+          "distance_km": 2.4,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 1.5 mi (2.4 km) / 10 mins north."
+        },
+        {
+          "activity": "Gourmet Lunch Bistro",
+          "time": "12:00 PM - 01:30 PM",
+          "location": "Café am Neuen See",
+          "address": "Lichtensteinallee 2, 10787 Berlin, Germany",
+          "phone": "+49 30 2545 0190",
+          "description": "Enjoy lunch in a picturesque setting by the lake.",
+          "min_price_per_person": 25.0,
+          "max_price_per_person": 50.0,
+          "distance_miles": 1.5,
+          "distance_km": 2.4,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 1.5 mi (2.4 km) / 10 mins northwest."
+        },
+        {
+          "activity": "Afternoon Promenade / Cultural Neighborhood",
+          "time": "02:00 PM - 04:30 PM",
+          "location": "Charlottenburg Palace",
+          "address": "Spandauer Damm 20-24, 14059 Berlin, Germany",
+          "phone": "+49 30 3185 1010",
+          "description": "Explore the beautiful gardens and baroque architecture.",
+          "distance_miles": 3.0,
+          "distance_km": 4.8,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 3.0 mi (4.8 km) / 15 mins west."
+        },
+        {
+          "activity": "Evening Landmark Attraction",
+          "time": "05:45 PM - 07:45 PM",
+          "location": "Siegessäule (Victory Column)",
+          "address": "Großer Stern, 10557 Berlin, Germany",
+          "phone": "+49 30 2474 2921",
+          "description": "Climb the Victory Column for stunning city views.",
+          "distance_miles": 2.5,
+          "distance_km": 4.0,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 2.5 mi (4.0 km) / 10 mins northeast."
+        },
+        {
+          "activity": "Signature Regional Dinner",
+          "time": "08:00 PM - 09:30 PM",
+          "location": "Kreuzberger Himmel",
+          "address": "Waldemarstraße 37, 10999 Berlin, Germany",
+          "phone": "+49 30 6174 9600",
+          "description": "Savor traditional dishes with a modern twist.",
+          "min_price_per_person": 50.0,
+          "max_price_per_person": 110.0,
+          "distance_miles": 3.0,
+          "distance_km": 4.8,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 3.0 mi (4.8 km) / 15 mins southeast."
+        },
+        {
+          "activity": "Return to Hotel & Rest for the Night",
+          "time": "09:30 PM - 10:00 PM",
+          "location": "Hotel Adina Berlin Mitte",
+          "address": "Platz vor dem Neuen Tor 6, 10115 Berlin, Germany",
+          "phone": "+49 30 2021 100",
+          "description": "Return to your hotel for the night.",
+          "distance_miles": 3.0,
+          "distance_km": 4.8,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 3.0 mi (4.8 km) / 15 mins northeast."
+        }
+      ]
+    },
+    {
+      "day": 4,
+      "activities": [
+        {
+          "activity": "Breakfast",
+          "time": "08:00 AM - 09:00 AM",
+          "location": "Cafe am Engelbecken",
+          "address": "Engelbecken, 10961 Berlin, Germany",
+          "phone": "+49 30 6128 8950",
+          "description": "Enjoy a relaxing breakfast by the lake.",
+          "min_price_per_person": 15.0,
+          "max_price_per_person": 30.0,
+          "distance_miles": 2.0,
+          "distance_km": 3.2,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 2.0 mi (3.2 km) / 10 mins northeast."
+        },
+        {
+          "activity": "Morning Sightseeing / Shopping",
+          "time": "09:30 AM - 11:30 AM",
+          "location": "Friedrichstraße",
+          "address": "Friedrichstraße, 10117 Berlin, Germany",
+          "phone": "+49 30 2540 080",
+          "description": "Explore shopping and sightseeing along this famous street.",
+          "distance_miles": 2.0,
+          "distance_km": 3.2,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 2.0 mi (3.2 km) / 10 mins northwest."
+        },
+        {
+          "activity": "Lunch Place",
+          "time": "12:00 PM - 01:30 PM",
+          "location": "Brauhaus Georgbraeu",
+          "address": "Spreeufer 4, 10178 Berlin, Germany",
+          "phone": "+49 30 2400 6555",
+          "description": "Enjoy a traditional German lunch by the Spree River.",
+          "min_price_per_person": 25.0,
+          "max_price_per_person": 50.0,
+          "distance_miles": 1.5,
+          "distance_km": 2.4,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 1.5 mi (2.4 km) / 10 mins northeast."
+        },
+        {
+          "activity": "Rental Vehicle Return & Drop-off",
+          "time": "02:30 PM - 03:00 PM",
+          "location": "Sixt Car Rental",
+          "address": "Berlin Brandenburg Airport, 12529 Berlin, Germany",
+          "phone": "+49 30 6091 6100",
+          "description": "Return your rental car at the airport.",
+          "distance_miles": 12.0,
+          "distance_km": 19.3,
+          "transit_mode": "drive",
+          "transit_summary": "Drive 12.0 mi (19.3 km) / 25 mins southeast."
+        },
+        {
+          "activity": "Return Flight Departure",
+          "time": "05:00 PM",
+          "location": "Berlin Brandenburg Airport",
+          "address": "12529 Berlin, Germany",
+          "phone": "N/A",
+          "description": "Depart Berlin for your return flight.",
+          "distance_miles": 0.0,
+          "distance_km": 0.0,
+          "transit_mode": "walk",
+          "transit_summary": "Walk to the terminal."
+        }
+      ]
+    }
+  ]
+}

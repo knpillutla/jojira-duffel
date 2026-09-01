@@ -285,6 +285,11 @@ class ItineraryDAO:
 
 
             print(f"[ITINERARY DAO] Persisted itinerary '{itin_id}' (v{version}) for {destination}.")
+            try:
+                from ..services.base import save_output_file
+                save_output_file(f"itinerary_{itin_id}.json", payload, config=self.config)
+            except Exception:
+                pass
             return itin_id
         except Exception as db_err:
             print(f"[ITINERARY DAO WARN] Save failed: {db_err}")

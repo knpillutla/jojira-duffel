@@ -91,6 +91,37 @@ class TestTravelPlanner(unittest.TestCase):
         self.assertIn("detail", data)
         self.assertIn("30 days", data["detail"])
 
+    def test_rental_vehicle_return_in_itinerary(self):
+        """Test that rental vehicle return card is included on the final day when cars are selected."""
+        res = self.client.planner.generate_itinerary(
+            prompt="Plan a 4 day trip to Paris with rental car",
+            origin="ATL",
+            destination="CDG",
+            include_cars=True,
+            is_test=True,
+        )
+        self.assertEqual(res["status"], "success")
+        final_day = res["daily_itinerary"][-1]
+        car_ret_items = [item for item in final_day.get("items", []) if item.get("type") == "car" and "Return" in item.get("name", "")]
+        self.assertEqual(len(car_ret_items), 1)
+        self.assertIn("Rental Vehicle Return", car_ret_items[0]["name"])
+
+    def test_default_dates_calculation(self):
+        """Test default start date is today + 15 days and end date is today + 15 + 4 days when omitted."""
+        res = self.client.planner.generate_itinerary(
+            prompt="Plan a trip to Paris",
+            origin="ATL",
+            destination="CDG",
+            is_test=True,
+        )
+        self.assertEqual(res["status"], "success")
+        meta = res.get("meta_data", {})
+        expected_start = (datetime.now() + timedelta(days=15)).strftime("%Y-%m-%d")
+        expected_end = (datetime.now() + timedelta(days=19)).strftime("%Y-%m-%d")
+        self.assertEqual(meta.get("start_date"), expected_start)
+        self.assertEqual(meta.get("end_date"), expected_end)
+        self.assertEqual(meta.get("trip_duration_days"), 4)
+
 
 if __name__ == "__main__":
     unittest.main()

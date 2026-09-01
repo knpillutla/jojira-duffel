@@ -189,8 +189,10 @@ def get_bundle_order_endpoint(bundle_order_id: str = Path(..., description="Bund
 def get_bundle_result_file(
     hash_id: str = Path(..., description="Unique filename hash ID or 'latest'")
 ):
-    """Fetches pre-computed bundle search results JSON report from outputs/ folder."""
-    output_dir = "outputs"
+    """Fetches pre-computed bundle search results JSON report from output/ folder."""
+    output_dir = "output"
+    if not os.path.exists(output_dir) and os.path.exists("outputs"):
+        output_dir = "outputs"
     if hash_id == "latest":
         matches = glob.glob(os.path.join(output_dir, "*_bundle_results.json"))
         if not matches:

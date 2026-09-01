@@ -30,7 +30,7 @@ class DuffelClient:
         config: Optional[DuffelConfig] = None,
         base_url: str = "https://api.duffel.com",
         api_version: str = "v2",
-        timeout: float = 5.0,
+        timeout: float = 120.0,
         debug: bool = False,
         provider_name: Optional[str] = None,
         adapter: Optional[BaseProviderAdapter] = None,

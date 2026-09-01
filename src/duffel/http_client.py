@@ -118,7 +118,7 @@ class HTTPClient:
         backoff_max = getattr(self.config, "retry_backoff_max", 10.0)
         retry_status_codes = set(getattr(self.config, "retry_status_codes", [500, 502, 503, 504, 429]) or [500, 502, 503, 504, 429])
 
-        req_timeout = timeout if timeout is not None else getattr(self.config, "timeout", 5.0)
+        req_timeout = timeout if timeout is not None else getattr(self.config, "timeout", 120.0)
 
         for attempt in range(1, total_attempts + 1):
             # Throttle request rate if a 429 rate limit was recently encountered (max 1 call/sec)
@@ -223,6 +223,11 @@ class HTTPClient:
                 elapsed_ms = (time.perf_counter() - start_time) * 1000.0
                 with self._lock:
                     self.metrics.append({"path": path, "duration_ms": elapsed_ms, "status": 0})
+                try:
+                    from .timing import TimingTracker
+                    TimingTracker.add_duffel_api_time(elapsed_ms)
+                except Exception:
+                    pass
 
                 if attempt < total_attempts:
                     base_delay = min(backoff_max, backoff_factor * (2 ** (attempt - 1)))

@@ -38,6 +38,24 @@ class PromptParserTracker:
             cls._meta.clear()
             cls._latest = {}
 
+
+def _save_llm_debug_output(category: str, data: dict[str, Any], identifier: str = ""):
+    """
+    Saves LLM extraction and prompt analysis payloads into output/llm/llm_input_extraction.json for debugging purposes.
+    """
+    import os
+    import json
+    filename = "llm_input_extraction.json"
+    folder = os.path.join("output", "llm")
+    try:
+        os.makedirs(folder, exist_ok=True)
+        filepath = os.path.join(folder, filename)
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"[LLM DEBUG EXPORT NOTICE] Failed writing debug JSON to '{folder}/{filename}': {e}")
+
+
 # Common airport/city IATA mapping for heuristic extraction
 CITY_IATA_MAP = {
     # Canada
@@ -264,15 +282,27 @@ class PromptExtractor:
         first_slice = slices[0] if slices and isinstance(slices[0], dict) else {}
         origin = flight_info.get("origin") or first_slice.get("origin") or car_info.get("pickup_location")
         destination = flight_info.get("destination") or first_slice.get("destination") or stay_info.get("location") or car_info.get("dropoff_location")
-        
-        # Fallback regex search for route e.g. "from Atlanta to Columbus, OH" if origin or destination is missing
-        if not origin or not destination:
+
+        if destination:
+            destination_str = re.sub(r"\s+from\s+.*$", "", str(destination), flags=re.IGNORECASE).strip()
+            destination_str = re.sub(r"^(?:to|in|for|visit|trip\s+to)\s+", "", destination_str, flags=re.IGNORECASE).strip()
+            destination = PromptExtractor._resolve_iata(destination_str) or destination_str
+
+        # Fallback regex search for route e.g. "from Atlanta to Berlin" or "to Berlin from Atlanta"
+        if not origin or not destination or (destination and "from" in str(destination).lower()):
             route_match = re.search(r"from\s+([a-z0-9\s,]+?)\s+to\s+([a-z0-9\s,]+?)(?=\s+(?:from|on|for|in|during|departing|returning|between|with|under|\d)|\s*$)", text, re.IGNORECASE)
             if route_match:
                 if not origin:
                     origin = PromptExtractor._resolve_iata(route_match.group(1).strip())
-                if not destination:
+                if not destination or "from" in str(destination).lower():
                     destination = PromptExtractor._resolve_iata(route_match.group(2).strip())
+            else:
+                to_from_match = re.search(r"(?:to|in|visit)\s+([a-z0-9\s,]+?)\s+from\s+([a-z0-9\s,]+?)(?=\s+(?:from|on|for|in|during|departing|returning|between|with|under|\d)|\s*$)", text, re.IGNORECASE)
+                if to_from_match:
+                    if not destination or "from" in str(destination).lower():
+                        destination = PromptExtractor._resolve_iata(to_from_match.group(1).strip())
+                    if not origin:
+                        origin = PromptExtractor._resolve_iata(to_from_match.group(2).strip())
 
         # Fallback origin to user's location header if origin is still missing
         if not origin and user_location:
@@ -297,6 +327,15 @@ class PromptExtractor:
 
 
         duration = flight_info.get("duration") if flight_info.get("duration") is not None else flight_info.get("duration_days")
+        if duration is None:
+            dur_m = re.search(r"(\d+)\s*(?:-| )?\s*(?:day|days|night|nights|d)\b", text)
+            if dur_m:
+                try:
+                    duration = int(dur_m.group(1))
+                except Exception:
+                    pass
+            elif "week" in text:
+                duration = 7
 
         if from_date and to_date and duration is None:
             try:
@@ -315,6 +354,20 @@ class PromptExtractor:
                 ret_date = to_date
             except Exception:
                 pass
+
+        # If no dates are specified in input: start date = today + 15, end date = today + 15 + duration (default 4)
+        if not from_date and not dep_date:
+            now_base = datetime.now()
+            default_dur = int(duration) if (duration is not None and int(duration) > 0) else 4
+            duration = default_dur
+            start_dt = now_base + timedelta(days=15)
+            end_dt = now_base + timedelta(days=15 + default_dur)
+            from_date = start_dt.strftime("%Y-%m-%d")
+            to_date = end_dt.strftime("%Y-%m-%d")
+            dep_date = from_date
+            ret_date = to_date
+            if slices and isinstance(slices[0], dict) and not slices[0].get("departure_date"):
+                slices[0]["departure_date"] = from_date
 
         is_explicit_one_way = any(w in text for w in ["one way", "oneway", "single"])
         if is_explicit_one_way:
@@ -1021,6 +1074,11 @@ class PromptExtractor:
                 }
                 prompt_parser_meta.set(meta)
                 PromptParserTracker.set(meta)
+                _save_llm_debug_output(
+                    category="llm_extraction_openai",
+                    data={"prompt": prompt, "model": config.openai_model, "raw_response": result, "normalized": normalized},
+                    identifier=str(normalized.get("destination") or "flight")
+                )
                 return normalized
         except Exception as err:
             err_msg = str(err)
@@ -1095,6 +1153,11 @@ class PromptExtractor:
                 }
                 prompt_parser_meta.set(meta)
                 PromptParserTracker.set(meta)
+                _save_llm_debug_output(
+                    category="llm_extraction_gemini",
+                    data={"prompt": prompt, "model": config.gemini_model, "raw_response": result, "normalized": normalized},
+                    identifier=str(normalized.get("destination") or "flight")
+                )
                 return normalized
         except Exception as err:
             err_msg = str(err)
@@ -1121,10 +1184,11 @@ class PromptExtractor:
             "preferred_hotel_brand": None,
         }
 
-        loc_match = re.search(r"(?:in|at|around|for)\s+([a-z\s]+?)(?=\s+from|\s+on|\s+for|\s+check|\s*$)", text)
+        loc_match = re.search(r"(?:to|in|at|around|for)\s+([a-z\s]+?)(?=\s+from|\s+on|\s+for|\s+check|\s*$)", text)
         if loc_match:
             candidate = loc_match.group(1).strip()
-            if candidate not in ["hotel", "stay", "accommodation"]:
+            candidate = re.sub(r"\s+from\s+.*$", "", candidate, flags=re.IGNORECASE).strip()
+            if candidate not in ["hotel", "stay", "accommodation", "trip", "vacation"]:
                 extracted["location"] = candidate.title()
 
         dates = re.findall(r"\b(20\d{2}-\d{2}-\d{2})\b", prompt)

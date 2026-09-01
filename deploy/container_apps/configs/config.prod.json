@@ -2,7 +2,7 @@
   "environment": "prod",
   "base_url": "https://api.duffel.com",
   "api_version": "v2",
-  "timeout": 5.0,
+  "timeout": 120.0,
   "force_instant_booking": false,
   "default_order_mode": "instant",
   "azure_keyvault_enabled": true,

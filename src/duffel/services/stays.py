@@ -80,13 +80,13 @@ class StaysService(BaseService):
             results = data
 
         raw_list = [r if isinstance(r, dict) else getattr(r, "__dict__", {}) for r in results]
+        self.save_debug_output(f"stays_search_{hash_key}.json", {"query": query.to_dict(), "results": raw_list})
         if self.cache and self.cache.enabled:
             # 1. Record-Level Redis Caching (individual quote/rate key with individual TTL)
             self.cache.set_records_batch("stays", raw_list, id_key="id")
             # 2. Query Index Caching
             ttl_seconds, _ = self.cache.calculate_earliest_ttl(raw_list)
             self.cache.set(cache_key, raw_list, ttl_seconds=ttl_seconds)
-
 
         return [StaySearchResult.from_dict(r) for r in results]
 

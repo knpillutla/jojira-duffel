@@ -32,6 +32,41 @@ class ItineraryDay(BaseModel):
     activities: list[ItineraryActivity] = Field(..., description="List of scheduled activities for the day")
 
 
+class ComponentDataSource(BaseModel):
+    """Execution status and data provenance for a travel component."""
+    calls_made: int = Field(..., description="Number of service/API calls executed for this component")
+    data_source: str = Field(..., description="Source of data: 'live_duffel_api', 'synthetic_mock', or 'not_requested'")
+    is_synthetic: bool = Field(..., description="True if mock or fallback synthetic data was used")
+    status: str = Field(..., description="Summary status message")
+
+
+class PromptEvaluationDetails(BaseModel):
+    """Details regarding the parsing and evaluation of the original natural language prompt."""
+    source: str = Field(..., description="Prompt evaluation engine: 'regex_heuristic' or 'live_llm'")
+    engine: str = Field(..., description="Descriptive name of parser engine")
+    is_llm: bool = Field(..., description="True if prompt was evaluated with live LLM")
+    is_synthetic: bool = Field(..., description="True if deterministic regex heuristic rules evaluated the prompt")
+    description: str = Field(..., description="Human-readable description of prompt evaluation method")
+
+
+class ItineraryPlannerDetails(BaseModel):
+    """Details regarding the AI itinerary schedule synthesis."""
+    source: str = Field(..., description="Itinerary generation source: 'live_llm' or 'synthetic_template'")
+    is_synthetic: bool = Field(..., description="True if curated synthetic template engine was used")
+    is_live_llm: bool = Field(..., description="True if live OpenAI or Gemini was invoked")
+    llm_provider: str = Field(..., description="LLM provider name: 'openai', 'gemini', or 'template_synthesizer'")
+    llm_model: str = Field(..., description="LLM model identifier")
+    description: str = Field(..., description="Human-readable description of itinerary synthesis method")
+
+
+class ServiceExecutionSummary(BaseModel):
+    """Summary of all API service calls and data provenance (synthetic vs live LLM / live API)."""
+    prompt_evaluation: PromptEvaluationDetails = Field(..., description="Prompt evaluation method")
+    itinerary_planner: ItineraryPlannerDetails = Field(..., description="Daily itinerary schedule generation method")
+    service_calls: dict[str, int] = Field(..., description="Counts of flight, hotel, and car API calls made")
+    component_data_sources: dict[str, ComponentDataSource] = Field(..., description="Component-level breakdown of data sources and synthetic indicators")
+
+
 class ItineraryPlannerRequest(BaseModel):
     """AI Travel Planner search & itinerary generation request."""
     prompt: str = Field(..., min_length=3, description="Natural language travel query e.g. '4 day romantic trip to Paris in october'")

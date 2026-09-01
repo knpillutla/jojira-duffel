@@ -174,9 +174,10 @@ async def log_requests_and_responses(request: Request, call_next):
     response_body = [section async for section in response.body_iterator]
     response.body_iterator = iterate_in_threadpool(iter(response_body))
 
+    res_bytes = b"".join(response_body)
+    res_str = res_bytes.decode("utf-8", errors="replace") if res_bytes else ""
+
     if is_debug:
-        res_bytes = b"".join(response_body)
-        res_str = res_bytes.decode("utf-8", errors="replace") if res_bytes else ""
         print(f"[REST DEBUG RESPONSE] {request.method} {request.url.path} -> Status {response.status_code} ({duration_ms} ms)")
         if res_str.strip():
             try:
@@ -230,6 +231,7 @@ async def log_requests_and_responses(request: Request, call_next):
         json_display = "N/A"
 
     total_records_returned = 0
+    res_json = None
     if res_str.strip():
         try:
             res_json = json.loads(res_str)
@@ -287,6 +289,84 @@ async def log_requests_and_responses(request: Request, call_next):
     tracked_subtotal = redis_read_ms + redis_write_ms + llm_ms + duffel_api_ms
     algo_ms = max(0.0, duration_ms - tracked_subtotal)
 
+    # Extract Service Execution Summary & Provenance details from response or metadata
+    service_exec = None
+    if isinstance(res_json, dict):
+        if "service_execution_summary" in res_json and isinstance(res_json["service_execution_summary"], dict):
+            service_exec = res_json["service_execution_summary"]
+        elif "meta_data" in res_json and isinstance(res_json["meta_data"], dict) and "service_execution_summary" in res_json["meta_data"]:
+            service_exec = res_json["meta_data"]["service_execution_summary"]
+        elif "data" in res_json and isinstance(res_json["data"], dict):
+            d = res_json["data"]
+            if "trip_summary" in d and isinstance(d["trip_summary"], dict) and "service_execution_summary" in d["trip_summary"]:
+                service_exec = d["trip_summary"]["service_execution_summary"]
+            elif "service_execution_summary" in d:
+                service_exec = d["service_execution_summary"]
+
+    flight_calls_disp = "N/A"
+    hotel_calls_disp = "N/A"
+    car_calls_disp = "N/A"
+    itinerary_synth_disp = "N/A"
+    prompt_eval_disp = f"Live LLM ({parser_engine})" if meta.get("llm_used") else f"Deterministic Regex Heuristics ({parser_engine})"
+
+    if service_exec and isinstance(service_exec, dict):
+        # Prompt evaluation details
+        p_eval = service_exec.get("prompt_evaluation") or {}
+        if p_eval:
+            is_p_llm = p_eval.get("is_llm", meta.get("llm_used", False))
+            p_eng = p_eval.get("engine", parser_engine)
+            prompt_eval_disp = f"Live LLM ({p_eng})" if is_p_llm else f"Deterministic Regex Heuristics ({p_eng})"
+
+        # Itinerary synthesis details
+        itin_info = service_exec.get("itinerary_planner") or {}
+        if itin_info:
+            if itin_info.get("is_live_llm") or not itin_info.get("is_synthetic"):
+                itinerary_synth_disp = f"Live LLM ({itin_info.get('llm_provider', 'openai')} - {itin_info.get('llm_model', 'gpt-4o-mini')})"
+            else:
+                itinerary_synth_disp = f"Synthetic Template Synthesizer ({itin_info.get('llm_model', 'template-engine-v1')})"
+
+        # Component service calls & data sources
+        cds = service_exec.get("component_data_sources") or {}
+        sc = service_exec.get("service_calls") or {}
+
+        fl_ds = cds.get("flights") or {}
+        ht_ds = cds.get("hotels") or {}
+        cr_ds = cds.get("cars") or {}
+
+        fl_calls = fl_ds.get("calls_made", sc.get("flight_calls_count", 0))
+        ht_calls = ht_ds.get("calls_made", sc.get("hotel_calls_count", 0))
+        cr_calls = cr_ds.get("calls_made", sc.get("car_calls_count", 0))
+
+        fl_synth = fl_ds.get("is_synthetic", False)
+        ht_synth = ht_ds.get("is_synthetic", False)
+        cr_synth = cr_ds.get("is_synthetic", False)
+
+        flight_calls_disp = f"{fl_calls} ({'Synthetic Mock Data' if fl_synth else 'Live Duffel API'})"
+        hotel_calls_disp = f"{ht_calls} ({'Synthetic Mock Data' if ht_synth else 'Live Duffel API'})"
+        car_calls_disp = f"{cr_calls} ({'Synthetic Mock Data' if cr_synth else 'Live Duffel API'})"
+    elif isinstance(res_json, dict) and "meta_data" in res_json and isinstance(res_json["meta_data"], dict) and "data_source" in res_json["meta_data"]:
+        ds = res_json["meta_data"]["data_source"]
+        fl_calls = ds.get("flight_calls_count", 0)
+        ht_calls = ds.get("hotel_calls_count", 0)
+        cr_calls = ds.get("car_calls_count", 0)
+        fl_synth = ds.get("is_flights_synthetic", False)
+        ht_synth = ds.get("is_hotels_synthetic", False)
+        cr_synth = ds.get("is_cars_synthetic", False)
+
+        flight_calls_disp = f"{fl_calls} ({'Synthetic Mock Data' if fl_synth else 'Live Duffel API'})"
+        hotel_calls_disp = f"{ht_calls} ({'Synthetic Mock Data' if ht_synth else 'Live Duffel API'})"
+        car_calls_disp = f"{cr_calls} ({'Synthetic Mock Data' if cr_synth else 'Live Duffel API'})"
+
+        if ds.get("is_live_llm"):
+            itinerary_synth_disp = f"Live LLM ({ds.get('llm_provider', 'openai')} - {ds.get('llm_model', 'gpt-4o-mini')})"
+        else:
+            itinerary_synth_disp = "Synthetic Template Synthesizer"
+
+        if ds.get("prompt_evaluation_source") == "live_llm" or not ds.get("is_prompt_evaluation_synthetic"):
+            prompt_eval_disp = f"Live LLM ({parser_engine})"
+        else:
+            prompt_eval_disp = f"Deterministic Regex Heuristics ({parser_engine})"
+
     # Print clean INFO-level request/response cycle summary box
     print("\n" + "=" * 85, flush=True)
     print(f"[REST REQUEST SUMMARY] {request.method} {request.url.path}", flush=True)
@@ -301,10 +381,16 @@ async def log_requests_and_responses(request: Request, call_next):
     print(f"  * Duffel API Call Time      : {duffel_api_ms:.2f} ms", flush=True)
     print(f"  * Algorithm & Synthesis Time: {algo_ms:.2f} ms", flush=True)
     print(f"  -----------------------------------------------------", flush=True)
+    print(f"  * Prompt Input Extraction   : {prompt_eval_disp}", flush=True)
     print(f"  * Prompt Parser Engine      : {parser_engine}", flush=True)
     print(f"  * LLM Used Evaluator        : {llm_used_flag}", flush=True)
     print(f"  * Extracted Intent JSON     : {json_display}", flush=True)
-    print(f"  * Duffel API Calls Made     : {api_calls}", flush=True)
+    if flight_calls_disp != "N/A" or hotel_calls_disp != "N/A" or car_calls_disp != "N/A" or itinerary_synth_disp != "N/A":
+        print(f"  * Itinerary Schedule Engine : {itinerary_synth_disp}", flush=True)
+        print(f"  * Duffel Flight API Calls   : {flight_calls_disp}", flush=True)
+        print(f"  * Duffel Hotel API Calls    : {hotel_calls_disp}", flush=True)
+        print(f"  * Duffel Car API Calls      : {car_calls_disp}", flush=True)
+    print(f"  * Total Duffel API Calls    : {api_calls}", flush=True)
     print(f"  * Delayed Calls (429 Limit) : {delayed_calls}", flush=True)
     print(f"  * Cache Hit Status          : {cache_hit_str}", flush=True)
     print(f"  * Records Retrieved Cache   : {records_retrieved}", flush=True)

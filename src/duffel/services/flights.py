@@ -3,6 +3,7 @@ Service for Duffel Flights API.
 """
 
 from datetime import datetime, timedelta, timezone
+import hashlib
 import json
 from typing import Any, Optional, Union
 
@@ -608,6 +609,7 @@ class FlightsService(BaseService):
             cabin_class=cabin_class,
             max_connections=max_connections,
         )
+        hash_key = cache_key.split(":")[-1] if (cache_key and ":" in cache_key) else hashlib.md5(json.dumps(payload, sort_keys=True).encode()).hexdigest()[:6]
 
         max_offers = getattr(self.client.config, "max_cached_offers", 30)
 
@@ -756,7 +758,18 @@ class FlightsService(BaseService):
             res_list = OfferList(combined_objs, category_highlights=highlights)
             setattr(res_list, "airline_highlights", all_airline_highlights)
             setattr(res_list, "non_stop_offers", top_non_stop_objs)
+            # Export debug JSON output file if debug is enabled in config
+            self.save_debug_output(
+                f"flight_search_{hash_key}.json",
+                {
+                    "payload": payload,
+                    "category_highlights": highlights,
+                    "total_offers": len(combined_objs),
+                    "offers": [self._build_offer_summary(o) for o in combined_objs[:max_offers]]
+                }
+            )
             return res_list
+        self.save_debug_output(f"flight_search_{hash_key}.json", {"payload": payload, "data": data})
         return data
 
     def get_offer_request(self, offer_request_id: str) -> dict[str, Any]:
@@ -1033,15 +1046,15 @@ class FlightsService(BaseService):
         try:
             base_dep_dt = datetime.strptime(target_date, "%Y-%m-%d")
         except Exception:
-            base_dep_dt = datetime.now() + timedelta(days=30)
+            base_dep_dt = datetime.now() + timedelta(days=15)
 
         if target_return_date:
             try:
                 base_ret_dt = datetime.strptime(target_return_date, "%Y-%m-%d")
             except Exception:
-                base_ret_dt = base_dep_dt + timedelta(days=7)
+                base_ret_dt = base_dep_dt + timedelta(days=min_duration_days or 4)
         else:
-            base_ret_dt = base_dep_dt + timedelta(days=7)
+            base_ret_dt = base_dep_dt + timedelta(days=min_duration_days or 4)
 
         now_dt = datetime.now()
         if min_duration_days > max_duration_days:
@@ -1343,13 +1356,15 @@ class FlightsService(BaseService):
         try:
             base_dep_dt = datetime.strptime(target_date, "%Y-%m-%d")
         except Exception:
-            base_dep_dt = datetime.now() + timedelta(days=30)
+            base_dep_dt = datetime.now() + timedelta(days=15)
 
         if target_return_date:
             try:
                 base_ret_dt = datetime.strptime(target_return_date, "%Y-%m-%d")
             except Exception:
-                base_ret_dt = base_dep_dt + timedelta(days=7)
+                base_ret_dt = base_dep_dt + timedelta(days=min_duration_days or 4)
+        else:
+            base_ret_dt = base_dep_dt + timedelta(days=min_duration_days or 4)
         is_one_way = not target_return_date or not str(target_return_date).strip() or str(target_return_date).lower() in ["oneway", "one_way", "none"]
 
         queries = []

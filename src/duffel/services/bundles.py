@@ -215,38 +215,47 @@ class BundlesService(BaseService):
         for st in stay_results[:5]:
             st_summaries.append(st.to_dict() if hasattr(st, "to_dict") else getattr(st, "__dict__", {}))
 
-        if ("stays" in selected_types or "hotels" in selected_types) and not st_summaries:
-            st_summaries = [{
-                "id": "sres_bundle_mock_st",
-                "accommodation": {"id": "acc_1", "name": f"Grand {destination.upper()} Luxury Hotel", "rating": 5},
-                "cheapest_rate_total_amount": "400.00",
-                "cheapest_rate_currency": "USD"
-            }]
-            component_errors.pop("hotels", None)
-
         cr_summaries = []
         for cr in car_offers[:5]:
             cr_summaries.append(cr.to_dict() if hasattr(cr, "to_dict") else getattr(cr, "__dict__", {}))
 
+        is_hotel_price_tbd = False
+        is_car_price_tbd = False
+
+        if ("stays" in selected_types or "hotels" in selected_types) and not st_summaries:
+            is_hotel_price_tbd = True
+            st_summaries = [{
+                "id": "sres_bundle_tbd",
+                "accommodation": {"id": "acc_tbd", "name": f"Hotel in {destination.upper()}", "rating": 4.5},
+                "cheapest_rate_total_amount": "TBD",
+                "cheapest_rate_currency": "USD",
+                "is_price_tbd": True,
+                "price_display": "TBD",
+                "price_amount": 0.0
+            }]
+            component_errors.pop("hotels", None)
+
         if "cars" in selected_types and not cr_summaries:
+            is_car_price_tbd = True
             cr_summaries = [{
-                "id": "off_car_bundle_mock",
-                "supplier": {"name": "Hertz"},
-                "vehicle": {"category": "SUV", "name": "Tesla Model Y"},
-                "total_amount": "180.00",
-                "total_currency": "USD"
+                "id": "off_car_bundle_tbd",
+                "supplier": {"name": "Rental Provider"},
+                "vehicle": {"category": "Standard", "name": "Rental Vehicle"},
+                "total_amount": "TBD",
+                "total_currency": "USD",
+                "is_price_tbd": True,
+                "price_display": "TBD",
+                "price_amount": 0.0
             }]
             component_errors.pop("cars", None)
-
 
         if is_test_mode:
             component_errors.clear()
 
-        # Surface a clean, user-friendly error message in live production mode if component search fails
+        # Surface a clean, user-friendly error message if flight search itself fails
         if component_errors:
             detail = " ".join(f"{component.capitalize()}: {message}" for component, message in component_errors.items())
             raise DuffelException(f"Package search could not be completed. {detail}")
-
 
         # Construct combined bundles
         b_idx = 1
@@ -260,21 +269,62 @@ class BundlesService(BaseService):
                     if not fl and not st and not cr:
                         continue
                     fl_price = float(fl.get("total_amount") or 0.0) if fl else 0.0
-                    st_price = float(st.get("cheapest_rate_total_amount") or st.get("total_amount") or 0.0) if st else 0.0
-                    cr_price = float(cr.get("total_amount") or 0.0) if cr else 0.0
 
-                    sum_price = fl_price + st_price + cr_price
+                    st_val = 0.0
+                    st_tbd = False
+                    if st:
+                        raw_st = str(st.get("cheapest_rate_total_amount") or st.get("total_amount") or "").strip()
+                        if raw_st == "TBD" or st.get("is_price_tbd"):
+                            st_tbd = True
+                            st_val = 0.0
+                        else:
+                            try:
+                                st_val = float(raw_st or 0.0)
+                            except Exception:
+                                st_tbd = True
+                                st_val = 0.0
+
+                    cr_val = 0.0
+                    cr_tbd = False
+                    if cr:
+                        raw_cr = str(cr.get("total_amount") or "").strip()
+                        if raw_cr == "TBD" or cr.get("is_price_tbd"):
+                            cr_tbd = True
+                            cr_val = 0.0
+                        else:
+                            try:
+                                cr_val = float(raw_cr or 0.0)
+                            except Exception:
+                                cr_tbd = True
+                                cr_val = 0.0
+
+                    sum_price = fl_price + st_val + cr_val
                     pkg_price = round(sum_price * 0.95, 2)  # 5% package discount
                     savings = round(sum_price - pkg_price, 2)
 
+                    tbd_suffix_items = []
+                    if cr_tbd and "cars" in selected_types:
+                        tbd_suffix_items.append("car rental")
+                    if st_tbd and ("stays" in selected_types or "hotels" in selected_types):
+                        tbd_suffix_items.append("hotels")
+
                     currency = (fl and fl.get("currency")) or (st and st.get("cheapest_rate_currency")) or (cr and cr.get("total_currency")) or "USD"
+
+                    if tbd_suffix_items:
+                        total_price_display = f"{currency} {pkg_price:.2f} + " + " + ".join(tbd_suffix_items)
+                    else:
+                        total_price_display = f"{currency} {pkg_price:.2f}"
 
                     b_item = {
                         "bundle_id": f"bnd_{b_idx:04d}_{hash_key}",
                         "total_package_price": pkg_price,
+                        "total_price_display": total_price_display,
                         "individual_price_sum": sum_price,
                         "bundle_savings": savings,
                         "currency": currency,
+                        "is_hotel_price_tbd": st_tbd,
+                        "is_car_price_tbd": cr_tbd,
+                        "tbd_components": tbd_suffix_items,
                         "flight_offer": fl,
                         "hotel_stay": st,
                         "car_rental": cr,
@@ -326,7 +376,7 @@ class BundlesService(BaseService):
             "force_refresh": force_refresh,
         }
 
-        output_dir = "outputs"
+        output_dir = "output"
         os.makedirs(output_dir, exist_ok=True)
         filename = f"{origin.upper()}_{destination.upper()}_{departure_date}_{return_date}_{hash_key}_bundle_results.json"
         filepath = os.path.join(output_dir, filename)
@@ -342,16 +392,37 @@ class BundlesService(BaseService):
         except Exception:
             bundle_geo = None
 
+        is_fl_synthetic = bool("flights" in selected_types and (not flight_offers or (fl_summaries and fl_summaries[0].get("id") == "off_flight_bundle_mock_1")))
+        is_st_synthetic = bool(("stays" in selected_types or "hotels" in selected_types) and (not stay_results and not is_hotel_price_tbd))
+        is_cr_synthetic = bool("cars" in selected_types and (not car_offers and not is_car_price_tbd))
+
+        service_execution_summary = {
+            "flight_calls_count": 1 if "flights" in selected_types else 0,
+            "hotel_calls_count": 1 if ("stays" in selected_types or "hotels" in selected_types) else 0,
+            "car_calls_count": 1 if "cars" in selected_types else 0,
+            "total_calls_count": (1 if "flights" in selected_types else 0) + (1 if ("stays" in selected_types or "hotels" in selected_types) else 0) + (1 if "cars" in selected_types else 0),
+            "is_flights_synthetic": is_fl_synthetic,
+            "flights_data_source": "synthetic_mock" if is_fl_synthetic else ("live_duffel_api" if "flights" in selected_types else "not_requested"),
+            "is_hotels_synthetic": is_st_synthetic,
+            "hotels_data_source": "synthetic_mock" if is_st_synthetic else ("live_duffel_api" if ("stays" in selected_types or "hotels" in selected_types) else "not_requested"),
+            "is_cars_synthetic": is_cr_synthetic,
+            "cars_data_source": "synthetic_mock" if is_cr_synthetic else ("live_duffel_api" if "cars" in selected_types else "not_requested"),
+            "is_hotel_price_tbd": is_hotel_price_tbd,
+            "is_car_price_tbd": is_car_price_tbd,
+        }
+
         meta_data = {
             "type": "bundles",
             "search_params": search_params,
             "geo_location": bundle_geo,
+            "service_execution_summary": service_execution_summary,
         }
 
         data_section = {
             "total_bundles_found": len(top_bundles),
             "category_highlights": highlights,
             "top_bundles": top_bundles,
+            "service_execution_summary": service_execution_summary,
             "performance_metrics": self.client.get_metrics_summary() if hasattr(self.client, "get_metrics_summary") else {},
             "cache_metrics": self.cache.get_metrics_summary() if self.cache else {},
             "output_file": filepath,
@@ -366,12 +437,7 @@ class BundlesService(BaseService):
 
 
         # 5. Export JSON report file
-        try:
-            with open(filepath, "w", encoding="utf-8") as f:
-                json.dump(result_payload, f, indent=2)
-            print(f"\n[+] Full JSON bundle report saved to '{filepath}'\n")
-        except Exception as exp_err:
-            print(f"[BUNDLE REPORT NOTICE] Failed saving report: {exp_err}")
+        self.save_debug_output(filename, result_payload, force=True)
 
         # 6. Cache in Redis using record-level caching and query index dynamic TTL
         if self.cache and self.cache.enabled:

@@ -419,8 +419,10 @@ def search_natural_language_flights(req: NaturalLanguageFlightSearchRequest):
 def get_search_result_file(
     hash_id: str = Path(..., description="Unique filename hash ID or 'latest'")
 ):
-    """Fetches pre-computed search results JSON report from the outputs/ folder."""
-    output_dir = "outputs"
+    """Fetches pre-computed search results JSON report from the output/ folder."""
+    output_dir = "output"
+    if not os.path.exists(output_dir) and os.path.exists("outputs"):
+        output_dir = "outputs"
     if hash_id == "latest":
         matches = glob.glob(os.path.join(output_dir, "*_search_results.json"))
         if not matches:

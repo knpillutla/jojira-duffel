@@ -48,9 +48,14 @@ class NaturalSearchService(BaseService):
         raw_origin = overrides.get("origin") or intent.get("origin")
         if any(t in selected_types for t in ["flights", "bundle"]) and not raw_origin:
             raise ValueError("No Origin Found. Please specify your departure origin city or airport in your prompt (e.g. 'Flight from Atlanta to Paris') or include the X-User-Location header.")
+        now_dt = datetime.now()
+        default_dur = int(intent.get("duration_days") or intent.get("duration") or 4)
+        def_dep = (now_dt + timedelta(days=15)).strftime("%Y-%m-%d")
+        def_ret = (now_dt + timedelta(days=15 + default_dur)).strftime("%Y-%m-%d")
+
         origin = str(raw_origin or "ATL").upper()
         destination = (overrides.get("destination") or intent.get("destination") or "CDG").upper()
-        departure_date = overrides.get("departure_date") or intent.get("departure_date") or "2026-10-01"
+        departure_date = overrides.get("departure_date") or intent.get("departure_date") or def_dep
 
         trip_type = overrides.get("trip_type") or intent.get("trip_type")
         is_one_way = trip_type == "one_way" or any(w in prompt for w in ["one way", "oneway", "single"])
@@ -58,7 +63,7 @@ class NaturalSearchService(BaseService):
         if is_one_way:
             return_date = None
         else:
-            return_date = overrides.get("return_date") or intent.get("return_date") or "2026-10-08"
+            return_date = overrides.get("return_date") or intent.get("return_date") or def_ret
         passengers_count = overrides.get("passengers_count") or intent.get("passengers_count") or 1
         cabin_class = overrides.get("cabin_class") or intent.get("cabin_class") or "economy"
         rooms = overrides.get("rooms") or intent.get("rooms") or 1
@@ -612,10 +617,8 @@ class NaturalSearchService(BaseService):
             "direct_express_package": nonstop,
         }
 
-        output_dir = "outputs"
-        os.makedirs(output_dir, exist_ok=True)
         filename = f"{origin}_{destination}_{departure_date}_{return_date}_{hash_key}_bundle_results.json"
-        filepath = os.path.join(output_dir, filename)
+        filepath = os.path.join("output", filename)
 
         res_payload = {
             "status": "success",
@@ -631,11 +634,8 @@ class NaturalSearchService(BaseService):
             "output_file": filepath,
         }
 
-        try:
-            with open(filepath, "w", encoding="utf-8") as f:
-                json.dump(res_payload, f, indent=2)
-        except Exception as e:
-            print(f"[BUNDLE REPORT NOTICE] Save report failed: {e}")
+        from .base import save_output_file
+        save_output_file(filename, res_payload, force=True)
 
     @staticmethod
     def _is_airline_match(pref: str, name: str, code: str = "") -> bool:
