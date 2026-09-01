@@ -1,0 +1,524 @@
+{
+  "status": "success",
+  "timestamp": "2026-09-01 15:03:05",
+  "meta_data": {
+    "type": "bundles",
+    "search_params": {
+      "origin": "ATL",
+      "destination": "CVG",
+      "departure_date": "2026-09-16",
+      "return_date": "2026-09-20",
+      "passengers_count": 1,
+      "cabin_class": "economy",
+      "rooms": 1,
+      "driver_age": 30,
+      "force_refresh": false
+    },
+    "geo_location": {
+      "origin": {
+        "code": "ATL",
+        "latitude": 33.6407,
+        "longitude": -84.4277
+      },
+      "destination": {
+        "code": "CVG",
+        "latitude": 8.2980354,
+        "longitude": -62.7267278
+      }
+    },
+    "service_execution_summary": {
+      "flight_calls_count": 0,
+      "hotel_calls_count": 1,
+      "car_calls_count": 1,
+      "total_calls_count": 2,
+      "is_flights_synthetic": false,
+      "flights_data_source": "not_requested",
+      "is_hotels_synthetic": false,
+      "hotels_data_source": "live_duffel_api",
+      "is_cars_synthetic": false,
+      "cars_data_source": "live_duffel_api",
+      "is_hotel_price_tbd": true,
+      "is_car_price_tbd": true
+    }
+  },
+  "data": {
+    "total_bundles_found": 1,
+    "category_highlights": {
+      "lowest_fare_package": {
+        "bundle_id": "bnd_0001_68635b",
+        "total_package_price": 0.0,
+        "total_price_display": "USD 0.00 + car rental + hotels",
+        "individual_price_sum": 0.0,
+        "bundle_savings": 0.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": null,
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in CVG",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "direct_express_package": {
+        "bundle_id": "bnd_0001_68635b",
+        "total_package_price": 0.0,
+        "total_price_display": "USD 0.00 + car rental + hotels",
+        "individual_price_sum": 0.0,
+        "bundle_savings": 0.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": null,
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in CVG",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "curated_value_package": {
+        "bundle_id": "bnd_0001_68635b",
+        "total_package_price": 0.0,
+        "total_price_display": "USD 0.00 + car rental + hotels",
+        "individual_price_sum": 0.0,
+        "bundle_savings": 0.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": null,
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in CVG",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "signature_luxury_package": {
+        "bundle_id": "bnd_0001_68635b",
+        "total_package_price": 0.0,
+        "total_price_display": "USD 0.00 + car rental + hotels",
+        "individual_price_sum": 0.0,
+        "bundle_savings": 0.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": null,
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in CVG",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "overall_lowest": {
+        "bundle_id": "bnd_0001_68635b",
+        "total_package_price": 0.0,
+        "total_price_display": "USD 0.00 + car rental + hotels",
+        "individual_price_sum": 0.0,
+        "bundle_savings": 0.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": null,
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in CVG",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "overall_cheapest": {
+        "bundle_id": "bnd_0001_68635b",
+        "total_package_price": 0.0,
+        "total_price_display": "USD 0.00 + car rental + hotels",
+        "individual_price_sum": 0.0,
+        "bundle_savings": 0.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": null,
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in CVG",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "nonstop_flight_bundle": {
+        "bundle_id": "bnd_0001_68635b",
+        "total_package_price": 0.0,
+        "total_price_display": "USD 0.00 + car rental + hotels",
+        "individual_price_sum": 0.0,
+        "bundle_savings": 0.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": null,
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in CVG",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "best_value_bundle": {
+        "bundle_id": "bnd_0001_68635b",
+        "total_package_price": 0.0,
+        "total_price_display": "USD 0.00 + car rental + hotels",
+        "individual_price_sum": 0.0,
+        "bundle_savings": 0.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": null,
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in CVG",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "luxury_bundle": {
+        "bundle_id": "bnd_0001_68635b",
+        "total_package_price": 0.0,
+        "total_price_display": "USD 0.00 + car rental + hotels",
+        "individual_price_sum": 0.0,
+        "bundle_savings": 0.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": null,
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in CVG",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      }
+    },
+    "top_bundles": [
+      {
+        "bundle_id": "bnd_0001_68635b",
+        "total_package_price": 0.0,
+        "total_price_display": "USD 0.00 + car rental + hotels",
+        "individual_price_sum": 0.0,
+        "bundle_savings": 0.0,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": null,
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in CVG",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      }
+    ],
+    "service_execution_summary": {
+      "flight_calls_count": 0,
+      "hotel_calls_count": 1,
+      "car_calls_count": 1,
+      "total_calls_count": 2,
+      "is_flights_synthetic": false,
+      "flights_data_source": "not_requested",
+      "is_hotels_synthetic": false,
+      "hotels_data_source": "live_duffel_api",
+      "is_cars_synthetic": false,
+      "cars_data_source": "live_duffel_api",
+      "is_hotel_price_tbd": true,
+      "is_car_price_tbd": true
+    },
+    "performance_metrics": {
+      "total_calls": 0,
+      "min_ms": 0.0,
+      "max_ms": 0.0,
+      "avg_ms": 0.0
+    },
+    "cache_metrics": {
+      "enabled": true,
+      "backend": "redis",
+      "redis_host": "127.0.0.1",
+      "total_reads": 2,
+      "hits": 0,
+      "tier1_hits": 0,
+      "tier2_hits": 0,
+      "aggregated_cache_hits": 0,
+      "individual_cache_hits": 0,
+      "misses": 2,
+      "hit_percentage": 0.0,
+      "miss_percentage": 100.0,
+      "writes": 0,
+      "read_min_ms": 2.28,
+      "read_max_ms": 2.89,
+      "read_avg_ms": 2.59,
+      "write_min_ms": 0.0,
+      "write_max_ms": 0.0,
+      "write_avg_ms": 0.0,
+      "ttl_seconds": 3600
+    },
+    "output_file": "output\\ATL_CVG_2026-09-16_2026-09-20_68635b_bundle_results.json"
+  }
+}

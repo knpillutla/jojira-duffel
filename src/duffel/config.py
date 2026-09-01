@@ -83,11 +83,17 @@ class DuffelConfig:
     max_non_stop_offers: int = 10
     gemini_api_key: str = ""
     gemini_model: str = "gemini-1.5-flash"
+    gemini_extraction_model: str = "gemini-1.5-flash"
+    gemini_planner_model: str = "gemini-1.5-pro"
     gemini_enabled: bool = True
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
+    openai_extraction_model: str = "gpt-4o-mini"
+    openai_planner_model: str = "gpt-4o"
     openai_enabled: bool = True
     llm_provider: str = "openai"
+    llm_extraction_provider: str = "openai"
+    llm_planner_provider: str = "openai"
 
     service_bus_enabled: bool = True
     service_bus_connection_string: str = ""
@@ -218,16 +224,42 @@ class DuffelConfig:
                     self.gemini_api_key = str(cfg_data["gemini_api_key"] or "")
                 if "gemini_model" in cfg_data and cfg_data["gemini_model"]:
                     self.gemini_model = str(cfg_data["gemini_model"])
+                if "gemini_extraction_model" in cfg_data and cfg_data["gemini_extraction_model"]:
+                    self.gemini_extraction_model = str(cfg_data["gemini_extraction_model"])
+                if "gemini_planner_model" in cfg_data and cfg_data["gemini_planner_model"]:
+                    self.gemini_planner_model = str(cfg_data["gemini_planner_model"])
+                elif "gemini_travel_model" in cfg_data and cfg_data["gemini_travel_model"]:
+                    self.gemini_planner_model = str(cfg_data["gemini_travel_model"])
                 if "gemini_enabled" in cfg_data:
                     self.gemini_enabled = bool(cfg_data["gemini_enabled"])
                 if "openai_api_key" in cfg_data:
                     self.openai_api_key = str(cfg_data["openai_api_key"] or "")
                 if "openai_model" in cfg_data and cfg_data["openai_model"]:
                     self.openai_model = str(cfg_data["openai_model"])
+                if "openai_extraction_model" in cfg_data and cfg_data["openai_extraction_model"]:
+                    self.openai_extraction_model = str(cfg_data["openai_extraction_model"])
+                elif "openai_intent_model" in cfg_data and cfg_data["openai_intent_model"]:
+                    self.openai_extraction_model = str(cfg_data["openai_intent_model"])
+                if "openai_planner_model" in cfg_data and cfg_data["openai_planner_model"]:
+                    self.openai_planner_model = str(cfg_data["openai_planner_model"])
+                elif "openai_travel_model" in cfg_data and cfg_data["openai_travel_model"]:
+                    self.openai_planner_model = str(cfg_data["openai_travel_model"])
+                elif "openai_itinerary_model" in cfg_data and cfg_data["openai_itinerary_model"]:
+                    self.openai_planner_model = str(cfg_data["openai_itinerary_model"])
                 if "openai_enabled" in cfg_data:
                     self.openai_enabled = bool(cfg_data["openai_enabled"])
                 if "llm_provider" in cfg_data and cfg_data["llm_provider"]:
                     self.llm_provider = str(cfg_data["llm_provider"]).lower()
+                if "llm_extraction_provider" in cfg_data and cfg_data["llm_extraction_provider"]:
+                    self.llm_extraction_provider = str(cfg_data["llm_extraction_provider"]).lower()
+                elif "llm_intent_provider" in cfg_data and cfg_data["llm_intent_provider"]:
+                    self.llm_extraction_provider = str(cfg_data["llm_intent_provider"]).lower()
+                if "llm_planner_provider" in cfg_data and cfg_data["llm_planner_provider"]:
+                    self.llm_planner_provider = str(cfg_data["llm_planner_provider"]).lower()
+                elif "llm_travel_provider" in cfg_data and cfg_data["llm_travel_provider"]:
+                    self.llm_planner_provider = str(cfg_data["llm_travel_provider"]).lower()
+                elif "llm_itinerary_provider" in cfg_data and cfg_data["llm_itinerary_provider"]:
+                    self.llm_planner_provider = str(cfg_data["llm_itinerary_provider"]).lower()
                 if "service_bus_enabled" in cfg_data:
                     self.service_bus_enabled = bool(cfg_data["service_bus_enabled"])
                 if "service_bus_connection_string" in cfg_data:
@@ -358,12 +390,24 @@ class DuffelConfig:
             self.gemini_api_key = os.environ.get("GEMINI_API_KEY", "")
         if os.environ.get("GEMINI_MODEL"):
             self.gemini_model = os.environ["GEMINI_MODEL"]
+        if os.environ.get("GEMINI_EXTRACTION_MODEL") or os.environ.get("GEMINI_INTENT_MODEL"):
+            self.gemini_extraction_model = os.environ.get("GEMINI_EXTRACTION_MODEL") or os.environ["GEMINI_INTENT_MODEL"]
+        if os.environ.get("GEMINI_PLANNER_MODEL") or os.environ.get("GEMINI_TRAVEL_MODEL") or os.environ.get("GEMINI_ITINERARY_MODEL"):
+            self.gemini_planner_model = os.environ.get("GEMINI_PLANNER_MODEL") or os.environ.get("GEMINI_TRAVEL_MODEL") or os.environ["GEMINI_ITINERARY_MODEL"]
         if not self.openai_api_key:
             self.openai_api_key = os.environ.get("OPENAI_API_KEY", "")
         if os.environ.get("OPENAI_MODEL"):
             self.openai_model = os.environ["OPENAI_MODEL"]
+        if os.environ.get("OPENAI_EXTRACTION_MODEL") or os.environ.get("OPENAI_INTENT_MODEL"):
+            self.openai_extraction_model = os.environ.get("OPENAI_EXTRACTION_MODEL") or os.environ["OPENAI_INTENT_MODEL"]
+        if os.environ.get("OPENAI_PLANNER_MODEL") or os.environ.get("OPENAI_TRAVEL_MODEL") or os.environ.get("OPENAI_ITINERARY_MODEL"):
+            self.openai_planner_model = os.environ.get("OPENAI_PLANNER_MODEL") or os.environ.get("OPENAI_TRAVEL_MODEL") or os.environ["OPENAI_ITINERARY_MODEL"]
         if os.environ.get("LLM_PROVIDER"):
             self.llm_provider = os.environ["LLM_PROVIDER"].lower()
+        if os.environ.get("LLM_EXTRACTION_PROVIDER") or os.environ.get("LLM_INTENT_PROVIDER"):
+            self.llm_extraction_provider = (os.environ.get("LLM_EXTRACTION_PROVIDER") or os.environ["LLM_INTENT_PROVIDER"]).lower()
+        if os.environ.get("LLM_PLANNER_PROVIDER") or os.environ.get("LLM_TRAVEL_PROVIDER") or os.environ.get("LLM_ITINERARY_PROVIDER"):
+            self.llm_planner_provider = (os.environ.get("LLM_PLANNER_PROVIDER") or os.environ.get("LLM_TRAVEL_PROVIDER") or os.environ["LLM_ITINERARY_PROVIDER"]).lower()
         if os.environ.get("DUFFEL_MAX_RETRIES"):
             self.max_retries = int(os.environ["DUFFEL_MAX_RETRIES"])
         if os.environ.get("FORCE_INSTANT_BOOKING"):

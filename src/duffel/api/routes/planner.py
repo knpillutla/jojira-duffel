@@ -166,6 +166,59 @@ def get_llm_metrics_endpoint():
     return {"status": "success", "llm_metrics": {}}
 
 
+@router.post(
+    "/planner/modules/refresh",
+    summary="Trigger Background Refresh / Pre-Seeding of Itinerary Modules",
+)
+def refresh_itinerary_modules_endpoint(
+    destination: Optional[str] = None,
+    duration_days: int = 4,
+    max_age_days: int = 14,
+):
+    """
+    Triggers background refresh of stored itinerary modules to prevent stale data.
+    If destination is provided, refreshes that destination; otherwise refreshes all stale modules.
+    """
+    client = common.get_duffel_client()
+    from ...db.itinerary_module_dao import ItineraryModuleDAO
+    from ...services.itinerary_worker import ItineraryModuleWorker
+
+    dao = ItineraryModuleDAO(config=client.config)
+    worker = ItineraryModuleWorker(dao=dao, config=client.config)
+
+    if destination:
+        res = worker.refresh_destination_modules(
+            destination=destination,
+            duration_days=duration_days,
+            planner_service=client.planner if hasattr(client, "planner") else None,
+        )
+        return {"status": "success", "message": f"Refreshed modules for '{destination}'", "details": res}
+    else:
+        res = worker.refresh_all_stale_modules(
+            max_age_days=max_age_days,
+            planner_service=client.planner if hasattr(client, "planner") else None,
+        )
+        return res
+
+
+@router.get(
+    "/planner/modules/status",
+    summary="Get Itinerary Module Inventory & Freshness Statistics",
+)
+def get_module_status_endpoint():
+    """
+    Returns inventory count, distinct destinations, and freshness statistics for the modular caching engine.
+    """
+    client = common.get_duffel_client()
+    from ...db.itinerary_module_dao import ItineraryModuleDAO
+
+    dao = ItineraryModuleDAO(config=client.config)
+    return {
+        "status": "success",
+        "data": dao.get_module_stats()
+    }
+
+
 @router.get(
     "/planner/itinerary/{itinerary_id}",
     response_model=ItineraryPlannerResponse,
@@ -185,6 +238,7 @@ def get_itinerary_by_id_endpoint(itinerary_id: str):
             detail=f"Itinerary with ID '{itinerary_id}' was not found."
         )
     return ItineraryPlannerResponse(**payload)
+
 
 
 

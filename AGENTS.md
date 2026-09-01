@@ -3,6 +3,7 @@
 ## Code Design & Architecture Rules
 
 - **Always Create Modular Code**: Design software in decoupled, single-responsibility modules and components with clear interfaces.
+- **Strict File Size Limit (200-300 Lines Maximum)**: Never create or maintain code files exceeding 200–300 lines. If a file approaches or exceeds this limit, decompose it into focused, single-responsibility files and reusable submodules within the same package.
 - **Always Create Reusable Code**: Write functions, classes, and utilities designed for maximum reusability across services, adapters, and tests.
 - **Avoid Duplicate Code**: Always inspect existing modules and helper functions before implementation. Reuse pre-existing utilities, abstractions, and functions rather than re-creating duplicate or overlapping logic.
 

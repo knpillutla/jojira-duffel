@@ -862,15 +862,24 @@ class PromptExtractor:
 
     @staticmethod
     def _extract_flight_info_with_llm(prompt: str, user_location: Optional[str] = None) -> Optional[dict[str, Any]]:
-        """Use the configured LLM provider, falling back to other providers when available."""
+        """Use the configured LLM extraction provider, falling back to other providers when available."""
         prompt = (prompt or "").lower().strip()
         config = DuffelConfig()
-        if config.llm_provider == "openai" and config.openai_enabled and config.openai_api_key:
-            result = PromptExtractor._extract_flight_info_with_openai(prompt, user_location=user_location)
-            if result is not None:
-                return result
-        if config.gemini_enabled and config.gemini_api_key:
-            return PromptExtractor._extract_flight_info_with_gemini(prompt, user_location=user_location)
+        provider = getattr(config, "llm_extraction_provider", "") or getattr(config, "llm_provider", "openai")
+        if provider == "gemini":
+            if config.gemini_enabled and config.gemini_api_key:
+                result = PromptExtractor._extract_flight_info_with_gemini(prompt)
+                if result is not None:
+                    return result
+            if config.openai_enabled and config.openai_api_key:
+                return PromptExtractor._extract_flight_info_with_openai(prompt, user_location=user_location)
+        else:
+            if config.openai_enabled and config.openai_api_key:
+                result = PromptExtractor._extract_flight_info_with_openai(prompt, user_location=user_location)
+                if result is not None:
+                    return result
+            if config.gemini_enabled and config.gemini_api_key:
+                return PromptExtractor._extract_flight_info_with_gemini(prompt)
         return None
 
     @staticmethod
@@ -1034,8 +1043,9 @@ class PromptExtractor:
             "9. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines, preferences.\n"
             "User request: " + prompt
         )
+        model_name = getattr(config, "openai_extraction_model", "") or getattr(config, "openai_model", "gpt-4o-mini") or "gpt-4o-mini"
         payload = {
-            "model": config.openai_model,
+            "model": model_name,
             "messages": [
                 {"role": "system", "content": instruction},
                 {"role": "user", "content": prompt},
@@ -1068,7 +1078,7 @@ class PromptExtractor:
             if isinstance(result, dict):
                 normalized = PromptExtractor._normalize_flight_result(result)
                 meta = {
-                    "engine": f"LLM Extractor (OpenAI - {config.openai_model})",
+                    "engine": f"LLM Extractor (OpenAI - {model_name})",
                     "llm_used": True,
                     "extracted_json": normalized,
                 }
@@ -1076,7 +1086,7 @@ class PromptExtractor:
                 PromptParserTracker.set(meta)
                 _save_llm_debug_output(
                     category="llm_extraction_openai",
-                    data={"prompt": prompt, "model": config.openai_model, "raw_response": result, "normalized": normalized},
+                    data={"prompt": prompt, "model": model_name, "raw_response": result, "normalized": normalized},
                     identifier=str(normalized.get("destination") or "flight")
                 )
                 return normalized
@@ -1087,7 +1097,7 @@ class PromptExtractor:
                     err_msg += f" | Body: {err.read().decode('utf-8', errors='replace')}"
                 except Exception:
                     pass
-            print(f"[OPENAI LLM ERROR] Failed calling OpenAI API ({config.openai_model}): {err_msg}", flush=True)
+            print(f"[OPENAI LLM ERROR] Failed calling OpenAI API ({model_name}): {err_msg}", flush=True)
         return None
 
     @staticmethod
@@ -1116,13 +1126,14 @@ class PromptExtractor:
             "9. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines, preferences.\n"
             f"User request: {prompt}"
         )
+        gemini_model = getattr(config, "gemini_extraction_model", "") or getattr(config, "gemini_model", "gemini-1.5-flash") or "gemini-1.5-flash"
         payload = {
             "contents": [{"parts": [{"text": instruction}]}],
             "generationConfig": {"responseMimeType": "application/json", "temperature": 0},
         }
         endpoint = (
             "https://generativelanguage.googleapis.com/v1beta/models/"
-            f"{quote(config.gemini_model, safe='')}:generateContent"
+            f"{quote(gemini_model, safe='')}:generateContent"
             f"?key={quote(config.gemini_api_key, safe='')}"
         )
         try:
@@ -1147,7 +1158,7 @@ class PromptExtractor:
             if isinstance(result, dict) and isinstance(result.get("slices"), list):
                 normalized = PromptExtractor._normalize_flight_result(result)
                 meta = {
-                    "engine": f"LLM Extractor (Gemini - {config.gemini_model})",
+                    "engine": f"LLM Extractor (Gemini - {gemini_model})",
                     "llm_used": True,
                     "extracted_json": normalized,
                 }
@@ -1155,7 +1166,7 @@ class PromptExtractor:
                 PromptParserTracker.set(meta)
                 _save_llm_debug_output(
                     category="llm_extraction_gemini",
-                    data={"prompt": prompt, "model": config.gemini_model, "raw_response": result, "normalized": normalized},
+                    data={"prompt": prompt, "model": gemini_model, "raw_response": result, "normalized": normalized},
                     identifier=str(normalized.get("destination") or "flight")
                 )
                 return normalized

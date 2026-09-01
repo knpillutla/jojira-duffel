@@ -15,6 +15,30 @@ from ..exceptions import DuffelException
 CONFIG_DIR = Path(__file__).parent.parent / "config"
 CONFIG_FILE = CONFIG_DIR / "geo_locations.json"
 
+
+def format_proper_title(text: str) -> str:
+    """Formats destination, package, and activity names into professional Title Case regardless of user input casing."""
+    if not text:
+        return ""
+    lowercase_words = {"a", "an", "the", "and", "but", "or", "for", "nor", "on", "at", "to", "from", "by", "of", "in", "with", "de", "la", "van", "von"}
+    uppercase_words = {"ATL", "CDG", "JFK", "LHR", "LAX", "ORD", "MIA", "SFO", "DXB", "HND", "VIP", "SUV", "AI", "ID", "USD"}
+
+    words = re.split(r'(\s+|-)', str(text).strip())
+    result = []
+    for i, word in enumerate(words):
+        if not word.strip():
+            result.append(word)
+            continue
+        w_upper = word.upper()
+        if w_upper in uppercase_words:
+            result.append(w_upper)
+        elif i == 0 or word.lower() not in lowercase_words:
+            result.append(word.capitalize())
+        else:
+            result.append(word.lower())
+    return "".join(result)
+
+
 DEFAULT_GEO_MAP: dict[str, dict[str, Any]] = {
     "ZURICH": {"latitude": 47.3769, "longitude": 8.5417, "address": "Zurich, Switzerland", "name": "Zurich City Centre"},
     "ZRH": {"latitude": 47.4582, "longitude": 8.5555, "address": "Zurich Airport (ZRH), Switzerland", "name": "Zurich Airport"},

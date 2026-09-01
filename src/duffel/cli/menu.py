@@ -78,7 +78,7 @@ class DuffelCLI:
         print(" [8] Book Car Offer")
         print("\n --- CONFIGURATION & CACHE ---")
         print(" [9] Configure Duffel API Key")
-        print(" [10] Clear / Flush Redis Cache Database")
+        print(" [10] Clear / Flush Redis Cache & PostgreSQL Database")
         print("\n --- REST API WEB SERVER ---")
         print(" [11] Launch REST API Web Server (FastAPI / Uvicorn)")
         print(" [0] Exit")
@@ -92,12 +92,43 @@ class DuffelCLI:
         uvicorn.run("src.duffel.api.app:app", host="127.0.0.1", port=8000, reload=True)
 
     def _handle_clear_redis_cache(self):
-        print("\n--- [REDIS CACHE] Clear / Flush Database ---")
+        print("\n--- [CACHE & DATABASE] Clear / Flush Redis & PostgreSQL ---")
         before_count = self.client.cache.get_count()
-        print(f"Current Cache Record Count: {before_count}")
-        confirm = prompt_input("Are you sure you want to flush ALL cached entries in Redis? (y/n)", default="y", required=False).lower()
+        print(f"Current Redis Cache Record Count: {before_count}")
+        confirm = prompt_input("Are you sure you want to flush ALL cached entries in Redis and PostgreSQL? (y/n)", default="y", required=False).lower()
         if confirm in ("y", "yes"):
+            # 1. Clear Redis Cache
             self.client.cache.clear()
+
+            # 2. Clear PostgreSQL / SQLite Tables
+            try:
+                from ..db.itinerary_module_dao import ItineraryModuleDAO
+                from ..db.itinerary_dao import ItineraryDAO
+                cfg = getattr(self.client, "config", None)
+                mod_dao = ItineraryModuleDAO(config=cfg)
+                conn = mod_dao._get_connection()
+                try:
+                    cur = conn.cursor()
+                    if mod_dao.db_engine == "postgresql":
+                        cur.execute("TRUNCATE TABLE itinerary_modules, itineraries, itinerary_versions RESTART IDENTITY CASCADE;")
+                        try:
+                            cur.execute("TRUNCATE TABLE planner.itinerary_modules RESTART IDENTITY CASCADE;")
+                        except Exception:
+                            pass
+                    else:
+                        cur.execute("DELETE FROM itinerary_modules;")
+                        try:
+                            cur.execute("DELETE FROM itineraries;")
+                            cur.execute("DELETE FROM itinerary_versions;")
+                        except Exception:
+                            pass
+                    conn.commit()
+                    print("[+] Cleared PostgreSQL / SQLite itinerary and modular caching tables successfully.")
+                finally:
+                    conn.close()
+            except Exception as pg_err:
+                print(f"[!] Notice clearing database tables: {pg_err}")
+            print("\n[+] Cache & Database Flush Complete.")
         else:
             print("\nOperation cancelled. Cache intact.")
 

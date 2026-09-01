@@ -117,7 +117,10 @@
         "latitude": 8.2980354,
         "longitude": -62.7267278
       }
-    }
+    },
+    "itinerary_id": "itin_91baf78e3c",
+    "user_id": null,
+    "version": 1
   },
   "data": {
     "title": "Domestic Road Trip",

@@ -5813,5 +5813,11 @@
     "longitude": -117.162772,
     "address": "San Diego, San Diego County, California, United States",
     "name": "San Diego"
+  },
+  "CVG": {
+    "latitude": 8.2980354,
+    "longitude": -62.7267278,
+    "address": "Corporación Venezolana de Guayana, Carrera Caruachi, Parroquia Universidad, Municipio Caroní, Bolívar, 8050, Venezuela",
+    "name": "Cvg"
   }
 }
