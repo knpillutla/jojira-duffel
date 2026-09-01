@@ -9,8 +9,8 @@ from typing import Any, Optional
 from ..base import BaseService
 from ..locations import GEO_LOCATIONS as DESTINATION_GEO_MAP
 from .classifier import format_proper_title, classify_travel_scope_and_type
-from .prompts import build_planner_system_prompt, build_planner_user_prompt
-from .activities import enrich_activity_urls_and_geo, calculate_haversine_distance
+from ...prompts import build_planner_system_prompt, build_planner_user_prompt
+from .activities import enrich_activity_urls_and_geo, calculate_haversine_distance, enrich_items_with_next_activity
 from .timeline import (
     parse_time_to_minutes,
     format_minutes_to_time,
@@ -19,7 +19,7 @@ from .timeline import (
     build_hotel_checkin_item,
     fetch_live_component_pricing,
 )
-from .bundles import generate_contextual_bundle_title, build_top_3_bundles
+from .bundles import build_top_3_bundles
 from .cache import (
     get_memory_cached_plan,
     set_memory_cached_plan,
@@ -235,6 +235,7 @@ class TravelPlannerService(BaseService):
                     items.append(act_enriched)
 
                 items.sort(key=lambda it: parse_time_to_minutes(it.get("start_time") or it.get("departure_time") or it.get("time_slot") or it.get("time") or "12:00 PM"))
+                items = enrich_items_with_next_activity(items, dest_clean)
                 daily_itinerary.append({"day_number": d_num, "date": d_date, "theme": day_elem.get("theme", f"Day {d_num}"), "items": items})
 
         with StepLogger.step(6, 6, "Package Bundles Assembly & Output Export", f"Destination: {dest_clean}"):

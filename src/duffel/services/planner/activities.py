@@ -176,3 +176,71 @@ def enrich_activity_urls_and_geo(
         }
 
     return act_dict
+
+
+def enrich_items_with_next_activity(
+    items: list[dict[str, Any]],
+    default_dest: str = ""
+) -> list[dict[str, Any]]:
+    """Enriches each item in a daily itinerary with a fully structured next_activity node."""
+    if not items:
+        return []
+    total_items = len(items)
+    for idx, curr in enumerate(items):
+        existing_next = curr.get("next_activity") if isinstance(curr.get("next_activity"), dict) else {}
+        if idx < total_items - 1:
+            nxt = items[idx + 1]
+            nxt_name = nxt.get("name") or nxt.get("title") or nxt.get("activity") or "Next Destination"
+            curr_geo = curr.get("geo_location") or {}
+            nxt_geo = nxt.get("geo_location") or {}
+            lat1, lng1 = curr_geo.get("latitude"), curr_geo.get("longitude")
+            lat2, lng2 = nxt_geo.get("latitude"), nxt_geo.get("longitude")
+
+            if lat1 is not None and lng1 is not None and lat2 is not None and lng2 is not None:
+                dist_km, dist_mi = calculate_haversine_distance(lat1, lng1, lat2, lng2)
+            else:
+                dist_km = float(existing_next.get("distance_km") or 0.0)
+                dist_mi = float(existing_next.get("distance_miles") or round(dist_km * 0.621371, 2))
+
+            # Determine travel mode
+            t_mode = existing_next.get("travel_mode") or curr.get("travel_mode") or ("drive" if dist_km > 3.0 or "drive" in str(curr.get("description", "")).lower() or "drive" in str(nxt.get("description", "")).lower() else "walk")
+
+            # Determine travel time in minutes
+            if existing_next.get("travel_time_minutes"):
+                t_mins = int(existing_next["travel_time_minutes"])
+            elif t_mode == "drive":
+                t_mins = max(10, int(dist_km / 1.0)) if dist_km > 0 else 15
+            else:
+                t_mins = max(5, int(dist_km / 0.07)) if dist_km > 0 else 10
+
+            if t_mins >= 60:
+                hrs = t_mins // 60
+                mins_rem = t_mins % 60
+                t_disp = f"{hrs} hr{'s' if hrs > 1 else ''}" + (f" {mins_rem} mins" if mins_rem > 0 else "")
+            else:
+                t_disp = f"{t_mins} mins"
+
+            d_disp = existing_next.get("distance_display") or (f"{dist_km:.1f} km ({dist_mi:.1f} miles)" if dist_km > 0 else "Nearby / Walking Distance")
+
+            curr["next_activity"] = {
+                "name": existing_next.get("name") or nxt_name,
+                "distance_km": round(dist_km, 2),
+                "distance_miles": round(dist_mi, 2),
+                "distance_display": d_disp,
+                "travel_time_minutes": t_mins,
+                "travel_time_display": existing_next.get("travel_time_display") or t_disp,
+                "travel_mode": t_mode,
+                "transit_summary": existing_next.get("transit_summary") or f"{t_mode.capitalize()} to {nxt_name}",
+            }
+        else:
+            curr["next_activity"] = {
+                "name": existing_next.get("name") or "Overnight Rest & Rejuvenation",
+                "distance_km": 0.0,
+                "distance_miles": 0.0,
+                "distance_display": "0.0 km (0.0 miles)",
+                "travel_time_minutes": 0,
+                "travel_time_display": "0 mins",
+                "travel_mode": "stay",
+                "transit_summary": "Resting at lodging accommodation for the night",
+            }
+    return items

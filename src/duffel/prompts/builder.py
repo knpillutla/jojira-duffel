@@ -151,6 +151,7 @@ def build_planner_user_prompt(
     safety_instruction = PromptLoader.load_rule_prompt("safety_and_walkability_standards")
     no_gaps_instruction = PromptLoader.load_rule_prompt("no_gaps_timeline_protocol")
     shopping_instruction = PromptLoader.load_rule_prompt("evening_shopping_protocol")
+    next_act_instruction = PromptLoader.load_rule_prompt("next_activity_node_protocol")
 
     user_prompt = (
         f"Plan a {duration_days}-day trip from {origin_code} to {dest_clean} from {start_date} to {end_date} for {passengers_count} passenger(s). "
@@ -160,6 +161,7 @@ def build_planner_user_prompt(
         f"{safety_instruction}\n"
         f"{no_gaps_instruction}\n"
         f"{shopping_instruction}\n"
+        f"{next_act_instruction}\n"
         f"{evening_breakfast_instruction}\n"
         f"{hotel_breakfast_instruction}\n"
         f"{thematic_prompt_text}\n"
@@ -167,7 +169,7 @@ def build_planner_user_prompt(
         f"{car_logistics_text}\n"
         f"Included components: Flights={include_flights}, Hotels={include_hotels} ({rooms_calculated} rooms), Cars={include_cars} ({cars_calculated} car), Trains={include_trains}, Buses={include_buses}, "
         f"Attractions={include_attractions}, Activities={include_activities}, SeasonalAttractions={include_seasonal_attractions}, SeasonalActivities={include_seasonal_activities}. Prompt details: '{prompt}'.\n"
-        f"OUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {{\"days\": [{{\"day_number\": 1, \"date\": \"{start_date}\", \"theme\": \"...\", \"activities\": [...]}}]}}."
+        f"OUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {{\"days\": [{{\"day_number\": 1, \"date\": \"{start_date}\", \"theme\": \"...\", \"activities\": [..., {{\"name\": \"...\", \"time_slot\": \"08:00 AM - 09:00 AM\", \"category\": \"...\", \"description\": \"...\", \"travel_mode\": \"...\", \"next_activity\": {{\"name\": \"...\", \"distance_km\": 5.0, \"distance_miles\": 3.1, \"travel_time_minutes\": 15, \"travel_time_display\": \"15 mins\", \"travel_mode\": \"walk\", \"transit_summary\": \"...\"}}}}]}}]}}."
     )
 
     return user_prompt, effective_style
