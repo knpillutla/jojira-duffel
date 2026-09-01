@@ -1,19 +1,19 @@
 {
   "status": "success",
-  "timestamp": "2026-09-01 10:58:59",
+  "timestamp": "2026-09-01 11:22:57",
   "meta_data": {
     "type": "ai_search",
     "search_type": "flights",
-    "prompt": "4-day highlights trip to zurich from atlanta",
+    "prompt": "4 day road trip from atlanta to columbus, oh",
     "parsed_intent": {
       "selected_types": [
         "flights"
       ],
-      "trip_type": "round_trip",
+      "trip_type": "one_way",
       "origin": "ATL",
-      "destination": "ZRH",
+      "destination": "CMH",
       "departure_date": "2026-09-01",
-      "return_date": "2026-09-05",
+      "return_date": null,
       "from_date": "2026-09-01",
       "to_date": "2026-09-05",
       "min_price": null,
@@ -43,13 +43,8 @@
       "slices": [
         {
           "origin": "ATL",
-          "destination": "ZRH",
+          "destination": "CMH",
           "departure_date": "2026-09-01"
-        },
-        {
-          "origin": "ZRH",
-          "destination": "ATL",
-          "departure_date": "2026-09-05"
         }
       ]
     },
@@ -60,14 +55,14 @@
         "longitude": -84.4277
       },
       "destination": {
-        "code": "ZRH",
-        "latitude": 47.4633881,
-        "longitude": 8.5533661
+        "code": "CMH",
+        "latitude": 39.9970561,
+        "longitude": -82.8930477
       }
     }
   },
   "data": {
-    "ai_summary": "No travel options found for your prompt: '4-day highlights trip to zurich from atlanta'. Please try broadening your search criteria.",
+    "ai_summary": "No travel options found for your prompt: '4 day road trip from atlanta to columbus, oh'. Please try broadening your search criteria.",
     "category_highlights": {},
     "search_type": "flights",
     "total_items": 0,
@@ -77,7 +72,7 @@
     "top_bundles": [],
     "raw_data": {
       "status": "success",
-      "timestamp": "2026-09-01 10:58:59",
+      "timestamp": "2026-09-01 11:22:57",
       "search_type": "flights",
       "meta": {
         "search_type": "flights",
@@ -85,23 +80,23 @@
           "flights"
         ],
         "is_bundle": false,
-        "bundle_for": "Flight Search from ATL to ZRH",
-        "bundle_description": "Specific single-category search for flights from ATL to ZRH.",
-        "prompt": "4-day highlights trip to zurich from atlanta",
+        "bundle_for": "Flight Search from ATL to CMH",
+        "bundle_description": "Specific single-category search for flights from ATL to CMH.",
+        "prompt": "4 day road trip from atlanta to columbus, oh",
         "ttl_seconds": 3600,
-        "expires_at": "2026-09-01T15:58:59Z",
-        "timestamp": "2026-09-01 10:58:59"
+        "expires_at": "2026-09-01T16:22:57Z",
+        "timestamp": "2026-09-01 11:22:57"
       },
       "search_params": {
         "origin": "ATL",
-        "destination": "ZRH",
+        "destination": "CMH",
         "departure_date": "2026-09-01",
         "return_date": null,
         "passengers_count": 1,
         "cabin_class": "economy",
         "rooms": 1,
         "driver_age": 30,
-        "prompt": "4-day highlights trip to zurich from atlanta",
+        "prompt": "4 day road trip from atlanta to columbus, oh",
         "force_refresh": false
       },
       "category_highlights": {},

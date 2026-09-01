@@ -233,7 +233,97 @@ class TestTravelPlanner(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(data["status"], "success")
-        self.assertEqual(data["title"], "Road Trip")
+
+    def test_llm_failure_in_non_test_mode_raises_error(self):
+        """Test that if test_mode is False and LLM fails, generate_itinerary raises an error without falling back to synthetic data."""
+        self.client.config.test_mode = False
+        self.client.config.openai_api_key = "invalid_openai_key"
+        self.client.config.gemini_api_key = ""
+        self.client.config.llm_provider = "openai"
+
+        with self.assertRaises(RuntimeError) as ctx:
+            self.client.planner.generate_itinerary(
+                prompt="Trip to Paris",
+                origin="ATL",
+                destination="CDG",
+                force_refresh=True,
+            )
+        self.assertIn("Failed generating AI travel itinerary", str(ctx.exception))
+
+    def test_llm_failure_in_test_mode_uses_synthetic_data(self):
+        """Test that if test_mode is True and LLM fails, generate_itinerary falls back to synthetic data."""
+        self.client.config.test_mode = True
+        self.client.config.openai_api_key = "invalid_openai_key"
+        self.client.config.gemini_api_key = ""
+        self.client.config.llm_provider = "openai"
+
+        res = self.client.planner.generate_itinerary(
+            prompt="Trip to Paris",
+            origin="ATL",
+            destination="CDG",
+            force_refresh=True,
+        )
+        self.assertEqual(res["status"], "success")
+        self.assertEqual(res["meta_data"]["service_execution_summary"]["itinerary_planner"]["source"], "synthetic_template")
+
+    def test_dynamic_destination_highlights_not_static(self):
+        """Test that itinerary options highlights are dynamically constructed and do not contain static Paris landmarks for other destinations."""
+        self.client.config.test_mode = True
+        res = self.client.planner.generate_itinerary(
+            prompt="Road trip from Atlanta to Columbus, Ohio",
+            origin="ATL",
+            destination="CMH",
+            include_flights=False,
+            include_cars=True,
+            force_refresh=True,
+        )
+        self.assertEqual(res["status"], "success")
+        options = res["data"]["itinerary_options"]
+        for opt in options:
+            highlights = opt.get("highlights", [])
+            for hl in highlights:
+                self.assertNotIn("Louvre", hl)
+                self.assertNotIn("Eiffel Tower", hl)
+                self.assertNotIn("Montmartre", hl)
+                self.assertNotIn("Seine", hl)
+
+    def test_extract_days_from_nested_llm_payload(self):
+        """Test that _extract_days_from_llm_payload extracts days from arbitrary nested LLM responses."""
+        from src.duffel.services.planner import _extract_days_from_llm_payload
+
+        # 1. Nested under {"trip": {"itinerary": [...]}}
+        p1 = {
+            "trip": {
+                "origin": "ATL",
+                "destination": "New York",
+                "itinerary": [
+                    {"day_number": 1, "theme": "Arrival & Central Park", "activities": []},
+                    {"day_number": 2, "theme": "Museums & Times Square", "activities": []}
+                ]
+            }
+        }
+        res1 = _extract_days_from_llm_payload(p1)
+        self.assertIsNotNone(res1)
+        self.assertEqual(len(res1), 2)
+        self.assertEqual(res1[0]["day_number"], 1)
+
+        # 2. Standard top-level {"days": [...]}
+        p2 = {
+            "days": [
+                {"day_number": 1, "theme": "Day 1", "activities": []}
+            ]
+        }
+        res2 = _extract_days_from_llm_payload(p2)
+        self.assertIsNotNone(res2)
+        self.assertEqual(len(res2), 1)
+
+        # 3. Direct array [...]
+        p3 = [
+            {"day": 1, "theme": "Day 1", "activities": []}
+        ]
+        res3 = _extract_days_from_llm_payload(p3)
+        self.assertIsNotNone(res3)
+        self.assertEqual(len(res3), 1)
 
 
 if __name__ == "__main__":

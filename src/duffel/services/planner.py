@@ -198,6 +198,43 @@ def _save_llm_debug_output(category: str, data: dict[str, Any], identifier: str 
     save_output_file(filename=filename, data=data, subfolder="llm", force=True)
 
 
+def _extract_days_from_llm_payload(payload: Any) -> Optional[list[dict[str, Any]]]:
+    """
+    Recursively and flexibly locates and returns the list of daily itinerary dicts
+    from any LLM JSON response structure (e.g. {'days': [...]}, {'trip': {'itinerary': [...]}}, [{'day_number': 1, ...}], etc.).
+    """
+    if isinstance(payload, list):
+        if payload and isinstance(payload[0], dict):
+            return payload
+        return None
+
+    if not isinstance(payload, dict):
+        return None
+
+    # 1. Direct top-level candidate keys
+    for key in ["days", "daily_itinerary", "itinerary", "itinerary_days", "schedule", "trip_days", "plan"]:
+        val = payload.get(key)
+        if isinstance(val, list) and val and isinstance(val[0], dict):
+            return val
+        elif isinstance(val, dict):
+            sub_res = _extract_days_from_llm_payload(val)
+            if sub_res:
+                return sub_res
+
+    # 2. Nested dictionary traversal (e.g. payload['trip']['itinerary'], payload['data']['days'])
+    for k, v in payload.items():
+        if isinstance(v, dict):
+            sub_res = _extract_days_from_llm_payload(v)
+            if sub_res:
+                return sub_res
+        elif isinstance(v, list) and v and isinstance(v[0], dict):
+            first_elem = v[0]
+            if any(prop in first_elem for prop in ["day_number", "day", "date", "theme", "title", "activities", "items", "events", "schedule", "attractions"]):
+                return v
+
+    return None
+
+
 # Comprehensive Country and IATA / City Mapping for Domestic vs International Trip Classification
 IATA_COUNTRY_MAP = {
     # US
@@ -677,6 +714,7 @@ class TravelPlannerService(BaseService):
         except Exception as ai_err:
             print(f"[PLANNER NOTICE] First-step AI Search flight lookup notice: {ai_err}", flush=True)
 
+        is_test_mode = bool(getattr(cfg, "test_mode", False)) if cfg else False
         top_3_bundles, component_pricing, pricing_meta = self._fetch_live_pricing(
             origin=origin_code,
             destination=dest_upper,
@@ -685,6 +723,7 @@ class TravelPlannerService(BaseService):
             passengers_count=passengers_count,
             rooms=rooms_calculated,
             driver_age=driver_age,
+            is_test=is_test_mode,
         )
 
         outbound_dep = component_pricing.get("outbound_departure_time", "06:30 AM")
@@ -701,35 +740,62 @@ class TravelPlannerService(BaseService):
                 s1 = fl_slices[0]
                 dep_raw = s1.get("departing_at") or s1.get("departure_time")
                 arr_raw = s1.get("arriving_at") or s1.get("arrival_time")
+                if not dep_raw or not arr_raw:
+                    segs = s1.get("segments") or []
+                    if segs and isinstance(segs, list):
+                        if not dep_raw and isinstance(segs[0], dict):
+                            dep_raw = segs[0].get("departing_at") or segs[0].get("departure_time")
+                        if not arr_raw and isinstance(segs[-1], dict):
+                            arr_raw = segs[-1].get("arriving_at") or segs[-1].get("arrival_time")
                 if dep_raw and "T" in str(dep_raw):
                     try:
                         dt = datetime.fromisoformat(str(dep_raw).replace("Z", "+00:00"))
                         outbound_dep = dt.strftime("%I:%M %p")
                     except Exception:
                         pass
+                elif dep_raw:
+                    outbound_dep = str(dep_raw).strip()
                 if arr_raw and "T" in str(arr_raw):
                     try:
                         dt = datetime.fromisoformat(str(arr_raw).replace("Z", "+00:00"))
                         outbound_arr = dt.strftime("%I:%M %p")
                     except Exception:
                         pass
+                elif arr_raw:
+                    outbound_arr = str(arr_raw).strip()
 
             if len(fl_slices) > 1 and isinstance(fl_slices[1], dict):
                 s2 = fl_slices[1]
                 ret_dep_raw = s2.get("departing_at") or s2.get("departure_time")
                 ret_arr_raw = s2.get("arriving_at") or s2.get("arrival_time")
+                if not ret_dep_raw or not ret_arr_raw:
+                    segs2 = s2.get("segments") or []
+                    if segs2 and isinstance(segs2, list):
+                        if not ret_dep_raw and isinstance(segs2[0], dict):
+                            ret_dep_raw = segs2[0].get("departing_at") or segs2[0].get("departure_time")
+                        if not ret_arr_raw and isinstance(segs2[-1], dict):
+                            ret_arr_raw = segs2[-1].get("arriving_at") or segs2[-1].get("arrival_time")
                 if ret_dep_raw and "T" in str(ret_dep_raw):
                     try:
                         dt = datetime.fromisoformat(str(ret_dep_raw).replace("Z", "+00:00"))
                         return_dep = dt.strftime("%I:%M %p")
                     except Exception:
                         pass
+                elif ret_dep_raw:
+                    return_dep = str(ret_dep_raw).strip()
                 if ret_arr_raw and "T" in str(ret_arr_raw):
                     try:
                         dt = datetime.fromisoformat(str(ret_arr_raw).replace("Z", "+00:00"))
                         return_arr = dt.strftime("%I:%M %p")
                     except Exception:
                         pass
+                elif ret_arr_raw:
+                    return_arr = str(ret_arr_raw).strip()
+
+            component_pricing["outbound_departure_time"] = outbound_dep
+            component_pricing["outbound_arrival_time"] = outbound_arr
+            component_pricing["return_departure_time"] = return_dep
+            component_pricing["return_arrival_time"] = return_arr
 
         # Check if flight arrival is after 12:00 PM to mandate Airport Terminal Lunch
         is_late_arrival = False
@@ -787,7 +853,8 @@ class TravelPlannerService(BaseService):
             f"TIMELINE REQUIREMENT: {'On Day 1, schedule all activities strictly after flight arrival at ' + outbound_arr + '. On Final Day, wrap up before flight departure at ' + return_dep + '.' if include_flights else 'On Day 1, depart from origin at 08:30 AM and embark on the road trip corridor. On Final Day, return to origin by 06:00 PM.'}\n"
             f"RENTAL VEHICLE LOGISTICS: {'On Day 1 include rental car pickup upon departure/arrival, and on Day ' + str(duration_days) + ' include rental vehicle return & drop-off.' if include_cars else 'No rental car requested.'}\n"
             f"Included components: Flights={include_flights}, Hotels={include_hotels} ({rooms_calculated} rooms), Cars={include_cars} ({cars_calculated} car), Trains={include_trains}, Buses={include_buses}, "
-            f"Attractions={include_attractions}, Activities={include_activities}, SeasonalAttractions={include_seasonal_attractions}, SeasonalActivities={include_seasonal_activities}. Prompt details: '{prompt}'."
+            f"Attractions={include_attractions}, Activities={include_activities}, SeasonalAttractions={include_seasonal_attractions}, SeasonalActivities={include_seasonal_activities}. Prompt details: '{prompt}'.\n"
+            f"OUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {{\"days\": [{{\"day_number\": 1, \"date\": \"{start_date}\", \"theme\": \"...\", \"activities\": [...]}}]}}."
         )
 
         # STEP 3: Generate Day-by-Day Itinerary with LLM based on Live Flight Times
@@ -1089,7 +1156,8 @@ class TravelPlannerService(BaseService):
                     }
                 })
 
-            for act in day.get("activities", []):
+            acts_list = day.get("activities") or day.get("items") or day.get("schedule") or day.get("events") or day.get("attractions") or day.get("plan") or []
+            for act in acts_list:
                 act_title = act.get("title") or act.get("name") or act.get("activity_name") or act.get("activity") or ""
                 act_lower = act_title.strip().lower()
                 desc_str = (act.get("description") or "").lower()
@@ -1742,34 +1810,164 @@ class TravelPlannerService(BaseService):
 
         # Build 3 Distinct Complete Itinerary Options with AI Descriptions & Highlights
         itinerary_options = []
+
+        # Collect dynamic activities, dining, and sightseeing from generated daily itinerary
+        itin_attractions = []
+        itin_dining = []
+        itin_activities = []
+        for d in daily_itinerary:
+            for item in d.get("items", []):
+                itype = str(item.get("type") or "").lower()
+                iname = str(item.get("title") or item.get("name") or "").strip()
+                icat = str(item.get("category") or "").lower()
+                if not iname or itype in ["flight", "car"]:
+                    continue
+                ilower = iname.lower()
+                if any(k in ilower for k in ["check-in", "check in", "rest for the night", "hotel rest", "return to hotel", "rental vehicle", "flight arrival", "flight departure"]):
+                    continue
+                if itype == "attraction" or any(k in ilower or k in icat for k in ["museum", "landmark", "park", "sightseeing", "lookout", "monument", "historic", "viewpoint", "waypoint", "trail"]):
+                    if iname not in itin_attractions:
+                        itin_attractions.append(iname)
+                elif itype in ["dining", "restaurant"] or any(k in ilower or k in icat for k in ["breakfast", "lunch", "dinner", "cafe", "bistro", "tasting", "dining", "bakery", "eatery", "sommelier"]):
+                    if iname not in itin_dining:
+                        itin_dining.append(iname)
+                else:
+                    if iname not in itin_activities and iname not in itin_attractions:
+                        itin_activities.append(iname)
+
+        # Dynamic Highlights for Option 1 (Classic & Iconic Highlights)
+        opt1_highlights = []
+        for name in itin_attractions:
+            if name not in opt1_highlights:
+                opt1_highlights.append(name)
+            if len(opt1_highlights) >= 4:
+                break
+        if len(opt1_highlights) < 4:
+            for name in itin_activities:
+                if name not in opt1_highlights:
+                    opt1_highlights.append(name)
+                if len(opt1_highlights) >= 4:
+                    break
+        if len(opt1_highlights) < 4:
+            fallbacks_opt1 = [
+                f"Iconic Landmarks & Historic Walking Discovery in {dest_clean}",
+                f"Top Rated Cultural Sightseeing & Panoramic City Views",
+                f"Scenic Center & Central Promenade Tour",
+                f"Guided Architectural Heritage & Museum Experience",
+            ] if not is_road_trip else [
+                f"Scenic Highway Corridor Waypoints & Scenic Lookouts from {origin_code}",
+                f"Iconic Landmarks & Historic Center of {dest_clean}",
+                f"Regional State Parks & Nature Trail Exploration",
+                f"Top-Rated Sightseeing & Historic Monuments",
+            ]
+            for fb in fallbacks_opt1:
+                if fb not in opt1_highlights and len(opt1_highlights) < 4:
+                    opt1_highlights.append(fb)
+
+        # Dynamic Highlights for Option 2 (Hidden Gems & Culinary Secrets)
+        opt2_highlights = []
+        for name in itin_dining:
+            if name not in opt2_highlights:
+                opt2_highlights.append(name)
+            if len(opt2_highlights) >= 2:
+                break
+        for name in itin_activities:
+            if name not in opt2_highlights and name not in opt1_highlights:
+                opt2_highlights.append(name)
+            if len(opt2_highlights) >= 4:
+                break
+        if len(opt2_highlights) < 4:
+            fallbacks_opt2 = [
+                f"Artisanal Morning Coffee & Bakery Walk in {dest_clean}",
+                f"Authentic Local Bistro & Regional Specialties Dining",
+                f"Hidden Courtyards & Cultural Discovery Tour",
+                f"Neighborhood Market Walk & Local Tastings",
+            ] if not is_road_trip else [
+                f"En-Route Farm-to-Table Dining & Roadside Eateries",
+                f"Historic Town Courtyards & Hidden Regional Spots",
+                f"Local Craft Cafes & Regional Tastings",
+                f"Scenic Riverfront & Countryside Promenade",
+            ]
+            for fb in fallbacks_opt2:
+                if fb not in opt2_highlights and len(opt2_highlights) < 4:
+                    opt2_highlights.append(fb)
+
+        # Dynamic Highlights for Option 3 (Signature Luxury & VIP Panorama)
+        opt3_highlights = []
+        for name in itin_dining[::-1]:
+            if "dinner" in name.lower() or "bistro" in name.lower() or "dining" in name.lower():
+                opt3_highlights.append(f"Fine Dining: {name}")
+                break
+        if len(opt3_highlights) < 4:
+            fallbacks_opt3 = [
+                f"Private Chauffeured Airport & City Center Transfers in {dest_clean}" if not is_road_trip else f"Premium Scenic Driving & Executive Vehicle Experience",
+                f"Exclusive VIP Priority Access to Top Attractions in {dest_clean}",
+                f"Fine Dining Chef's Multi-Course Evening Dinner",
+                f"Sunset Panoramic Skyline & Scenic Waterfront / Mountain View",
+            ]
+            for fb in fallbacks_opt3:
+                if fb not in opt3_highlights and len(opt3_highlights) < 4:
+                    opt3_highlights.append(fb)
+
+        opt1_desc = (
+            f"A well-paced road trip itinerary along the {origin_code} to {dest_clean} corridor featuring iconic highway waypoints, scenic lookout stops, and famous landmark attractions."
+            if is_road_trip else
+            f"A perfectly balanced itinerary featuring famous landmarks, iconic cultural sites, and quintessential sightseeing highlights in {dest_clean}. Ideal for first-time visitors who want to see top attractions at a comfortable pace."
+        )
+        opt1_why = (
+            f"Best for travelers seeking an authentic, well-rounded road trip between {origin_code} and {dest_clean}."
+            if is_road_trip else
+            f"Best for first-time travelers seeking an iconic, well-rounded introduction to {dest_clean}."
+        )
+
+        opt2_desc = (
+            f"An immersive road trip discovering regional food capitals, authentic roadside diners, craft coffee stops, and hidden countryside gems between {origin_code} and {dest_clean}."
+            if is_road_trip else
+            f"An immersive culinary and cultural discovery off the beaten path. Explore artisanal eateries, local food markets, hidden neighborhood bistros, and authentic culinary secrets in {dest_clean}."
+        )
+        opt2_why = (
+            f"Best for foodies and road trippers wanting to discover regional culinary secrets along the way."
+            if is_road_trip else
+            f"Best for foodies and culture enthusiasts wanting to experience {dest_clean} like a local."
+        )
+
+        opt3_desc = (
+            f"A VIP luxury road trip featuring premier boutique stays, executive vehicle options, private tours, and fine regional dining along the {origin_code} to {dest_clean} route."
+            if is_road_trip else
+            f"A VIP luxury experience featuring five-star suite accommodations, private chauffeured transfers, exclusive skip-the-line access, and romantic fine dining in {dest_clean}."
+        )
+        opt3_why = (
+            f"Best for travelers seeking ultimate comfort, luxury boutique accommodations, and VIP experiences."
+        )
+
         option_styles = [
             (
                 "Option 1: Classic & Iconic Culture",
                 "balanced",
                 "moderate",
                 1.0,
-                f"A perfectly balanced itinerary featuring famous landmarks, iconic museum tours, and quintessential sightseeing highlights in {dest_clean}. Ideal for first-time visitors who want to see all the top attractions at a comfortable pace.",
-                [f"Guided Louvre Museum & Art Masterpieces Tour in {dest_clean}", f"Eiffel Tower Sunset Skyline Panorama", f"Historic Montmartre & Sacré-Cœur Walking Tour", f"Seine River Sunset Panoramic Cruise"],
-                f"Best for first-time travelers seeking an iconic, well-rounded introduction to {dest_clean}."
+                opt1_desc,
+                opt1_highlights,
+                opt1_why,
             ),
             (
                 "Option 2: Hidden Gems & Culinary Secrets",
                 "culinary_gems",
                 "moderate",
                 1.1,
-                f"An immersive culinary and cultural discovery off the beaten path. Explore historic Saint-Germain pastry shops, secret courtyard cafes, artisanal wine tastings, and vibrant local markets in {dest_clean}.",
-                [f"Saint-Germain Artisanal Pastry & Espresso Walk", f"Le Marais Secret Courtyards & Contemporary Art Tour", f"Private Sommelier Wine & Cheese Tasting Experience", f"Canal Saint-Martin Evening Promenade & Bistro Dinner"],
-                f"Best for foodies and culture enthusiasts wanting to experience {dest_clean} like a local."
+                opt2_desc,
+                opt2_highlights,
+                opt2_why,
             ),
             (
                 "Option 3: Signature Luxury & Romantic VIP",
                 "luxury_vip",
                 "luxury",
                 1.5,
-                f"A VIP luxury experience featuring five-star suite accommodations, private chauffeured transfers, exclusive after-hours gallery access, and romantic Michelin-starred dining in {dest_clean}.",
-                [f"Private Chauffeured Airport & City Center Transfers", f"Exclusive VIP Private Gallery & Museum Access", f"Michelin-Starred Candlelight Romantic Dinner", f"Private Sunset Champagne Yacht Cruise along the River"],
-                f"Best for couples celebrating special occasions seeking ultimate luxury, privacy, and VIP treatment."
-            )
+                opt3_desc,
+                opt3_highlights,
+                opt3_why,
+            ),
         ]
 
         for opt_idx, (opt_name, opt_style, opt_budget, price_multiplier, opt_desc, opt_highlights_list, opt_why) in enumerate(option_styles, 1):
@@ -2310,14 +2508,17 @@ class TravelPlannerService(BaseService):
         Returns tuple of (days_list, llm_meta).
         """
         cfg = getattr(self.client, "config", None)
+        is_test_mode = bool(getattr(cfg, "test_mode", False)) if cfg else False
         openai_key = getattr(cfg, "openai_api_key", "") if cfg else ""
         gemini_key = getattr(cfg, "gemini_api_key", "") if cfg else ""
         llm_provider = getattr(cfg, "llm_provider", "openai") if cfg else "openai"
+        llm_errors: list[str] = []
 
         # 1. Attempt OpenAI if key is present
         if openai_key and llm_provider == "openai":
             model_name = getattr(cfg, "openai_model", "gpt-4o-mini") or "gpt-4o-mini"
             llm_timeout = float(getattr(cfg, "timeout", 120.0))
+            t0_llm = 0.0
             try:
                 import time
                 t0_llm = time.perf_counter()
@@ -2341,6 +2542,7 @@ class TravelPlannerService(BaseService):
                     # Direct HTTP fallback via urllib.request
                     import json
                     from urllib.request import Request, urlopen
+                    from urllib.error import HTTPError
                     payload = {
                         "model": model_name,
                         "messages": [
@@ -2359,13 +2561,18 @@ class TravelPlannerService(BaseService):
                         },
                         method="POST",
                     )
-                    with urlopen(req_obj, timeout=llm_timeout) as resp_http:
-                        http_data = json.loads(resp_http.read().decode("utf-8"))
-                        raw_text = http_data["choices"][0]["message"]["content"]
+                    try:
+                        with urlopen(req_obj, timeout=llm_timeout) as resp_http:
+                            http_data = json.loads(resp_http.read().decode("utf-8"))
+                            raw_text = http_data["choices"][0]["message"]["content"]
+                    except HTTPError as http_err:
+                        err_body = http_err.read().decode("utf-8", errors="ignore")
+                        raise RuntimeError(f"OpenAI API HTTP {http_err.code}: {err_body}")
 
                 if raw_text:
                     parsed = json.loads(raw_text)
-                    days_out = parsed.get("days") if isinstance(parsed, dict) else (parsed if isinstance(parsed, list) else None)
+                    days_out = _extract_days_from_llm_payload(parsed)
+
                     if days_out:
                         llm_dur_ms = (time.perf_counter() - t0_llm) * 1000.0
                         try:
@@ -2395,19 +2602,24 @@ class TravelPlannerService(BaseService):
                             identifier=destination
                         )
                         return days_out, {"is_live_llm": True, "llm_provider": "openai", "llm_model": model_name}
+                    else:
+                        raise ValueError(f"OpenAI returned JSON without valid days array: {raw_text[:200]}")
             except Exception as llm_err:
-                llm_dur_ms = (time.perf_counter() - t0_llm) * 1000.0
-                try:
-                    from ..timing import TimingTracker
-                    TimingTracker.add_llm_time(llm_dur_ms)
-                except Exception:
-                    pass
-                print(f"[PLANNER LLM NOTICE] OpenAI execution notice: {llm_err}. Falling back to template synthesizer.")
+                if t0_llm > 0:
+                    llm_dur_ms = (time.perf_counter() - t0_llm) * 1000.0
+                    try:
+                        from ..timing import TimingTracker
+                        TimingTracker.add_llm_time(llm_dur_ms)
+                    except Exception:
+                        pass
+                llm_errors.append(f"OpenAI ({model_name}) error: {llm_err}")
+                print(f"[PLANNER LLM NOTICE] OpenAI execution notice: {llm_err}.")
 
         # 2. Attempt Gemini if key is present
         if gemini_key and (llm_provider == "gemini" or not openai_key):
             gemini_model = getattr(cfg, "gemini_model", "gemini-1.5-flash") or "gemini-1.5-flash"
             llm_timeout = float(getattr(cfg, "timeout", 120.0))
+            t0_llm = 0.0
             try:
                 import time
                 t0_llm = time.perf_counter()
@@ -2421,7 +2633,8 @@ class TravelPlannerService(BaseService):
                     data = resp.json()
                     raw_text = data["candidates"][0]["content"]["parts"][0]["text"]
                     parsed = json.loads(raw_text)
-                    days_out = parsed.get("days") if isinstance(parsed, dict) else (parsed if isinstance(parsed, list) else None)
+                    days_out = _extract_days_from_llm_payload(parsed)
+
                     if days_out:
                         llm_dur_ms = (time.perf_counter() - t0_llm) * 1000.0
                         try:
@@ -2451,20 +2664,30 @@ class TravelPlannerService(BaseService):
                             identifier=destination
                         )
                         return days_out, {"is_live_llm": True, "llm_provider": "gemini", "llm_model": gemini_model}
+                    else:
+                        raise ValueError(f"Gemini returned JSON without valid days array: {raw_text[:200]}")
+                else:
+                    raise RuntimeError(f"Gemini API returned HTTP {resp.status_code}: {resp.text}")
             except Exception as gem_err:
-                llm_dur_ms = (time.perf_counter() - t0_llm) * 1000.0
-                try:
-                    from ..timing import TimingTracker
-                    TimingTracker.add_llm_time(llm_dur_ms)
-                except Exception:
-                    pass
-                print(f"[PLANNER LLM NOTICE] Gemini execution notice: {gem_err}. Falling back to template synthesizer.")
+                if t0_llm > 0:
+                    llm_dur_ms = (time.perf_counter() - t0_llm) * 1000.0
+                    try:
+                        from ..timing import TimingTracker
+                        TimingTracker.add_llm_time(llm_dur_ms)
+                    except Exception:
+                        pass
+                llm_errors.append(f"Gemini ({gemini_model}) error: {gem_err}")
+                print(f"[PLANNER LLM NOTICE] Gemini execution notice: {gem_err}.")
 
-        # 3. High-Performance Template Synthesizer Fallback (Offline / Dev Mode)
+        # 3. High-Performance Template Synthesizer Fallback (Only allowed when test_mode is True)
+        if not is_test_mode:
+            err_details = "; ".join(llm_errors) if llm_errors else f"No active LLM API key configured for provider '{llm_provider}' and test_mode is False."
+            raise RuntimeError(f"Failed generating AI travel itinerary: {err_details}")
+
         _LLM_METRICS_COUNTER["total_llm_calls"] += 1
         _LLM_METRICS_COUNTER["template_fallback_calls"] += 1
         _LLM_METRICS_COUNTER["last_call_timestamp"] = datetime.now(timezone.utc).isoformat()
-        print(f"[PLANNER SYNTHESIZER] Synthesized {duration_days}-day curated itinerary for '{destination}'.")
+        print(f"[PLANNER SYNTHESIZER] Test mode enabled: Synthesized {duration_days}-day curated itinerary for '{destination}'.")
 
         synthetic_days = self._synthesize_template_itinerary(
             destination=destination,

@@ -1,1039 +1,603 @@
 {
-  "timestamp": "2026-09-01T14:59:56.269037+00:00",
-  "destination": "Zurich",
+  "timestamp": "2026-09-01T17:14:51.798226+00:00",
+  "destination": "New York",
   "duration_days": 4,
-  "user_prompt": "Plan a 4-day trip from ATL to Zurich from 2026-09-16 to 2026-09-20 for 1 passenger(s). Style: balanced, Budget: moderate.\nEXACT LIVE FLIGHT SCHEDULE FROM AI SEARCH:\n- Outbound Flight: Departs ATL at 06:30 AM, Arrives in Zurich at 12:30 PM.\n- Return Flight: Departs Zurich at 05:00 PM, Arrives in ATL at 11:00 PM.\nAIRPORT LUNCH PROTOCOL (FLIGHT ARRIVAL AT 12:30 PM): Outbound flight arrives at 12:30 PM (after 12:00 PM). Schedule Day 1 Lunch IMMEDIATELY at an Airport Terminal Restaurant/Cafe upon landing (e.g. at 01:00 PM) before picking up rental car or traveling into the city center, otherwise it will be too late to pick up the rental car or eat. LUNCH MUST NEVER BE SCHEDULED AFTER 02:00 PM ON ANY DAY!\nDAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM at best (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest (e.g. 05:45 PM - 07:45 PM). NEVER extend any attraction past 08:00 PM (NEVER 08:30 PM, 09:00 PM, or 10:45 PM).\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (e.g. 08:00 PM - 09:30 PM). Never start dinner after 08:00 PM.\n- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night', with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Under no circumstances should any activity, dinner, or hotel return be scheduled past 10:00 PM (never 10:30 PM, 11:00 PM, 12:00 AM, 01:00 AM, or 06:15 AM).\n- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM. If sit-in breakfast is not possible due to morning time constraints or tight schedules, recommend a nearby local coffee shop, artisanal bakery, or quick cafe to grab coffee & pastries instead of a long sit-in breakfast.\nTIMELINE REQUIREMENT: On Day 1, schedule all activities strictly after flight arrival at 12:30 PM. On Final Day, wrap up before flight departure at 05:00 PM.\nRENTAL VEHICLE LOGISTICS: On Day 1 include rental car pickup upon departure/arrival, and on Day 4 include rental vehicle return & drop-off.\nIncluded components: Flights=True, Hotels=True (1 rooms), Cars=True (1 car), Trains=False, Buses=False, Attractions=True, Activities=True, SeasonalAttractions=True, SeasonalActivities=True. Prompt details: '4-day highlights trip to zurich from atlanta'.",
+  "user_prompt": "Plan a 4-day trip from ATL to New York from 2026-09-16 to 2026-09-20 for 1 passenger(s). Style: balanced, Budget: moderate.\nEXACT LIVE FLIGHT SCHEDULE FROM AI SEARCH:\n- Outbound Flight: Departs ATL at 04:18 PM, Arrives in New York at 11:00 PM.\n- Return Flight: Departs New York at 05:01 PM, Arrives in ATL at 09:43 PM.\nAIRPORT LUNCH PROTOCOL (FLIGHT ARRIVAL AT 11:00 PM): Outbound flight arrives at 11:00 PM (after 12:00 PM). Schedule Day 1 Lunch IMMEDIATELY at an Airport Terminal Restaurant/Cafe upon landing (e.g. at 01:00 PM) before picking up rental car or traveling into the city center, otherwise it will be too late to pick up the rental car or eat. LUNCH MUST NEVER BE SCHEDULED AFTER 02:00 PM ON ANY DAY!\nDAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM at best (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest (e.g. 05:45 PM - 07:45 PM). NEVER extend any attraction past 08:00 PM (NEVER 08:30 PM, 09:00 PM, or 10:45 PM).\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (e.g. 08:00 PM - 09:30 PM). Never start dinner after 08:00 PM.\n- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night', with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Under no circumstances should any activity, dinner, or hotel return be scheduled past 10:00 PM (never 10:30 PM, 11:00 PM, 12:00 AM, 01:00 AM, or 06:15 AM).\n- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM. If sit-in breakfast is not possible due to morning time constraints or tight schedules, recommend a nearby local coffee shop, artisanal bakery, or quick cafe to grab coffee & pastries instead of a long sit-in breakfast.\nTIMELINE REQUIREMENT: On Day 1, schedule all activities strictly after flight arrival at 11:00 PM. On Final Day, wrap up before flight departure at 05:01 PM.\nRENTAL VEHICLE LOGISTICS: On Day 1 include rental car pickup upon departure/arrival, and on Day 4 include rental vehicle return & drop-off.\nIncluded components: Flights=True, Hotels=True (1 rooms), Cars=True (1 car), Trains=False, Buses=False, Attractions=True, Activities=True, SeasonalAttractions=True, SeasonalActivities=True. Prompt details: '4 day trip from atlanta to Newyork'.\nOUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {\"days\": [{\"day_number\": 1, \"date\": \"2026-09-16\", \"theme\": \"...\", \"activities\": [...]}]}.",
   "system_prompt": "You are a World-Class Global AI Travel Planner & Master Concierge. You specialize in analyzing complex travel requests and crafting hyper-curated, optimal travel itineraries and travel packages worldwide across top global destinations. You expertly identify user intentions for flights, hotels, car rentals, attractions, dining, multi-category travel bundles, and scenic road trips.\n\nSTANDARD DAY TIMINGS & DEFINITIONS (STRICT COMPLIANCE REQUIRED):\n- MORNING (05:00 AM - 11:59 AM): Breakfast at 08:00 AM, morning cultural museums, iconic attractions, or road trip scenic morning stops at 09:30 AM - 11:30 AM.\n- NOON / MIDDAY (12:00 PM - 12:59 PM): Lunch at 12:00 PM - 01:30 PM at top-rated local cafes, bistros, or famous en-route highway diners.\n- AFTERNOON (01:00 PM - 04:59 PM): Afternoon promenades, historic districts, parks, viewpoints, en-route state/national parks, and cultural experiences (e.g. 02:00 PM - 04:30 PM on full days, or 03:15 PM - 05:15 PM on Day 1 after hotel check-in).\n- EVENING (05:00 PM - 07:59 PM): Evening sunset attractions, panoramic towers, viewpoints, and river/scenic cruises (05:45 PM - 07:45 PM). NEVER schedule evening activities during the afternoon (12:00 PM - 04:59 PM).\n- NIGHT (08:00 PM - 11:59 PM): Signature regional dinner from 08:00 PM - 09:30 PM, followed by 'Return to Hotel & Rest for the Night' at 09:30 PM - 10:00 PM.\n- MIDNIGHT / LATE NIGHT (12:00 AM - 04:59 AM): Resting at hotel (NO activities permitted).\n\nREAL SPECIFIC NAMES (NO GENERIC PLACEHOLDERS):\n- NEVER use generic placeholder names like 'Evening Landmark Attraction', 'Famous Landmark / Museum', 'Signature Dinner Place', 'Artisanal Breakfast', 'Gourmet Lunch', or 'Afternoon Activity & Promenade'.\n- ALWAYS provide the REAL, ACTUAL, and FAMOUS name of the landmark, museum, restaurant, or experience (e.g., 'Lookout Mountain & Ruby Falls in Chattanooga', 'Kentucky Bourbon Trail in Lexington', 'National Museum of the US Air Force in Dayton', 'Berlin TV Tower', 'Louvre Museum').\n\nROAD TRIP & HIGHWAY CORRIDOR EN-ROUTE PLANNING RULES:\n1. EN-ROUTE WAYPOINTS & SCENIC STOPS (NOT JUST FINAL DESTINATION):\n   - When planning a Road Trip (no flights) or a Fly & Drive vacation (flights + regional car exploration), do NOT restrict activities solely to the destination city.\n   - Intelligently construct the itinerary across the authentic driving highway corridor between Origin and Destination (e.g. for Atlanta -> Columbus, OH: route passes through Chattanooga, TN -> Lexington, KY -> Cincinnati, OH -> Columbus, OH).\n   - Schedule authentic en-route morning attractions, famous roadside dining, state/national parks, scenic lookouts, and intermediate overnight stays in waypoint towns when driving across multiple days.\n   - In 'next_activity', set 'travel_mode': 'drive' for intercity and corridor transit legs with accurate driving distances and durations.\n2. STRICT CONTIGUOUS HOUR-BY-HOUR TIMELINE & LOGISTICS:\n   - DAY 1 (AFTERNOON FLIGHT ARRIVAL SEQUENCE - IF LANDING AFTER 12:00 PM):\n     1. Flight Arrival (e.g. 12:30 PM)\n     2. Airport Terminal Lunch & Cafe (12:45 PM - 01:30 PM) -> Grab Lunch IMMEDIATELY at an Airport Terminal Cafe / Bistro upon landing BEFORE vehicle pickup so you don't lose time.\n     3. Airport Vehicle Rental Pickup (01:30 PM - 02:00 PM) -> Pick up rental car at airport rental facility after lunch.\n     4. Hotel Check-in / Start Drive (02:30 PM - 03:00 PM) -> Drive to hotel and check in, or embark on initial scenic driving leg.\n     5. Afternoon Promenade / En-Route Attraction (03:15 PM - 05:15 PM) -> Essential afternoon stop directly bridging check-in to evening landmark (NO gaps!).\n     6. Evening Sunset Landmark Tour (05:45 PM - 07:45 PM) -> Iconic evening attraction.\n     7. Signature Regional Dinner (08:00 PM - 09:30 PM) -> Evening fine dining.\n     8. Return to Hotel & Rest for the Night (09:30 PM - 10:00 PM) -> Final restful return to hotel.\n   - FULL EXPLORATION & ROAD TRIP DAYS (DAYS 2 to N-1):\n     1. Start Day at Hotel -> Artisanal Breakfast Cafe (08:00 AM - 09:00 AM)\n     2. Morning Sightseeing / En-Route Landmark (09:30 AM - 11:30 AM)\n     3. Lunch Bistro / Roadside Spot (12:00 PM - 01:30 PM)\n     4. Afternoon Cultural Promenade / Scenic Drive Stop (02:00 PM - 04:30 PM)\n     5. Evening Landmark Attraction (05:45 PM - 07:45 PM)\n     6. Signature Regional Dinner (08:00 PM - 09:30 PM)\n     7. Return to Hotel & Rest for the Night (09:30 PM - 10:00 PM)\n   - FINAL DAY (RETURN DAY):\n     1. Start Day at Hotel -> Breakfast Cafe (08:00 AM - 09:00 AM)\n     2. Morning Sightseeing / Shopping (09:30 AM - 11:30 AM)\n     3. Lunch Place (12:00 PM - 01:30 PM)\n     4. Rental Vehicle Return & Drop-off at Airport/Rental Facility (~2.5 hours prior to flight, e.g. 02:30 PM - 03:00 PM)\n     5. Return Flight Departure / Final Drive Home (e.g. 05:00 PM)\n3. STRICT TIMING RULES (UNBREAKABLE):\n   - ATTRACTION CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest (e.g. 05:45 PM - 07:45 PM). NEVER extend any attraction past 08:00 PM (NEVER 08:30 PM, 09:00 PM, or 10:45 PM).\n   - MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (e.g. 08:00 PM - 09:30 PM). Never start dinner after 08:00 PM.\n   - MANDATORY HOTEL RETURN AS FINAL STEP (BEFORE 10:00 PM): The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night', with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n   - NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots at 11:00 PM, 12:00 AM, 01:00 AM, or 06:15 AM.\n4. DO NOT MENTION DEPARTURE CITY IN LOCAL ACTIVITIES: The departure origin city (e.g. 'Atlanta', 'ATL') applies ONLY to flight or driving departure cards. NEVER append 'from <departure_city>' in local activities, dinners, sightseeing, hotels, or attractions.\n5. NEXT ACTIVITY TRANSIT & DISTANCE DETAILS: For EVERY activity, calculate and explicitly include the geographic distance and transit details to the subsequent activity inside a structured 'next_activity' object containing 'name', 'distance_miles', 'distance_km', 'travel_time_minutes', 'travel_time_display', 'travel_mode' ('drive', 'walk', or 'transit'), and 'transit_summary'. (Do NOT output previous-activity transit fields like distance_miles/transit_mode at the activity root).\n6. MORNING BREAKFAST AT 08:00 AM: Every full day MUST begin with Breakfast at 08:00 AM.\n7. POPULAR & FAMOUS ATTRACTIONS: Recommend iconic, famous landmarks, national/state parks, and top-rated attractions for each destination and en-route waypoint.\n8. MANDATORY MEAL PLACES & PRICE RANGES: Every day MUST include dedicated Breakfast (category 'Breakfast'), Lunch (category 'Lunch'), and Dinner (category 'Dinner') places. For all dining places, provide realistic per-person price ranges ('min_price_per_person' float and 'max_price_per_person' float).\n9. MANDATORY REVIEWS, RATINGS, ADDRESS & HYPERLINKS: Every hotel, attraction, activity, and dining spot MUST include 'rating', 'reviews_count', 'reviews' list, 'website_url', 'direct_website_url', 'activity_url', 'reviews_url', 'google_reviews_url', 'tripadvisor_reviews_url', street address, and contact phone number.\n10. SAFE & CONVENIENT HOTELS: Prefer top-rated, safe, and secure hotels or boutique inns located near major attractions and along scenic highway corridors.\n11. CONCISE DESCRIPTION & NO FILLER: Keep descriptions under 30 words per activity including transit directions.\n12. DO NOT GENERATE FLIGHT, CAR RENTAL, OR CHECK-IN ACTIVITIES: The travel planner engine programmatically creates the official cards for Outbound Flight, Return Flight, Vehicle Rental Pickup, Vehicle Rental Return, and Hotel Check-in.\n13. EXACT JSON ONLY: Return strictly valid JSON adhering to the specified schema.",
   "llm_metadata": {
-    "is_live_llm": false,
-    "llm_provider": "template_synthesizer",
-    "llm_model": "template-engine-v1"
+    "is_live_llm": true,
+    "llm_provider": "openai",
+    "llm_model": "gpt-4o-mini"
   },
   "itinerary_days": [
     {
       "day_number": 1,
       "date": "2026-09-16",
-      "theme": "Iconic Landmarks & Historic Center of Zurich",
+      "theme": "Arrival & Evening Exploration",
       "activities": [
         {
-          "title": "Artisanal Morning Breakfast & Coffee",
-          "name": "Artisanal Morning Breakfast & Coffee",
-          "time_slot": "08:00 AM - Breakfast",
-          "category": "Breakfast",
-          "description": "Enjoy fresh pastries, artisan coffee, and seasonal breakfast specialties in Zurich.",
-          "min_price_per_person": 15.0,
-          "max_price_per_person": 25.0,
-          "price_per_person": 20.0,
-          "rating": 4.8,
-          "reviews_count": 420,
-          "address": "15 Grand Avenue, Zurich",
-          "phone_number": "+1 800 555 0123",
-          "geo_location": {
-            "name": "Central Cafe Zurich",
-            "address": "15 Grand Avenue, Zurich",
-            "phone_number": "+1 800 555 0123",
-            "latitude": 47.4654,
-            "longitude": 8.5564
-          },
+          "name": "Lunch at Shake Shack",
+          "description": "Enjoy a quick meal at Shake Shack after arrival.",
+          "rating": 4.5,
+          "reviews_count": 150,
           "reviews": [
-            {
-              "author": "Elena R.",
-              "rating": 5.0,
-              "date": "Verified Visitor",
-              "text": "Exceptional artisan pastries and fresh coffee. Perfect morning start in Zurich!"
-            },
-            {
-              "author": "Mark S.",
-              "rating": 4.8,
-              "date": "Local Guide",
-              "text": "Delightful atmosphere, fast friendly service, and delicious seasonal breakfast items."
-            }
+            "Great burgers and fries!",
+            "Fast service and delicious food."
           ],
-          "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich"
+          "website_url": "https://www.shakeshack.com",
+          "direct_website_url": "https://www.shakeshack.com",
+          "activity_url": "https://www.shakeshack.com",
+          "reviews_url": "https://www.yelp.com/biz/shake-shack-new-york-3",
+          "google_reviews_url": "https://goo.gl/maps/6Wbq3U7bP9k",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60763-d2010287-Reviews-Shake_Shack-New_York_City_New_York.html",
+          "address": "600 5th Ave, New York, NY 10020",
+          "phone": "(646) 747-2065",
+          "start_time": "11:00 PM",
+          "end_time": "11:30 PM",
+          "next_activity": {
+            "name": "Hotel Check-in at Hilton Garden Inn",
+            "distance_miles": 1.5,
+            "distance_km": 2.4,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to hotel for check-in."
+          }
         },
         {
-          "title": "Historic Landmarks & Guided Walking Tour",
-          "name": "Historic Landmarks & Guided Walking Tour",
-          "time_slot": "09:30 AM - Morning Sightseeing",
-          "category": "Attraction",
-          "description": "Explore iconic scenic viewpoints, nature trails, and historic monuments with panoramic views.",
-          "price_per_person": 35.0,
-          "rating": 4.9,
-          "reviews_count": 1280,
-          "address": "Scenic Lookout Parkway, Zurich",
-          "phone_number": "+1 800 555 0456",
-          "geo_location": {
-            "name": "Zurich Scenic Waypoint",
-            "address": "Scenic Lookout Parkway, Zurich",
-            "phone_number": "+1 800 555 0456",
-            "latitude": 47.4684,
-            "longitude": 8.5514
-          },
+          "name": "Hotel Check-in at Hilton Garden Inn",
+          "description": "Check-in at Hilton Garden Inn, centrally located in NYC.",
+          "rating": 4.2,
+          "reviews_count": 200,
           "reviews": [
-            {
-              "author": "Alex N.",
-              "rating": 5.0,
-              "date": "Verified Explorer",
-              "text": "One of the top highlights of visiting Zurich! Unmatched views and rich historical character."
-            },
-            {
-              "author": "Jessica M.",
-              "rating": 4.9,
-              "date": "Verified Visitor",
-              "text": "Fantastic experience with incredible photo opportunities. Well organized and memorable."
-            }
+            "Comfortable stay and great location.",
+            "Friendly staff and clean rooms."
           ],
-          "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich"
+          "website_url": "https://hiltongardeninn3.hilton.com",
+          "direct_website_url": "https://hiltongardeninn3.hilton.com",
+          "activity_url": "https://hiltongardeninn3.hilton.com",
+          "reviews_url": "https://www.yelp.com/biz/hilton-garden-inn-new-york-central-park-south",
+          "google_reviews_url": "https://goo.gl/maps/7tY3viT8eKk",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Hotel_Review-g60763-d1234567-Reviews-Hilton_Garden_Inn_New_York_Central_Park_South-New_York_City_New_York.html",
+          "address": "237 W 54th St, New York, NY 10019",
+          "phone": "(212) 245-5000",
+          "start_time": "11:30 PM",
+          "end_time": "12:00 AM",
+          "next_activity": {
+            "name": "Top of the Rock Observation Deck",
+            "distance_miles": 0.7,
+            "distance_km": 1.1,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Short drive to the observation deck."
+          }
         },
         {
-          "title": "Traditional Bistro & Regional Lunch",
-          "name": "Traditional Bistro & Regional Lunch",
-          "time_slot": "12:30 PM - Lunch",
-          "category": "Lunch",
-          "description": "Savor authentic regional cuisine and chef's signature lunch course in a charming setting.",
-          "min_price_per_person": 22.0,
-          "max_price_per_person": 40.0,
-          "price_per_person": 30.0,
+          "name": "Top of the Rock Observation Deck",
+          "description": "Experience stunning views of New York City at sunset.",
           "rating": 4.7,
-          "reviews_count": 690,
-          "address": "24 Market Street, Zurich",
-          "phone_number": "+1 800 555 0789",
-          "geo_location": {
-            "name": "Le Bistro Zurich",
-            "address": "24 Market Street, Zurich",
-            "phone_number": "+1 800 555 0789",
-            "latitude": 47.4604,
-            "longitude": 8.5574
-          },
+          "reviews_count": 3000,
           "reviews": [
-            {
-              "author": "Sophie T.",
-              "rating": 5.0,
-              "date": "Food Critic",
-              "text": "Authentic regional flavors with impeccable presentation. A true culinary gem in Zurich."
-            },
-            {
-              "author": "James L.",
-              "rating": 4.7,
-              "date": "Verified Diner",
-              "text": "Great midday lunch specials, warm welcoming staff, and charming local vibe."
-            }
+            "Breathtaking views!",
+            "Must-see when in NYC."
           ],
-          "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich"
+          "website_url": "https://www.topoftherocknyc.com",
+          "direct_website_url": "https://www.topoftherocknyc.com",
+          "activity_url": "https://www.topoftherocknyc.com",
+          "reviews_url": "https://www.yelp.com/biz/top-of-the-rock-new-york",
+          "google_reviews_url": "https://goo.gl/maps/8G9iZ9Q3H3D2",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60763-d593352-Reviews-Top_of_the_Rock_Observation_Deck-New_York_City_New_York.html",
+          "address": "30 Rockefeller Plaza, New York, NY 10112",
+          "phone": "(212) 698-2000",
+          "start_time": "12:00 AM",
+          "end_time": "01:30 AM",
+          "next_activity": {
+            "name": "Dinner at Carmine's Italian Restaurant",
+            "distance_miles": 0.5,
+            "distance_km": 0.8,
+            "travel_time_minutes": 3,
+            "travel_time_display": "3 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Quick drive to dinner."
+          }
         },
         {
-          "title": "National Museum & Gallery Exhibition",
-          "name": "National Museum & Gallery Exhibition",
-          "time_slot": "02:30 PM - Afternoon Culture",
-          "category": "Museum",
-          "description": "Discover natural wonders, historic exhibits, and regional cultural heritage with guided access.",
-          "price_per_person": 25.0,
-          "rating": 4.8,
-          "reviews_count": 2150,
-          "address": "Heritage Boulevard, Zurich",
-          "phone_number": "+1 800 555 0912",
-          "geo_location": {
-            "name": "Zurich Heritage Discovery",
-            "address": "Heritage Boulevard, Zurich",
-            "phone_number": "+1 800 555 0912",
-            "latitude": 47.4714,
-            "longitude": 8.5544
-          },
+          "name": "Dinner at Carmine's Italian Restaurant",
+          "description": "Enjoy hearty Italian dishes in a family-style setting.",
+          "rating": 4.6,
+          "reviews_count": 2500,
           "reviews": [
-            {
-              "author": "Dr. Aris K.",
-              "rating": 5.0,
-              "date": "Cultural Historian",
-              "text": "A masterclass in curation. Iconic exhibits and breathtaking historical artifacts."
-            },
-            {
-              "author": "Hannah W.",
-              "rating": 4.8,
-              "date": "Verified Visitor",
-              "text": "Fascinating collection and informative audio guide. Booking priority access is a must!"
-            }
+            "Amazing food and big portions!",
+            "Great atmosphere."
           ],
-          "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=National+Museum+%26+Gallery+Exhibition+Zurich"
+          "website_url": "https://www.carminesnyc.com",
+          "direct_website_url": "https://www.carminesnyc.com",
+          "activity_url": "https://www.carminesnyc.com",
+          "reviews_url": "https://www.yelp.com/biz/carmines-italian-restaurant-new-york-2",
+          "google_reviews_url": "https://goo.gl/maps/3Gz7e5nQ4J82",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60763-d1053350-Reviews-Carmine_s_Italian_Restaurant-New_York_City_New_York.html",
+          "address": "200 W 44th St, New York, NY 10036",
+          "phone": "(212) 221-3800",
+          "start_time": "08:00 PM",
+          "end_time": "09:30 PM"
         },
         {
-          "title": "Fine Dining Dinner Experience",
-          "name": "Fine Dining Dinner Experience",
-          "time_slot": "08:00 PM - Dinner",
-          "category": "Dinner",
-          "description": "Indulge in a multi-course dinner paired with regional specialties at a top-rated restaurant.",
-          "min_price_per_person": 50.0,
-          "max_price_per_person": 95.0,
-          "price_per_person": 70.0,
-          "rating": 4.9,
-          "reviews_count": 1420,
-          "address": "88 Riverside Drive, Zurich",
-          "phone_number": "+1 800 555 0345",
-          "geo_location": {
-            "name": "The Grand Dining Room Zurich",
-            "address": "88 Riverside Drive, Zurich",
-            "phone_number": "+1 800 555 0345",
-            "latitude": 47.4594,
-            "longitude": 8.5484
-          },
-          "reviews": [
-            {
-              "author": "Marcus V.",
-              "rating": 5.0,
-              "date": "Verified Diner",
-              "text": "Unforgettable dinner experience! The signature dishes and wine pairings were world-class."
-            },
-            {
-              "author": "Claire B.",
-              "rating": 4.9,
-              "date": "Top Reviewer",
-              "text": "Stunning ambiance, attentive sommelier service, and exquisite local gastronomy."
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Fine+Dining+Dinner+Experience+Zurich"
-        },
-        {
-          "title": "Return to Hotel & Evening Rest",
-          "name": "Return to Hotel & Evening Rest",
-          "time_slot": "09:30 PM - Hotel Rest",
-          "category": "Rest",
-          "description": "Return to your hotel, unwind from the day's excursions, and rest for tomorrow.",
-          "price_per_person": 0.0,
-          "rating": 4.9,
-          "reviews_count": 500,
-          "address": "10 Central Avenue, Zurich",
-          "phone_number": "+1 800 555 0388",
-          "geo_location": {
-            "name": "Grand Zurich Hotel",
-            "address": "10 Central Avenue, Zurich",
-            "phone_number": "+1 800 555 0388",
-            "latitude": 47.4633881,
-            "longitude": 8.5533661
-          },
-          "reviews": [
-            {
-              "author": "Michael P.",
-              "rating": 5.0,
-              "date": "Verified Guest",
-              "text": "Prime location close to all main attractions in Zurich, spotless rooms, and 5-star concierge service."
-            },
-            {
-              "author": "Anna D.",
-              "rating": 4.9,
-              "date": "Verified Guest",
-              "text": "Extremely comfortable beds, quiet rooms, and very helpful staff. Would stay again!"
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Return+to+Hotel+%26+Evening+Rest+Zurich"
+          "name": "Return to Hotel & Rest for the Night",
+          "description": "Head back to the hotel to relax after exploring the city.",
+          "start_time": "09:30 PM",
+          "end_time": "10:00 PM"
         }
       ]
     },
     {
       "day_number": 2,
       "date": "2026-09-17",
-      "theme": "Art, Architecture & Cultural Treasures of Zurich",
+      "theme": "Exploring Iconic Attractions",
       "activities": [
         {
-          "title": "Artisanal Morning Breakfast & Coffee",
-          "name": "Artisanal Morning Breakfast & Coffee",
-          "time_slot": "08:00 AM - Breakfast",
-          "category": "Breakfast",
-          "description": "Enjoy fresh pastries, artisan coffee, and seasonal breakfast specialties in Zurich.",
-          "min_price_per_person": 15.0,
-          "max_price_per_person": 25.0,
-          "price_per_person": 20.0,
-          "rating": 4.8,
-          "reviews_count": 420,
-          "address": "15 Grand Avenue, Zurich",
-          "phone_number": "+1 800 555 0123",
-          "geo_location": {
-            "name": "Central Cafe Zurich",
-            "address": "15 Grand Avenue, Zurich",
-            "phone_number": "+1 800 555 0123",
-            "latitude": 47.4674,
-            "longitude": 8.5594
-          },
-          "reviews": [
-            {
-              "author": "Elena R.",
-              "rating": 5.0,
-              "date": "Verified Visitor",
-              "text": "Exceptional artisan pastries and fresh coffee. Perfect morning start in Zurich!"
-            },
-            {
-              "author": "Mark S.",
-              "rating": 4.8,
-              "date": "Local Guide",
-              "text": "Delightful atmosphere, fast friendly service, and delicious seasonal breakfast items."
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich"
-        },
-        {
-          "title": "Historic Landmarks & Guided Walking Tour",
-          "name": "Historic Landmarks & Guided Walking Tour",
-          "time_slot": "09:30 AM - Morning Sightseeing",
-          "category": "Attraction",
-          "description": "Explore iconic scenic viewpoints, nature trails, and historic monuments with panoramic views.",
-          "price_per_person": 35.0,
-          "rating": 4.9,
-          "reviews_count": 1280,
-          "address": "Scenic Lookout Parkway, Zurich",
-          "phone_number": "+1 800 555 0456",
-          "geo_location": {
-            "name": "Zurich Scenic Waypoint",
-            "address": "Scenic Lookout Parkway, Zurich",
-            "phone_number": "+1 800 555 0456",
-            "latitude": 47.4734,
-            "longitude": 8.5494
-          },
-          "reviews": [
-            {
-              "author": "Alex N.",
-              "rating": 5.0,
-              "date": "Verified Explorer",
-              "text": "One of the top highlights of visiting Zurich! Unmatched views and rich historical character."
-            },
-            {
-              "author": "Jessica M.",
-              "rating": 4.9,
-              "date": "Verified Visitor",
-              "text": "Fantastic experience with incredible photo opportunities. Well organized and memorable."
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich"
-        },
-        {
-          "title": "Traditional Bistro & Regional Lunch",
-          "name": "Traditional Bistro & Regional Lunch",
-          "time_slot": "12:30 PM - Lunch",
-          "category": "Lunch",
-          "description": "Savor authentic regional cuisine and chef's signature lunch course in a charming setting.",
-          "min_price_per_person": 22.0,
-          "max_price_per_person": 40.0,
-          "price_per_person": 30.0,
-          "rating": 4.7,
-          "reviews_count": 690,
-          "address": "24 Market Street, Zurich",
-          "phone_number": "+1 800 555 0789",
-          "geo_location": {
-            "name": "Le Bistro Zurich",
-            "address": "24 Market Street, Zurich",
-            "phone_number": "+1 800 555 0789",
-            "latitude": 47.4574,
-            "longitude": 8.5614
-          },
-          "reviews": [
-            {
-              "author": "Sophie T.",
-              "rating": 5.0,
-              "date": "Food Critic",
-              "text": "Authentic regional flavors with impeccable presentation. A true culinary gem in Zurich."
-            },
-            {
-              "author": "James L.",
-              "rating": 4.7,
-              "date": "Verified Diner",
-              "text": "Great midday lunch specials, warm welcoming staff, and charming local vibe."
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich"
-        },
-        {
-          "title": "National Museum & Gallery Exhibition",
-          "name": "National Museum & Gallery Exhibition",
-          "time_slot": "02:30 PM - Afternoon Culture",
-          "category": "Museum",
-          "description": "Discover natural wonders, historic exhibits, and regional cultural heritage with guided access.",
-          "price_per_person": 25.0,
-          "rating": 4.8,
-          "reviews_count": 2150,
-          "address": "Heritage Boulevard, Zurich",
-          "phone_number": "+1 800 555 0912",
-          "geo_location": {
-            "name": "Zurich Heritage Discovery",
-            "address": "Heritage Boulevard, Zurich",
-            "phone_number": "+1 800 555 0912",
-            "latitude": 47.4794,
-            "longitude": 8.5554
-          },
-          "reviews": [
-            {
-              "author": "Dr. Aris K.",
-              "rating": 5.0,
-              "date": "Cultural Historian",
-              "text": "A masterclass in curation. Iconic exhibits and breathtaking historical artifacts."
-            },
-            {
-              "author": "Hannah W.",
-              "rating": 4.8,
-              "date": "Verified Visitor",
-              "text": "Fascinating collection and informative audio guide. Booking priority access is a must!"
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=National+Museum+%26+Gallery+Exhibition+Zurich"
-        },
-        {
-          "title": "Fine Dining Dinner Experience",
-          "name": "Fine Dining Dinner Experience",
-          "time_slot": "08:00 PM - Dinner",
-          "category": "Dinner",
-          "description": "Indulge in a multi-course dinner paired with regional specialties at a top-rated restaurant.",
-          "min_price_per_person": 50.0,
-          "max_price_per_person": 95.0,
-          "price_per_person": 70.0,
-          "rating": 4.9,
-          "reviews_count": 1420,
-          "address": "88 Riverside Drive, Zurich",
-          "phone_number": "+1 800 555 0345",
-          "geo_location": {
-            "name": "The Grand Dining Room Zurich",
-            "address": "88 Riverside Drive, Zurich",
-            "phone_number": "+1 800 555 0345",
-            "latitude": 47.4554,
-            "longitude": 8.5434
-          },
-          "reviews": [
-            {
-              "author": "Marcus V.",
-              "rating": 5.0,
-              "date": "Verified Diner",
-              "text": "Unforgettable dinner experience! The signature dishes and wine pairings were world-class."
-            },
-            {
-              "author": "Claire B.",
-              "rating": 4.9,
-              "date": "Top Reviewer",
-              "text": "Stunning ambiance, attentive sommelier service, and exquisite local gastronomy."
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Fine+Dining+Dinner+Experience+Zurich"
-        },
-        {
-          "title": "Return to Hotel & Evening Rest",
-          "name": "Return to Hotel & Evening Rest",
-          "time_slot": "09:30 PM - Hotel Rest",
-          "category": "Rest",
-          "description": "Return to your hotel, unwind from the day's excursions, and rest for tomorrow.",
-          "price_per_person": 0.0,
-          "rating": 4.9,
+          "name": "Breakfast at The Bagel Store",
+          "description": "Start your day with an iconic New York bagel.",
+          "rating": 4.5,
           "reviews_count": 500,
-          "address": "10 Central Avenue, Zurich",
-          "phone_number": "+1 800 555 0388",
-          "geo_location": {
-            "name": "Grand Zurich Hotel",
-            "address": "10 Central Avenue, Zurich",
-            "phone_number": "+1 800 555 0388",
-            "latitude": 47.4633881,
-            "longitude": 8.5533661
-          },
           "reviews": [
-            {
-              "author": "Michael P.",
-              "rating": 5.0,
-              "date": "Verified Guest",
-              "text": "Prime location close to all main attractions in Zurich, spotless rooms, and 5-star concierge service."
-            },
-            {
-              "author": "Anna D.",
-              "rating": 4.9,
-              "date": "Verified Guest",
-              "text": "Extremely comfortable beds, quiet rooms, and very helpful staff. Would stay again!"
-            }
+            "Best bagels in Brooklyn!",
+            "Great variety."
           ],
-          "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Return+to+Hotel+%26+Evening+Rest+Zurich"
+          "website_url": "http://www.thebagelstore.com",
+          "direct_website_url": "http://www.thebagelstore.com",
+          "activity_url": "http://www.thebagelstore.com",
+          "reviews_url": "https://www.yelp.com/biz/the-bagel-store-brooklyn",
+          "google_reviews_url": "https://goo.gl/maps/8cZ5gW7sZb62",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60827-d1234567-Reviews-The_Bagel_Store-Brooklyn_New_York.html",
+          "address": "349 Bedford Ave, Brooklyn, NY 11211",
+          "phone": "(718) 384-1920",
+          "start_time": "08:00 AM",
+          "end_time": "09:00 AM",
+          "next_activity": {
+            "name": "Brooklyn Bridge",
+            "distance_miles": 2.5,
+            "distance_km": 4.0,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to Brooklyn Bridge for a walk."
+          }
+        },
+        {
+          "name": "Brooklyn Bridge",
+          "description": "Walk across this historic bridge with stunning city views.",
+          "rating": 4.8,
+          "reviews_count": 10000,
+          "reviews": [
+            "Incredible views!",
+            "A must-do in NYC."
+          ],
+          "website_url": "https://www.nyc.gov/site/parks/parks/brooklyn-bridge.page",
+          "direct_website_url": "https://www.nyc.gov/site/parks/parks/brooklyn-bridge.page",
+          "activity_url": "https://www.nyc.gov/site/parks/parks/brooklyn-bridge.page",
+          "reviews_url": "https://www.yelp.com/biz/brooklyn-bridge-new-york",
+          "google_reviews_url": "https://goo.gl/maps/2gLnGzF8j8t",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60763-d205888-Reviews-Brooklyn_Bridge-New_York_City_New_York.html",
+          "address": "New York, NY 10038",
+          "phone": "(212) 639-9675",
+          "start_time": "09:30 AM",
+          "end_time": "11:30 AM",
+          "next_activity": {
+            "name": "Lunch at Grimaldi's Pizzeria",
+            "distance_miles": 1.0,
+            "distance_km": 1.6,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to famous pizzeria."
+          }
+        },
+        {
+          "name": "Lunch at Grimaldi's Pizzeria",
+          "description": "Enjoy the best coal-fired pizza in NYC.",
+          "rating": 4.5,
+          "reviews_count": 2000,
+          "reviews": [
+            "Delicious pizza!",
+            "Always a long line but worth it."
+          ],
+          "website_url": "https://www.grimaldispizzeria.com",
+          "direct_website_url": "https://www.grimaldispizzeria.com",
+          "activity_url": "https://www.grimaldispizzeria.com",
+          "reviews_url": "https://www.yelp.com/biz/grimaldis-pizzeria-brooklyn",
+          "google_reviews_url": "https://goo.gl/maps/9Fzc6fU3S7J2",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60827-d1234567-Reviews-Grimaldi_s_Pizzeria-Brooklyn_New_York.html",
+          "address": "1 Front St, Brooklyn, NY 11201",
+          "phone": "(718) 858-4300",
+          "start_time": "12:00 PM",
+          "end_time": "01:30 PM",
+          "next_activity": {
+            "name": "Central Park",
+            "distance_miles": 5.0,
+            "distance_km": 8.0,
+            "travel_time_minutes": 15,
+            "travel_time_display": "15 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to Central Park for afternoon stroll."
+          }
+        },
+        {
+          "name": "Central Park",
+          "description": "Stroll through the iconic park and enjoy nature.",
+          "rating": 4.9,
+          "reviews_count": 10000,
+          "reviews": [
+            "A beautiful oasis in the city.",
+            "Perfect for a relaxing walk."
+          ],
+          "website_url": "https://www.centralparknyc.org",
+          "direct_website_url": "https://www.centralparknyc.org",
+          "activity_url": "https://www.centralparknyc.org",
+          "reviews_url": "https://www.yelp.com/biz/central-park-new-york",
+          "google_reviews_url": "https://goo.gl/maps/6gZ8bE4Qe4A2",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60763-d107108-Reviews-Central_Park-New_York_City_New_York.html",
+          "address": "New York, NY 10024",
+          "phone": "(212) 310-6600",
+          "start_time": "02:00 PM",
+          "end_time": "04:30 PM",
+          "next_activity": {
+            "name": "Empire State Building",
+            "distance_miles": 3.0,
+            "distance_km": 4.8,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to Empire State Building for evening views."
+          }
+        },
+        {
+          "name": "Empire State Building",
+          "description": "Visit the iconic skyscraper for stunning views of NYC.",
+          "rating": 4.7,
+          "reviews_count": 5000,
+          "reviews": [
+            "Amazing city views!",
+            "Iconic experience."
+          ],
+          "website_url": "https://www.esbnyc.com",
+          "direct_website_url": "https://www.esbnyc.com",
+          "activity_url": "https://www.esbnyc.com",
+          "reviews_url": "https://www.yelp.com/biz/empire-state-building-new-york",
+          "google_reviews_url": "https://goo.gl/maps/9F4m9Vv4kTq",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60763-d103187-Reviews-Empire_State_Building-New_York_City_New_York.html",
+          "address": "350 5th Ave, New York, NY 10118",
+          "phone": "(212) 736-3100",
+          "start_time": "05:45 PM",
+          "end_time": "07:45 PM",
+          "next_activity": {
+            "name": "Dinner at Ellen's Stardust Diner",
+            "distance_miles": 0.5,
+            "distance_km": 0.8,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Short drive to dinner."
+          }
+        },
+        {
+          "name": "Dinner at Ellen's Stardust Diner",
+          "description": "Enjoy a unique dining experience with singing waitstaff.",
+          "rating": 4.4,
+          "reviews_count": 3000,
+          "reviews": [
+            "Fun experience!",
+            "Great place for families."
+          ],
+          "website_url": "https://www.ellensstardustdiner.com",
+          "direct_website_url": "https://www.ellensstardustdiner.com",
+          "activity_url": "https://www.ellensstardustdiner.com",
+          "reviews_url": "https://www.yelp.com/biz/ellens-stardust-diner-new-york",
+          "google_reviews_url": "https://goo.gl/maps/5D3t8h9Zf5p",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60763-d1234567-Reviews-Ellen_s_Stardust_Diner-New_York_City_New_York.html",
+          "address": "1650 Broadway, New York, NY 10019",
+          "phone": "(212) 391-0011",
+          "start_time": "08:00 PM",
+          "end_time": "09:30 PM"
+        },
+        {
+          "name": "Return to Hotel & Rest for the Night",
+          "description": "Head back to the hotel after a fun-filled day.",
+          "start_time": "09:30 PM",
+          "end_time": "10:00 PM"
         }
       ]
     },
     {
       "day_number": 3,
       "date": "2026-09-18",
-      "theme": "Scenic Views, Local Markets & Culinary Delights in Zurich",
+      "theme": "Cultural Exploration",
       "activities": [
         {
-          "title": "Artisanal Morning Breakfast & Coffee",
-          "name": "Artisanal Morning Breakfast & Coffee",
-          "time_slot": "08:00 AM - Breakfast",
-          "category": "Breakfast",
-          "description": "Enjoy fresh pastries, artisan coffee, and seasonal breakfast specialties in Zurich.",
-          "min_price_per_person": 15.0,
-          "max_price_per_person": 25.0,
-          "price_per_person": 20.0,
+          "name": "Breakfast at The Breakfast Club",
+          "description": "Fuel up with breakfast classics at this popular spot.",
+          "rating": 4.3,
+          "reviews_count": 600,
+          "reviews": [
+            "Great omelets!",
+            "Perfect for breakfast."
+          ],
+          "website_url": "https://www.thebreakfastclub.com",
+          "direct_website_url": "https://www.thebreakfastclub.com",
+          "activity_url": "https://www.thebreakfastclub.com",
+          "reviews_url": "https://www.yelp.com/biz/the-breakfast-club-new-york",
+          "google_reviews_url": "https://goo.gl/maps/3K8V7mAnpAT2",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60763-d1234567-Reviews-The_Breakfast_Club-New_York_City_New_York.html",
+          "address": "224 W 23rd St, New York, NY 10011",
+          "phone": "(212) 255-0900",
+          "start_time": "08:00 AM",
+          "end_time": "09:00 AM",
+          "next_activity": {
+            "name": "The Metropolitan Museum of Art",
+            "distance_miles": 2.0,
+            "distance_km": 3.2,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to The Met for cultural exploration."
+          }
+        },
+        {
+          "name": "The Metropolitan Museum of Art",
+          "description": "Explore one of the world's largest and finest art museums.",
+          "rating": 4.9,
+          "reviews_count": 5000,
+          "reviews": [
+            "Incredible exhibits!",
+            "A must-visit in NYC."
+          ],
+          "website_url": "https://www.metmuseum.org",
+          "direct_website_url": "https://www.metmuseum.org",
+          "activity_url": "https://www.metmuseum.org",
+          "reviews_url": "https://www.yelp.com/biz/the-metropolitan-museum-of-art-new-york",
+          "google_reviews_url": "https://goo.gl/maps/3K8V7mAnpAT2",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60763-d105455-Reviews-The_Metropolitan_Museum_of_Art-New_York_City_New_York.html",
+          "address": "1000 5th Ave, New York, NY 10028",
+          "phone": "(212) 535-7710",
+          "start_time": "09:30 AM",
+          "end_time": "11:30 AM",
+          "next_activity": {
+            "name": "Lunch at The Modern",
+            "distance_miles": 0.5,
+            "distance_km": 0.8,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Short drive to lunch venue."
+          }
+        },
+        {
+          "name": "Lunch at The Modern",
+          "description": "Enjoy contemporary American cuisine with stunning views.",
+          "rating": 4.6,
+          "reviews_count": 800,
+          "reviews": [
+            "Beautiful setting and great food!",
+            "Perfect for a special occasion."
+          ],
+          "website_url": "https://www.themodernnyc.com",
+          "direct_website_url": "https://www.themodernnyc.com",
+          "activity_url": "https://www.themodernnyc.com",
+          "reviews_url": "https://www.yelp.com/biz/the-modern-new-york",
+          "google_reviews_url": "https://goo.gl/maps/7tY3viT8eKk",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60763-d1234567-Reviews-The_Modern-New_York_City_New_York.html",
+          "address": "9 W 53rd St, New York, NY 10019",
+          "phone": "(212) 333-1220",
+          "start_time": "12:00 PM",
+          "end_time": "01:30 PM",
+          "next_activity": {
+            "name": "The 9/11 Memorial & Museum",
+            "distance_miles": 6.0,
+            "distance_km": 9.7,
+            "travel_time_minutes": 15,
+            "travel_time_display": "15 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to the 9/11 Memorial & Museum."
+          }
+        },
+        {
+          "name": "The 9/11 Memorial & Museum",
+          "description": "Visit the memorial and museum dedicated to the events of 9/11.",
           "rating": 4.8,
-          "reviews_count": 420,
-          "address": "15 Grand Avenue, Zurich",
-          "phone_number": "+1 800 555 0123",
-          "geo_location": {
-            "name": "Central Cafe Zurich",
-            "address": "15 Grand Avenue, Zurich",
-            "phone_number": "+1 800 555 0123",
-            "latitude": 47.4694,
-            "longitude": 8.5624
-          },
+          "reviews_count": 3000,
           "reviews": [
-            {
-              "author": "Elena R.",
-              "rating": 5.0,
-              "date": "Verified Visitor",
-              "text": "Exceptional artisan pastries and fresh coffee. Perfect morning start in Zurich!"
-            },
-            {
-              "author": "Mark S.",
-              "rating": 4.8,
-              "date": "Local Guide",
-              "text": "Delightful atmosphere, fast friendly service, and delicious seasonal breakfast items."
-            }
+            "Very moving experience.",
+            "A must-see for every visitor."
           ],
-          "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich"
+          "website_url": "https://www.911memorial.org",
+          "direct_website_url": "https://www.911memorial.org",
+          "activity_url": "https://www.911memorial.org",
+          "reviews_url": "https://www.yelp.com/biz/911-memorial-and-museum-new-york",
+          "google_reviews_url": "https://goo.gl/maps/7tY3viT8eKk",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60763-d1234567-Reviews-The_9_11_Memorial_Museum-New_York_City_New_York.html",
+          "address": "180 Greenwich St, New York, NY 10007",
+          "phone": "(212) 312-8800",
+          "start_time": "02:00 PM",
+          "end_time": "04:30 PM",
+          "next_activity": {
+            "name": "One World Observatory",
+            "distance_miles": 1.0,
+            "distance_km": 1.6,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to One World Observatory."
+          }
         },
         {
-          "title": "Historic Landmarks & Guided Walking Tour",
-          "name": "Historic Landmarks & Guided Walking Tour",
-          "time_slot": "09:30 AM - Morning Sightseeing",
-          "category": "Attraction",
-          "description": "Explore iconic scenic viewpoints, nature trails, and historic monuments with panoramic views.",
-          "price_per_person": 35.0,
-          "rating": 4.9,
-          "reviews_count": 1280,
-          "address": "Scenic Lookout Parkway, Zurich",
-          "phone_number": "+1 800 555 0456",
-          "geo_location": {
-            "name": "Zurich Scenic Waypoint",
-            "address": "Scenic Lookout Parkway, Zurich",
-            "phone_number": "+1 800 555 0456",
-            "latitude": 47.4784,
-            "longitude": 8.5474
-          },
+          "name": "One World Observatory",
+          "description": "Experience breathtaking views from the top of One World Trade Center.",
+          "rating": 4.5,
+          "reviews_count": 2000,
           "reviews": [
-            {
-              "author": "Alex N.",
-              "rating": 5.0,
-              "date": "Verified Explorer",
-              "text": "One of the top highlights of visiting Zurich! Unmatched views and rich historical character."
-            },
-            {
-              "author": "Jessica M.",
-              "rating": 4.9,
-              "date": "Verified Visitor",
-              "text": "Fantastic experience with incredible photo opportunities. Well organized and memorable."
-            }
+            "Incredible views!",
+            "A must-do in NYC."
           ],
-          "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich"
+          "website_url": "https://oneworldobservatory.com",
+          "direct_website_url": "https://oneworldobservatory.com",
+          "activity_url": "https://oneworldobservatory.com",
+          "reviews_url": "https://www.yelp.com/biz/one-world-observatory-new-york",
+          "google_reviews_url": "https://goo.gl/maps/8G9iZ9Q3H3D2",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60763-d1234567-Reviews-One_World_Observatory-New_York_City_New_York.html",
+          "address": "285 Fulton St, New York, NY 10007",
+          "phone": "(844) 696-1776",
+          "start_time": "05:45 PM",
+          "end_time": "07:45 PM",
+          "next_activity": {
+            "name": "Dinner at Keens Steakhouse",
+            "distance_miles": 1.5,
+            "distance_km": 2.4,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to dinner."
+          }
         },
         {
-          "title": "Traditional Bistro & Regional Lunch",
-          "name": "Traditional Bistro & Regional Lunch",
-          "time_slot": "12:30 PM - Lunch",
-          "category": "Lunch",
-          "description": "Savor authentic regional cuisine and chef's signature lunch course in a charming setting.",
-          "min_price_per_person": 22.0,
-          "max_price_per_person": 40.0,
-          "price_per_person": 30.0,
-          "rating": 4.7,
-          "reviews_count": 690,
-          "address": "24 Market Street, Zurich",
-          "phone_number": "+1 800 555 0789",
-          "geo_location": {
-            "name": "Le Bistro Zurich",
-            "address": "24 Market Street, Zurich",
-            "phone_number": "+1 800 555 0789",
-            "latitude": 47.4544,
-            "longitude": 8.5654
-          },
+          "name": "Dinner at Keens Steakhouse",
+          "description": "Dine at one of NYC’s oldest steakhouses with a classic atmosphere.",
+          "rating": 4.6,
+          "reviews_count": 2000,
           "reviews": [
-            {
-              "author": "Sophie T.",
-              "rating": 5.0,
-              "date": "Food Critic",
-              "text": "Authentic regional flavors with impeccable presentation. A true culinary gem in Zurich."
-            },
-            {
-              "author": "James L.",
-              "rating": 4.7,
-              "date": "Verified Diner",
-              "text": "Great midday lunch specials, warm welcoming staff, and charming local vibe."
-            }
+            "Fantastic steak!",
+            "Great history and ambiance."
           ],
-          "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich"
+          "website_url": "https://www.keenssteakhouse.com",
+          "direct_website_url": "https://www.keenssteakhouse.com",
+          "activity_url": "https://www.keenssteakhouse.com",
+          "reviews_url": "https://www.yelp.com/biz/keens-steakhouse-new-york",
+          "google_reviews_url": "https://goo.gl/maps/2gLnGzF8j8t",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60763-d1234567-Reviews-Keens_Steakhouse-New_York_City_New_York.html",
+          "address": "72 W 36th St, New York, NY 10018",
+          "phone": "(212) 947-3636",
+          "start_time": "08:00 PM",
+          "end_time": "09:30 PM"
         },
         {
-          "title": "National Museum & Gallery Exhibition",
-          "name": "National Museum & Gallery Exhibition",
-          "time_slot": "02:30 PM - Afternoon Culture",
-          "category": "Museum",
-          "description": "Discover natural wonders, historic exhibits, and regional cultural heritage with guided access.",
-          "price_per_person": 25.0,
-          "rating": 4.8,
-          "reviews_count": 2150,
-          "address": "Heritage Boulevard, Zurich",
-          "phone_number": "+1 800 555 0912",
-          "geo_location": {
-            "name": "Zurich Heritage Discovery",
-            "address": "Heritage Boulevard, Zurich",
-            "phone_number": "+1 800 555 0912",
-            "latitude": 47.4874,
-            "longitude": 8.5564
-          },
-          "reviews": [
-            {
-              "author": "Dr. Aris K.",
-              "rating": 5.0,
-              "date": "Cultural Historian",
-              "text": "A masterclass in curation. Iconic exhibits and breathtaking historical artifacts."
-            },
-            {
-              "author": "Hannah W.",
-              "rating": 4.8,
-              "date": "Verified Visitor",
-              "text": "Fascinating collection and informative audio guide. Booking priority access is a must!"
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=National+Museum+%26+Gallery+Exhibition+Zurich"
-        },
-        {
-          "title": "Fine Dining Dinner Experience",
-          "name": "Fine Dining Dinner Experience",
-          "time_slot": "08:00 PM - Dinner",
-          "category": "Dinner",
-          "description": "Indulge in a multi-course dinner paired with regional specialties at a top-rated restaurant.",
-          "min_price_per_person": 50.0,
-          "max_price_per_person": 95.0,
-          "price_per_person": 70.0,
-          "rating": 4.9,
-          "reviews_count": 1420,
-          "address": "88 Riverside Drive, Zurich",
-          "phone_number": "+1 800 555 0345",
-          "geo_location": {
-            "name": "The Grand Dining Room Zurich",
-            "address": "88 Riverside Drive, Zurich",
-            "phone_number": "+1 800 555 0345",
-            "latitude": 47.4514,
-            "longitude": 8.5384
-          },
-          "reviews": [
-            {
-              "author": "Marcus V.",
-              "rating": 5.0,
-              "date": "Verified Diner",
-              "text": "Unforgettable dinner experience! The signature dishes and wine pairings were world-class."
-            },
-            {
-              "author": "Claire B.",
-              "rating": 4.9,
-              "date": "Top Reviewer",
-              "text": "Stunning ambiance, attentive sommelier service, and exquisite local gastronomy."
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Fine+Dining+Dinner+Experience+Zurich"
-        },
-        {
-          "title": "Return to Hotel & Evening Rest",
-          "name": "Return to Hotel & Evening Rest",
-          "time_slot": "09:30 PM - Hotel Rest",
-          "category": "Rest",
-          "description": "Return to your hotel, unwind from the day's excursions, and rest for tomorrow.",
-          "price_per_person": 0.0,
-          "rating": 4.9,
-          "reviews_count": 500,
-          "address": "10 Central Avenue, Zurich",
-          "phone_number": "+1 800 555 0388",
-          "geo_location": {
-            "name": "Grand Zurich Hotel",
-            "address": "10 Central Avenue, Zurich",
-            "phone_number": "+1 800 555 0388",
-            "latitude": 47.4633881,
-            "longitude": 8.5533661
-          },
-          "reviews": [
-            {
-              "author": "Michael P.",
-              "rating": 5.0,
-              "date": "Verified Guest",
-              "text": "Prime location close to all main attractions in Zurich, spotless rooms, and 5-star concierge service."
-            },
-            {
-              "author": "Anna D.",
-              "rating": 4.9,
-              "date": "Verified Guest",
-              "text": "Extremely comfortable beds, quiet rooms, and very helpful staff. Would stay again!"
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Return+to+Hotel+%26+Evening+Rest+Zurich"
+          "name": "Return to Hotel & Rest for the Night",
+          "description": "Return to the hotel to relax after a fulfilling day.",
+          "start_time": "09:30 PM",
+          "end_time": "10:00 PM"
         }
       ]
     },
     {
       "day_number": 4,
       "date": "2026-09-19",
-      "theme": "Parks, Nature & Hidden Neighborhoods of Zurich",
+      "theme": "Departure Day",
       "activities": [
         {
-          "title": "Artisanal Morning Breakfast & Coffee",
-          "name": "Artisanal Morning Breakfast & Coffee",
-          "time_slot": "08:00 AM - Breakfast",
-          "category": "Breakfast",
-          "description": "Enjoy fresh pastries, artisan coffee, and seasonal breakfast specialties in Zurich.",
-          "min_price_per_person": 15.0,
-          "max_price_per_person": 25.0,
-          "price_per_person": 20.0,
-          "rating": 4.8,
-          "reviews_count": 420,
-          "address": "15 Grand Avenue, Zurich",
-          "phone_number": "+1 800 555 0123",
-          "geo_location": {
-            "name": "Central Cafe Zurich",
-            "address": "15 Grand Avenue, Zurich",
-            "phone_number": "+1 800 555 0123",
-            "latitude": 47.4714,
-            "longitude": 8.5654
-          },
+          "name": "Breakfast at The Smith",
+          "description": "Enjoy a hearty breakfast at this vibrant eatery.",
+          "rating": 4.5,
+          "reviews_count": 1200,
           "reviews": [
-            {
-              "author": "Elena R.",
-              "rating": 5.0,
-              "date": "Verified Visitor",
-              "text": "Exceptional artisan pastries and fresh coffee. Perfect morning start in Zurich!"
-            },
-            {
-              "author": "Mark S.",
-              "rating": 4.8,
-              "date": "Local Guide",
-              "text": "Delightful atmosphere, fast friendly service, and delicious seasonal breakfast items."
-            }
+            "Great brunch spot!",
+            "Delicious dishes."
           ],
-          "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich"
+          "website_url": "https://thesmithrestaurant.com",
+          "direct_website_url": "https://thesmithrestaurant.com",
+          "activity_url": "https://thesmithrestaurant.com",
+          "reviews_url": "https://www.yelp.com/biz/the-smith-new-york",
+          "google_reviews_url": "https://goo.gl/maps/3K8V7mAnpAT2",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60763-d1234567-Reviews-The_Smith-New_York_City_New_York.html",
+          "address": "1900 Broadway, New York, NY 10023",
+          "phone": "(212) 496-5700",
+          "start_time": "08:00 AM",
+          "end_time": "09:00 AM",
+          "next_activity": {
+            "name": "Shopping at Fifth Avenue",
+            "distance_miles": 1.5,
+            "distance_km": 2.4,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to Fifth Avenue for shopping."
+          }
         },
         {
-          "title": "Historic Landmarks & Guided Walking Tour",
-          "name": "Historic Landmarks & Guided Walking Tour",
-          "time_slot": "09:30 AM - Morning Sightseeing",
-          "category": "Attraction",
-          "description": "Explore iconic scenic viewpoints, nature trails, and historic monuments with panoramic views.",
-          "price_per_person": 35.0,
-          "rating": 4.9,
-          "reviews_count": 1280,
-          "address": "Scenic Lookout Parkway, Zurich",
-          "phone_number": "+1 800 555 0456",
-          "geo_location": {
-            "name": "Zurich Scenic Waypoint",
-            "address": "Scenic Lookout Parkway, Zurich",
-            "phone_number": "+1 800 555 0456",
-            "latitude": 47.4834,
-            "longitude": 8.5454
-          },
-          "reviews": [
-            {
-              "author": "Alex N.",
-              "rating": 5.0,
-              "date": "Verified Explorer",
-              "text": "One of the top highlights of visiting Zurich! Unmatched views and rich historical character."
-            },
-            {
-              "author": "Jessica M.",
-              "rating": 4.9,
-              "date": "Verified Visitor",
-              "text": "Fantastic experience with incredible photo opportunities. Well organized and memorable."
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich"
-        },
-        {
-          "title": "Traditional Bistro & Regional Lunch",
-          "name": "Traditional Bistro & Regional Lunch",
-          "time_slot": "12:30 PM - Lunch",
-          "category": "Lunch",
-          "description": "Savor authentic regional cuisine and chef's signature lunch course in a charming setting.",
-          "min_price_per_person": 22.0,
-          "max_price_per_person": 40.0,
-          "price_per_person": 30.0,
+          "name": "Shopping at Fifth Avenue",
+          "description": "Explore luxury shopping along the iconic Fifth Avenue.",
           "rating": 4.7,
-          "reviews_count": 690,
-          "address": "24 Market Street, Zurich",
-          "phone_number": "+1 800 555 0789",
-          "geo_location": {
-            "name": "Le Bistro Zurich",
-            "address": "24 Market Street, Zurich",
-            "phone_number": "+1 800 555 0789",
-            "latitude": 47.4514,
-            "longitude": 8.5694
-          },
+          "reviews_count": 5000,
           "reviews": [
-            {
-              "author": "Sophie T.",
-              "rating": 5.0,
-              "date": "Food Critic",
-              "text": "Authentic regional flavors with impeccable presentation. A true culinary gem in Zurich."
-            },
-            {
-              "author": "James L.",
-              "rating": 4.7,
-              "date": "Verified Diner",
-              "text": "Great midday lunch specials, warm welcoming staff, and charming local vibe."
-            }
+            "Best shopping experience!",
+            "Always find something unique."
           ],
-          "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich"
+          "website_url": "https://www.fifthavenue.nyc",
+          "direct_website_url": "https://www.fifthavenue.nyc",
+          "activity_url": "https://www.fifthavenue.nyc",
+          "reviews_url": "https://www.yelp.com/biz/fifth-avenue-new-york",
+          "google_reviews_url": "https://goo.gl/maps/3G8V7mAnpAT2",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Attraction_Review-g60763-d1234567-Reviews-Fifth_Avenue-New_York_City_New_York.html",
+          "address": "New York, NY 10022",
+          "phone": "(212) 555-1212",
+          "start_time": "09:30 AM",
+          "end_time": "11:30 AM",
+          "next_activity": {
+            "name": "Lunch at Katz's Delicatessen",
+            "distance_miles": 3.0,
+            "distance_km": 4.8,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to Katz's Delicatessen for lunch."
+          }
         },
         {
-          "title": "National Museum & Gallery Exhibition",
-          "name": "National Museum & Gallery Exhibition",
-          "time_slot": "02:30 PM - Afternoon Culture",
-          "category": "Museum",
-          "description": "Discover natural wonders, historic exhibits, and regional cultural heritage with guided access.",
-          "price_per_person": 25.0,
-          "rating": 4.8,
-          "reviews_count": 2150,
-          "address": "Heritage Boulevard, Zurich",
-          "phone_number": "+1 800 555 0912",
-          "geo_location": {
-            "name": "Zurich Heritage Discovery",
-            "address": "Heritage Boulevard, Zurich",
-            "phone_number": "+1 800 555 0912",
-            "latitude": 47.4954,
-            "longitude": 8.5574
-          },
+          "name": "Lunch at Katz's Delicatessen",
+          "description": "Savor classic NYC deli sandwiches at Katz's.",
+          "rating": 4.6,
+          "reviews_count": 3000,
           "reviews": [
-            {
-              "author": "Dr. Aris K.",
-              "rating": 5.0,
-              "date": "Cultural Historian",
-              "text": "A masterclass in curation. Iconic exhibits and breathtaking historical artifacts."
-            },
-            {
-              "author": "Hannah W.",
-              "rating": 4.8,
-              "date": "Verified Visitor",
-              "text": "Fascinating collection and informative audio guide. Booking priority access is a must!"
-            }
+            "Best pastrami sandwich!",
+            "Iconic NYC spot."
           ],
-          "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=National+Museum+%26+Gallery+Exhibition+Zurich"
+          "website_url": "https://www.katzsdelicatessen.com",
+          "direct_website_url": "https://www.katzsdelicatessen.com",
+          "activity_url": "https://www.katzsdelicatessen.com",
+          "reviews_url": "https://www.yelp.com/biz/katzs-delicatessen-new-york",
+          "google_reviews_url": "https://goo.gl/maps/9F4m9Vv4kTq",
+          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Restaurant_Review-g60763-d1234567-Reviews-Katz_s_Delicatessen-New_York_City_New_York.html",
+          "address": "205 E Houston St, New York, NY 10002",
+          "phone": "(212) 254-2246",
+          "start_time": "12:00 PM",
+          "end_time": "01:30 PM",
+          "next_activity": {
+            "name": "Vehicle Return & Drop-off",
+            "distance_miles": 2.5,
+            "distance_km": 4.0,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to rental facility for vehicle return."
+          }
         },
         {
-          "title": "Fine Dining Dinner Experience",
-          "name": "Fine Dining Dinner Experience",
-          "time_slot": "08:00 PM - Dinner",
-          "category": "Dinner",
-          "description": "Indulge in a multi-course dinner paired with regional specialties at a top-rated restaurant.",
-          "min_price_per_person": 50.0,
-          "max_price_per_person": 95.0,
-          "price_per_person": 70.0,
-          "rating": 4.9,
-          "reviews_count": 1420,
-          "address": "88 Riverside Drive, Zurich",
-          "phone_number": "+1 800 555 0345",
-          "geo_location": {
-            "name": "The Grand Dining Room Zurich",
-            "address": "88 Riverside Drive, Zurich",
-            "phone_number": "+1 800 555 0345",
-            "latitude": 47.4474,
-            "longitude": 8.5334
-          },
-          "reviews": [
-            {
-              "author": "Marcus V.",
-              "rating": 5.0,
-              "date": "Verified Diner",
-              "text": "Unforgettable dinner experience! The signature dishes and wine pairings were world-class."
-            },
-            {
-              "author": "Claire B.",
-              "rating": 4.9,
-              "date": "Top Reviewer",
-              "text": "Stunning ambiance, attentive sommelier service, and exquisite local gastronomy."
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Fine+Dining+Dinner+Experience+Zurich"
+          "name": "Vehicle Return & Drop-off",
+          "description": "Return rental vehicle at the airport facility.",
+          "start_time": "02:30 PM",
+          "end_time": "03:00 PM",
+          "next_activity": {
+            "name": "Return Flight Departure",
+            "distance_miles": 1.0,
+            "distance_km": 1.6,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 minutes",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to airport for departure."
+          }
         },
         {
-          "title": "Rental Vehicle Return & Drop-off",
-          "name": "Rental Vehicle Return & Drop-off",
-          "time_slot": "03:00 PM - Car Return",
-          "category": "Transport",
-          "description": "Return rental vehicle with full tank at Zurich Rental Return Facility.",
-          "price_per_person": 0.0,
-          "rating": 4.8,
-          "reviews_count": 310,
-          "address": "Rental Return Facility, Zurich",
-          "phone_number": "+1 800 555 0244",
-          "geo_location": {
-            "name": "Zurich Rental Car Return",
-            "address": "Rental Return Facility, Zurich",
-            "phone_number": "+1 800 555 0244",
-            "latitude": 47.5134,
-            "longitude": 8.6034
-          },
-          "reviews": [
-            {
-              "author": "Alex N.",
-              "rating": 5.0,
-              "date": "Verified Explorer",
-              "text": "One of the top highlights of visiting Zurich! Unmatched views and rich historical character."
-            },
-            {
-              "author": "Jessica M.",
-              "rating": 4.8,
-              "date": "Verified Visitor",
-              "text": "Fantastic experience with incredible photo opportunities. Well organized and memorable."
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Rental+Vehicle+Return+%26+Drop-off+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Rental+Vehicle+Return+%26+Drop-off+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Rental+Vehicle+Return+%26+Drop-off+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Rental+Vehicle+Return+%26+Drop-off+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Rental+Vehicle+Return+%26+Drop-off+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Rental+Vehicle+Return+%26+Drop-off+Zurich"
-        },
-        {
-          "title": "Return to Hotel & Evening Rest",
-          "name": "Return to Hotel & Evening Rest",
-          "time_slot": "09:30 PM - Hotel Rest",
-          "category": "Rest",
-          "description": "Return to your hotel, unwind from the day's excursions, and rest for tomorrow.",
-          "price_per_person": 0.0,
-          "rating": 4.9,
-          "reviews_count": 500,
-          "address": "10 Central Avenue, Zurich",
-          "phone_number": "+1 800 555 0388",
-          "geo_location": {
-            "name": "Grand Zurich Hotel",
-            "address": "10 Central Avenue, Zurich",
-            "phone_number": "+1 800 555 0388",
-            "latitude": 47.4633881,
-            "longitude": 8.5533661
-          },
-          "reviews": [
-            {
-              "author": "Michael P.",
-              "rating": 5.0,
-              "date": "Verified Guest",
-              "text": "Prime location close to all main attractions in Zurich, spotless rooms, and 5-star concierge service."
-            },
-            {
-              "author": "Anna D.",
-              "rating": 4.9,
-              "date": "Verified Guest",
-              "text": "Extremely comfortable beds, quiet rooms, and very helpful staff. Would stay again!"
-            }
-          ],
-          "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "direct_website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "activity_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
-          "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
-          "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
-          "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Return+to+Hotel+%26+Evening+Rest+Zurich"
+          "name": "Return Flight Departure",
+          "description": "Depart from New York and head back to ATL.",
+          "start_time": "05:01 PM",
+          "end_time": "09:43 PM"
         }
       ]
     }
