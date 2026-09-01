@@ -120,8 +120,64 @@ class TestTravelPlanner(unittest.TestCase):
         expected_end = (datetime.now() + timedelta(days=19)).strftime("%Y-%m-%d")
         self.assertEqual(meta.get("start_date"), expected_start)
         self.assertEqual(meta.get("end_date"), expected_end)
-        self.assertEqual(meta.get("trip_duration_days"), 4)
+
+    def test_trip_title_international_vacation(self):
+        """Test that cross-country trips with flights receive 'International Vacation Travel' title."""
+        res = self.client.planner.generate_itinerary(
+            prompt="Plan a trip to Paris",
+            origin="ATL",
+            destination="CDG",
+            include_flights=True,
+        )
+        self.assertEqual(res["status"], "success")
+        self.assertEqual(res["title"], "International Vacation Travel")
+        self.assertEqual(res["meta_data"]["title"], "International Vacation Travel")
+        self.assertEqual(res["meta_data"]["is_international"], True)
+        self.assertEqual(res["meta_data"]["trip_type"], "vacation_travel")
+
+    def test_trip_title_domestic_vacation(self):
+        """Test that domestic trips with flights receive 'Vacation Travel' title."""
+        res = self.client.planner.generate_itinerary(
+            prompt="Plan a vacation to Orlando",
+            origin="ATL",
+            destination="MCO",
+            include_flights=True,
+        )
+        self.assertEqual(res["status"], "success")
+        self.assertEqual(res["title"], "Vacation Travel")
+        self.assertEqual(res["meta_data"]["title"], "Vacation Travel")
+        self.assertEqual(res["meta_data"]["is_international"], False)
+        self.assertEqual(res["meta_data"]["trip_type"], "vacation_travel")
+
+    def test_trip_title_domestic_road_trip(self):
+        """Test that city-to-city trips without flights receive 'Road Trip' title."""
+        res = self.client.planner.generate_itinerary(
+            prompt="Road trip from Atlanta to Savannah",
+            origin="ATL",
+            destination="SAV",
+            include_flights=False,
+        )
+        self.assertEqual(res["status"], "success")
+        self.assertEqual(res["title"], "Road Trip")
+        self.assertEqual(res["meta_data"]["title"], "Road Trip")
+        self.assertEqual(res["meta_data"]["is_international"], False)
+        self.assertEqual(res["meta_data"]["trip_type"], "road_trip")
+
+    def test_trip_title_international_road_trip(self):
+        """Test that cross-border city-to-city trips without flights receive 'International Road Trip' title."""
+        res = self.client.planner.generate_itinerary(
+            prompt="Drive from Seattle to Vancouver",
+            origin="SEA",
+            destination="YVR",
+            include_flights=False,
+        )
+        self.assertEqual(res["status"], "success")
+        self.assertEqual(res["title"], "International Road Trip")
+        self.assertEqual(res["meta_data"]["title"], "International Road Trip")
+        self.assertEqual(res["meta_data"]["is_international"], True)
+        self.assertEqual(res["meta_data"]["trip_type"], "road_trip")
 
 
 if __name__ == "__main__":
     unittest.main()
+

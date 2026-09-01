@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-09-01T14:04:13.269119+00:00",
+  "timestamp": "2026-09-01T14:35:05.048690+00:00",
   "original_prompt": "4-day highlights trip to berlin from atlanta",
-  "user_location": "New York (33.9972,-84.5043)",
+  "user_location": "New York (33.9975,-84.5047)",
   "service_execution_summary": {
     "prompt_evaluation": {
       "source": "live_llm",

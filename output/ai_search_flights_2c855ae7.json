@@ -1,6 +1,6 @@
 {
   "status": "success",
-  "timestamp": "2026-09-01 10:03:33",
+  "timestamp": "2026-09-01 10:33:44",
   "meta_data": {
     "type": "ai_search",
     "search_type": "flights",
@@ -72,7 +72,7 @@
     "top_bundles": [],
     "raw_data": {
       "status": "success",
-      "timestamp": "2026-09-01 10:03:33",
+      "timestamp": "2026-09-01 10:33:44",
       "search_type": "flights",
       "meta": {
         "search_type": "flights",
@@ -84,8 +84,8 @@
         "bundle_description": "Specific single-category search for flights from ATL to BER.",
         "prompt": "4-day highlights trip to berlin from atlanta",
         "ttl_seconds": 3600,
-        "expires_at": "2026-09-01T15:03:33Z",
-        "timestamp": "2026-09-01 10:03:33"
+        "expires_at": "2026-09-01T15:33:44Z",
+        "timestamp": "2026-09-01 10:33:44"
       },
       "search_params": {
         "origin": "ATL",

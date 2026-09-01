@@ -103,7 +103,10 @@
         "latitude": 52.3667,
         "longitude": 13.5033
       }
-    }
+    },
+    "itinerary_id": "itin_208334f4bc",
+    "user_id": null,
+    "version": 1
   },
   "data": {
     "recommended_itinerary_id": "itin_opt_8fcbbfcf",
