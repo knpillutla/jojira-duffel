@@ -152,6 +152,7 @@ def build_planner_user_prompt(
     no_gaps_instruction = PromptLoader.load_rule_prompt("no_gaps_timeline_protocol")
     shopping_instruction = PromptLoader.load_rule_prompt("evening_shopping_protocol")
     next_act_instruction = PromptLoader.load_rule_prompt("next_activity_node_protocol")
+    rich_entity_instruction = PromptLoader.load_rule_prompt("rich_entity_extraction_mandate")
 
     user_prompt = (
         f"Plan a {duration_days}-day trip from {origin_code} to {dest_clean} from {start_date} to {end_date} for {passengers_count} passenger(s). "
@@ -159,6 +160,7 @@ def build_planner_user_prompt(
         f"{flight_schedule_text}"
         f"{modality_text}\n"
         f"{safety_instruction}\n"
+        f"{rich_entity_instruction}\n"
         f"{no_gaps_instruction}\n"
         f"{shopping_instruction}\n"
         f"{next_act_instruction}\n"

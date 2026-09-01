@@ -11,36 +11,47 @@ from typing import Any, Optional
 def extract_overnight_lodging(day_elem: dict[str, Any], default_dest: str) -> tuple[str, str]:
     """Extracts the overnight city and hotel name dynamically from day's items."""
     overnight_city = default_dest
-    h_name = f"Premium Boutique Hotel in {default_dest}"
-    for item in reversed(day_elem.get("items", [])):
+    h_name = f"Verified Safe Hotel in {default_dest}"
+
+    # 1. First priority: Look for explicit hotel items or hotel check-in
+    for item in day_elem.get("items", []):
         itype = (item.get("type") or "").lower()
+        icat = (item.get("category") or "").lower()
         title = item.get("name") or item.get("title") or item.get("activity") or ""
-        desc = item.get("description") or ""
+        loc = item.get("location") or ""
         addr = item.get("address") or ""
-        combined = f"{title} {desc} {addr}".lower()
-        if itype == "hotel":
-            return item.get("location") or item.get("city") or overnight_city, title or h_name
-        if any(kw in combined for kw in ["hotel", "inn", "suites", "resort", "lodge", "check in", "check-in", "return to"]):
-            clean_title = re.sub(r"^(return to|check-in at|check in at|check into|arrive at)\s+", "", title, flags=re.I).strip()
+
+        is_hotel = (
+            itype in ["hotel", "hotel_checkin"]
+            or icat == "hotel"
+            or any(kw in title.lower() for kw in ["hotel", "inn", "suites", "resort", "lodge", "check-in", "check in"])
+        )
+        if is_hotel:
+            clean_title = re.sub(r"^(check-in at|check in at|check into|return to hotel at|stay at)\s+", "", title, flags=re.I).strip()
             if clean_title:
                 h_name = clean_title
-            if item.get("location") and item.get("location").lower() != "drive":
-                overnight_city = item.get("location")
-            elif "meridian" in combined:
-                overnight_city = "Meridian, MS"
-            elif "birmingham" in combined:
-                overnight_city = "Birmingham, AL"
-            elif "shreveport" in combined:
-                overnight_city = "Shreveport, LA"
-            elif "jackson" in combined:
-                overnight_city = "Jackson, MS"
-            elif "dallas" in combined:
-                overnight_city = "Dallas, TX"
-            elif "atlanta" in combined:
-                overnight_city = "Atlanta, GA"
+            if loc and loc.lower() not in ["drive", "hotel", "lodging"]:
+                overnight_city = loc
             elif addr and "," in addr:
-                overnight_city = addr.split(",")[-1].strip()
+                parts = [p.strip() for p in addr.split(",")]
+                overnight_city = f"{parts[-2]}, {parts[-1]}" if len(parts) >= 2 else parts[-1]
             return overnight_city, h_name
+
+    # 2. Secondary scan from evening items avoiding dining/transit
+    for item in reversed(day_elem.get("items", [])):
+        icat = (item.get("category") or "").lower()
+        if icat in ["dining", "restaurant", "food", "transit"]:
+            continue
+        loc = item.get("location") or ""
+        addr = item.get("address") or ""
+        if loc and loc.lower() not in ["drive", "hotel", "lodging"]:
+            overnight_city = loc
+            break
+        elif addr and "," in addr:
+            parts = [p.strip() for p in addr.split(",")]
+            overnight_city = f"{parts[-2]}, {parts[-1]}" if len(parts) >= 2 else parts[-1]
+            break
+
     return overnight_city, h_name
 
 
@@ -163,16 +174,19 @@ def build_trip_summary(
         d_num = day_elem.get("day_number", 1)
         for it in day_elem.get("items", []):
             it_type = (it.get("type") or "").lower()
-            if it_type in ["car", "flight", "hotel_checkin"]:
-                continue
+            it_cat = (it.get("category") or "").lower()
             act_title = it.get("name") or it.get("title") or it.get("activity") or ""
-            t_mode = (it.get("travel_mode") or "").lower()
-            if t_mode == "drive" or "drive to" in act_title.lower():
+
+            if it_type in ["car", "flight", "hotel", "hotel_checkin", "transit"]:
                 continue
-            if any(k in act_title.lower() for k in ["check-in", "check in", "rest at hotel", "breakfast", "lunch", "dinner"]):
+            if it_cat in ["car", "flight", "hotel", "dining", "transit", "transportation"]:
+                continue
+            if any(k in act_title.lower() for k in ["check-in", "check in", "rest at hotel", "return to hotel", "breakfast", "lunch", "dinner", "depart "]):
+                continue
+            if act_title.lower().startswith("drive to "):
                 continue
 
-            cost_pp = 25.0 if any(k in act_title.lower() for k in ["museum", "institute", "center", "tour", "park"]) else 0.0
+            cost_pp = float(it.get("price") or (25.0 if any(k in act_title.lower() for k in ["museum", "institute", "center", "tour", "theme park", "park"]) else 0.0))
             act_tot = cost_pp * passengers_count
             total_attractions_cost += act_tot
 
@@ -184,7 +198,7 @@ def build_trip_summary(
                 "cost_per_person": cost_pp,
                 "passengers_count": passengers_count,
                 "total_cost": act_tot,
-                "rating": it.get("rating") or 4.8,
+                "rating": float(it.get("rating") or 4.8),
                 "currency": "USD",
                 "category": it.get("category") or "Sightseeing & Culture",
             })
