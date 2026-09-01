@@ -385,11 +385,12 @@ async def log_requests_and_responses(request: Request, call_next):
     print(f"  * Prompt Parser Engine      : {parser_engine}", flush=True)
     print(f"  * LLM Used Evaluator        : {llm_used_flag}", flush=True)
     print(f"  * Extracted Intent JSON     : {json_display}", flush=True)
-    if flight_calls_disp != "N/A" or hotel_calls_disp != "N/A" or car_calls_disp != "N/A" or itinerary_synth_disp != "N/A":
-        print(f"  * Itinerary Schedule Engine : {itinerary_synth_disp}", flush=True)
-        print(f"  * Duffel Flight API Calls   : {flight_calls_disp}", flush=True)
-        print(f"  * Duffel Hotel API Calls    : {hotel_calls_disp}", flush=True)
-        print(f"  * Duffel Car API Calls      : {car_calls_disp}", flush=True)
+    is_planner_or_bundle = any(k in str(request.url.path).lower() for k in ["planner", "bundle", "search", "itinerary"])
+    if is_planner_or_bundle or flight_calls_disp != "N/A" or hotel_calls_disp != "N/A" or car_calls_disp != "N/A" or itinerary_synth_disp != "N/A":
+        print(f"  * Itinerary Schedule Engine : {itinerary_synth_disp if itinerary_synth_disp != 'N/A' else 'Synthetic Template Synthesizer'}", flush=True)
+        print(f"  * Duffel Flight API Calls   : {flight_calls_disp if flight_calls_disp != 'N/A' else '0 (No Calls)'}", flush=True)
+        print(f"  * Duffel Hotel API Calls    : {hotel_calls_disp if hotel_calls_disp != 'N/A' else '0 (No Calls)'}", flush=True)
+        print(f"  * Duffel Car API Calls      : {car_calls_disp if car_calls_disp != 'N/A' else '0 (No Calls)'}", flush=True)
     print(f"  * Total Duffel API Calls    : {api_calls}", flush=True)
     print(f"  * Delayed Calls (429 Limit) : {delayed_calls}", flush=True)
     print(f"  * Cache Hit Status          : {cache_hit_str}", flush=True)

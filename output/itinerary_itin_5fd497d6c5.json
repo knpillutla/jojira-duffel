@@ -110,7 +110,10 @@
         "latitude": 47.4633881,
         "longitude": 8.5533661
       }
-    }
+    },
+    "itinerary_id": "itin_5fd497d6c5",
+    "user_id": null,
+    "version": 1
   },
   "data": {
     "title": "International Vacation Travel",

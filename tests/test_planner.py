@@ -175,9 +175,68 @@ class TestTravelPlanner(unittest.TestCase):
         self.assertEqual(res["title"], "International Road Trip")
         self.assertEqual(res["meta_data"]["title"], "International Road Trip")
         self.assertEqual(res["meta_data"]["is_international"], True)
+
+    def test_road_trip_bundle_corridor_itinerary(self):
+        """Test that non-flight road trip generates corridor waypoints and road trip bundle contents."""
+        res = self.client.planner.generate_itinerary(
+            prompt="Plan a 4-day road trip from Atlanta to Columbus, Ohio",
+            origin="ATL",
+            destination="CMH",
+            include_flights=False,
+            include_cars=True,
+        )
+        self.assertEqual(res["status"], "success")
+        self.assertEqual(res["title"], "Road Trip")
         self.assertEqual(res["meta_data"]["trip_type"], "road_trip")
+        self.assertFalse(res["meta_data"]["is_international"])
+
+        # Check bundle contents reflect no flights
+        opt1_cheap = res["data"]["itinerary_options"][0]["category_highlights"]["cheapest"]
+        self.assertFalse(opt1_cheap["bundle_contents"]["flights"]["included"])
+        self.assertTrue(opt1_cheap["bundle_contents"]["cars"]["included"])
+
+        # Check daily itinerary themes & waypoints
+        day1 = res["daily_itinerary"][0]
+        self.assertIn("Corridor Waypoints", day1["title"])
+        self.assertGreaterEqual(len(day1["items"]), 3)
+
+    def test_fly_and_drive_bundle_itinerary(self):
+        """Test that fly & drive request (flights + road trip in destination) maintains both flight and car components."""
+        res = self.client.planner.generate_itinerary(
+            prompt="Fly from Atlanta to Paris and do a 4-day road trip with rental car",
+            origin="ATL",
+            destination="CDG",
+            include_flights=True,
+            include_cars=True,
+        )
+        self.assertEqual(res["status"], "success")
+        self.assertEqual(res["title"], "International Vacation Travel")
+        self.assertEqual(res["meta_data"]["trip_type"], "fly_and_drive")
+        self.assertTrue(res["meta_data"]["is_international"])
+
+        # Check bundle contents include both flights and cars
+        opt1_mod = res["data"]["itinerary_options"][0]["category_highlights"]["moderate"]
+        self.assertTrue(opt1_mod["bundle_contents"]["flights"]["included"])
+        self.assertTrue(opt1_mod["bundle_contents"]["cars"]["included"])
+
+    def test_planner_road_trip_endpoint_alias(self):
+        """Test POST /api/v1/planner/road-trip endpoint returns 200 OK with road trip payload."""
+        payload = {
+            "prompt": "Road trip from Atlanta to Savannah",
+            "origin": "ATL",
+            "destination": "SAV",
+            "include_flights": False,
+            "include_cars": True,
+            "days": 3,
+        }
+        resp = self.test_api_client.post("/api/v1/planner/road-trip", json=payload)
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["status"], "success")
+        self.assertEqual(data["title"], "Road Trip")
 
 
 if __name__ == "__main__":
     unittest.main()
+
 

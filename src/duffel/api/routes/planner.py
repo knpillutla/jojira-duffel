@@ -27,6 +27,11 @@ router = APIRouter(prefix="/api/v1", tags=["AI Travel Planner"])
     response_model=ItineraryPlannerResponse,
     summary="Generate AI Day-by-Day Travel Itinerary (Alias)",
 )
+@router.post(
+    "/planner/road-trip",
+    response_model=ItineraryPlannerResponse,
+    summary="Generate AI Road Trip Itinerary along Scenic Driving Corridor (Alias)",
+)
 def generate_itinerary_endpoint(
     req: ItineraryPlannerRequest,
     x_user_location: Optional[str] = Header(None, alias="X-User-Location"),

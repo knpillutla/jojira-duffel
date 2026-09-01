@@ -15,6 +15,15 @@ from .locations import GEO_LOCATIONS as DESTINATION_GEO_MAP
 _L1_PLANNER_MEMORY_CACHE: dict[str, dict[str, Any]] = {}
 _MAX_L1_CACHE_ITEMS = 500
 
+# Global In-Memory LLM Metrics Tracking Counter
+_LLM_METRICS_COUNTER: dict[str, Any] = {
+    "total_llm_calls": 0,
+    "openai_calls": 0,
+    "gemini_calls": 0,
+    "template_fallback_calls": 0,
+    "last_call_timestamp": None,
+}
+
 def format_proper_title(text: str) -> str:
     """Formats destination, package, and activity names into professional Title Case regardless of user input casing."""
     if not text:
@@ -539,8 +548,18 @@ class TravelPlannerService(BaseService):
 
         is_international = bool(user_home_country and dest_country and user_home_country != dest_country)
         is_road_trip = (not include_flights) or any(k in prompt.lower() for k in ["road trip", "roadtrip", "driving trip", "drive to", "drive from"])
+        is_fly_and_drive = include_flights and include_cars and any(k in prompt.lower() for k in ["road trip", "roadtrip", "drive", "driving", "fly and drive", "fly & drive", "scenic drive"])
 
-        base_trip_type = "Road Trip" if is_road_trip else "Vacation Travel"
+        if is_fly_and_drive:
+            trip_type_val = "fly_and_drive"
+            base_trip_type = "Vacation Travel"
+        elif is_road_trip and not include_flights:
+            trip_type_val = "road_trip"
+            base_trip_type = "Road Trip"
+        else:
+            trip_type_val = "vacation_travel"
+            base_trip_type = "Vacation Travel"
+
         trip_title = f"International {base_trip_type}" if is_international else base_trip_type
 
         # Build Cache Key
@@ -742,17 +761,31 @@ class TravelPlannerService(BaseService):
         # STEP 2 (SECOND LLM CALL FOR ITINERARY SYNTHESIS):
         # Inject exact live flight timings from AI Search into the LLM prompt.
         # =========================================================================
-        user_prompt = (
-            f"Plan a {duration_days}-day trip to {dest_clean} from {start_date} to {end_date} for {passengers_count} passenger(s). "
-            f"Style: {style}, Budget: {budget}.\n"
+        road_trip_corridor_text = (
+            f"ROAD TRIP HIGHWAY CORRIDOR REQUIREMENT:\n"
+            f"This is a Road Trip from {origin_code} to {dest_clean}. "
+            f"Do NOT restrict activities solely to {dest_clean}. Construct the itinerary along the authentic driving highway corridor "
+            f"featuring famous en-route waypoints, roadside diners, national/state parks, scenic lookouts, and intermediate overnight stays "
+            f"progressing day-by-day from {origin_code} to {dest_clean} and back. Set 'travel_mode': 'drive' for all driving legs.\n"
+        ) if (is_road_trip or is_fly_and_drive) else ""
+
+        flight_schedule_text = (
             f"EXACT LIVE FLIGHT SCHEDULE FROM AI SEARCH:\n"
             f"- Outbound Flight: Departs {origin_code} at {outbound_dep}, Arrives in {dest_clean} at {outbound_arr}.\n"
             f"- Return Flight: Departs {dest_clean} at {return_dep}, Arrives in {origin_code} at {return_arr}.\n"
             f"{lunch_instruction}\n"
+        ) if include_flights else (
+            f"DEPARTURE LOGISTICS: Road trip drive departs from {origin_code} at 08:30 AM heading toward {dest_clean}.\n"
+        )
+
+        user_prompt = (
+            f"Plan a {duration_days}-day trip from {origin_code} to {dest_clean} from {start_date} to {end_date} for {passengers_count} passenger(s). "
+            f"Style: {style}, Budget: {budget}.\n"
+            f"{flight_schedule_text}"
+            f"{road_trip_corridor_text}"
             f"{evening_breakfast_instruction}\n"
-            f"TIMELINE REQUIREMENT: On Day 1, schedule all activities and hotel check-in strictly AFTER flight arrival at {outbound_arr}. "
-            f"On Final Day, schedule all activities and hotel check-out to wrap up before return flight departure at {return_dep}.\n"
-            f"RENTAL VEHICLE LOGISTICS: {'On Day 1 include rental car pickup upon airport arrival, and on Day ' + str(duration_days) + ' include rental vehicle return & drop-off at ' + dest_clean + ' Airport Rental Facility (~2 hours before return flight departure).' if include_cars else 'No rental car requested.'}\n"
+            f"TIMELINE REQUIREMENT: {'On Day 1, schedule all activities strictly after flight arrival at ' + outbound_arr + '. On Final Day, wrap up before flight departure at ' + return_dep + '.' if include_flights else 'On Day 1, depart from origin at 08:30 AM and embark on the road trip corridor. On Final Day, return to origin by 06:00 PM.'}\n"
+            f"RENTAL VEHICLE LOGISTICS: {'On Day 1 include rental car pickup upon departure/arrival, and on Day ' + str(duration_days) + ' include rental vehicle return & drop-off.' if include_cars else 'No rental car requested.'}\n"
             f"Included components: Flights={include_flights}, Hotels={include_hotels} ({rooms_calculated} rooms), Cars={include_cars} ({cars_calculated} car), Trains={include_trains}, Buses={include_buses}, "
             f"Attractions={include_attractions}, Activities={include_activities}, SeasonalAttractions={include_seasonal_attractions}, SeasonalActivities={include_seasonal_activities}. Prompt details: '{prompt}'."
         )
@@ -769,6 +802,8 @@ class TravelPlannerService(BaseService):
             include_attractions,
             include_activities,
             include_cars=include_cars,
+            origin=origin_code,
+            is_road_trip=is_road_trip,
         )
 
         # Compute Daily Total Costs & Attach Components to Daily Schedule
@@ -1768,15 +1803,15 @@ class TravelPlannerService(BaseService):
                     "attraction_rating": 4.6,
                     "is_mock": not is_live_pricing,
                     "pricing_source": pricing_src_str,
-                    "description": f"Standard stay, economy flights, & budget attraction entry for {opt_name}.",
-                    "included_components": ["flights", "hotels", "cars", "attractions", "activities"],
+                    "description": f"Standard stay, {'economy flights' if include_flights else 'road trip car rental'}, & budget attraction entry for {opt_name}.",
+                    "included_components": ["flights", "hotels", "cars", "attractions", "activities"] if include_flights else ["hotels", "cars", "attractions", "activities"],
                     "bundle_contents": {
-                        "flights": {"included": True, "description": f"Economy Flights ({origin_code} -> {dest_upper})"},
+                        "flights": {"included": bool(include_flights), "description": f"Economy Flights ({origin_code} -> {dest_upper})" if include_flights else "Not included (Road Trip)"},
                         "hotels": {"included": True, "description": f"3-Star Comfort Stay ({rooms_calculated} Room(s))" + (" [Price TBD]" if is_hotel_tbd else "")},
                         "cars": {"included": True, "description": f"Compact Rental Car" + (" [Price TBD]" if is_car_tbd else "")},
                         "attractions": {"included": True, "description": f"Standard Landmark Passes"},
                         "activities": {"included": True, "description": f"Curated Self-Guided & Local Walks"},
-                        "summary_line": "Includes Economy Flights, 3-Star Hotel, Compact Car, Standard Passes, & Self-Guided Walks."
+                        "summary_line": f"Includes {'Economy Flights, ' if include_flights else ''}3-Star Hotel, Compact Car, Standard Passes, & Self-Guided Walks."
                     }
                 },
                 "moderate": {
@@ -1796,15 +1831,15 @@ class TravelPlannerService(BaseService):
                     "attraction_rating": 4.8,
                     "is_mock": not is_live_pricing,
                     "pricing_source": pricing_src_str,
-                    "description": f"4-Star central stay, standard flights, midsize car, & guided entry for {opt_name}.",
-                    "included_components": ["flights", "hotels", "cars", "attractions", "activities"],
+                    "description": f"4-Star central stay, {'standard flights' if include_flights else 'midsize road trip SUV'}, & guided entry for {opt_name}.",
+                    "included_components": ["flights", "hotels", "cars", "attractions", "activities"] if include_flights else ["hotels", "cars", "attractions", "activities"],
                     "bundle_contents": {
-                        "flights": {"included": True, "description": f"Standard Main Cabin Flights ({origin_code} -> {dest_upper})"},
+                        "flights": {"included": bool(include_flights), "description": f"Standard Main Cabin Flights ({origin_code} -> {dest_upper})" if include_flights else "Not included (Road Trip)"},
                         "hotels": {"included": True, "description": f"4-Star Central Hotel ({rooms_calculated} Room(s))" + (" [Price TBD]" if is_hotel_tbd else "")},
                         "cars": {"included": True, "description": f"Midsize SUV Car Rental" + (" [Price TBD]" if is_car_tbd else "")},
                         "attractions": {"included": True, "description": f"Priority Skip-the-Line Museum Passes"},
                         "activities": {"included": True, "description": f"Guided Small-Group Tours & Experiences"},
-                        "summary_line": "Includes Standard Flights, 4-Star Hotel, Midsize SUV, Priority Museum Entry, & Small-Group Tours."
+                        "summary_line": f"Includes {'Standard Flights, ' if include_flights else ''}4-Star Hotel, Midsize SUV, Priority Museum Entry, & Small-Group Tours."
                     }
                 },
                 "luxury": {
@@ -1824,15 +1859,15 @@ class TravelPlannerService(BaseService):
                     "attraction_rating": 4.9,
                     "is_mock": not is_live_pricing,
                     "pricing_source": pricing_src_str,
-                    "description": f"5-Star luxury suite, business flights, premium car, & private VIP tour entry for {opt_name}.",
-                    "included_components": ["flights", "hotels", "cars", "attractions", "activities"],
+                    "description": f"5-Star luxury suite, {'business flights' if include_flights else 'premium road trip SUV'}, & private VIP tour entry for {opt_name}.",
+                    "included_components": ["flights", "hotels", "cars", "attractions", "activities"] if include_flights else ["hotels", "cars", "attractions", "activities"],
                     "bundle_contents": {
-                        "flights": {"included": True, "description": f"Business Class Flights ({origin_code} -> {dest_upper})"},
+                        "flights": {"included": bool(include_flights), "description": f"Business Class Flights ({origin_code} -> {dest_upper})" if include_flights else "Not included (Road Trip)"},
                         "hotels": {"included": True, "description": f"5-Star Luxury Suite Hotel ({rooms_calculated} Room(s))" + (" [Price TBD]" if is_hotel_tbd else "")},
                         "cars": {"included": True, "description": f"Premium Luxury SUV Rental" + (" [Price TBD]" if is_car_tbd else "")},
                         "attractions": {"included": True, "description": f"Private After-Hours Museum Access"},
                         "activities": {"included": True, "description": f"Michelin-Starred Dining & Private Yacht Cruise"},
-                        "summary_line": "Includes Business Class Flights, 5-Star Suite, Premium SUV, Private Museum Access, & Yacht Cruise."
+                        "summary_line": f"Includes {'Business Class Flights, ' if include_flights else ''}5-Star Suite, Premium SUV, Private Museum Access, & Yacht Cruise."
                     }
                 }
             }
@@ -2042,10 +2077,6 @@ class TravelPlannerService(BaseService):
             "database_totals": db_stats
         }
 
-
-
-
-
     def _synthesize_template_itinerary(
         self,
         destination: str,
@@ -2054,25 +2085,41 @@ class TravelPlannerService(BaseService):
         base_lat: float,
         base_lng: float,
         include_cars: bool = True,
+        origin: Optional[str] = None,
+        is_road_trip: bool = False,
     ) -> list[dict[str, Any]]:
         """
         Synthesizes a curated, realistic day-by-day travel itinerary with breakfast,
         morning sightseeing, lunch, afternoon cultural exploration, dinner, and evening rest.
+        Supports both destination city exploration and multi-stop road trip corridors.
         """
         dest_formatted = format_proper_title(destination)
+        orig_formatted = format_proper_title(origin or "Departure City")
         days = []
-        day_themes = [
-            f"Iconic Landmarks & Historic Center of {dest_formatted}",
-            f"Art, Architecture & Cultural Treasures of {dest_formatted}",
-            f"Scenic Views, Local Markets & Culinary Delights in {dest_formatted}",
-            f"Parks, Nature & Hidden Neighborhoods of {dest_formatted}",
-            f"Leisure, Shopping & Grand Farewell Evening in {dest_formatted}",
-        ]
+
+        if is_road_trip:
+            day_themes = [
+                f"Departure from {orig_formatted} & Scenic Highway Corridor Waypoints",
+                f"En-Route Historic Towns, Nature Parks & Regional Discoveries",
+                f"Arrival & Iconic Exploration of {dest_formatted}",
+                f"Scenic Nature, Hidden Trails & Cultural Farewell in {dest_formatted}",
+                f"Scenic Return Drive & Regional Farm-to-Table Highlights",
+            ]
+        else:
+            day_themes = [
+                f"Iconic Landmarks & Historic Center of {dest_formatted}",
+                f"Art, Architecture & Cultural Treasures of {dest_formatted}",
+                f"Scenic Views, Local Markets & Culinary Delights in {dest_formatted}",
+                f"Parks, Nature & Hidden Neighborhoods of {dest_formatted}",
+                f"Leisure, Shopping & Grand Farewell Evening in {dest_formatted}",
+            ]
 
         for day_num in range(1, duration_days + 1):
             cur_date = (start_dt + timedelta(days=day_num - 1)).strftime("%Y-%m-%d")
             theme_idx = (day_num - 1) % len(day_themes)
             theme = day_themes[theme_idx]
+
+            location_tag = f"En-Route to {dest_formatted}" if (is_road_trip and day_num == 1) else dest_formatted
 
             activities = [
                 {
@@ -2080,36 +2127,36 @@ class TravelPlannerService(BaseService):
                     "name": "Artisanal Morning Breakfast & Coffee",
                     "time_slot": "08:00 AM - Breakfast",
                     "category": "Breakfast",
-                    "description": f"Enjoy fresh pastries, artisan coffee, and seasonal breakfast specialties in central {dest_formatted}.",
+                    "description": f"Enjoy fresh pastries, artisan coffee, and seasonal breakfast specialties in {location_tag}.",
                     "min_price_per_person": 15.0,
                     "max_price_per_person": 25.0,
                     "price_per_person": 20.0,
                     "rating": 4.8,
                     "reviews_count": 420,
-                    "address": f"15 Grand Avenue, {dest_formatted}",
+                    "address": f"15 Grand Avenue, {location_tag}",
                     "phone_number": "+1 800 555 0123",
                     "geo_location": {
-                        "name": f"Central Cafe {dest_formatted}",
-                        "address": f"15 Grand Avenue, {dest_formatted}",
+                        "name": f"Central Cafe {location_tag}",
+                        "address": f"15 Grand Avenue, {location_tag}",
                         "phone_number": "+1 800 555 0123",
                         "latitude": round(base_lat + 0.002 * day_num, 4),
                         "longitude": round(base_lng + 0.003 * day_num, 4)
                     }
                 },
                 {
-                    "title": "Historic Landmarks & Guided Walking Tour",
-                    "name": "Historic Landmarks & Guided Walking Tour",
+                    "title": f"Scenic Highway Waypoint & Lookout" if (is_road_trip and day_num == 1) else "Historic Landmarks & Guided Walking Tour",
+                    "name": f"Scenic Highway Waypoint & Lookout" if (is_road_trip and day_num == 1) else "Historic Landmarks & Guided Walking Tour",
                     "time_slot": "09:30 AM - Morning Sightseeing",
                     "category": "Attraction",
-                    "description": f"Explore historic monuments, grand plazas, and architectural landmarks with priority access.",
+                    "description": f"Explore iconic scenic viewpoints, nature trails, and historic monuments with panoramic views.",
                     "price_per_person": 35.0,
                     "rating": 4.9,
                     "reviews_count": 1280,
-                    "address": f"City Center Plaza, {dest_formatted}",
+                    "address": f"Scenic Lookout Parkway, {location_tag}",
                     "phone_number": "+1 800 555 0456",
                     "geo_location": {
-                        "name": f"{dest_formatted} Historic District",
-                        "address": f"City Center Plaza, {dest_formatted}",
+                        "name": f"{location_tag} Scenic Waypoint",
+                        "address": f"Scenic Lookout Parkway, {location_tag}",
                         "phone_number": "+1 800 555 0456",
                         "latitude": round(base_lat + 0.005 * day_num, 4),
                         "longitude": round(base_lng - 0.002 * day_num, 4)
@@ -2120,36 +2167,36 @@ class TravelPlannerService(BaseService):
                     "name": "Traditional Bistro & Regional Lunch",
                     "time_slot": "12:30 PM - Lunch",
                     "category": "Lunch",
-                    "description": f"Savor authentic local cuisine and chef's signature lunch course in a charming setting.",
+                    "description": f"Savor authentic regional cuisine and chef's signature lunch course in a charming setting.",
                     "min_price_per_person": 22.0,
                     "max_price_per_person": 40.0,
                     "price_per_person": 30.0,
                     "rating": 4.7,
                     "reviews_count": 690,
-                    "address": f"24 Market Street, {dest_formatted}",
+                    "address": f"24 Market Street, {location_tag}",
                     "phone_number": "+1 800 555 0789",
                     "geo_location": {
-                        "name": f"Le Bistro {dest_formatted}",
-                        "address": f"24 Market Street, {dest_formatted}",
+                        "name": f"Le Bistro {location_tag}",
+                        "address": f"24 Market Street, {location_tag}",
                         "phone_number": "+1 800 555 0789",
                         "latitude": round(base_lat - 0.003 * day_num, 4),
                         "longitude": round(base_lng + 0.004 * day_num, 4)
                     }
                 },
                 {
-                    "title": "National Museum & Gallery Exhibition",
-                    "name": "National Museum & Gallery Exhibition",
+                    "title": "National Park & Cultural Heritage Exhibition" if is_road_trip else "National Museum & Gallery Exhibition",
+                    "name": "National Park & Cultural Heritage Exhibition" if is_road_trip else "National Museum & Gallery Exhibition",
                     "time_slot": "02:30 PM - Afternoon Culture",
-                    "category": "Museum",
-                    "description": f"Discover world-renowned art collections, interactive galleries, and historical exhibitions.",
+                    "category": "Attraction" if is_road_trip else "Museum",
+                    "description": f"Discover natural wonders, historic exhibits, and regional cultural heritage with guided access.",
                     "price_per_person": 25.0,
                     "rating": 4.8,
                     "reviews_count": 2150,
-                    "address": f"Museum Boulevard, {dest_formatted}",
+                    "address": f"Heritage Boulevard, {location_tag}",
                     "phone_number": "+1 800 555 0912",
                     "geo_location": {
-                        "name": f"{dest_formatted} National Gallery",
-                        "address": f"Museum Boulevard, {dest_formatted}",
+                        "name": f"{location_tag} Heritage Discovery",
+                        "address": f"Heritage Boulevard, {location_tag}",
                         "phone_number": "+1 800 555 0912",
                         "latitude": round(base_lat + 0.008 * day_num, 4),
                         "longitude": round(base_lng + 0.001 * day_num, 4)
@@ -2160,17 +2207,17 @@ class TravelPlannerService(BaseService):
                     "name": "Fine Dining Dinner Experience",
                     "time_slot": "08:00 PM - Dinner",
                     "category": "Dinner",
-                    "description": f"Indulge in a multi-course dinner paired with local wines at a top-rated restaurant.",
+                    "description": f"Indulge in a multi-course dinner paired with regional specialties at a top-rated restaurant.",
                     "min_price_per_person": 50.0,
                     "max_price_per_person": 95.0,
                     "price_per_person": 70.0,
                     "rating": 4.9,
                     "reviews_count": 1420,
-                    "address": f"88 Riverside Drive, {dest_formatted}",
+                    "address": f"88 Riverside Drive, {location_tag}",
                     "phone_number": "+1 800 555 0345",
                     "geo_location": {
-                        "name": f"The Grand Dining Room {dest_formatted}",
-                        "address": f"88 Riverside Drive, {dest_formatted}",
+                        "name": f"The Grand Dining Room {location_tag}",
+                        "address": f"88 Riverside Drive, {location_tag}",
                         "phone_number": "+1 800 555 0345",
                         "latitude": round(base_lat - 0.004 * day_num, 4),
                         "longitude": round(base_lng - 0.005 * day_num, 4)
@@ -2203,15 +2250,15 @@ class TravelPlannerService(BaseService):
                     "name": "Rental Vehicle Return & Drop-off",
                     "time_slot": "03:00 PM - Car Return",
                     "category": "Transport",
-                    "description": f"Return rental vehicle with full tank at {dest_formatted} Airport Rental Return Facility prior to departure flight.",
+                    "description": f"Return rental vehicle with full tank at {dest_formatted} Rental Return Facility.",
                     "price_per_person": 0.0,
                     "rating": 4.8,
                     "reviews_count": 310,
-                    "address": f"Rental Return Facility, {dest_formatted} Airport",
+                    "address": f"Rental Return Facility, {dest_formatted}",
                     "phone_number": "+1 800 555 0244",
                     "geo_location": {
-                        "name": f"{dest_formatted} Airport Rental Car Return",
-                        "address": f"Rental Return Facility, {dest_formatted} Airport",
+                        "name": f"{dest_formatted} Rental Car Return",
+                        "address": f"Rental Return Facility, {dest_formatted}",
                         "phone_number": "+1 800 555 0244",
                         "latitude": round(base_lat + 0.05, 4),
                         "longitude": round(base_lng + 0.05, 4)
@@ -2222,11 +2269,11 @@ class TravelPlannerService(BaseService):
                 a_name = act_dict.get("name") or act_dict.get("title") or ""
                 a_cat = act_dict.get("category") or ""
                 a_rat = float(act_dict.get("rating") or 4.8)
-                a_enc = urllib.parse.quote_plus(f"{a_name} {dest_formatted}")
+                a_enc = urllib.parse.quote_plus(f"{a_name} {location_tag}")
                 a_site = f"https://www.google.com/search?q={a_enc}+official+site"
                 a_grev = f"https://www.google.com/maps/search/?api=1&query={a_enc}+reviews"
                 a_trev = f"https://www.tripadvisor.com/Search?q={a_enc}"
-                act_dict["reviews"] = _generate_activity_reviews(a_name, a_cat, a_rat, dest_formatted)
+                act_dict["reviews"] = _generate_activity_reviews(a_name, a_cat, a_rat, location_tag)
                 act_dict["website_url"] = a_site
                 act_dict["direct_website_url"] = a_site
                 act_dict["activity_url"] = a_site
@@ -2255,6 +2302,8 @@ class TravelPlannerService(BaseService):
         include_attractions: bool,
         include_activities: bool,
         include_cars: bool = True,
+        origin: Optional[str] = None,
+        is_road_trip: bool = False,
     ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Orchestrates LLM call to OpenAI/Gemini or uses intelligent template synthesizer fallback.
@@ -2272,42 +2321,50 @@ class TravelPlannerService(BaseService):
             try:
                 import time
                 t0_llm = time.perf_counter()
-                content = None
+                raw_text = None
 
                 # Try using openai package first
                 try:
                     import openai
-                    client = openai.OpenAI(api_key=openai_key, timeout=llm_timeout)
-                    response = client.chat.completions.create(
+                    o_client = openai.OpenAI(api_key=openai_key, timeout=llm_timeout)
+                    resp = o_client.chat.completions.create(
                         model=model_name,
                         messages=[
-                            {"role": "system", "content": f"{system_prompt}\nYou MUST respond with a valid JSON object matching: {{\"days\": [...]}}"},
+                            {"role": "system", "content": system_prompt},
                             {"role": "user", "content": user_prompt}
                         ],
                         response_format={"type": "json_object"},
                         temperature=0.7,
-                        timeout=llm_timeout,
                     )
-                    content = response.choices[0].message.content
+                    raw_text = resp.choices[0].message.content
                 except (ImportError, ModuleNotFoundError):
-                    # Direct HTTP fallback via httpx/requests when openai SDK is not installed
-                    import httpx
-                    headers = {"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"}
+                    # Direct HTTP fallback via urllib.request
+                    import json
+                    from urllib.request import Request, urlopen
                     payload = {
                         "model": model_name,
                         "messages": [
-                            {"role": "system", "content": f"{system_prompt}\nYou MUST respond with a valid JSON object matching: {{\"days\": [...]}}"},
+                            {"role": "system", "content": system_prompt},
                             {"role": "user", "content": user_prompt}
                         ],
                         "response_format": {"type": "json_object"},
-                        "temperature": 0.7
+                        "temperature": 0.7,
                     }
-                    resp = httpx.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload, timeout=llm_timeout)
-                    resp.raise_for_status()
-                    content = resp.json()["choices"][0]["message"]["content"]
+                    req_obj = Request(
+                        "https://api.openai.com/v1/chat/completions",
+                        data=json.dumps(payload).encode("utf-8"),
+                        headers={
+                            "Authorization": f"Bearer {openai_key}",
+                            "Content-Type": "application/json",
+                        },
+                        method="POST",
+                    )
+                    with urlopen(req_obj, timeout=llm_timeout) as resp_http:
+                        http_data = json.loads(resp_http.read().decode("utf-8"))
+                        raw_text = http_data["choices"][0]["message"]["content"]
 
-                if content:
-                    parsed = json.loads(content)
+                if raw_text:
+                    parsed = json.loads(raw_text)
                     days_out = parsed.get("days") if isinstance(parsed, dict) else (parsed if isinstance(parsed, list) else None)
                     if days_out:
                         llm_dur_ms = (time.perf_counter() - t0_llm) * 1000.0
@@ -2416,6 +2473,8 @@ class TravelPlannerService(BaseService):
             base_lat=base_lat,
             base_lng=base_lng,
             include_cars=include_cars,
+            origin=origin,
+            is_road_trip=is_road_trip,
         )
         _save_llm_debug_output(
             category="itinerary_synthesizer",

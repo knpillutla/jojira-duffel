@@ -1,0 +1,1648 @@
+{
+  "status": "success",
+  "timestamp": "2026-09-01 10:59:06",
+  "meta_data": {
+    "type": "bundles",
+    "search_params": {
+      "origin": "ATL",
+      "destination": "ZRH",
+      "departure_date": "2026-09-16",
+      "return_date": "2026-09-20",
+      "passengers_count": 1,
+      "cabin_class": "economy",
+      "rooms": 1,
+      "driver_age": 30,
+      "force_refresh": false
+    },
+    "geo_location": {
+      "origin": {
+        "code": "ATL",
+        "latitude": 33.6407,
+        "longitude": -84.4277
+      },
+      "destination": {
+        "code": "ZRH",
+        "latitude": 47.4633881,
+        "longitude": 8.5533661
+      }
+    },
+    "service_execution_summary": {
+      "flight_calls_count": 1,
+      "hotel_calls_count": 1,
+      "car_calls_count": 1,
+      "total_calls_count": 3,
+      "is_flights_synthetic": false,
+      "flights_data_source": "live_duffel_api",
+      "is_hotels_synthetic": false,
+      "hotels_data_source": "live_duffel_api",
+      "is_cars_synthetic": false,
+      "cars_data_source": "live_duffel_api",
+      "is_hotel_price_tbd": true,
+      "is_car_price_tbd": true
+    }
+  },
+  "data": {
+    "total_bundles_found": 5,
+    "category_highlights": {
+      "lowest_fare_package": {
+        "bundle_id": "bnd_0001_36012f",
+        "total_package_price": 1323.0,
+        "total_price_display": "USD 1323.00 + car rental + hotels",
+        "individual_price_sum": 1392.63,
+        "bundle_savings": 69.63,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dW0NIwzkZGko4L",
+          "price": "USD 1392.63",
+          "total_amount": 1392.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "13h",
+          "duration_minutes": 780,
+          "duration_hours": 13.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-18T09:55:00",
+          "arrival_date": "2026-09-18",
+          "arrival_time": "09:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.733679Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.733679Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-18T09:55:00",
+              "arrival_date": "2026-09-18",
+              "arrival_time": "09:55:00",
+              "duration": "6h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T18:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "18:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "6h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T18:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "18:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "direct_express_package": {
+        "bundle_id": "bnd_0001_36012f",
+        "total_package_price": 1323.0,
+        "total_price_display": "USD 1323.00 + car rental + hotels",
+        "individual_price_sum": 1392.63,
+        "bundle_savings": 69.63,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dW0NIwzkZGko4L",
+          "price": "USD 1392.63",
+          "total_amount": 1392.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "13h",
+          "duration_minutes": 780,
+          "duration_hours": 13.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-18T09:55:00",
+          "arrival_date": "2026-09-18",
+          "arrival_time": "09:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.733679Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.733679Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-18T09:55:00",
+              "arrival_date": "2026-09-18",
+              "arrival_time": "09:55:00",
+              "duration": "6h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T18:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "18:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "6h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T18:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "18:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "curated_value_package": {
+        "bundle_id": "bnd_0001_36012f",
+        "total_package_price": 1323.0,
+        "total_price_display": "USD 1323.00 + car rental + hotels",
+        "individual_price_sum": 1392.63,
+        "bundle_savings": 69.63,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dW0NIwzkZGko4L",
+          "price": "USD 1392.63",
+          "total_amount": 1392.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "13h",
+          "duration_minutes": 780,
+          "duration_hours": 13.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-18T09:55:00",
+          "arrival_date": "2026-09-18",
+          "arrival_time": "09:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.733679Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.733679Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-18T09:55:00",
+              "arrival_date": "2026-09-18",
+              "arrival_time": "09:55:00",
+              "duration": "6h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T18:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "18:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "6h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T18:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "18:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "signature_luxury_package": {
+        "bundle_id": "bnd_0005_36012f",
+        "total_package_price": 1422.75,
+        "total_price_display": "USD 1422.75 + car rental + hotels",
+        "individual_price_sum": 1497.63,
+        "bundle_savings": 74.88,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dWCQa8dVAeOQr4",
+          "price": "USD 1497.63",
+          "total_amount": 1497.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "24h",
+          "duration_minutes": 1440,
+          "duration_hours": 24.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-17T20:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "20:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.760030Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.760030Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-17T20:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "20:55:00",
+              "duration": "17h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T18:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "18:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "6h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T18:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "18:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "overall_lowest": {
+        "bundle_id": "bnd_0001_36012f",
+        "total_package_price": 1323.0,
+        "total_price_display": "USD 1323.00 + car rental + hotels",
+        "individual_price_sum": 1392.63,
+        "bundle_savings": 69.63,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dW0NIwzkZGko4L",
+          "price": "USD 1392.63",
+          "total_amount": 1392.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "13h",
+          "duration_minutes": 780,
+          "duration_hours": 13.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-18T09:55:00",
+          "arrival_date": "2026-09-18",
+          "arrival_time": "09:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.733679Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.733679Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-18T09:55:00",
+              "arrival_date": "2026-09-18",
+              "arrival_time": "09:55:00",
+              "duration": "6h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T18:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "18:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "6h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T18:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "18:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "overall_cheapest": {
+        "bundle_id": "bnd_0001_36012f",
+        "total_package_price": 1323.0,
+        "total_price_display": "USD 1323.00 + car rental + hotels",
+        "individual_price_sum": 1392.63,
+        "bundle_savings": 69.63,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dW0NIwzkZGko4L",
+          "price": "USD 1392.63",
+          "total_amount": 1392.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "13h",
+          "duration_minutes": 780,
+          "duration_hours": 13.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-18T09:55:00",
+          "arrival_date": "2026-09-18",
+          "arrival_time": "09:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.733679Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.733679Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-18T09:55:00",
+              "arrival_date": "2026-09-18",
+              "arrival_time": "09:55:00",
+              "duration": "6h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T18:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "18:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "6h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T18:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "18:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "nonstop_flight_bundle": {
+        "bundle_id": "bnd_0001_36012f",
+        "total_package_price": 1323.0,
+        "total_price_display": "USD 1323.00 + car rental + hotels",
+        "individual_price_sum": 1392.63,
+        "bundle_savings": 69.63,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dW0NIwzkZGko4L",
+          "price": "USD 1392.63",
+          "total_amount": 1392.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "13h",
+          "duration_minutes": 780,
+          "duration_hours": 13.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-18T09:55:00",
+          "arrival_date": "2026-09-18",
+          "arrival_time": "09:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.733679Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.733679Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-18T09:55:00",
+              "arrival_date": "2026-09-18",
+              "arrival_time": "09:55:00",
+              "duration": "6h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T18:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "18:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "6h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T18:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "18:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "best_value_bundle": {
+        "bundle_id": "bnd_0001_36012f",
+        "total_package_price": 1323.0,
+        "total_price_display": "USD 1323.00 + car rental + hotels",
+        "individual_price_sum": 1392.63,
+        "bundle_savings": 69.63,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dW0NIwzkZGko4L",
+          "price": "USD 1392.63",
+          "total_amount": 1392.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "13h",
+          "duration_minutes": 780,
+          "duration_hours": 13.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-18T09:55:00",
+          "arrival_date": "2026-09-18",
+          "arrival_time": "09:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.733679Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.733679Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-18T09:55:00",
+              "arrival_date": "2026-09-18",
+              "arrival_time": "09:55:00",
+              "duration": "6h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T18:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "18:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "6h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T18:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "18:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      "luxury_bundle": {
+        "bundle_id": "bnd_0005_36012f",
+        "total_package_price": 1422.75,
+        "total_price_display": "USD 1422.75 + car rental + hotels",
+        "individual_price_sum": 1497.63,
+        "bundle_savings": 74.88,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dWCQa8dVAeOQr4",
+          "price": "USD 1497.63",
+          "total_amount": 1497.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "24h",
+          "duration_minutes": 1440,
+          "duration_hours": 24.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-17T20:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "20:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.760030Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.760030Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-17T20:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "20:55:00",
+              "duration": "17h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T18:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "18:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "6h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T18:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "18:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      }
+    },
+    "top_bundles": [
+      {
+        "bundle_id": "bnd_0001_36012f",
+        "total_package_price": 1323.0,
+        "total_price_display": "USD 1323.00 + car rental + hotels",
+        "individual_price_sum": 1392.63,
+        "bundle_savings": 69.63,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dW0NIwzkZGko4L",
+          "price": "USD 1392.63",
+          "total_amount": 1392.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "13h",
+          "duration_minutes": 780,
+          "duration_hours": 13.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-18T09:55:00",
+          "arrival_date": "2026-09-18",
+          "arrival_time": "09:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.733679Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.733679Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-18T09:55:00",
+              "arrival_date": "2026-09-18",
+              "arrival_time": "09:55:00",
+              "duration": "6h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T18:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "18:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "6h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T18:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "18:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      {
+        "bundle_id": "bnd_0002_36012f",
+        "total_package_price": 1323.0,
+        "total_price_display": "USD 1323.00 + car rental + hotels",
+        "individual_price_sum": 1392.63,
+        "bundle_savings": 69.63,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dW0jHdHKaMv5ce",
+          "price": "USD 1392.63",
+          "total_amount": 1392.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "16h 40m",
+          "duration_minutes": 1000,
+          "duration_hours": 16.67,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-18T09:55:00",
+          "arrival_date": "2026-09-18",
+          "arrival_time": "09:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.734187Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.734187Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-18T09:55:00",
+              "arrival_date": "2026-09-18",
+              "arrival_time": "09:55:00",
+              "duration": "6h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T15:10:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "15:10:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "10h 35m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T15:10:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "15:10:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      {
+        "bundle_id": "bnd_0003_36012f",
+        "total_package_price": 1323.0,
+        "total_price_display": "USD 1323.00 + car rental + hotels",
+        "individual_price_sum": 1392.63,
+        "bundle_savings": 69.63,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dW0jHdHKaMv5d0",
+          "price": "USD 1392.63",
+          "total_amount": 1392.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "18h 10m",
+          "duration_minutes": 1090,
+          "duration_hours": 18.17,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-18T09:55:00",
+          "arrival_date": "2026-09-18",
+          "arrival_time": "09:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.734483Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.734483Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-18T09:55:00",
+              "arrival_date": "2026-09-18",
+              "arrival_time": "09:55:00",
+              "duration": "6h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T13:40:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "13:40:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "12h 5m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T13:40:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "13:40:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      {
+        "bundle_id": "bnd_0004_36012f",
+        "total_package_price": 1365.75,
+        "total_price_display": "USD 1365.75 + car rental + hotels",
+        "individual_price_sum": 1437.63,
+        "bundle_savings": 71.88,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dWB0fPVB6FjIe3",
+          "price": "USD 1437.63",
+          "total_amount": 1437.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "21h",
+          "duration_minutes": 1260,
+          "duration_hours": 21.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-18T09:55:00",
+          "arrival_date": "2026-09-18",
+          "arrival_time": "09:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.756954Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.756954Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-18T09:55:00",
+              "arrival_date": "2026-09-18",
+              "arrival_time": "09:55:00",
+              "duration": "6h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T10:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "10:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "14h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T10:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "10:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      },
+      {
+        "bundle_id": "bnd_0005_36012f",
+        "total_package_price": 1422.75,
+        "total_price_display": "USD 1422.75 + car rental + hotels",
+        "individual_price_sum": 1497.63,
+        "bundle_savings": 74.88,
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "flight_offer": {
+          "offer_id": "off_0000B9y6dWCQa8dVAeOQr4",
+          "price": "USD 1497.63",
+          "total_amount": 1497.63,
+          "currency": "USD",
+          "airline": "Turkish Airlines",
+          "origin": "Atlanta (ATL)",
+          "origin_name": "Atlanta",
+          "origin_code": "ATL",
+          "destination": "Zürich (ZRH)",
+          "destination_name": "Zürich",
+          "destination_code": "ZRH",
+          "max_stops": 1,
+          "legs": "1-Stop",
+          "leg_names": "Istanbul, Istanbul",
+          "leg_codes": "IST, IST",
+          "duration": "24h",
+          "duration_minutes": 1440,
+          "duration_hours": 24.0,
+          "departure_at": "2026-09-16T21:50:00",
+          "departure_date": "2026-09-16",
+          "departure_time": "21:50:00",
+          "arrival_at": "2026-09-17T20:55:00",
+          "arrival_date": "2026-09-17",
+          "arrival_time": "20:55:00",
+          "payment_requirements": {
+            "requires_instant_payment": false,
+            "price_guarantee_expires_at": null,
+            "payment_required_by": "2026-09-02T14:59:00.760030Z"
+          },
+          "requires_instant_payment": false,
+          "payment_required_by": "2026-09-02T14:59:00.760030Z",
+          "slice_details": [
+            {
+              "slice_index": 0,
+              "type": "outbound",
+              "origin_code": "ATL",
+              "destination_code": "ZRH",
+              "departure_at": "2026-09-16T21:50:00",
+              "departure_date": "2026-09-16",
+              "departure_time": "21:50:00",
+              "arrival_at": "2026-09-17T20:55:00",
+              "arrival_date": "2026-09-17",
+              "arrival_time": "20:55:00",
+              "duration": "17h 5m",
+              "stops": 1
+            },
+            {
+              "slice_index": 1,
+              "type": "return",
+              "origin_code": "ZRH",
+              "destination_code": "ATL",
+              "departure_at": "2026-09-20T18:50:00",
+              "departure_date": "2026-09-20",
+              "departure_time": "18:50:00",
+              "arrival_at": "2026-09-21T19:45:00",
+              "arrival_date": "2026-09-21",
+              "arrival_time": "19:45:00",
+              "duration": "6h 55m",
+              "stops": 1
+            }
+          ],
+          "return_departure_at": "2026-09-20T18:50:00",
+          "return_departure_date": "2026-09-20",
+          "return_departure_time": "18:50:00",
+          "return_arrival_at": "2026-09-21T19:45:00",
+          "return_arrival_date": "2026-09-21",
+          "return_arrival_time": "19:45:00"
+        },
+        "hotel_stay": {
+          "id": "sres_bundle_tbd",
+          "accommodation": {
+            "id": "acc_tbd",
+            "name": "Hotel in ZRH",
+            "rating": 4.5
+          },
+          "cheapest_rate_total_amount": "TBD",
+          "cheapest_rate_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        },
+        "car_rental": {
+          "id": "off_car_bundle_tbd",
+          "supplier": {
+            "name": "Rental Provider"
+          },
+          "vehicle": {
+            "category": "Standard",
+            "name": "Rental Vehicle"
+          },
+          "total_amount": "TBD",
+          "total_currency": "USD",
+          "is_price_tbd": true,
+          "price_display": "TBD",
+          "price_amount": 0.0
+        }
+      }
+    ],
+    "service_execution_summary": {
+      "flight_calls_count": 1,
+      "hotel_calls_count": 1,
+      "car_calls_count": 1,
+      "total_calls_count": 3,
+      "is_flights_synthetic": false,
+      "flights_data_source": "live_duffel_api",
+      "is_hotels_synthetic": false,
+      "hotels_data_source": "live_duffel_api",
+      "is_cars_synthetic": false,
+      "cars_data_source": "live_duffel_api",
+      "is_hotel_price_tbd": true,
+      "is_car_price_tbd": true
+    },
+    "performance_metrics": {
+      "total_calls": 1,
+      "min_ms": 5515.649699955247,
+      "max_ms": 5515.649699955247,
+      "avg_ms": 5515.649699955247
+    },
+    "cache_metrics": {
+      "enabled": true,
+      "backend": "redis",
+      "redis_host": "127.0.0.1",
+      "total_reads": 6,
+      "hits": 0,
+      "tier1_hits": 0,
+      "tier2_hits": 0,
+      "aggregated_cache_hits": 0,
+      "individual_cache_hits": 0,
+      "misses": 6,
+      "hit_percentage": 0.0,
+      "miss_percentage": 100.0,
+      "writes": 3,
+      "read_min_ms": 1.51,
+      "read_max_ms": 3.01,
+      "read_avg_ms": 2.41,
+      "write_min_ms": 1.7,
+      "write_max_ms": 28.72,
+      "write_avg_ms": 12.42,
+      "ttl_seconds": 3600
+    },
+    "output_file": "output\\ATL_ZRH_2026-09-16_2026-09-20_36012f_bundle_results.json"
+  }
+}

@@ -1,0 +1,2416 @@
+{
+  "meta_data": {
+    "itinerary_id": "itin_2e53a712dd",
+    "destination": "Zurich",
+    "user_id": null,
+    "version": 1
+  },
+  "data": {
+    "itinerary_id": "itin_opt_b980019f",
+    "option_number": 3,
+    "title": "International Vacation Travel - Option 3: Signature Luxury & Romantic VIP",
+    "trip_title": "International Vacation Travel",
+    "style": "luxury_vip",
+    "budget": "luxury",
+    "llm_description": "A VIP luxury experience featuring five-star suite accommodations, private chauffeured transfers, exclusive after-hours gallery access, and romantic Michelin-starred dining in Zurich.",
+    "highlights": [
+      "Private Chauffeured Airport & City Center Transfers",
+      "Exclusive VIP Private Gallery & Museum Access",
+      "Michelin-Starred Candlelight Romantic Dinner",
+      "Private Sunset Champagne Yacht Cruise along the River"
+    ],
+    "why_choose_this": "Best for couples celebrating special occasions seeking ultimate luxury, privacy, and VIP treatment.",
+    "ai_summary": "Option 3: Signature Luxury & Romantic VIP: Customized 4-day itinerary in Zurich for 1 passenger(s) (USD 1101.00 + car rental + hotels total). Service Calls: Flights (1 - Live), Hotels (1 - Live [Price TBD]), Cars (1 - Live [Price TBD]). Schedule: Synthetic. Prompt: Live LLM.",
+    "trip_summary": {
+      "total_trip_price": 1101.0,
+      "total_price_display": "USD 1101.00 + car rental + hotels",
+      "price_per_passenger": 1101.0,
+      "price_per_passenger_display": "USD 1101.00 + car rental + hotels",
+      "currency": "USD",
+      "total_flight_cost": 0.0,
+      "flight_price_display": "USD 0.00",
+      "total_hotel_cost": 0.0,
+      "hotel_price_display": "TBD",
+      "is_hotel_price_tbd": true,
+      "total_car_cost": 0.0,
+      "car_price_display": "TBD",
+      "is_car_price_tbd": true,
+      "total_attractions_cost": 1101.0,
+      "tbd_components": [
+        "car rental",
+        "hotels"
+      ],
+      "occupancy_details": {
+        "passengers": 1,
+        "hotel_rooms_booked": 1,
+        "cars_rented": 1
+      },
+      "service_execution_summary": {
+        "prompt_evaluation": {
+          "source": "live_llm",
+          "engine": "LLM Extractor (OpenAI - gpt-4o-mini)",
+          "is_llm": true,
+          "is_synthetic": false,
+          "description": "Natural language prompt evaluated via live LLM"
+        },
+        "itinerary_planner": {
+          "source": "synthetic_template",
+          "is_synthetic": true,
+          "is_live_llm": false,
+          "llm_provider": "template_synthesizer",
+          "llm_model": "template-engine-v1",
+          "description": "Daily schedule & attractions synthesized via offline curated template engine"
+        },
+        "service_calls": {
+          "flight_calls_count": 1,
+          "hotel_calls_count": 1,
+          "car_calls_count": 1,
+          "total_calls_count": 3
+        },
+        "component_data_sources": {
+          "flights": {
+            "calls_made": 1,
+            "data_source": "live_duffel_api",
+            "is_synthetic": false,
+            "status": "Live API flights returned"
+          },
+          "hotels": {
+            "calls_made": 1,
+            "data_source": "live_duffel_api",
+            "is_synthetic": false,
+            "status": "Price TBD (API call returned no live rates)"
+          },
+          "cars": {
+            "calls_made": 1,
+            "data_source": "live_duffel_api",
+            "is_synthetic": false,
+            "status": "Price TBD (API call returned no live rates)"
+          }
+        }
+      }
+    },
+    "category_highlights": {
+      "cheapest": {
+        "bundle_id": "bnd_cheap_opt3_b34c1b",
+        "name": "Option 3: Signature Luxury & Romantic VIP - Budget Saver",
+        "tier": "cheapest",
+        "total_price": 858.78,
+        "total_price_display": "USD 858.78 + car rental + hotels",
+        "per_passenger_price": 858.78,
+        "per_passenger_price_display": "USD 858.78 + car rental + hotels",
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "hotel_rating": 4.0,
+        "user_rating": 4.5,
+        "attraction_rating": 4.6,
+        "is_mock": false,
+        "pricing_source": "duffel_api_live",
+        "description": "Standard stay, economy flights, & budget attraction entry for Option 3: Signature Luxury & Romantic VIP.",
+        "included_components": [
+          "flights",
+          "hotels",
+          "cars",
+          "attractions",
+          "activities"
+        ],
+        "bundle_contents": {
+          "flights": {
+            "included": true,
+            "description": "Economy Flights (ATL -> ZRH)"
+          },
+          "hotels": {
+            "included": true,
+            "description": "3-Star Comfort Stay (1 Room(s)) [Price TBD]"
+          },
+          "cars": {
+            "included": true,
+            "description": "Compact Rental Car [Price TBD]"
+          },
+          "attractions": {
+            "included": true,
+            "description": "Standard Landmark Passes"
+          },
+          "activities": {
+            "included": true,
+            "description": "Curated Self-Guided & Local Walks"
+          },
+          "summary_line": "Includes Economy Flights, 3-Star Hotel, Compact Car, Standard Passes, & Self-Guided Walks."
+        }
+      },
+      "moderate": {
+        "bundle_id": "bnd_mod_opt3_808e7c",
+        "name": "Option 3: Signature Luxury & Romantic VIP - Balanced",
+        "tier": "moderate",
+        "total_price": 1101.0,
+        "total_price_display": "USD 1101.00 + car rental + hotels",
+        "per_passenger_price": 1101.0,
+        "per_passenger_price_display": "USD 1101.00 + car rental + hotels",
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "hotel_rating": 4.7,
+        "user_rating": 4.8,
+        "attraction_rating": 4.8,
+        "is_mock": false,
+        "pricing_source": "duffel_api_live",
+        "description": "4-Star central stay, standard flights, & guided entry for Option 3: Signature Luxury & Romantic VIP.",
+        "included_components": [
+          "flights",
+          "hotels",
+          "cars",
+          "attractions",
+          "activities"
+        ],
+        "bundle_contents": {
+          "flights": {
+            "included": true,
+            "description": "Standard Main Cabin Flights (ATL -> ZRH)"
+          },
+          "hotels": {
+            "included": true,
+            "description": "4-Star Central Hotel (1 Room(s)) [Price TBD]"
+          },
+          "cars": {
+            "included": true,
+            "description": "Midsize SUV Car Rental [Price TBD]"
+          },
+          "attractions": {
+            "included": true,
+            "description": "Priority Skip-the-Line Museum Passes"
+          },
+          "activities": {
+            "included": true,
+            "description": "Guided Small-Group Tours & Experiences"
+          },
+          "summary_line": "Includes Standard Flights, 4-Star Hotel, Midsize SUV, Priority Museum Entry, & Small-Group Tours."
+        }
+      },
+      "luxury": {
+        "bundle_id": "bnd_lux_opt3_529968",
+        "name": "Option 3: Signature Luxury & Romantic VIP - VIP Luxury",
+        "tier": "luxury",
+        "total_price": 1596.45,
+        "total_price_display": "USD 1596.45 + car rental + hotels",
+        "per_passenger_price": 1596.45,
+        "per_passenger_price_display": "USD 1596.45 + car rental + hotels",
+        "currency": "USD",
+        "is_hotel_price_tbd": true,
+        "is_car_price_tbd": true,
+        "tbd_components": [
+          "car rental",
+          "hotels"
+        ],
+        "hotel_rating": 5.0,
+        "user_rating": 4.95,
+        "attraction_rating": 4.9,
+        "is_mock": false,
+        "pricing_source": "duffel_api_live",
+        "description": "5-Star luxury suite, business flights, & private VIP tour entry for Option 3: Signature Luxury & Romantic VIP.",
+        "included_components": [
+          "flights",
+          "hotels",
+          "cars",
+          "attractions",
+          "activities"
+        ],
+        "bundle_contents": {
+          "flights": {
+            "included": true,
+            "description": "Business Class Flights (ATL -> ZRH)"
+          },
+          "hotels": {
+            "included": true,
+            "description": "5-Star Luxury Suite Hotel (1 Room(s)) [Price TBD]"
+          },
+          "cars": {
+            "included": true,
+            "description": "Premium Luxury SUV Rental [Price TBD]"
+          },
+          "attractions": {
+            "included": true,
+            "description": "Private After-Hours Museum Access"
+          },
+          "activities": {
+            "included": true,
+            "description": "Michelin-Starred Dining & Private Yacht Cruise"
+          },
+          "summary_line": "Includes Business Class Flights, 5-Star Suite, Premium SUV, Private Museum Access, & Yacht Cruise."
+        }
+      }
+    },
+    "map_pins": [
+      {
+        "id": "pin_1",
+        "title": "Zurich Airport (ZRH)",
+        "category": "airport",
+        "latitude": 47.5133881,
+        "longitude": 8.6033661,
+        "day_number": 1,
+        "address": "Zurich International Airport",
+        "rating": 4.6
+      },
+      {
+        "id": "pin_2",
+        "title": "Grand Zurich Luxury Hotel",
+        "category": "hotel",
+        "latitude": 47.4633881,
+        "longitude": 8.5533661,
+        "day_number": 1,
+        "address": "10 Central Avenue, Zurich",
+        "rating": 4.8
+      },
+      {
+        "id": "pin_3",
+        "title": "Artisanal Morning Breakfast & Coffee",
+        "category": "activity",
+        "latitude": 47.4654,
+        "longitude": 8.5564,
+        "day_number": 1,
+        "address": "15 Grand Avenue, Zurich",
+        "phone_number": "+1 800 555 0123",
+        "rating": 4.8,
+        "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews"
+      },
+      {
+        "id": "pin_4",
+        "title": "Historic Landmarks & Guided Walking Tour",
+        "category": "activity",
+        "latitude": 47.4684,
+        "longitude": 8.5514,
+        "day_number": 1,
+        "address": "Scenic Lookout Parkway, Zurich",
+        "phone_number": "+1 800 555 0456",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews"
+      },
+      {
+        "id": "pin_5",
+        "title": "Airport Terminal Lunch (Traditional Bistro & Regional Lunch)",
+        "category": "activity",
+        "latitude": 47.4604,
+        "longitude": 8.5574,
+        "day_number": 1,
+        "address": "24 Market Street, Zurich",
+        "phone_number": "+1 800 555 0789",
+        "rating": 4.7,
+        "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews"
+      },
+      {
+        "id": "pin_6",
+        "title": "National Museum & Gallery Exhibition",
+        "category": "activity",
+        "latitude": 47.4714,
+        "longitude": 8.5544,
+        "day_number": 1,
+        "address": "Heritage Boulevard, Zurich",
+        "phone_number": "+1 800 555 0912",
+        "rating": 4.8,
+        "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews"
+      },
+      {
+        "id": "pin_7",
+        "title": "Fine Dining Dinner Experience",
+        "category": "activity",
+        "latitude": 47.4594,
+        "longitude": 8.5484,
+        "day_number": 1,
+        "address": "88 Riverside Drive, Zurich",
+        "phone_number": "+1 800 555 0345",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews"
+      },
+      {
+        "id": "pin_8",
+        "title": "Return to Hotel & Rest for the Night",
+        "category": "activity",
+        "latitude": 47.500588,
+        "longitude": 8.537766,
+        "day_number": 1,
+        "address": "10 Central Avenue, Zurich",
+        "phone_number": "+1 800 555 0388",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews"
+      },
+      {
+        "id": "pin_9",
+        "title": "Zurich Historic Quarter & Promenade",
+        "category": "attraction",
+        "latitude": 47.475388,
+        "longitude": 8.543366,
+        "day_number": 1,
+        "address": "Historic Center, Zurich",
+        "phone_number": "+1 800 555 0700",
+        "rating": 4.8,
+        "website_url": "https://www.google.com/search?q=Zurich+Historic+Quarter+%26+Promenade+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Zurich+Historic+Quarter+%26+Promenade+Zurich+reviews"
+      },
+      {
+        "id": "pin_10",
+        "title": "Artisanal Morning Breakfast & Coffee",
+        "category": "activity",
+        "latitude": 47.4674,
+        "longitude": 8.5594,
+        "day_number": 2,
+        "address": "15 Grand Avenue, Zurich",
+        "phone_number": "+1 800 555 0123",
+        "rating": 4.8,
+        "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews"
+      },
+      {
+        "id": "pin_11",
+        "title": "Historic Landmarks & Guided Walking Tour",
+        "category": "activity",
+        "latitude": 47.4734,
+        "longitude": 8.5494,
+        "day_number": 2,
+        "address": "Scenic Lookout Parkway, Zurich",
+        "phone_number": "+1 800 555 0456",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews"
+      },
+      {
+        "id": "pin_12",
+        "title": "Traditional Bistro & Regional Lunch",
+        "category": "activity",
+        "latitude": 47.4574,
+        "longitude": 8.5614,
+        "day_number": 2,
+        "address": "24 Market Street, Zurich",
+        "phone_number": "+1 800 555 0789",
+        "rating": 4.7,
+        "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews"
+      },
+      {
+        "id": "pin_13",
+        "title": "National Museum & Gallery Exhibition",
+        "category": "activity",
+        "latitude": 47.4794,
+        "longitude": 8.5554,
+        "day_number": 2,
+        "address": "Heritage Boulevard, Zurich",
+        "phone_number": "+1 800 555 0912",
+        "rating": 4.8,
+        "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews"
+      },
+      {
+        "id": "pin_14",
+        "title": "Fine Dining Dinner Experience",
+        "category": "activity",
+        "latitude": 47.4554,
+        "longitude": 8.5434,
+        "day_number": 2,
+        "address": "88 Riverside Drive, Zurich",
+        "phone_number": "+1 800 555 0345",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews"
+      },
+      {
+        "id": "pin_15",
+        "title": "Return to Hotel & Rest for the Night",
+        "category": "activity",
+        "latitude": 47.475388,
+        "longitude": 8.529366,
+        "day_number": 2,
+        "address": "10 Central Avenue, Zurich",
+        "phone_number": "+1 800 555 0388",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews"
+      },
+      {
+        "id": "pin_16",
+        "title": "Artisanal Morning Breakfast & Coffee",
+        "category": "activity",
+        "latitude": 47.4694,
+        "longitude": 8.5624,
+        "day_number": 3,
+        "address": "15 Grand Avenue, Zurich",
+        "phone_number": "+1 800 555 0123",
+        "rating": 4.8,
+        "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews"
+      },
+      {
+        "id": "pin_17",
+        "title": "Historic Landmarks & Guided Walking Tour",
+        "category": "activity",
+        "latitude": 47.4784,
+        "longitude": 8.5474,
+        "day_number": 3,
+        "address": "Scenic Lookout Parkway, Zurich",
+        "phone_number": "+1 800 555 0456",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews"
+      },
+      {
+        "id": "pin_18",
+        "title": "Traditional Bistro & Regional Lunch",
+        "category": "activity",
+        "latitude": 47.4544,
+        "longitude": 8.5654,
+        "day_number": 3,
+        "address": "24 Market Street, Zurich",
+        "phone_number": "+1 800 555 0789",
+        "rating": 4.7,
+        "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews"
+      },
+      {
+        "id": "pin_19",
+        "title": "National Museum & Gallery Exhibition",
+        "category": "activity",
+        "latitude": 47.4874,
+        "longitude": 8.5564,
+        "day_number": 3,
+        "address": "Heritage Boulevard, Zurich",
+        "phone_number": "+1 800 555 0912",
+        "rating": 4.8,
+        "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews"
+      },
+      {
+        "id": "pin_20",
+        "title": "Fine Dining Dinner Experience",
+        "category": "activity",
+        "latitude": 47.4514,
+        "longitude": 8.5384,
+        "day_number": 3,
+        "address": "88 Riverside Drive, Zurich",
+        "phone_number": "+1 800 555 0345",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews"
+      },
+      {
+        "id": "pin_21",
+        "title": "Return to Hotel & Rest for the Night",
+        "category": "activity",
+        "latitude": 47.429788,
+        "longitude": 8.570166,
+        "day_number": 3,
+        "address": "10 Central Avenue, Zurich",
+        "phone_number": "+1 800 555 0388",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews"
+      },
+      {
+        "id": "pin_22",
+        "title": "Artisanal Morning Breakfast & Coffee",
+        "category": "activity",
+        "latitude": 47.4714,
+        "longitude": 8.5654,
+        "day_number": 4,
+        "address": "15 Grand Avenue, Zurich",
+        "phone_number": "+1 800 555 0123",
+        "rating": 4.8,
+        "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews"
+      },
+      {
+        "id": "pin_23",
+        "title": "Historic Landmarks & Guided Walking Tour",
+        "category": "activity",
+        "latitude": 47.4834,
+        "longitude": 8.5454,
+        "day_number": 4,
+        "address": "Scenic Lookout Parkway, Zurich",
+        "phone_number": "+1 800 555 0456",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews"
+      },
+      {
+        "id": "pin_24",
+        "title": "Traditional Bistro & Regional Lunch",
+        "category": "activity",
+        "latitude": 47.4514,
+        "longitude": 8.5694,
+        "day_number": 4,
+        "address": "24 Market Street, Zurich",
+        "phone_number": "+1 800 555 0789",
+        "rating": 4.7,
+        "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews"
+      },
+      {
+        "id": "pin_25",
+        "title": "National Museum & Gallery Exhibition",
+        "category": "activity",
+        "latitude": 47.4954,
+        "longitude": 8.5574,
+        "day_number": 4,
+        "address": "Heritage Boulevard, Zurich",
+        "phone_number": "+1 800 555 0912",
+        "rating": 4.8,
+        "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews"
+      },
+      {
+        "id": "pin_26",
+        "title": "Fine Dining Dinner Experience",
+        "category": "activity",
+        "latitude": 47.4474,
+        "longitude": 8.5334,
+        "day_number": 4,
+        "address": "88 Riverside Drive, Zurich",
+        "phone_number": "+1 800 555 0345",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews"
+      },
+      {
+        "id": "pin_27",
+        "title": "Rental Vehicle Return & Drop-off",
+        "category": "activity",
+        "latitude": 47.5134,
+        "longitude": 8.6034,
+        "day_number": 4,
+        "address": "Rental Return Facility, Zurich",
+        "phone_number": "+1 800 555 0244",
+        "rating": 4.8,
+        "website_url": "https://www.google.com/search?q=Rental+Vehicle+Return+%26+Drop-off+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Rental+Vehicle+Return+%26+Drop-off+Zurich+reviews"
+      },
+      {
+        "id": "pin_28",
+        "title": "Return to Hotel & Rest for the Night",
+        "category": "activity",
+        "latitude": 47.488588,
+        "longitude": 8.561766,
+        "day_number": 4,
+        "address": "10 Central Avenue, Zurich",
+        "phone_number": "+1 800 555 0388",
+        "rating": 4.9,
+        "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+        "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews"
+      }
+    ],
+    "daily_itinerary": [
+      {
+        "day_number": 1,
+        "date": "2026-09-16",
+        "title": "Day 1: Iconic Landmarks & Historic Center of Zurich",
+        "daily_total_cost": 183.5,
+        "currency": "USD",
+        "items": [
+          {
+            "id": "item_fl_1",
+            "type": "flight",
+            "name": "Flight Arrival in Zurich (from ATL)",
+            "title": "Flight Arrival in Zurich (from ATL)",
+            "description": "Flight Arrival from ATL in Zurich (1 pax). Departure time: 06:30 AM from ATL, Arrival time: 12:30 PM in Zurich.",
+            "price": 0.0,
+            "currency": "USD",
+            "departure_time": "06:30 AM",
+            "arrival_time": "12:30 PM",
+            "time_slot": "Departure from ATL: 06:30 AM | Arrival in Zurich: 12:30 PM",
+            "address": "Zurich International Airport (ZRH)",
+            "phone_number": "+1 800 555 0199",
+            "geo_location": {
+              "name": "Zurich Airport",
+              "address": "Zurich International Airport (ZRH)",
+              "phone_number": "+1 800 555 0199",
+              "latitude": 47.5133881,
+              "longitude": 8.6033661
+            },
+            "next_activity": {
+              "name": "Artisanal Morning Breakfast & Coffee",
+              "distance_miles": 3.98,
+              "distance_km": 6.4,
+              "travel_time_minutes": 16,
+              "travel_time_display": "16 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 3.98 mi (6.4 km) / ~16 mins to Artisanal Morning Breakfast & Coffee"
+            }
+          },
+          {
+            "id": "item_act_1_3",
+            "type": "activity",
+            "name": "Artisanal Morning Breakfast & Coffee",
+            "title": "Artisanal Morning Breakfast & Coffee",
+            "activity_name": "Artisanal Morning Breakfast & Coffee",
+            "activity": "Artisanal Morning Breakfast & Coffee",
+            "attraction_name": "Artisanal Morning Breakfast & Coffee",
+            "description": "Enjoy fresh pastries, artisan coffee, and seasonal breakfast specialties in Zurich.",
+            "price": 20.0,
+            "price_display": "USD 15 - 25 / person",
+            "min_price": 15.0,
+            "max_price": 25.0,
+            "min_price_per_person": 15.0,
+            "max_price_per_person": 25.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "08:00 AM",
+            "arrival_time": "Breakfast",
+            "time_slot": "08:00 AM - Breakfast",
+            "address": "15 Grand Avenue, Zurich",
+            "phone_number": "+1 800 555 0123",
+            "rating": 4.8,
+            "reviews_count": 420,
+            "reviews": [
+              {
+                "author": "Elena R.",
+                "rating": 5.0,
+                "date": "Verified Visitor",
+                "text": "Exceptional artisan pastries and fresh coffee. Perfect morning start in Zurich!"
+              },
+              {
+                "author": "Mark S.",
+                "rating": 4.8,
+                "date": "Local Guide",
+                "text": "Delightful atmosphere, fast friendly service, and delicious seasonal breakfast items."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich",
+            "geo_location": {
+              "name": "Central Cafe Zurich",
+              "address": "15 Grand Avenue, Zurich",
+              "phone_number": "+1 800 555 0123",
+              "latitude": 47.4654,
+              "longitude": 8.5564
+            },
+            "next_activity": {
+              "name": "Historic Landmarks & Guided Walking Tour",
+              "distance_miles": 0.31,
+              "distance_km": 0.5,
+              "travel_time_minutes": 15,
+              "travel_time_display": "15 mins",
+              "travel_mode": "train",
+              "transit_summary": "Train/Metro 0.31 mi (0.5 km) / ~15 mins to Historic Landmarks & Guided Walking Tour"
+            }
+          },
+          {
+            "id": "item_act_1_4",
+            "type": "activity",
+            "name": "Historic Landmarks & Guided Walking Tour",
+            "title": "Historic Landmarks & Guided Walking Tour",
+            "activity_name": "Historic Landmarks & Guided Walking Tour",
+            "activity": "Historic Landmarks & Guided Walking Tour",
+            "attraction_name": "Historic Landmarks & Guided Walking Tour",
+            "description": "Explore iconic scenic viewpoints, nature trails, and historic monuments with panoramic views.",
+            "price": 35.0,
+            "price_display": "USD 35.00 / person",
+            "min_price": 35.0,
+            "max_price": 35.0,
+            "min_price_per_person": 35.0,
+            "max_price_per_person": 35.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "09:30 AM",
+            "arrival_time": "Morning Sightseeing",
+            "time_slot": "09:30 AM - Morning Sightseeing",
+            "address": "Scenic Lookout Parkway, Zurich",
+            "phone_number": "+1 800 555 0456",
+            "rating": 4.9,
+            "reviews_count": 1280,
+            "reviews": [
+              {
+                "author": "Alex N.",
+                "rating": 5.0,
+                "date": "Verified Explorer",
+                "text": "One of the top highlights of visiting Zurich! Unmatched views and rich historical character."
+              },
+              {
+                "author": "Jessica M.",
+                "rating": 4.9,
+                "date": "Verified Visitor",
+                "text": "Fantastic experience with incredible photo opportunities. Well organized and memorable."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich",
+            "geo_location": {
+              "name": "Zurich Scenic Waypoint",
+              "address": "Scenic Lookout Parkway, Zurich",
+              "phone_number": "+1 800 555 0456",
+              "latitude": 47.4684,
+              "longitude": 8.5514
+            },
+            "next_activity": {
+              "name": "Airport Terminal Lunch (Traditional Bistro & Regional Lunch)",
+              "distance_miles": 0.62,
+              "distance_km": 1.0,
+              "travel_time_minutes": 8,
+              "travel_time_display": "8 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 0.62 mi (1.0 km) / ~8 mins to Airport Terminal Lunch (Traditional Bistro & Regional Lunch)"
+            }
+          },
+          {
+            "id": "item_act_1_5",
+            "type": "activity",
+            "name": "Airport Terminal Lunch (Traditional Bistro & Regional Lunch)",
+            "title": "Airport Terminal Lunch (Traditional Bistro & Regional Lunch)",
+            "activity_name": "Airport Terminal Lunch (Traditional Bistro & Regional Lunch)",
+            "activity": "Airport Terminal Lunch (Traditional Bistro & Regional Lunch)",
+            "attraction_name": "Airport Terminal Lunch (Traditional Bistro & Regional Lunch)",
+            "description": "Savor authentic regional cuisine and chef's signature lunch course in a charming setting.",
+            "price": 31.0,
+            "price_display": "USD 22 - 40 / person",
+            "min_price": 22.0,
+            "max_price": 40.0,
+            "min_price_per_person": 22.0,
+            "max_price_per_person": 40.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "12:45 PM",
+            "arrival_time": "01:30 PM",
+            "time_slot": "12:45 PM - 01:30 PM (Airport Terminal Lunch)",
+            "address": "24 Market Street, Zurich",
+            "phone_number": "+1 800 555 0789",
+            "rating": 4.7,
+            "reviews_count": 690,
+            "reviews": [
+              {
+                "author": "Sophie T.",
+                "rating": 5.0,
+                "date": "Food Critic",
+                "text": "Authentic regional flavors with impeccable presentation. A true culinary gem in Zurich."
+              },
+              {
+                "author": "James L.",
+                "rating": 4.7,
+                "date": "Verified Diner",
+                "text": "Great midday lunch specials, warm welcoming staff, and charming local vibe."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich",
+            "geo_location": {
+              "name": "Le Bistro Zurich",
+              "address": "24 Market Street, Zurich",
+              "phone_number": "+1 800 555 0789",
+              "latitude": 47.4604,
+              "longitude": 8.5574
+            },
+            "next_activity": {
+              "name": "Rental Vehicle Pickup (1 car(s))",
+              "distance_miles": 4.24,
+              "distance_km": 6.83,
+              "travel_time_minutes": 17,
+              "travel_time_display": "17 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 4.24 mi (6.83 km) / ~17 mins to Rental Vehicle Pickup (1 car(s))"
+            }
+          },
+          {
+            "id": "item_car_1",
+            "type": "car",
+            "name": "Rental Vehicle Pickup (1 car(s))",
+            "title": "Rental Vehicle Pickup (1 car(s))",
+            "description": "4-day rental pickup for 1 passenger(s) at airport rental facility (Price: TBD)",
+            "price": 0.0,
+            "price_display": "TBD",
+            "is_price_tbd": true,
+            "currency": "USD",
+            "departure_time": "01:30 PM",
+            "arrival_time": "02:00 PM",
+            "time_slot": "01:30 PM - 02:00 PM - Rental Vehicle Pickup (Price: TBD)",
+            "address": "Rental Center, Zurich Airport (ZRH)",
+            "phone_number": "+1 800 555 0244",
+            "geo_location": {
+              "name": "Zurich Airport Car Rental Center",
+              "address": "Rental Center, Zurich Airport (ZRH)",
+              "phone_number": "+1 800 555 0244",
+              "latitude": 47.5133881,
+              "longitude": 8.6033661
+            },
+            "next_activity": {
+              "name": "Grand Zurich Hotel (1 Room(s))",
+              "distance_miles": 4.17,
+              "distance_km": 6.71,
+              "travel_time_minutes": 17,
+              "travel_time_display": "17 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 4.17 mi (6.71 km) / ~17 mins to Grand Zurich Hotel (1 Room(s))"
+            }
+          },
+          {
+            "id": "item_ht_1",
+            "type": "hotel",
+            "name": "Grand Zurich Hotel (1 Room(s))",
+            "title": "Grand Zurich Hotel (1 Room(s))",
+            "description": "Check-in & Stay (Night 1 of 4) (Price: TBD)",
+            "price": 0.0,
+            "price_display": "TBD",
+            "is_price_tbd": true,
+            "currency": "USD",
+            "departure_time": "02:30 PM",
+            "arrival_time": "03:00 PM",
+            "time_slot": "02:30 PM - 03:00 PM - Hotel Check-in (Price: TBD)",
+            "address": "10 Central Avenue, Zurich",
+            "phone_number": "+1 800 555 0388",
+            "rating": 4.8,
+            "reviews_count": 1420,
+            "reviews": [
+              {
+                "author": "Michael P.",
+                "rating": 5.0,
+                "date": "Verified Guest",
+                "text": "Prime location close to all main attractions in Zurich, spotless rooms, and 5-star concierge service."
+              },
+              {
+                "author": "Anna D.",
+                "rating": 4.8,
+                "date": "Verified Guest",
+                "text": "Extremely comfortable beds, quiet rooms, and very helpful staff. Would stay again!"
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Grand+Zurich+Hotel+Zurich+official+website",
+            "direct_website_url": "https://www.google.com/search?q=Grand+Zurich+Hotel+Zurich+official+website",
+            "activity_url": "https://www.google.com/search?q=Grand+Zurich+Hotel+Zurich+official+website",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Grand+Zurich+Hotel+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Grand+Zurich+Hotel+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Grand+Zurich+Hotel+Zurich",
+            "geo_location": {
+              "name": "Grand Zurich Hotel",
+              "address": "10 Central Avenue, Zurich",
+              "phone_number": "+1 800 555 0388",
+              "latitude": 47.4633881,
+              "longitude": 8.5533661,
+              "website_url": "https://www.google.com/search?q=Grand+Zurich+Hotel+Zurich+official+website",
+              "reviews_url": "https://www.google.com/maps/search/?api=1&query=Grand+Zurich+Hotel+Zurich+reviews"
+            },
+            "next_activity": {
+              "name": "National Museum & Gallery Exhibition",
+              "distance_miles": 0.56,
+              "distance_km": 0.89,
+              "travel_time_minutes": 8,
+              "travel_time_display": "8 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 0.56 mi (0.89 km) / ~8 mins to National Museum & Gallery Exhibition"
+            }
+          },
+          {
+            "id": "item_act_1_6",
+            "type": "activity",
+            "name": "National Museum & Gallery Exhibition",
+            "title": "National Museum & Gallery Exhibition",
+            "activity_name": "National Museum & Gallery Exhibition",
+            "activity": "National Museum & Gallery Exhibition",
+            "attraction_name": "National Museum & Gallery Exhibition",
+            "description": "Discover natural wonders, historic exhibits, and regional cultural heritage with guided access.",
+            "price": 25.0,
+            "price_display": "USD 25.00 / person",
+            "min_price": 25.0,
+            "max_price": 25.0,
+            "min_price_per_person": 25.0,
+            "max_price_per_person": 25.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "02:30 PM",
+            "arrival_time": "Afternoon Culture",
+            "time_slot": "02:30 PM - Afternoon Culture",
+            "address": "Heritage Boulevard, Zurich",
+            "phone_number": "+1 800 555 0912",
+            "rating": 4.8,
+            "reviews_count": 2150,
+            "reviews": [
+              {
+                "author": "Dr. Aris K.",
+                "rating": 5.0,
+                "date": "Cultural Historian",
+                "text": "A masterclass in curation. Iconic exhibits and breathtaking historical artifacts."
+              },
+              {
+                "author": "Hannah W.",
+                "rating": 4.8,
+                "date": "Verified Visitor",
+                "text": "Fascinating collection and informative audio guide. Booking priority access is a must!"
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=National+Museum+%26+Gallery+Exhibition+Zurich",
+            "geo_location": {
+              "name": "Zurich Heritage Discovery",
+              "address": "Heritage Boulevard, Zurich",
+              "phone_number": "+1 800 555 0912",
+              "latitude": 47.4714,
+              "longitude": 8.5544
+            },
+            "next_activity": {
+              "name": "Zurich Historic Quarter & Promenade",
+              "distance_miles": 0.58,
+              "distance_km": 0.94,
+              "travel_time_minutes": 8,
+              "travel_time_display": "8 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 0.58 mi (0.94 km) / ~8 mins to Zurich Historic Quarter & Promenade"
+            }
+          },
+          {
+            "id": "item_act_1_9",
+            "type": "attraction",
+            "name": "Zurich Historic Quarter & Promenade",
+            "title": "Zurich Historic Quarter & Promenade",
+            "activity_name": "Zurich Historic Quarter & Promenade",
+            "activity": "Zurich Historic Quarter & Promenade",
+            "attraction_name": "Zurich Historic Quarter & Promenade",
+            "description": "Afternoon promenade through Zurich's historic central quarter, scenic squares, and cultural boulevards.",
+            "price": 20.0,
+            "price_display": "USD 20.00 / person",
+            "min_price": 20.0,
+            "max_price": 20.0,
+            "min_price_per_person": 20.0,
+            "max_price_per_person": 20.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "03:15 PM",
+            "arrival_time": "05:15 PM",
+            "time_slot": "03:15 PM - 05:15 PM (Afternoon Promenade)",
+            "address": "Historic Center, Zurich",
+            "phone_number": "+1 800 555 0700",
+            "rating": 4.8,
+            "reviews_count": 520,
+            "reviews": [
+              {
+                "author": "Dr. Aris K.",
+                "rating": 5.0,
+                "date": "Cultural Historian",
+                "text": "A masterclass in curation. Iconic exhibits and breathtaking historical artifacts."
+              },
+              {
+                "author": "Hannah W.",
+                "rating": 4.8,
+                "date": "Verified Visitor",
+                "text": "Fascinating collection and informative audio guide. Booking priority access is a must!"
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Zurich+Historic+Quarter+%26+Promenade+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Zurich+Historic+Quarter+%26+Promenade+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Zurich+Historic+Quarter+%26+Promenade+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Zurich+Historic+Quarter+%26+Promenade+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Zurich+Historic+Quarter+%26+Promenade+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Zurich+Historic+Quarter+%26+Promenade+Zurich",
+            "geo_location": {
+              "name": "Zurich Historic Quarter & Promenade",
+              "address": "Historic Center, Zurich",
+              "phone_number": "+1 800 555 0700",
+              "latitude": 47.475388,
+              "longitude": 8.543366,
+              "website_url": "https://www.google.com/search?q=Zurich+Historic+Quarter+%26+Promenade+Zurich+official+site",
+              "reviews_url": "https://www.google.com/maps/search/?api=1&query=Zurich+Historic+Quarter+%26+Promenade+Zurich+reviews"
+            },
+            "next_activity": {
+              "name": "Fine Dining Dinner Experience",
+              "distance_miles": 1.13,
+              "distance_km": 1.82,
+              "travel_time_minutes": 8,
+              "travel_time_display": "8 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 1.13 mi (1.82 km) / ~8 mins to Fine Dining Dinner Experience"
+            }
+          },
+          {
+            "id": "item_act_1_7",
+            "type": "activity",
+            "name": "Fine Dining Dinner Experience",
+            "title": "Fine Dining Dinner Experience",
+            "activity_name": "Fine Dining Dinner Experience",
+            "activity": "Fine Dining Dinner Experience",
+            "attraction_name": "Fine Dining Dinner Experience",
+            "description": "Indulge in a multi-course dinner paired with regional specialties at a top-rated restaurant.",
+            "price": 72.5,
+            "price_display": "USD 50 - 95 / person",
+            "min_price": 50.0,
+            "max_price": 95.0,
+            "min_price_per_person": 50.0,
+            "max_price_per_person": 95.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "08:00 PM",
+            "arrival_time": "Dinner",
+            "time_slot": "08:00 PM - Dinner",
+            "address": "88 Riverside Drive, Zurich",
+            "phone_number": "+1 800 555 0345",
+            "rating": 4.9,
+            "reviews_count": 1420,
+            "reviews": [
+              {
+                "author": "Marcus V.",
+                "rating": 5.0,
+                "date": "Verified Diner",
+                "text": "Unforgettable dinner experience! The signature dishes and wine pairings were world-class."
+              },
+              {
+                "author": "Claire B.",
+                "rating": 4.9,
+                "date": "Top Reviewer",
+                "text": "Stunning ambiance, attentive sommelier service, and exquisite local gastronomy."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Fine+Dining+Dinner+Experience+Zurich",
+            "geo_location": {
+              "name": "The Grand Dining Room Zurich",
+              "address": "88 Riverside Drive, Zurich",
+              "phone_number": "+1 800 555 0345",
+              "latitude": 47.4594,
+              "longitude": 8.5484
+            },
+            "next_activity": {
+              "name": "Return to Hotel & Rest for the Night",
+              "distance_miles": 2.89,
+              "distance_km": 4.65,
+              "travel_time_minutes": 13,
+              "travel_time_display": "13 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 2.89 mi (4.65 km) / ~13 mins to Return to Hotel & Rest for the Night"
+            }
+          },
+          {
+            "id": "item_act_1_8",
+            "type": "hotel",
+            "name": "Return to Hotel & Rest for the Night",
+            "title": "Return to Hotel & Rest for the Night",
+            "activity_name": "Return to Hotel & Rest for the Night",
+            "activity": "Return to Hotel & Rest for the Night",
+            "attraction_name": "Return to Hotel & Rest for the Night",
+            "description": "Return to your hotel, unwind from the day's excursions, and rest for tomorrow.",
+            "price": 0.0,
+            "price_display": "Free / Rest",
+            "min_price": 0.0,
+            "max_price": 0.0,
+            "min_price_per_person": 0.0,
+            "max_price_per_person": 0.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "09:30 PM",
+            "arrival_time": "10:00 PM",
+            "time_slot": "09:30 PM - 10:00 PM (Night Rest)",
+            "address": "10 Central Avenue, Zurich",
+            "phone_number": "+1 800 555 0388",
+            "rating": 4.9,
+            "reviews_count": 500,
+            "reviews": [
+              {
+                "author": "Michael P.",
+                "rating": 5.0,
+                "date": "Verified Guest",
+                "text": "Prime location close to all main attractions in Zurich, spotless rooms, and 5-star concierge service."
+              },
+              {
+                "author": "Anna D.",
+                "rating": 4.9,
+                "date": "Verified Guest",
+                "text": "Extremely comfortable beds, quiet rooms, and very helpful staff. Would stay again!"
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Return+to+Hotel+%26+Evening+Rest+Zurich",
+            "geo_location": {
+              "name": "Grand Zurich Hotel",
+              "address": "10 Central Avenue, Zurich",
+              "phone_number": "+1 800 555 0388",
+              "latitude": 47.500588,
+              "longitude": 8.537766
+            },
+            "next_activity": {
+              "name": "Day 2 Morning Activities",
+              "distance_miles": 0.0,
+              "distance_km": 0.0,
+              "travel_time_minutes": 0,
+              "travel_time_display": "0 mins",
+              "travel_mode": "none",
+              "transit_summary": "End of Day - Rest at hotel until morning"
+            }
+          }
+        ]
+      },
+      {
+        "day_number": 2,
+        "date": "2026-09-17",
+        "title": "Day 2: Art, Architecture & Cultural Treasures of Zurich",
+        "daily_total_cost": 183.5,
+        "currency": "USD",
+        "items": [
+          {
+            "id": "item_act_2_10",
+            "type": "activity",
+            "name": "Artisanal Morning Breakfast & Coffee",
+            "title": "Artisanal Morning Breakfast & Coffee",
+            "activity_name": "Artisanal Morning Breakfast & Coffee",
+            "activity": "Artisanal Morning Breakfast & Coffee",
+            "attraction_name": "Artisanal Morning Breakfast & Coffee",
+            "description": "Enjoy fresh pastries, artisan coffee, and seasonal breakfast specialties in Zurich.",
+            "price": 20.0,
+            "price_display": "USD 15 - 25 / person",
+            "min_price": 15.0,
+            "max_price": 25.0,
+            "min_price_per_person": 15.0,
+            "max_price_per_person": 25.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "08:00 AM",
+            "arrival_time": "Breakfast",
+            "time_slot": "08:00 AM - Breakfast",
+            "address": "15 Grand Avenue, Zurich",
+            "phone_number": "+1 800 555 0123",
+            "rating": 4.8,
+            "reviews_count": 420,
+            "reviews": [
+              {
+                "author": "Elena R.",
+                "rating": 5.0,
+                "date": "Verified Visitor",
+                "text": "Exceptional artisan pastries and fresh coffee. Perfect morning start in Zurich!"
+              },
+              {
+                "author": "Mark S.",
+                "rating": 4.8,
+                "date": "Local Guide",
+                "text": "Delightful atmosphere, fast friendly service, and delicious seasonal breakfast items."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich",
+            "geo_location": {
+              "name": "Central Cafe Zurich",
+              "address": "15 Grand Avenue, Zurich",
+              "phone_number": "+1 800 555 0123",
+              "latitude": 47.4674,
+              "longitude": 8.5594
+            },
+            "next_activity": {
+              "name": "Historic Landmarks & Guided Walking Tour",
+              "distance_miles": 0.62,
+              "distance_km": 1.01,
+              "travel_time_minutes": 15,
+              "travel_time_display": "15 mins",
+              "travel_mode": "train",
+              "transit_summary": "Train/Metro 0.62 mi (1.01 km) / ~15 mins to Historic Landmarks & Guided Walking Tour"
+            }
+          },
+          {
+            "id": "item_act_2_11",
+            "type": "activity",
+            "name": "Historic Landmarks & Guided Walking Tour",
+            "title": "Historic Landmarks & Guided Walking Tour",
+            "activity_name": "Historic Landmarks & Guided Walking Tour",
+            "activity": "Historic Landmarks & Guided Walking Tour",
+            "attraction_name": "Historic Landmarks & Guided Walking Tour",
+            "description": "Explore iconic scenic viewpoints, nature trails, and historic monuments with panoramic views.",
+            "price": 35.0,
+            "price_display": "USD 35.00 / person",
+            "min_price": 35.0,
+            "max_price": 35.0,
+            "min_price_per_person": 35.0,
+            "max_price_per_person": 35.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "09:30 AM",
+            "arrival_time": "Morning Sightseeing",
+            "time_slot": "09:30 AM - Morning Sightseeing",
+            "address": "Scenic Lookout Parkway, Zurich",
+            "phone_number": "+1 800 555 0456",
+            "rating": 4.9,
+            "reviews_count": 1280,
+            "reviews": [
+              {
+                "author": "Alex N.",
+                "rating": 5.0,
+                "date": "Verified Explorer",
+                "text": "One of the top highlights of visiting Zurich! Unmatched views and rich historical character."
+              },
+              {
+                "author": "Jessica M.",
+                "rating": 4.9,
+                "date": "Verified Visitor",
+                "text": "Fantastic experience with incredible photo opportunities. Well organized and memorable."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich",
+            "geo_location": {
+              "name": "Zurich Scenic Waypoint",
+              "address": "Scenic Lookout Parkway, Zurich",
+              "phone_number": "+1 800 555 0456",
+              "latitude": 47.4734,
+              "longitude": 8.5494
+            },
+            "next_activity": {
+              "name": "Traditional Bistro & Regional Lunch",
+              "distance_miles": 1.24,
+              "distance_km": 1.99,
+              "travel_time_minutes": 8,
+              "travel_time_display": "8 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 1.24 mi (1.99 km) / ~8 mins to Traditional Bistro & Regional Lunch"
+            }
+          },
+          {
+            "id": "item_act_2_12",
+            "type": "activity",
+            "name": "Traditional Bistro & Regional Lunch",
+            "title": "Traditional Bistro & Regional Lunch",
+            "activity_name": "Traditional Bistro & Regional Lunch",
+            "activity": "Traditional Bistro & Regional Lunch",
+            "attraction_name": "Traditional Bistro & Regional Lunch",
+            "description": "Savor authentic regional cuisine and chef's signature lunch course in a charming setting.",
+            "price": 31.0,
+            "price_display": "USD 22 - 40 / person",
+            "min_price": 22.0,
+            "max_price": 40.0,
+            "min_price_per_person": 22.0,
+            "max_price_per_person": 40.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "12:30 PM",
+            "arrival_time": "Lunch",
+            "time_slot": "12:30 PM - Lunch",
+            "address": "24 Market Street, Zurich",
+            "phone_number": "+1 800 555 0789",
+            "rating": 4.7,
+            "reviews_count": 690,
+            "reviews": [
+              {
+                "author": "Sophie T.",
+                "rating": 5.0,
+                "date": "Food Critic",
+                "text": "Authentic regional flavors with impeccable presentation. A true culinary gem in Zurich."
+              },
+              {
+                "author": "James L.",
+                "rating": 4.7,
+                "date": "Verified Diner",
+                "text": "Great midday lunch specials, warm welcoming staff, and charming local vibe."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich",
+            "geo_location": {
+              "name": "Le Bistro Zurich",
+              "address": "24 Market Street, Zurich",
+              "phone_number": "+1 800 555 0789",
+              "latitude": 47.4574,
+              "longitude": 8.5614
+            },
+            "next_activity": {
+              "name": "National Museum & Gallery Exhibition",
+              "distance_miles": 1.55,
+              "distance_km": 2.49,
+              "travel_time_minutes": 8,
+              "travel_time_display": "8 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 1.55 mi (2.49 km) / ~8 mins to National Museum & Gallery Exhibition"
+            }
+          },
+          {
+            "id": "item_act_2_13",
+            "type": "activity",
+            "name": "National Museum & Gallery Exhibition",
+            "title": "National Museum & Gallery Exhibition",
+            "activity_name": "National Museum & Gallery Exhibition",
+            "activity": "National Museum & Gallery Exhibition",
+            "attraction_name": "National Museum & Gallery Exhibition",
+            "description": "Discover natural wonders, historic exhibits, and regional cultural heritage with guided access.",
+            "price": 25.0,
+            "price_display": "USD 25.00 / person",
+            "min_price": 25.0,
+            "max_price": 25.0,
+            "min_price_per_person": 25.0,
+            "max_price_per_person": 25.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "02:30 PM",
+            "arrival_time": "Afternoon Culture",
+            "time_slot": "02:30 PM - Afternoon Culture",
+            "address": "Heritage Boulevard, Zurich",
+            "phone_number": "+1 800 555 0912",
+            "rating": 4.8,
+            "reviews_count": 2150,
+            "reviews": [
+              {
+                "author": "Dr. Aris K.",
+                "rating": 5.0,
+                "date": "Cultural Historian",
+                "text": "A masterclass in curation. Iconic exhibits and breathtaking historical artifacts."
+              },
+              {
+                "author": "Hannah W.",
+                "rating": 4.8,
+                "date": "Verified Visitor",
+                "text": "Fascinating collection and informative audio guide. Booking priority access is a must!"
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=National+Museum+%26+Gallery+Exhibition+Zurich",
+            "geo_location": {
+              "name": "Zurich Heritage Discovery",
+              "address": "Heritage Boulevard, Zurich",
+              "phone_number": "+1 800 555 0912",
+              "latitude": 47.4794,
+              "longitude": 8.5554
+            },
+            "next_activity": {
+              "name": "Fine Dining Dinner Experience",
+              "distance_miles": 1.75,
+              "distance_km": 2.82,
+              "travel_time_minutes": 9,
+              "travel_time_display": "9 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 1.75 mi (2.82 km) / ~9 mins to Fine Dining Dinner Experience"
+            }
+          },
+          {
+            "id": "item_act_2_14",
+            "type": "activity",
+            "name": "Fine Dining Dinner Experience",
+            "title": "Fine Dining Dinner Experience",
+            "activity_name": "Fine Dining Dinner Experience",
+            "activity": "Fine Dining Dinner Experience",
+            "attraction_name": "Fine Dining Dinner Experience",
+            "description": "Indulge in a multi-course dinner paired with regional specialties at a top-rated restaurant.",
+            "price": 72.5,
+            "price_display": "USD 50 - 95 / person",
+            "min_price": 50.0,
+            "max_price": 95.0,
+            "min_price_per_person": 50.0,
+            "max_price_per_person": 95.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "08:00 PM",
+            "arrival_time": "Dinner",
+            "time_slot": "08:00 PM - Dinner",
+            "address": "88 Riverside Drive, Zurich",
+            "phone_number": "+1 800 555 0345",
+            "rating": 4.9,
+            "reviews_count": 1420,
+            "reviews": [
+              {
+                "author": "Marcus V.",
+                "rating": 5.0,
+                "date": "Verified Diner",
+                "text": "Unforgettable dinner experience! The signature dishes and wine pairings were world-class."
+              },
+              {
+                "author": "Claire B.",
+                "rating": 4.9,
+                "date": "Top Reviewer",
+                "text": "Stunning ambiance, attentive sommelier service, and exquisite local gastronomy."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Fine+Dining+Dinner+Experience+Zurich",
+            "geo_location": {
+              "name": "The Grand Dining Room Zurich",
+              "address": "88 Riverside Drive, Zurich",
+              "phone_number": "+1 800 555 0345",
+              "latitude": 47.4554,
+              "longitude": 8.5434
+            },
+            "next_activity": {
+              "name": "Return to Hotel & Rest for the Night",
+              "distance_miles": 1.53,
+              "distance_km": 2.46,
+              "travel_time_minutes": 8,
+              "travel_time_display": "8 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 1.53 mi (2.46 km) / ~8 mins to Return to Hotel & Rest for the Night"
+            }
+          },
+          {
+            "id": "item_act_2_15",
+            "type": "hotel",
+            "name": "Return to Hotel & Rest for the Night",
+            "title": "Return to Hotel & Rest for the Night",
+            "activity_name": "Return to Hotel & Rest for the Night",
+            "activity": "Return to Hotel & Rest for the Night",
+            "attraction_name": "Return to Hotel & Rest for the Night",
+            "description": "Return to your hotel, unwind from the day's excursions, and rest for tomorrow.",
+            "price": 0.0,
+            "price_display": "Free / Rest",
+            "min_price": 0.0,
+            "max_price": 0.0,
+            "min_price_per_person": 0.0,
+            "max_price_per_person": 0.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "09:30 PM",
+            "arrival_time": "10:00 PM",
+            "time_slot": "09:30 PM - 10:00 PM (Night Rest)",
+            "address": "10 Central Avenue, Zurich",
+            "phone_number": "+1 800 555 0388",
+            "rating": 4.9,
+            "reviews_count": 500,
+            "reviews": [
+              {
+                "author": "Michael P.",
+                "rating": 5.0,
+                "date": "Verified Guest",
+                "text": "Prime location close to all main attractions in Zurich, spotless rooms, and 5-star concierge service."
+              },
+              {
+                "author": "Anna D.",
+                "rating": 4.9,
+                "date": "Verified Guest",
+                "text": "Extremely comfortable beds, quiet rooms, and very helpful staff. Would stay again!"
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Return+to+Hotel+%26+Evening+Rest+Zurich",
+            "geo_location": {
+              "name": "Grand Zurich Hotel",
+              "address": "10 Central Avenue, Zurich",
+              "phone_number": "+1 800 555 0388",
+              "latitude": 47.475388,
+              "longitude": 8.529366
+            },
+            "next_activity": {
+              "name": "Day 3 Morning Activities",
+              "distance_miles": 0.0,
+              "distance_km": 0.0,
+              "travel_time_minutes": 0,
+              "travel_time_display": "0 mins",
+              "travel_mode": "none",
+              "transit_summary": "End of Day - Rest at hotel until morning"
+            }
+          }
+        ]
+      },
+      {
+        "day_number": 3,
+        "date": "2026-09-18",
+        "title": "Day 3: Scenic Views, Local Markets & Culinary Delights in Zurich",
+        "daily_total_cost": 183.5,
+        "currency": "USD",
+        "items": [
+          {
+            "id": "item_act_3_16",
+            "type": "activity",
+            "name": "Artisanal Morning Breakfast & Coffee",
+            "title": "Artisanal Morning Breakfast & Coffee",
+            "activity_name": "Artisanal Morning Breakfast & Coffee",
+            "activity": "Artisanal Morning Breakfast & Coffee",
+            "attraction_name": "Artisanal Morning Breakfast & Coffee",
+            "description": "Enjoy fresh pastries, artisan coffee, and seasonal breakfast specialties in Zurich.",
+            "price": 20.0,
+            "price_display": "USD 15 - 25 / person",
+            "min_price": 15.0,
+            "max_price": 25.0,
+            "min_price_per_person": 15.0,
+            "max_price_per_person": 25.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "08:00 AM",
+            "arrival_time": "Breakfast",
+            "time_slot": "08:00 AM - Breakfast",
+            "address": "15 Grand Avenue, Zurich",
+            "phone_number": "+1 800 555 0123",
+            "rating": 4.8,
+            "reviews_count": 420,
+            "reviews": [
+              {
+                "author": "Elena R.",
+                "rating": 5.0,
+                "date": "Verified Visitor",
+                "text": "Exceptional artisan pastries and fresh coffee. Perfect morning start in Zurich!"
+              },
+              {
+                "author": "Mark S.",
+                "rating": 4.8,
+                "date": "Local Guide",
+                "text": "Delightful atmosphere, fast friendly service, and delicious seasonal breakfast items."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich",
+            "geo_location": {
+              "name": "Central Cafe Zurich",
+              "address": "15 Grand Avenue, Zurich",
+              "phone_number": "+1 800 555 0123",
+              "latitude": 47.4694,
+              "longitude": 8.5624
+            },
+            "next_activity": {
+              "name": "Historic Landmarks & Guided Walking Tour",
+              "distance_miles": 0.94,
+              "distance_km": 1.51,
+              "travel_time_minutes": 15,
+              "travel_time_display": "15 mins",
+              "travel_mode": "train",
+              "transit_summary": "Train/Metro 0.94 mi (1.51 km) / ~15 mins to Historic Landmarks & Guided Walking Tour"
+            }
+          },
+          {
+            "id": "item_act_3_17",
+            "type": "activity",
+            "name": "Historic Landmarks & Guided Walking Tour",
+            "title": "Historic Landmarks & Guided Walking Tour",
+            "activity_name": "Historic Landmarks & Guided Walking Tour",
+            "activity": "Historic Landmarks & Guided Walking Tour",
+            "attraction_name": "Historic Landmarks & Guided Walking Tour",
+            "description": "Explore iconic scenic viewpoints, nature trails, and historic monuments with panoramic views.",
+            "price": 35.0,
+            "price_display": "USD 35.00 / person",
+            "min_price": 35.0,
+            "max_price": 35.0,
+            "min_price_per_person": 35.0,
+            "max_price_per_person": 35.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "09:30 AM",
+            "arrival_time": "Morning Sightseeing",
+            "time_slot": "09:30 AM - Morning Sightseeing",
+            "address": "Scenic Lookout Parkway, Zurich",
+            "phone_number": "+1 800 555 0456",
+            "rating": 4.9,
+            "reviews_count": 1280,
+            "reviews": [
+              {
+                "author": "Alex N.",
+                "rating": 5.0,
+                "date": "Verified Explorer",
+                "text": "One of the top highlights of visiting Zurich! Unmatched views and rich historical character."
+              },
+              {
+                "author": "Jessica M.",
+                "rating": 4.9,
+                "date": "Verified Visitor",
+                "text": "Fantastic experience with incredible photo opportunities. Well organized and memorable."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich",
+            "geo_location": {
+              "name": "Zurich Scenic Waypoint",
+              "address": "Scenic Lookout Parkway, Zurich",
+              "phone_number": "+1 800 555 0456",
+              "latitude": 47.4784,
+              "longitude": 8.5474
+            },
+            "next_activity": {
+              "name": "Traditional Bistro & Regional Lunch",
+              "distance_miles": 1.86,
+              "distance_km": 2.99,
+              "travel_time_minutes": 9,
+              "travel_time_display": "9 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 1.86 mi (2.99 km) / ~9 mins to Traditional Bistro & Regional Lunch"
+            }
+          },
+          {
+            "id": "item_act_3_18",
+            "type": "activity",
+            "name": "Traditional Bistro & Regional Lunch",
+            "title": "Traditional Bistro & Regional Lunch",
+            "activity_name": "Traditional Bistro & Regional Lunch",
+            "activity": "Traditional Bistro & Regional Lunch",
+            "attraction_name": "Traditional Bistro & Regional Lunch",
+            "description": "Savor authentic regional cuisine and chef's signature lunch course in a charming setting.",
+            "price": 31.0,
+            "price_display": "USD 22 - 40 / person",
+            "min_price": 22.0,
+            "max_price": 40.0,
+            "min_price_per_person": 22.0,
+            "max_price_per_person": 40.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "12:30 PM",
+            "arrival_time": "Lunch",
+            "time_slot": "12:30 PM - Lunch",
+            "address": "24 Market Street, Zurich",
+            "phone_number": "+1 800 555 0789",
+            "rating": 4.7,
+            "reviews_count": 690,
+            "reviews": [
+              {
+                "author": "Sophie T.",
+                "rating": 5.0,
+                "date": "Food Critic",
+                "text": "Authentic regional flavors with impeccable presentation. A true culinary gem in Zurich."
+              },
+              {
+                "author": "James L.",
+                "rating": 4.7,
+                "date": "Verified Diner",
+                "text": "Great midday lunch specials, warm welcoming staff, and charming local vibe."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich",
+            "geo_location": {
+              "name": "Le Bistro Zurich",
+              "address": "24 Market Street, Zurich",
+              "phone_number": "+1 800 555 0789",
+              "latitude": 47.4544,
+              "longitude": 8.5654
+            },
+            "next_activity": {
+              "name": "National Museum & Gallery Exhibition",
+              "distance_miles": 2.32,
+              "distance_km": 3.73,
+              "travel_time_minutes": 11,
+              "travel_time_display": "11 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 2.32 mi (3.73 km) / ~11 mins to National Museum & Gallery Exhibition"
+            }
+          },
+          {
+            "id": "item_act_3_19",
+            "type": "activity",
+            "name": "National Museum & Gallery Exhibition",
+            "title": "National Museum & Gallery Exhibition",
+            "activity_name": "National Museum & Gallery Exhibition",
+            "activity": "National Museum & Gallery Exhibition",
+            "attraction_name": "National Museum & Gallery Exhibition",
+            "description": "Discover natural wonders, historic exhibits, and regional cultural heritage with guided access.",
+            "price": 25.0,
+            "price_display": "USD 25.00 / person",
+            "min_price": 25.0,
+            "max_price": 25.0,
+            "min_price_per_person": 25.0,
+            "max_price_per_person": 25.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "02:30 PM",
+            "arrival_time": "Afternoon Culture",
+            "time_slot": "02:30 PM - Afternoon Culture",
+            "address": "Heritage Boulevard, Zurich",
+            "phone_number": "+1 800 555 0912",
+            "rating": 4.8,
+            "reviews_count": 2150,
+            "reviews": [
+              {
+                "author": "Dr. Aris K.",
+                "rating": 5.0,
+                "date": "Cultural Historian",
+                "text": "A masterclass in curation. Iconic exhibits and breathtaking historical artifacts."
+              },
+              {
+                "author": "Hannah W.",
+                "rating": 4.8,
+                "date": "Verified Visitor",
+                "text": "Fascinating collection and informative audio guide. Booking priority access is a must!"
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=National+Museum+%26+Gallery+Exhibition+Zurich",
+            "geo_location": {
+              "name": "Zurich Heritage Discovery",
+              "address": "Heritage Boulevard, Zurich",
+              "phone_number": "+1 800 555 0912",
+              "latitude": 47.4874,
+              "longitude": 8.5564
+            },
+            "next_activity": {
+              "name": "Fine Dining Dinner Experience",
+              "distance_miles": 2.63,
+              "distance_km": 4.23,
+              "travel_time_minutes": 12,
+              "travel_time_display": "12 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 2.63 mi (4.23 km) / ~12 mins to Fine Dining Dinner Experience"
+            }
+          },
+          {
+            "id": "item_act_3_20",
+            "type": "activity",
+            "name": "Fine Dining Dinner Experience",
+            "title": "Fine Dining Dinner Experience",
+            "activity_name": "Fine Dining Dinner Experience",
+            "activity": "Fine Dining Dinner Experience",
+            "attraction_name": "Fine Dining Dinner Experience",
+            "description": "Indulge in a multi-course dinner paired with regional specialties at a top-rated restaurant.",
+            "price": 72.5,
+            "price_display": "USD 50 - 95 / person",
+            "min_price": 50.0,
+            "max_price": 95.0,
+            "min_price_per_person": 50.0,
+            "max_price_per_person": 95.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "08:00 PM",
+            "arrival_time": "Dinner",
+            "time_slot": "08:00 PM - Dinner",
+            "address": "88 Riverside Drive, Zurich",
+            "phone_number": "+1 800 555 0345",
+            "rating": 4.9,
+            "reviews_count": 1420,
+            "reviews": [
+              {
+                "author": "Marcus V.",
+                "rating": 5.0,
+                "date": "Verified Diner",
+                "text": "Unforgettable dinner experience! The signature dishes and wine pairings were world-class."
+              },
+              {
+                "author": "Claire B.",
+                "rating": 4.9,
+                "date": "Top Reviewer",
+                "text": "Stunning ambiance, attentive sommelier service, and exquisite local gastronomy."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Fine+Dining+Dinner+Experience+Zurich",
+            "geo_location": {
+              "name": "The Grand Dining Room Zurich",
+              "address": "88 Riverside Drive, Zurich",
+              "phone_number": "+1 800 555 0345",
+              "latitude": 47.4514,
+              "longitude": 8.5384
+            },
+            "next_activity": {
+              "name": "Return to Hotel & Rest for the Night",
+              "distance_miles": 2.11,
+              "distance_km": 3.39,
+              "travel_time_minutes": 10,
+              "travel_time_display": "10 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 2.11 mi (3.39 km) / ~10 mins to Return to Hotel & Rest for the Night"
+            }
+          },
+          {
+            "id": "item_act_3_21",
+            "type": "hotel",
+            "name": "Return to Hotel & Rest for the Night",
+            "title": "Return to Hotel & Rest for the Night",
+            "activity_name": "Return to Hotel & Rest for the Night",
+            "activity": "Return to Hotel & Rest for the Night",
+            "attraction_name": "Return to Hotel & Rest for the Night",
+            "description": "Return to your hotel, unwind from the day's excursions, and rest for tomorrow.",
+            "price": 0.0,
+            "price_display": "Free / Rest",
+            "min_price": 0.0,
+            "max_price": 0.0,
+            "min_price_per_person": 0.0,
+            "max_price_per_person": 0.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "09:30 PM",
+            "arrival_time": "10:00 PM",
+            "time_slot": "09:30 PM - 10:00 PM (Night Rest)",
+            "address": "10 Central Avenue, Zurich",
+            "phone_number": "+1 800 555 0388",
+            "rating": 4.9,
+            "reviews_count": 500,
+            "reviews": [
+              {
+                "author": "Michael P.",
+                "rating": 5.0,
+                "date": "Verified Guest",
+                "text": "Prime location close to all main attractions in Zurich, spotless rooms, and 5-star concierge service."
+              },
+              {
+                "author": "Anna D.",
+                "rating": 4.9,
+                "date": "Verified Guest",
+                "text": "Extremely comfortable beds, quiet rooms, and very helpful staff. Would stay again!"
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Return+to+Hotel+%26+Evening+Rest+Zurich",
+            "geo_location": {
+              "name": "Grand Zurich Hotel",
+              "address": "10 Central Avenue, Zurich",
+              "phone_number": "+1 800 555 0388",
+              "latitude": 47.429788,
+              "longitude": 8.570166
+            },
+            "next_activity": {
+              "name": "Day 4 Morning Activities",
+              "distance_miles": 0.0,
+              "distance_km": 0.0,
+              "travel_time_minutes": 0,
+              "travel_time_display": "0 mins",
+              "travel_mode": "none",
+              "transit_summary": "End of Day - Rest at hotel until morning"
+            }
+          }
+        ]
+      },
+      {
+        "day_number": 4,
+        "date": "2026-09-19",
+        "title": "Day 4: Parks, Nature & Hidden Neighborhoods of Zurich",
+        "daily_total_cost": 183.5,
+        "currency": "USD",
+        "items": [
+          {
+            "id": "item_act_4_22",
+            "type": "activity",
+            "name": "Artisanal Morning Breakfast & Coffee",
+            "title": "Artisanal Morning Breakfast & Coffee",
+            "activity_name": "Artisanal Morning Breakfast & Coffee",
+            "activity": "Artisanal Morning Breakfast & Coffee",
+            "attraction_name": "Artisanal Morning Breakfast & Coffee",
+            "description": "Enjoy fresh pastries, artisan coffee, and seasonal breakfast specialties in Zurich.",
+            "price": 20.0,
+            "price_display": "USD 15 - 25 / person",
+            "min_price": 15.0,
+            "max_price": 25.0,
+            "min_price_per_person": 15.0,
+            "max_price_per_person": 25.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "08:00 AM",
+            "arrival_time": "Breakfast",
+            "time_slot": "08:00 AM - Breakfast",
+            "address": "15 Grand Avenue, Zurich",
+            "phone_number": "+1 800 555 0123",
+            "rating": 4.8,
+            "reviews_count": 420,
+            "reviews": [
+              {
+                "author": "Elena R.",
+                "rating": 5.0,
+                "date": "Verified Visitor",
+                "text": "Exceptional artisan pastries and fresh coffee. Perfect morning start in Zurich!"
+              },
+              {
+                "author": "Mark S.",
+                "rating": 4.8,
+                "date": "Local Guide",
+                "text": "Delightful atmosphere, fast friendly service, and delicious seasonal breakfast items."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Artisanal+Morning+Breakfast+%26+Coffee+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Artisanal+Morning+Breakfast+%26+Coffee+Zurich",
+            "geo_location": {
+              "name": "Central Cafe Zurich",
+              "address": "15 Grand Avenue, Zurich",
+              "phone_number": "+1 800 555 0123",
+              "latitude": 47.4714,
+              "longitude": 8.5654
+            },
+            "next_activity": {
+              "name": "Historic Landmarks & Guided Walking Tour",
+              "distance_miles": 1.25,
+              "distance_km": 2.01,
+              "travel_time_minutes": 15,
+              "travel_time_display": "15 mins",
+              "travel_mode": "train",
+              "transit_summary": "Train/Metro 1.25 mi (2.01 km) / ~15 mins to Historic Landmarks & Guided Walking Tour"
+            }
+          },
+          {
+            "id": "item_act_4_23",
+            "type": "activity",
+            "name": "Historic Landmarks & Guided Walking Tour",
+            "title": "Historic Landmarks & Guided Walking Tour",
+            "activity_name": "Historic Landmarks & Guided Walking Tour",
+            "activity": "Historic Landmarks & Guided Walking Tour",
+            "attraction_name": "Historic Landmarks & Guided Walking Tour",
+            "description": "Explore iconic scenic viewpoints, nature trails, and historic monuments with panoramic views.",
+            "price": 35.0,
+            "price_display": "USD 35.00 / person",
+            "min_price": 35.0,
+            "max_price": 35.0,
+            "min_price_per_person": 35.0,
+            "max_price_per_person": 35.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "09:30 AM",
+            "arrival_time": "Morning Sightseeing",
+            "time_slot": "09:30 AM - Morning Sightseeing",
+            "address": "Scenic Lookout Parkway, Zurich",
+            "phone_number": "+1 800 555 0456",
+            "rating": 4.9,
+            "reviews_count": 1280,
+            "reviews": [
+              {
+                "author": "Alex N.",
+                "rating": 5.0,
+                "date": "Verified Explorer",
+                "text": "One of the top highlights of visiting Zurich! Unmatched views and rich historical character."
+              },
+              {
+                "author": "Jessica M.",
+                "rating": 4.9,
+                "date": "Verified Visitor",
+                "text": "Fantastic experience with incredible photo opportunities. Well organized and memorable."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Historic+Landmarks+%26+Guided+Walking+Tour+Zurich",
+            "geo_location": {
+              "name": "Zurich Scenic Waypoint",
+              "address": "Scenic Lookout Parkway, Zurich",
+              "phone_number": "+1 800 555 0456",
+              "latitude": 47.4834,
+              "longitude": 8.5454
+            },
+            "next_activity": {
+              "name": "Traditional Bistro & Regional Lunch",
+              "distance_miles": 2.48,
+              "distance_km": 3.99,
+              "travel_time_minutes": 11,
+              "travel_time_display": "11 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 2.48 mi (3.99 km) / ~11 mins to Traditional Bistro & Regional Lunch"
+            }
+          },
+          {
+            "id": "item_act_4_24",
+            "type": "activity",
+            "name": "Traditional Bistro & Regional Lunch",
+            "title": "Traditional Bistro & Regional Lunch",
+            "activity_name": "Traditional Bistro & Regional Lunch",
+            "activity": "Traditional Bistro & Regional Lunch",
+            "attraction_name": "Traditional Bistro & Regional Lunch",
+            "description": "Savor authentic regional cuisine and chef's signature lunch course in a charming setting.",
+            "price": 31.0,
+            "price_display": "USD 22 - 40 / person",
+            "min_price": 22.0,
+            "max_price": 40.0,
+            "min_price_per_person": 22.0,
+            "max_price_per_person": 40.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "12:30 PM",
+            "arrival_time": "Lunch",
+            "time_slot": "12:30 PM - Lunch",
+            "address": "24 Market Street, Zurich",
+            "phone_number": "+1 800 555 0789",
+            "rating": 4.7,
+            "reviews_count": 690,
+            "reviews": [
+              {
+                "author": "Sophie T.",
+                "rating": 5.0,
+                "date": "Food Critic",
+                "text": "Authentic regional flavors with impeccable presentation. A true culinary gem in Zurich."
+              },
+              {
+                "author": "James L.",
+                "rating": 4.7,
+                "date": "Verified Diner",
+                "text": "Great midday lunch specials, warm welcoming staff, and charming local vibe."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Traditional+Bistro+%26+Regional+Lunch+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Traditional+Bistro+%26+Regional+Lunch+Zurich",
+            "geo_location": {
+              "name": "Le Bistro Zurich",
+              "address": "24 Market Street, Zurich",
+              "phone_number": "+1 800 555 0789",
+              "latitude": 47.4514,
+              "longitude": 8.5694
+            },
+            "next_activity": {
+              "name": "Rental Vehicle Return & Drop-off (1 car(s))",
+              "distance_miles": 4.57,
+              "distance_km": 7.35,
+              "travel_time_minutes": 18,
+              "travel_time_display": "18 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 4.57 mi (7.35 km) / ~18 mins to Rental Vehicle Return & Drop-off (1 car(s))"
+            }
+          },
+          {
+            "id": "item_car_ret_4",
+            "type": "car",
+            "name": "Rental Vehicle Return & Drop-off (1 car(s))",
+            "title": "Rental Vehicle Return & Drop-off (1 car(s))",
+            "description": "Return rental vehicle (1 car(s)) with full tank at Zurich Airport Rental Return Facility prior to flight departure.",
+            "price": 0.0,
+            "currency": "USD",
+            "departure_time": "02:30 PM",
+            "arrival_time": "03:00 PM",
+            "time_slot": "02:30 PM - 03:00 PM - Rental Vehicle Return",
+            "address": "Rental Return Facility, Zurich Airport (ZRH)",
+            "phone_number": "+1 800 555 0244",
+            "geo_location": {
+              "name": "Zurich Airport Rental Car Return",
+              "address": "Rental Return Facility, Zurich Airport (ZRH)",
+              "phone_number": "+1 800 555 0244",
+              "latitude": 47.5133881,
+              "longitude": 8.6033661
+            },
+            "next_activity": {
+              "name": "National Museum & Gallery Exhibition",
+              "distance_miles": 2.48,
+              "distance_km": 3.99,
+              "travel_time_minutes": 11,
+              "travel_time_display": "11 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 2.48 mi (3.99 km) / ~11 mins to National Museum & Gallery Exhibition"
+            }
+          },
+          {
+            "id": "item_act_4_25",
+            "type": "activity",
+            "name": "National Museum & Gallery Exhibition",
+            "title": "National Museum & Gallery Exhibition",
+            "activity_name": "National Museum & Gallery Exhibition",
+            "activity": "National Museum & Gallery Exhibition",
+            "attraction_name": "National Museum & Gallery Exhibition",
+            "description": "Discover natural wonders, historic exhibits, and regional cultural heritage with guided access.",
+            "price": 25.0,
+            "price_display": "USD 25.00 / person",
+            "min_price": 25.0,
+            "max_price": 25.0,
+            "min_price_per_person": 25.0,
+            "max_price_per_person": 25.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "02:30 PM",
+            "arrival_time": "Afternoon Culture",
+            "time_slot": "02:30 PM - Afternoon Culture",
+            "address": "Heritage Boulevard, Zurich",
+            "phone_number": "+1 800 555 0912",
+            "rating": 4.8,
+            "reviews_count": 2150,
+            "reviews": [
+              {
+                "author": "Dr. Aris K.",
+                "rating": 5.0,
+                "date": "Cultural Historian",
+                "text": "A masterclass in curation. Iconic exhibits and breathtaking historical artifacts."
+              },
+              {
+                "author": "Hannah W.",
+                "rating": 4.8,
+                "date": "Verified Visitor",
+                "text": "Fascinating collection and informative audio guide. Booking priority access is a must!"
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=National+Museum+%26+Gallery+Exhibition+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=National+Museum+%26+Gallery+Exhibition+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=National+Museum+%26+Gallery+Exhibition+Zurich",
+            "geo_location": {
+              "name": "Zurich Heritage Discovery",
+              "address": "Heritage Boulevard, Zurich",
+              "phone_number": "+1 800 555 0912",
+              "latitude": 47.4954,
+              "longitude": 8.5574
+            },
+            "next_activity": {
+              "name": "Rental Vehicle Return & Drop-off",
+              "distance_miles": 2.48,
+              "distance_km": 3.99,
+              "travel_time_minutes": 11,
+              "travel_time_display": "11 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 2.48 mi (3.99 km) / ~11 mins to Rental Vehicle Return & Drop-off"
+            }
+          },
+          {
+            "id": "item_act_4_27",
+            "type": "activity",
+            "name": "Rental Vehicle Return & Drop-off",
+            "title": "Rental Vehicle Return & Drop-off",
+            "activity_name": "Rental Vehicle Return & Drop-off",
+            "activity": "Rental Vehicle Return & Drop-off",
+            "attraction_name": "Rental Vehicle Return & Drop-off",
+            "description": "Return rental vehicle with full tank at Zurich Rental Return Facility.",
+            "price": 0.0,
+            "price_display": "Free / Included",
+            "min_price": 0.0,
+            "max_price": 0.0,
+            "min_price_per_person": 0.0,
+            "max_price_per_person": 0.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "03:00 PM",
+            "arrival_time": "Car Return",
+            "time_slot": "03:00 PM - Car Return",
+            "address": "Rental Return Facility, Zurich",
+            "phone_number": "+1 800 555 0244",
+            "rating": 4.8,
+            "reviews_count": 310,
+            "reviews": [
+              {
+                "author": "Alex N.",
+                "rating": 5.0,
+                "date": "Verified Explorer",
+                "text": "One of the top highlights of visiting Zurich! Unmatched views and rich historical character."
+              },
+              {
+                "author": "Jessica M.",
+                "rating": 4.8,
+                "date": "Verified Visitor",
+                "text": "Fantastic experience with incredible photo opportunities. Well organized and memorable."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Rental+Vehicle+Return+%26+Drop-off+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Rental+Vehicle+Return+%26+Drop-off+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Rental+Vehicle+Return+%26+Drop-off+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Rental+Vehicle+Return+%26+Drop-off+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Rental+Vehicle+Return+%26+Drop-off+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Rental+Vehicle+Return+%26+Drop-off+Zurich",
+            "geo_location": {
+              "name": "Zurich Rental Car Return",
+              "address": "Rental Return Facility, Zurich",
+              "phone_number": "+1 800 555 0244",
+              "latitude": 47.5134,
+              "longitude": 8.6034
+            },
+            "next_activity": {
+              "name": "Return Flight Departure to ATL",
+              "distance_miles": 0.45,
+              "distance_km": 0.72,
+              "travel_time_minutes": 8,
+              "travel_time_display": "8 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 0.45 mi (0.72 km) / ~8 mins to Return Flight Departure to ATL"
+            }
+          },
+          {
+            "id": "item_fl_ret_4",
+            "type": "flight",
+            "name": "Return Flight Departure to ATL",
+            "title": "Return Flight Departure to ATL",
+            "description": "Return Flight from Zurich to ATL (1 pax). Departure time: 05:00 PM from Zurich, Arrival time: 11:00 PM in ATL.",
+            "price": 0.0,
+            "currency": "USD",
+            "departure_time": "05:00 PM",
+            "arrival_time": "11:00 PM",
+            "time_slot": "Departure from Zurich: 05:00 PM | Arrival in ATL: 11:00 PM",
+            "address": "Zurich International Airport (ZRH)",
+            "phone_number": "+1 800 555 0199",
+            "geo_location": {
+              "name": "Zurich Airport",
+              "address": "Zurich International Airport (ZRH)",
+              "phone_number": "+1 800 555 0199",
+              "latitude": 47.5133881,
+              "longitude": 8.6033661
+            },
+            "next_activity": {
+              "name": "Fine Dining Dinner Experience",
+              "distance_miles": 5.61,
+              "distance_km": 9.03,
+              "travel_time_minutes": 22,
+              "travel_time_display": "22 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 5.61 mi (9.03 km) / ~22 mins to Fine Dining Dinner Experience"
+            }
+          },
+          {
+            "id": "item_act_4_26",
+            "type": "activity",
+            "name": "Fine Dining Dinner Experience",
+            "title": "Fine Dining Dinner Experience",
+            "activity_name": "Fine Dining Dinner Experience",
+            "activity": "Fine Dining Dinner Experience",
+            "attraction_name": "Fine Dining Dinner Experience",
+            "description": "Indulge in a multi-course dinner paired with regional specialties at a top-rated restaurant.",
+            "price": 72.5,
+            "price_display": "USD 50 - 95 / person",
+            "min_price": 50.0,
+            "max_price": 95.0,
+            "min_price_per_person": 50.0,
+            "max_price_per_person": 95.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "08:00 PM",
+            "arrival_time": "Dinner",
+            "time_slot": "08:00 PM - Dinner",
+            "address": "88 Riverside Drive, Zurich",
+            "phone_number": "+1 800 555 0345",
+            "rating": 4.9,
+            "reviews_count": 1420,
+            "reviews": [
+              {
+                "author": "Marcus V.",
+                "rating": 5.0,
+                "date": "Verified Diner",
+                "text": "Unforgettable dinner experience! The signature dishes and wine pairings were world-class."
+              },
+              {
+                "author": "Claire B.",
+                "rating": 4.9,
+                "date": "Top Reviewer",
+                "text": "Stunning ambiance, attentive sommelier service, and exquisite local gastronomy."
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Fine+Dining+Dinner+Experience+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Fine+Dining+Dinner+Experience+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Fine+Dining+Dinner+Experience+Zurich",
+            "geo_location": {
+              "name": "The Grand Dining Room Zurich",
+              "address": "88 Riverside Drive, Zurich",
+              "phone_number": "+1 800 555 0345",
+              "latitude": 47.4474,
+              "longitude": 8.5334
+            },
+            "next_activity": {
+              "name": "Return to Hotel & Rest for the Night",
+              "distance_miles": 3.14,
+              "distance_km": 5.05,
+              "travel_time_minutes": 13,
+              "travel_time_display": "13 mins",
+              "travel_mode": "drive",
+              "transit_summary": "Drive/Taxi 3.14 mi (5.05 km) / ~13 mins to Return to Hotel & Rest for the Night"
+            }
+          },
+          {
+            "id": "item_act_4_28",
+            "type": "hotel",
+            "name": "Return to Hotel & Rest for the Night",
+            "title": "Return to Hotel & Rest for the Night",
+            "activity_name": "Return to Hotel & Rest for the Night",
+            "activity": "Return to Hotel & Rest for the Night",
+            "attraction_name": "Return to Hotel & Rest for the Night",
+            "description": "Return to your hotel, unwind from the day's excursions, and rest for tomorrow.",
+            "price": 0.0,
+            "price_display": "Free / Rest",
+            "min_price": 0.0,
+            "max_price": 0.0,
+            "min_price_per_person": 0.0,
+            "max_price_per_person": 0.0,
+            "is_price_tbd": false,
+            "currency": "USD",
+            "departure_time": "09:30 PM",
+            "arrival_time": "10:00 PM",
+            "time_slot": "09:30 PM - 10:00 PM (Night Rest)",
+            "address": "10 Central Avenue, Zurich",
+            "phone_number": "+1 800 555 0388",
+            "rating": 4.9,
+            "reviews_count": 500,
+            "reviews": [
+              {
+                "author": "Michael P.",
+                "rating": 5.0,
+                "date": "Verified Guest",
+                "text": "Prime location close to all main attractions in Zurich, spotless rooms, and 5-star concierge service."
+              },
+              {
+                "author": "Anna D.",
+                "rating": 4.9,
+                "date": "Verified Guest",
+                "text": "Extremely comfortable beds, quiet rooms, and very helpful staff. Would stay again!"
+              }
+            ],
+            "website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "direct_website_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "activity_url": "https://www.google.com/search?q=Return+to+Hotel+%26+Evening+Rest+Zurich+official+site",
+            "reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
+            "google_reviews_url": "https://www.google.com/maps/search/?api=1&query=Return+to+Hotel+%26+Evening+Rest+Zurich+reviews",
+            "tripadvisor_reviews_url": "https://www.tripadvisor.com/Search?q=Return+to+Hotel+%26+Evening+Rest+Zurich",
+            "geo_location": {
+              "name": "Grand Zurich Hotel",
+              "address": "10 Central Avenue, Zurich",
+              "phone_number": "+1 800 555 0388",
+              "latitude": 47.488588,
+              "longitude": 8.561766
+            },
+            "next_activity": {
+              "name": "Trip Departure / Return Flight",
+              "distance_miles": 0.0,
+              "distance_km": 0.0,
+              "travel_time_minutes": 0,
+              "travel_time_display": "0 mins",
+              "travel_mode": "none",
+              "transit_summary": "Itinerary complete"
+            }
+          }
+        ]
+      }
+    ],
+    "top_3_bundles": []
+  }
+}

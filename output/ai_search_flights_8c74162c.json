@@ -1,19 +1,19 @@
 {
   "status": "success",
-  "timestamp": "2026-09-01 10:33:44",
+  "timestamp": "2026-09-01 10:58:59",
   "meta_data": {
     "type": "ai_search",
     "search_type": "flights",
-    "prompt": "4-day highlights trip to berlin from atlanta",
+    "prompt": "4-day highlights trip to zurich from atlanta",
     "parsed_intent": {
       "selected_types": [
         "flights"
       ],
-      "trip_type": "one_way",
+      "trip_type": "round_trip",
       "origin": "ATL",
-      "destination": "BER",
+      "destination": "ZRH",
       "departure_date": "2026-09-01",
-      "return_date": null,
+      "return_date": "2026-09-05",
       "from_date": "2026-09-01",
       "to_date": "2026-09-05",
       "min_price": null,
@@ -43,8 +43,13 @@
       "slices": [
         {
           "origin": "ATL",
-          "destination": "BER",
+          "destination": "ZRH",
           "departure_date": "2026-09-01"
+        },
+        {
+          "origin": "ZRH",
+          "destination": "ATL",
+          "departure_date": "2026-09-05"
         }
       ]
     },
@@ -55,14 +60,14 @@
         "longitude": -84.4277
       },
       "destination": {
-        "code": "BER",
-        "latitude": 52.3667,
-        "longitude": 13.5033
+        "code": "ZRH",
+        "latitude": 47.4633881,
+        "longitude": 8.5533661
       }
     }
   },
   "data": {
-    "ai_summary": "No travel options found for your prompt: '4-day highlights trip to berlin from atlanta'. Please try broadening your search criteria.",
+    "ai_summary": "No travel options found for your prompt: '4-day highlights trip to zurich from atlanta'. Please try broadening your search criteria.",
     "category_highlights": {},
     "search_type": "flights",
     "total_items": 0,
@@ -72,7 +77,7 @@
     "top_bundles": [],
     "raw_data": {
       "status": "success",
-      "timestamp": "2026-09-01 10:33:44",
+      "timestamp": "2026-09-01 10:58:59",
       "search_type": "flights",
       "meta": {
         "search_type": "flights",
@@ -80,23 +85,23 @@
           "flights"
         ],
         "is_bundle": false,
-        "bundle_for": "Flight Search from ATL to BER",
-        "bundle_description": "Specific single-category search for flights from ATL to BER.",
-        "prompt": "4-day highlights trip to berlin from atlanta",
+        "bundle_for": "Flight Search from ATL to ZRH",
+        "bundle_description": "Specific single-category search for flights from ATL to ZRH.",
+        "prompt": "4-day highlights trip to zurich from atlanta",
         "ttl_seconds": 3600,
-        "expires_at": "2026-09-01T15:33:44Z",
-        "timestamp": "2026-09-01 10:33:44"
+        "expires_at": "2026-09-01T15:58:59Z",
+        "timestamp": "2026-09-01 10:58:59"
       },
       "search_params": {
         "origin": "ATL",
-        "destination": "BER",
+        "destination": "ZRH",
         "departure_date": "2026-09-01",
         "return_date": null,
         "passengers_count": 1,
         "cabin_class": "economy",
         "rooms": 1,
         "driver_age": 30,
-        "prompt": "4-day highlights trip to berlin from atlanta",
+        "prompt": "4-day highlights trip to zurich from atlanta",
         "force_refresh": false
       },
       "category_highlights": {},
