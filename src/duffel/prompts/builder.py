@@ -136,7 +136,7 @@ def build_planner_user_prompt(
     elif include_flights:
         timeline_text = f"TIMELINE REQUIREMENT: On Day 1, schedule all activities strictly after flight arrival at {outbound_arr}. On Final Day, wrap up before flight departure at {return_dep}."
     else:
-        timeline_text = f"TIMELINE REQUIREMENT (DEFAULT ROUND-TRIP): On Day 1, depart {origin_code} at 09:00 AM on the outbound corridor. On Final Day (Day {duration_days}), execute the return driving journey back to {origin_code}, arriving in {origin_code} by 05:30 PM for vehicle return, followed by dinner at 08:00 PM and rest in {origin_code}."
+        timeline_text = f"TIMELINE REQUIREMENT (DEFAULT ROUND-TRIP): On Day 1, depart {origin_code} at 09:00 AM on the outbound corridor. On Final Day (Day {duration_days}), execute the return driving journey back to {origin_code} with midday lunch, arriving back in {origin_code} by 05:30 PM for final vehicle return (05:30 PM - 06:00 PM), with NO return-day shopping or post-dropoff activities."
 
     # Resolve Vehicle Logistics Rule
     if include_cars:

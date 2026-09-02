@@ -13,6 +13,7 @@ from ...prompts import build_planner_system_prompt, build_planner_user_prompt
 from .activities import enrich_activity_urls_and_geo, calculate_haversine_distance, enrich_items_with_next_activity
 from .timeline import (
     parse_time_to_minutes,
+    parse_end_time_to_minutes,
     format_minutes_to_time,
     build_flight_item,
     build_car_rental_item,
@@ -205,12 +206,6 @@ class TravelPlannerService(BaseService):
                     pickup_dep = "08:30 AM" if (is_road_trip or not include_flights) else "01:30 PM"
                     pickup_arr = "09:00 AM" if (is_road_trip or not include_flights) else "02:00 PM"
                     items.append(build_car_rental_item(f"item_car_{d_num}", f"Rental Vehicle Pickup ({cars_calculated} car)", pickup_city, pickup_code, duration_days, passengers_count, cars_calculated, pickup_dep, pickup_arr, car_cost_tot, False, base_lat, base_lng, is_road_trip=(is_road_trip or not include_flights)))
-                elif include_cars and d_num == duration_days:
-                    return_city = origin_clean if (is_road_trip or not include_flights) else dest_clean
-                    return_code = origin_code if (is_road_trip or not include_flights) else dest_upper
-                    return_dep = "05:30 PM" if (is_road_trip or not include_flights) else "03:00 PM"
-                    return_arr = "06:00 PM" if (is_road_trip or not include_flights) else "03:30 PM"
-                    items.append(build_car_rental_item(f"item_car_ret_{d_num}", "Rental Vehicle Return", return_city, return_code, duration_days, passengers_count, cars_calculated, return_dep, return_arr, 0.0, False, base_lat, base_lng, is_return=True, is_road_trip=(is_road_trip or not include_flights)))
 
                 if include_hotels and d_num == 1 and not is_road_trip:
                     items.append(build_hotel_checkin_item(f"item_ht_{d_num}", dest_clean, duration_days, rooms_calculated, "02:30 PM", "03:00 PM", hotel_cost_pn, False, base_lat, base_lng))
@@ -223,16 +218,27 @@ class TravelPlannerService(BaseService):
                     aname_l = str(act_name or "").lower()
                     adetails_l = str(act_enriched.get("details") or act_enriched.get("description") or "").lower()
                     is_car_pickup = any(k in aname_l or k in adetails_l for k in [
-                        "pickup rental", "rental car pickup", "collect your rental", "pick up rental", "rental vehicle pickup", "pick up your rental"
+                        "pickup rental", "rental car pickup", "collect your rental", "pick up rental", "rental vehicle pickup"
                     ])
                     if include_cars and d_num == 1 and is_car_pickup:
                         continue
                     is_car_return = any(k in aname_l or k in adetails_l for k in [
-                        "return rental", "drop off rental", "rental car return", "drop-off rental", "rental vehicle return", "return your rental"
-                    ])
+                        "return rental", "drop off rental", "rental car return", "drop-off rental", "rental vehicle return"
+                    ]) or (d_num == duration_days and any(k in aname_l for k in ["arrive in ", "arrival in "]) and "rental" in adetails_l)
                     if include_cars and d_num == duration_days and is_car_return:
                         continue
+                    # On final return day of road trip, omit shopping and activities after 05:30 PM
+                    if (is_road_trip or not include_flights) and d_num == duration_days:
+                        if act_enriched.get("category", "").lower() == "shopping" or "shopping" in aname_l or parse_time_to_minutes(act_enriched) >= 1050:
+                            continue
                     items.append(act_enriched)
+
+                if include_cars and d_num == duration_days:
+                    return_city = origin_clean if (is_road_trip or not include_flights) else dest_clean
+                    return_code = origin_code if (is_road_trip or not include_flights) else dest_upper
+                    return_dep = "05:30 PM" if (is_road_trip or not include_flights) else (return_dep or "03:00 PM")
+                    return_arr = "06:00 PM" if (is_road_trip or not include_flights) else (return_arr or "03:30 PM")
+                    items.append(build_car_rental_item(f"item_car_ret_{d_num}", "Rental Vehicle Return", return_city, return_code, duration_days, passengers_count, cars_calculated, return_dep, return_arr, 0.0, False, base_lat, base_lng, is_return=True, is_road_trip=(is_road_trip or not include_flights)))
 
                 items.sort(key=lambda it: parse_time_to_minutes(it.get("start_time") or it.get("departure_time") or it.get("time_slot") or it.get("time") or "12:00 PM"))
                 items = enrich_items_with_next_activity(items, dest_clean)
@@ -240,15 +246,13 @@ class TravelPlannerService(BaseService):
 
         with StepLogger.step(6, 6, "Package Bundles Assembly & Output Export", f"Destination: {dest_clean}"):
             bundles_out = build_top_3_bundles(
-                dest_clean=dest_clean, origin_code=origin_code, prompt=prompt,
-                opt_highlights=all_highlights, is_road_trip=is_road_trip, is_cruise=is_cruise,
-                duration_days=duration_days, passengers_count=passengers_count, rooms_count=rooms_calculated,
-                cars_count=cars_calculated, flight_cost=component_pricing.get("flight_cost", 0.0),
-                hotel_cost_per_night=component_pricing.get("hotel_cost_per_night", 0.0),
-                car_cost_total=component_pricing.get("car_cost_total", 0.0),
-                is_hotel_tbd=False, is_car_tbd=False, activities_total_cost=150.0 * duration_days,
-                base_itinerary=daily_itinerary, start_date=start_date, end_date=end_date,
-                outbound_dep=outbound_dep, return_arr=return_arr, include_flights=include_flights,
+                dest_clean=dest_clean, origin_code=origin_code, prompt=prompt, opt_highlights=all_highlights,
+                is_road_trip=is_road_trip, is_cruise=is_cruise, duration_days=duration_days,
+                passengers_count=passengers_count, rooms_count=rooms_calculated, cars_count=cars_calculated,
+                flight_cost=component_pricing.get("flight_cost", 0.0), hotel_cost_per_night=component_pricing.get("hotel_cost_per_night", 0.0),
+                car_cost_total=component_pricing.get("car_cost_total", 0.0), is_hotel_tbd=False, is_car_tbd=False,
+                activities_total_cost=150.0 * duration_days, base_itinerary=daily_itinerary, start_date=start_date,
+                end_date=end_date, outbound_dep=outbound_dep, return_arr=return_arr, include_flights=include_flights,
                 include_hotels=include_hotels, include_cars=include_cars,
             )
 
@@ -259,21 +263,10 @@ class TravelPlannerService(BaseService):
             ]
 
             meta_data = {
-                "type": "planner",
-                "title": classification["trip_category_display"],
-                "trip_title": classification["trip_category_display"],
-                **classification,
-                "destination": dest_clean,
-                "origin": origin_code,
-                "start_date": start_date,
-                "end_date": end_date,
-                "trip_duration_days": duration_days,
-                "passengers_count": passengers_count,
-                "rooms_calculated": rooms_calculated,
-                "cars_calculated": cars_calculated,
-                "map_center": map_center,
-                "llm_metadata": llm_meta or {},
-                "trip_summary": trip_summary,
+                "type": "planner", "title": classification["trip_category_display"], "trip_title": classification["trip_category_display"],
+                **classification, "destination": dest_clean, "origin": origin_code, "start_date": start_date, "end_date": end_date,
+                "trip_duration_days": duration_days, "passengers_count": passengers_count, "rooms_calculated": rooms_calculated,
+                "cars_calculated": cars_calculated, "map_center": map_center, "llm_metadata": llm_meta or {}, "trip_summary": trip_summary,
             }
 
             response_payload = {
@@ -281,9 +274,11 @@ class TravelPlannerService(BaseService):
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "summary": trip_summary,
                 "meta_data": meta_data,
+                "bundles": bundles_out,
                 "data": {
                     "summary": trip_summary,
                     "daily_itinerary": daily_itinerary,
+                    "bundles": bundles_out,
                     "top_3_bundles": bundles_out,
                     "map_pins": map_pins,
                 }
@@ -295,4 +290,3 @@ class TravelPlannerService(BaseService):
                 self.cache.set(modular_key, response_payload, ttl_seconds=3600 * 24)
 
         return response_payload
-

@@ -36,6 +36,26 @@ def parse_time_to_minutes(time_val: Any, default_val: int = 720) -> int:
     return default_val
 
 
+def parse_end_time_to_minutes(time_val: Any, default_val: int = 720) -> int:
+    """Parses ending time from a time slot string or dict."""
+    if isinstance(time_val, dict):
+        ts = str(time_val.get("end_time") or time_val.get("arrival_time") or time_val.get("time_slot") or time_val.get("time") or "").upper().strip()
+    else:
+        ts = str(time_val or "").upper().strip()
+    matches = list(re.finditer(r"(\d{1,2}):(\d{2})\s*(AM|PM)", ts))
+    if matches:
+        last_m = matches[-1]
+        h = int(last_m.group(1))
+        m = int(last_m.group(2))
+        ampm = last_m.group(3)
+        if ampm == "PM" and h != 12:
+            h += 12
+        elif ampm == "AM" and h == 12:
+            h = 0
+        return h * 60 + m
+    return parse_time_to_minutes(time_val, default_val)
+
+
 def format_minutes_to_time(minutes_val: int) -> str:
     """Formats minutes from midnight to 12-hour AM/PM string."""
     m_val = minutes_val % (24 * 60)

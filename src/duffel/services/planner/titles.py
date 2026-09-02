@@ -30,9 +30,14 @@ def generate_contextual_bundle_title(
 
     act1 = ""
     act2 = ""
+    skip_keywords = [
+        "check-in", "hotel", "airport", "flight", "rest", "start road trip", "depart", "departure",
+        "drive from", "drive to", "arrive in", "arrival in", "travel to", "heading to", "rental", "pickup", "dropoff"
+    ]
     for a in acts:
         a_clean = str(a).strip()
-        if not a_clean or any(w in a_clean.lower() for w in ["check-in", "hotel", "airport", "flight", "rest"]):
+        a_lower = a_clean.lower()
+        if not a_clean or any(w in a_lower for w in skip_keywords):
             continue
         if not act1:
             act1 = a_clean
@@ -41,19 +46,25 @@ def generate_contextual_bundle_title(
             break
 
     tier_clean = tier.lower()
+    is_tier_cheap = "cheap" in tier_clean or "budget" in tier_clean or index == 0
+    is_tier_lux = "lux" in tier_clean or index == 2
+    user_wants_scenic = any(w in p_lower for w in ["scenic", "nature", "byway", "panoramic", "view", "views", "mountains", "trail", "trails"])
 
-    # 1. Road Trip Bundle Titles (Shortest, Scenic, Longest)
-    if is_road_trip or tier_clean in ["shortest", "scenic", "longest"]:
+    # 1. Road Trip Bundle Titles (Budget, Balanced, Luxury)
+    if is_road_trip or tier_clean in ["shortest", "scenic", "longest", "budget", "balanced", "luxury"]:
         route_header = f"{orig} to {dest}" if orig and orig.lower() != dest.lower() else dest
-        if "short" in tier_clean or index == 0:
-            act_snippet = f" & {act1}" if act1 else " & Express Waypoints"
-            return format_proper_title(f"Shortest Route: Direct {route_header} Highway{act_snippet}")
-        elif "scen" in tier_clean or index == 1:
-            act_snippet = f" & {act1}" if act1 else " & Panoramic Lookouts"
-            return format_proper_title(f"Scenic Route: {route_header} Byways & Nature Trails{act_snippet}")
+        if is_tier_cheap:
+            prefix = "Budget Scenic Route" if user_wants_scenic else "Budget Saver"
+            act_snippet = f" & {act1}" if act1 else ""
+            return format_proper_title(f"{prefix}: {route_header} Road Trip{act_snippet}")
+        elif is_tier_lux:
+            prefix = "Signature Luxury Scenic VIP" if user_wants_scenic else "Signature Luxury VIP"
+            act_snippet = f" & VIP {act1}" if act1 else ""
+            return format_proper_title(f"{prefix}: {route_header} Premier Road Trip{act_snippet}")
         else:
-            act_snippet = f" & {act1}" if act1 else " & Historic Towns"
-            return format_proper_title(f"Longest Route: Extended {route_header} Regional Explorer{act_snippet}")
+            prefix = "Balanced Scenic Choice" if user_wants_scenic else "Balanced Choice"
+            act_snippet = f" & {act1}" if act1 else ""
+            return format_proper_title(f"{prefix}: {route_header} Road Trip{act_snippet}")
 
     # 2. Flight & Vacation Travel Thematic Titles (Cheapest, Moderate, Luxury)
     is_romantic = any(w in p_lower for w in ["romantic", "honeymoon", "couples", "anniversary", "romance", "intimate"])

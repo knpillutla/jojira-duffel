@@ -222,25 +222,30 @@ def enrich_items_with_next_activity(
 
             d_disp = existing_next.get("distance_display") or (f"{dist_km:.1f} km ({dist_mi:.1f} miles)" if dist_km > 0 else "Nearby / Walking Distance")
 
+            is_stale_rest = any(w in str(existing_next.get("name", "")).lower() for w in ["overnight", "rest", "sleep", "hotel return"])
+            target_name = nxt_name if (is_stale_rest or not existing_next.get("name")) else existing_next.get("name")
+            target_summary = f"{t_mode.capitalize()} to {nxt_name}" if (is_stale_rest or not existing_next.get("transit_summary")) else existing_next.get("transit_summary")
+
             curr["next_activity"] = {
-                "name": existing_next.get("name") or nxt_name,
+                "name": target_name,
                 "distance_km": round(dist_km, 2),
                 "distance_miles": round(dist_mi, 2),
                 "distance_display": d_disp,
                 "travel_time_minutes": t_mins,
-                "travel_time_display": existing_next.get("travel_time_display") or t_disp,
+                "travel_time_display": existing_next.get("travel_time_display") if (not is_stale_rest and existing_next.get("travel_time_display")) else t_disp,
                 "travel_mode": t_mode,
-                "transit_summary": existing_next.get("transit_summary") or f"{t_mode.capitalize()} to {nxt_name}",
+                "transit_summary": target_summary,
             }
         else:
+            is_trip_end = curr.get("is_return") or curr.get("type") in ["car", "flight"] or "return" in str(curr.get("name", "")).lower()
             curr["next_activity"] = {
-                "name": existing_next.get("name") or "Overnight Rest & Rejuvenation",
+                "name": "Trip Conclusion & Safe Return Home" if is_trip_end else (existing_next.get("name") or "Overnight Rest & Rejuvenation"),
                 "distance_km": 0.0,
                 "distance_miles": 0.0,
                 "distance_display": "0.0 km (0.0 miles)",
                 "travel_time_minutes": 0,
                 "travel_time_display": "0 mins",
                 "travel_mode": "stay",
-                "transit_summary": "Resting at lodging accommodation for the night",
+                "transit_summary": "Journey concluded safely" if is_trip_end else "Resting at lodging accommodation for the night",
             }
     return items

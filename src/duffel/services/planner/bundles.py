@@ -24,10 +24,12 @@ def adapt_itinerary_for_tier(
         for it in day.get("items", []):
             it_copy = dict(it)
             it_type = (it_copy.get("type") or "").lower()
+            it_cat = (it_copy.get("category") or "").lower()
             if it_type == "car":
-                it_copy["name"] = f"Rental Vehicle: {c_tier} ({cars_count} car)"
+                is_ret = it_copy.get("is_return") or "return" in (it_copy.get("name") or "").lower()
+                it_copy["name"] = f"Rental Vehicle Return ({c_tier})" if is_ret else f"Rental Vehicle: {c_tier} ({cars_count} car)"
                 it_copy["title"] = it_copy["name"]
-                if not it_copy.get("is_return"):
+                if not is_ret:
                     p_base = float(it_copy.get("price") or 180.0)
                     it_copy["price"] = round(p_base * (1.15 if tier_id == "luxury" else (0.85 if tier_id == "budget" else 1.0)), 2)
                     it_copy["price_display"] = f"USD {it_copy['price']:.2f}"
@@ -38,12 +40,17 @@ def adapt_itinerary_for_tier(
                     p_base = float(it_copy.get("price") or 250.0)
                     it_copy["price"] = round(p_base * mult, 2)
                     it_copy["price_display"] = f"USD {it_copy['price']:.2f}"
-            elif it_type == "hotel":
-                it_copy["name"] = f"Hotel Stay: {h_tier}"
-                it_copy["title"] = it_copy["name"]
+            elif it_type == "hotel" or it_cat == "hotel":
+                if "check-in" in (it_copy.get("name") or "").lower():
+                    it_copy["description"] = f"Check-in at {h_tier}."
                 p_base = float(it_copy.get("price") or 140.0)
                 it_copy["price"] = round(p_base * mult, 2)
                 it_copy["price_display"] = f"USD {it_copy['price']:.2f}"
+            elif it_cat in ["attraction", "sightseeing", "shopping", "dining"]:
+                p_base = float(it_copy.get("price") or (25.0 if it_cat != "dining" else 35.0))
+                if p_base > 0:
+                    it_copy["price"] = round(p_base * mult, 2)
+                    it_copy["price_display"] = f"USD {it_copy['price']:.2f}"
             d_items.append(it_copy)
         d_copy["items"] = d_items
         adapted.append(d_copy)
@@ -176,6 +183,7 @@ def build_top_3_bundles(
             "bundle_id": f"bundle_{tier_id}",
             "tier": tier_id,
             "tier_label": tier_label,
+            "title": p_name,
             "package_name": p_name,
             "name": p_name,
             "description": tier_desc,
@@ -195,6 +203,7 @@ def build_top_3_bundles(
             },
             "highlights": opt_highlights[:4],
             "summary": tier_summary,
+            "daily_itinerary": tier_itinerary,
             "data": {
                 "summary": tier_summary,
                 "daily_itinerary": tier_itinerary,
