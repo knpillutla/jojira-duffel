@@ -10,7 +10,7 @@ from ..base import BaseService
 from ..locations import GEO_LOCATIONS as DESTINATION_GEO_MAP
 from .classifier import format_proper_title, classify_travel_scope_and_type
 from ...prompts import build_planner_system_prompt, build_planner_user_prompt
-from .activities import enrich_activity_urls_and_geo, calculate_haversine_distance, enrich_items_with_next_activity
+from .activities import enrich_activity_urls_and_geo, calculate_haversine_distance, enrich_items_with_next_activity, build_google_maps_route_url
 from .timeline import (
     parse_time_to_minutes,
     parse_end_time_to_minutes,
@@ -85,57 +85,50 @@ class TravelPlannerService(BaseService):
             if not resolved_origin:
                 raise ValueError("No Origin Found. Please specify your departure origin city or airport in your prompt.")
 
-            classification = classify_travel_scope_and_type(
-                prompt=prompt,
-                resolved_origin=resolved_origin,
-                dest_clean=raw_dest_str,
-                user_location=user_location,
-                include_flights=include_flights,
-                include_cars=include_cars,
-            )
-            is_road_trip = classification["is_road_trip"]
-            is_cruise = classification["is_cruise"]
-            is_fly_and_drive = classification["is_fly_and_drive"]
-            include_flights = classification["include_flights"]
+            classification = classify_travel_scope_and_type(prompt=prompt, resolved_origin=resolved_origin, dest_clean=raw_dest_str, user_location=user_location, include_flights=include_flights, include_cars=include_cars)
+            is_road_trip, is_cruise, is_fly_and_drive, include_flights = classification["is_road_trip"], classification["is_cruise"], classification["is_fly_and_drive"], classification["include_flights"]
 
             if not include_flights:
-                dest_clean = PromptExtractor._resolve_city_name(raw_dest_str)
-                origin_clean = PromptExtractor._resolve_city_name(str(resolved_origin).strip())
-                origin_code = origin_clean
-                dest_upper = dest_clean
+                dest_clean, origin_clean = PromptExtractor._resolve_city_name(raw_dest_str), PromptExtractor._resolve_city_name(str(resolved_origin).strip())
+                origin_code, dest_upper = origin_clean, dest_clean
             else:
-                dest_clean = format_proper_title(raw_dest_str)
-                origin_clean = format_proper_title(str(resolved_origin).strip())
-                origin_code = PromptExtractor._resolve_iata(origin_clean)
-                dest_upper = PromptExtractor._resolve_iata(dest_clean)
+                dest_clean, origin_clean = format_proper_title(raw_dest_str), format_proper_title(str(resolved_origin).strip())
+                origin_code, dest_upper = PromptExtractor._resolve_iata(origin_clean), PromptExtractor._resolve_iata(dest_clean)
 
             duration_days = days or intent.get("duration_days") or 4
             now = datetime.now(timezone.utc)
-            if not start_date:
-                start_dt = now + timedelta(days=15)
-                start_date = start_dt.strftime("%Y-%m-%d")
-            else:
-                start_dt = datetime.strptime(start_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-            if not end_date:
-                end_dt = start_dt + timedelta(days=max(0, duration_days - 1))
-                end_date = end_dt.strftime("%Y-%m-%d")
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d").replace(tzinfo=timezone.utc) if start_date else (now + timedelta(days=15))
+            start_date = start_dt.strftime("%Y-%m-%d")
+            end_date = end_date or (start_dt + timedelta(days=max(0, duration_days - 1))).strftime("%Y-%m-%d")
 
-            passengers_count = max(1, passengers_count)
+            pax_info = intent.get("passengers") or {}
+            raw_adults, raw_children = pax_info.get("adults"), pax_info.get("children", 0)
+            c_ages = pax_info.get("children_ages") or []
+            if raw_adults is None:
+                a_m = re.search(r"(\d+)\s*adult", prompt, re.I)
+                raw_adults = int(a_m.group(1)) if a_m else (passengers_count if not raw_children else max(1, passengers_count - raw_children))
+            if not raw_children:
+                c_m = re.search(r"(\d+)\s*(?:kid|child|children)", prompt, re.I)
+                raw_children = int(c_m.group(1)) if c_m else 0
+            if not c_ages and raw_children > 0:
+                ages_found = re.findall(r"\b(?:age[s]?|aged)?\s*(\d{1,2})\b", prompt, re.I)
+                c_ages = [int(a) for a in ages_found if 1 <= int(a) <= 17][:raw_children]
+
+            adults_count, children_count = int(raw_adults or 1), int(raw_children or 0)
+            passengers_count = max(1, passengers_count, adults_count + children_count)
             rooms_calculated = rooms if (rooms and rooms >= 1) else max(1, math.ceil(passengers_count / 2))
             cars_calculated = max(1, math.ceil(passengers_count / 5))
 
             geo = DESTINATION_GEO_MAP.get(dest_clean.lower(), {"latitude": 47.3769, "longitude": 8.5417, "address": f"{dest_clean} Central"})
             base_lat, base_lng = geo.get("latitude", 47.3769), geo.get("longitude", 8.5417)
             map_center = {"latitude": base_lat, "longitude": base_lng, "name": dest_clean, "address": geo.get("address", dest_clean)}
-
             cfg = getattr(self.client, "config", None)
             is_test_mode = bool(getattr(cfg, "test_mode", False)) if cfg else False
 
         with StepLogger.step(2, 6, "Live Component Pricing & Availability", f"Origin: {origin_code}, Dest: {dest_upper}"):
             top_3_bundles, component_pricing, _ = fetch_live_component_pricing(
-                origin=origin_code, destination=dest_upper, departure_date=start_date,
-                return_date=end_date, passengers_count=passengers_count, rooms=rooms_calculated,
-                driver_age=driver_age, include_flights=include_flights, is_test=is_test_mode,
+                origin=origin_code, destination=dest_upper, departure_date=start_date, return_date=end_date,
+                passengers_count=passengers_count, rooms=rooms_calculated, driver_age=driver_age, include_flights=include_flights, is_test=is_test_mode,
             )
             outbound_dep = component_pricing.get("outbound_departure_time", "08:30 AM" if is_road_trip else "06:30 AM")
             outbound_arr = component_pricing.get("outbound_arrival_time", "04:30 PM" if is_road_trip else "12:30 PM")
@@ -185,6 +178,8 @@ class TravelPlannerService(BaseService):
         daily_itinerary = []
         map_pins = []
         all_highlights = []
+        city_hotel_registry: dict[str, str] = {}
+        current_overnight_hotel = ""
         flight_cost = component_pricing.get("flight_cost", 0.0) * passengers_count if include_flights else 0.0
         hotel_cost_pn = component_pricing.get("hotel_cost_per_night", 0.0) * rooms_calculated if include_hotels else 0.0
         car_cost_tot = component_pricing.get("car_cost_total", 0.0) * cars_calculated if include_cars else 0.0
@@ -203,13 +198,13 @@ class TravelPlannerService(BaseService):
                 if include_cars and d_num == 1:
                     pickup_city = origin_clean if (is_road_trip or not include_flights) else dest_clean
                     pickup_code = origin_code if (is_road_trip or not include_flights) else dest_upper
-                    pickup_dep = "08:30 AM" if (is_road_trip or not include_flights) else "01:30 PM"
-                    pickup_arr = "09:00 AM" if (is_road_trip or not include_flights) else "02:00 PM"
+                    pickup_dep, pickup_arr = ("08:30 AM", "09:00 AM") if (is_road_trip or not include_flights) else ("01:30 PM", "02:00 PM")
                     items.append(build_car_rental_item(f"item_car_{d_num}", f"Rental Vehicle Pickup ({cars_calculated} car)", pickup_city, pickup_code, duration_days, passengers_count, cars_calculated, pickup_dep, pickup_arr, car_cost_tot, False, base_lat, base_lng, is_road_trip=(is_road_trip or not include_flights)))
 
                 if include_hotels and d_num == 1 and not is_road_trip:
                     items.append(build_hotel_checkin_item(f"item_ht_{d_num}", dest_clean, duration_days, rooms_calculated, "02:30 PM", "03:00 PM", hotel_cost_pn, False, base_lat, base_lng))
 
+                day_checkin_hotel = ""
                 for act_idx, act in enumerate(day_elem.get("activities", [])):
                     act_enriched = enrich_activity_urls_and_geo(act, dest_clean, base_lat, base_lng, d_num, act_idx)
                     act_name = act_enriched.get("name") or act_enriched.get("title") or act_enriched.get("activity")
@@ -217,6 +212,23 @@ class TravelPlannerService(BaseService):
                         all_highlights.append(act_name)
                     aname_l = str(act_name or "").lower()
                     adetails_l = str(act_enriched.get("details") or act_enriched.get("description") or "").lower()
+
+                    # Normalize hotel continuity across consecutive nights in the same city
+                    if act_enriched.get("category", "").lower() == "hotel" or any(k in aname_l for k in ["check-in at", "check in at", "hotel", "resort"]):
+                        c_loc = act_enriched.get("location") or dest_clean
+                        c_norm = str(c_loc).lower().split(",")[0].strip()
+                        raw_hn = re.sub(r"^(check-in at|check in at|check into|stay at|hotel)\s+", "", act_name or "", flags=re.I).strip()
+                        if raw_hn and len(raw_hn) > 3:
+                            day_checkin_hotel = raw_hn
+                            current_overnight_hotel = raw_hn
+                            if c_norm not in city_hotel_registry:
+                                city_hotel_registry[c_norm] = raw_hn
+                            elif raw_hn != city_hotel_registry[c_norm]:
+                                act_enriched["name"] = re.sub(re.escape(raw_hn), city_hotel_registry[c_norm], act_name or "", flags=re.I)
+                                act_enriched["title"] = act_enriched["name"]
+                                day_checkin_hotel = city_hotel_registry[c_norm]
+                                current_overnight_hotel = city_hotel_registry[c_norm]
+
                     is_car_pickup = any(k in aname_l or k in adetails_l for k in [
                         "pickup rental", "rental car pickup", "collect your rental", "pick up rental", "rental vehicle pickup"
                     ])
@@ -228,60 +240,53 @@ class TravelPlannerService(BaseService):
                     if include_cars and d_num == duration_days and is_car_return:
                         continue
                     # On final return day of road trip, omit shopping and activities after 05:30 PM
-                    if (is_road_trip or not include_flights) and d_num == duration_days:
-                        if act_enriched.get("category", "").lower() == "shopping" or "shopping" in aname_l or parse_time_to_minutes(act_enriched) >= 1050:
-                            continue
+                    if (is_road_trip or not include_flights) and d_num == duration_days and (act_enriched.get("category", "").lower() == "shopping" or "shopping" in aname_l or parse_time_to_minutes(act_enriched) >= 1050):
+                        continue
                     items.append(act_enriched)
 
                 if include_cars and d_num == duration_days:
-                    return_city = origin_clean if (is_road_trip or not include_flights) else dest_clean
-                    return_code = origin_code if (is_road_trip or not include_flights) else dest_upper
-                    return_dep = "05:30 PM" if (is_road_trip or not include_flights) else (return_dep or "03:00 PM")
-                    return_arr = "06:00 PM" if (is_road_trip or not include_flights) else (return_arr or "03:30 PM")
-                    items.append(build_car_rental_item(f"item_car_ret_{d_num}", "Rental Vehicle Return", return_city, return_code, duration_days, passengers_count, cars_calculated, return_dep, return_arr, 0.0, False, base_lat, base_lng, is_return=True, is_road_trip=(is_road_trip or not include_flights)))
+                    ret_city = origin_clean if (is_road_trip or not include_flights) else dest_clean
+                    ret_code = origin_code if (is_road_trip or not include_flights) else dest_upper
+                    ret_dep, ret_arr = ("05:30 PM", "06:00 PM") if (is_road_trip or not include_flights) else (return_dep or "03:00 PM", return_arr or "03:30 PM")
+                    items.append(build_car_rental_item(f"item_car_ret_{d_num}", "Rental Vehicle Return", ret_city, ret_code, duration_days, passengers_count, cars_calculated, ret_dep, ret_arr, 0.0, False, base_lat, base_lng, is_return=True, is_road_trip=(is_road_trip or not include_flights)))
 
                 items.sort(key=lambda it: parse_time_to_minutes(it.get("start_time") or it.get("departure_time") or it.get("time_slot") or it.get("time") or "12:00 PM"))
-                items = enrich_items_with_next_activity(items, dest_clean)
-                daily_itinerary.append({"day_number": d_num, "date": d_date, "theme": day_elem.get("theme", f"Day {d_num}"), "items": items})
+                active_hname = day_checkin_hotel or current_overnight_hotel or next((v for v in reversed(city_hotel_registry.values()) if v), "")
+                items = enrich_items_with_next_activity(items, dest_clean, hotel_name=active_hname)
+                r_info = build_google_maps_route_url(items, dest_clean)
+                daily_itinerary.append({
+                    "day_number": d_num, "date": d_date, "theme": day_elem.get("theme", f"Day {d_num}"),
+                    "google_maps_route_url": r_info["google_maps_route_url"], "directions_url": r_info["directions_url"],
+                    "map_route_url": r_info["map_route_url"], "route_summary": r_info["route_summary"],
+                    "route_stops": r_info["route_stops"], "items": items,
+                })
 
         with StepLogger.step(6, 6, "Package Bundles Assembly & Output Export", f"Destination: {dest_clean}"):
             bundles_out = build_top_3_bundles(
                 dest_clean=dest_clean, origin_code=origin_code, prompt=prompt, opt_highlights=all_highlights,
-                is_road_trip=is_road_trip, is_cruise=is_cruise, duration_days=duration_days,
-                passengers_count=passengers_count, rooms_count=rooms_calculated, cars_count=cars_calculated,
-                flight_cost=component_pricing.get("flight_cost", 0.0), hotel_cost_per_night=component_pricing.get("hotel_cost_per_night", 0.0),
-                car_cost_total=component_pricing.get("car_cost_total", 0.0), is_hotel_tbd=False, is_car_tbd=False,
-                activities_total_cost=150.0 * duration_days, base_itinerary=daily_itinerary, start_date=start_date,
-                end_date=end_date, outbound_dep=outbound_dep, return_arr=return_arr, include_flights=include_flights,
-                include_hotels=include_hotels, include_cars=include_cars,
+                is_road_trip=is_road_trip, is_cruise=is_cruise, duration_days=duration_days, passengers_count=passengers_count,
+                rooms_count=rooms_calculated, cars_count=cars_calculated, flight_cost=component_pricing.get("flight_cost", 0.0),
+                hotel_cost_per_night=component_pricing.get("hotel_cost_per_night", 0.0), car_cost_total=component_pricing.get("car_cost_total", 0.0),
+                is_hotel_tbd=False, is_car_tbd=False, activities_total_cost=150.0 * duration_days * passengers_count, base_itinerary=daily_itinerary,
+                start_date=start_date, end_date=end_date, outbound_dep=outbound_dep, return_arr=return_arr,
+                include_flights=include_flights, include_hotels=include_hotels, include_cars=include_cars,
+                adults_count=adults_count, children_count=children_count, children_ages=c_ages,
             )
 
             trip_summary = bundles_out[1]["summary"] if len(bundles_out) > 1 else bundles_out[0]["summary"]
-            trip_summary["itinerary_options"] = [
-                {"tier": b["tier"], "name": b["name"], "total_price": b["total_price"], "price_per_person": b["price_per_person"], "description": b["description"]}
-                for b in bundles_out
-            ]
+            trip_summary["itinerary_options"] = [{"tier": b["tier"], "name": b["name"], "total_price": b["total_price"], "price_per_person": b["price_per_person"], "description": b["description"]} for b in bundles_out]
 
             meta_data = {
                 "type": "planner", "title": classification["trip_category_display"], "trip_title": classification["trip_category_display"],
                 **classification, "destination": dest_clean, "origin": origin_code, "start_date": start_date, "end_date": end_date,
-                "trip_duration_days": duration_days, "passengers_count": passengers_count, "rooms_calculated": rooms_calculated,
-                "cars_calculated": cars_calculated, "map_center": map_center, "llm_metadata": llm_meta or {}, "trip_summary": trip_summary,
+                "trip_duration_days": duration_days, "passengers_count": passengers_count, "adults_count": adults_count,
+                "children_count": children_count, "children_ages": c_ages, "passengers": {"adults": adults_count, "children": children_count, "children_ages": c_ages, "total": passengers_count},
+                "rooms_calculated": rooms_calculated, "cars_calculated": cars_calculated, "map_center": map_center, "llm_metadata": llm_meta or {}, "trip_summary": trip_summary,
             }
 
             response_payload = {
-                "status": "success",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "summary": trip_summary,
-                "meta_data": meta_data,
-                "bundles": bundles_out,
-                "data": {
-                    "summary": trip_summary,
-                    "daily_itinerary": daily_itinerary,
-                    "bundles": bundles_out,
-                    "top_3_bundles": bundles_out,
-                    "map_pins": map_pins,
-                }
+                "status": "success", "timestamp": datetime.now(timezone.utc).isoformat(), "summary": trip_summary, "meta_data": meta_data, "bundles": bundles_out,
+                "data": {"summary": trip_summary, "daily_itinerary": daily_itinerary, "bundles": bundles_out, "top_3_bundles": bundles_out, "map_pins": map_pins},
             }
 
             save_llm_debug_output("final_response", response_payload, identifier=dest_clean)

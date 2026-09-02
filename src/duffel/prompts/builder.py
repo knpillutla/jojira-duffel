@@ -148,6 +148,7 @@ def build_planner_user_prompt(
         car_logistics_text = "RENTAL VEHICLE LOGISTICS: No rental car requested."
 
     hotel_breakfast_instruction = PromptLoader.load_rule_prompt("hotel_breakfast_protocol", duration=duration_days)
+    hotel_continuity_instruction = PromptLoader.load_rule_prompt("hotel_continuity_mandate")
     safety_instruction = PromptLoader.load_rule_prompt("safety_and_walkability_standards")
     no_gaps_instruction = PromptLoader.load_rule_prompt("no_gaps_timeline_protocol")
     shopping_instruction = PromptLoader.load_rule_prompt("evening_shopping_protocol")
@@ -166,6 +167,7 @@ def build_planner_user_prompt(
         f"{next_act_instruction}\n"
         f"{evening_breakfast_instruction}\n"
         f"{hotel_breakfast_instruction}\n"
+        f"{hotel_continuity_instruction}\n"
         f"{thematic_prompt_text}\n"
         f"{timeline_text}\n"
         f"{car_logistics_text}\n"

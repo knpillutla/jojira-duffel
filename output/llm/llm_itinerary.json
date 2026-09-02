@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-09-02T00:03:23.852454+00:00",
-  "destination": "Pcf",
+  "timestamp": "2026-09-02T00:36:58.951427+00:00",
+  "destination": "Orlando",
   "duration_days": 4,
-  "user_prompt": "Plan a 4-day trip from Atlanta to Pcf from 2026-09-17 to 2026-09-20 for 1 passenger(s). Modality: Road Trip, Style: balanced, Budget: moderate.\nDEPARTURE LOGISTICS: Pick up rental vehicle in Atlanta at 08:30 AM - 09:00 AM. Morning road trip drive departs Atlanta at 09:00 AM heading toward Pcf.\nROAD TRIP HIGHWAY CORRIDOR & DEFAULT ROUND-TRIP REQUIREMENT:\n- DEFAULT ROUND TRIP: Every road trip is a ROUND TRIP starting from Atlanta and returning to Atlanta on Day 4 unless the user explicitly requested 'one-way'.\n- OUTBOUND & WAYPOINTS (Days 1 to 3): Construct the driving journey from Atlanta toward Pcf with authentic highway stops, state/national parks, roadside diners, and intermediate overnight stays in waypoint towns.\n- FINAL DAY RETURN (Day 4): The final day MUST be the return driving journey back to Atlanta (e.g. Pcf -> Highway Waypoints -> Atlanta), with lunch at 12:00 PM, return highway drive arriving back in Atlanta by 05:30 PM for rental vehicle return, and concluding with dinner in Atlanta.\n- Set 'travel_mode': 'drive' for all driving legs. Package tiers are: 'budget' (Budget Saver), 'balanced' (Balanced Choice), and 'luxury' (Signature Luxury VIP).\nSAFETY & WALKABILITY MANDATE (TOP PRIORITY):\n- LODGING SAFETY & WALKABILITY: Select only 4.5+ star verified hotels located in premier, safe, well-lit, highly walkable neighborhoods (downtown arts districts, historic boulevards, upscale business corridors). NEVER place lodging in unsafe, isolated, or industrial zones.\n- VEHICLE SAFETY: Prioritize tier-1 reputable rental fleets (Enterprise, National, Hertz) equipped with modern active safety features and 24/7 roadside assistance.\n- WALKABLE DINING & SIGHTSEEING: Ensure all evening dining, morning coffee, and strolling attractions are situated in vibrant, family-safe pedestrian zones with excellent guest safety reviews.\nREAL-WORLD NAMED ENTITY EXTRACTION MANDATE:\n- EVERY activity, hotel, restaurant, and attraction MUST be a real, specific named place (e.g. 'Courtyard by Marriott Valdosta', 'Universal Studios Florida', 'Mrs. Wilkes Dining Room', 'Ponce City Market'). NEVER output generic placeholders like 'Attraction', 'Hotel', or 'Dinner'.\n- CATEGORY CLASSIFICATION: Set 'category' accurately for each item ('Attraction', 'Hotel', 'Dining', 'Shopping', 'Transit').\n- CHRONOLOGICAL ORDERING: Output all activities in strict sequential time order from 08:00 AM to 09:30 PM without time overlaps.\nCONTINUOUS DAILY TIMELINE PROTOCOL (NO UNALLOCATED GAPS):\n- Every day's itinerary MUST be completely continuous with ZERO unallocated idle gaps between activities.\n- Every activity, meal, transit, or sightseeing slot must transition directly and back-to-back into the next (e.g. 08:00 AM Breakfast -> 09:00 AM Sightseeing/Drive -> 12:00 PM Lunch -> 01:00 PM Afternoon Activity -> 05:00 PM Exploration -> 06:00 PM Shopping -> 08:00 PM Dinner -> 09:30 PM Hotel Return).\n- Never leave 1-to-3 hour unallocated gaps before dinner, between theme park wrap-up and evening plans, or between road trip arrival and vehicle drop-off.\nEVENING SHOPPING PROTOCOL (DESTINATION EXPLORATION DAYS ONLY):\n- On intermediate exploration days (Days 2 through {duration_minus_1}), whenever afternoon sightseeing or theme park excursion concludes before dinner (e.g. 05:30 PM - 07:45 PM), schedule dedicated Evening Shopping, Artisan Market Browsing, or Promenade Walk to eliminate timeline gaps before 08:00 PM dinner.\n- SHOPPING TIMING MANDATE: Shopping MUST ALWAYS be placed in the evening before dinner on full exploration days. NEVER schedule shopping during morning/afternoon sightseeing, and NEVER schedule shopping on the final return driving day.\nMANDATORY 'next_activity' TRANSIT NODE FOR EVERY ACTIVITY:\n- EVERY activity and itinerary item MUST include a 'next_activity' object defining transit to the following step:\n  {\n    \"name\": \"<Next Activity / Landmark / Hotel Name>\",\n    \"distance_km\": <float distance in km>,\n    \"distance_miles\": <float distance in miles>,\n    \"distance_display\": \"<e.g. '15.2 km (9.4 miles)'>\",\n    \"travel_time_minutes\": <int transit minutes>,\n    \"travel_time_display\": \"<e.g. '20 mins' or '2 hrs 15 mins'>\",\n    \"travel_mode\": \"<walk | drive | transit | ferry>\",\n    \"transit_summary\": \"<e.g. 'Scenic drive via I-75 S' or '5-min walk to restaurant'>\"\n  }\n- For the final item of the day ('Return to Hotel & Rest'), set 'name': 'Overnight Rest', 'distance_km': 0.0, 'distance_miles': 0.0, 'travel_time_minutes': 0, 'travel_time_display': '0 mins', 'travel_mode': 'stay', 'transit_summary': 'Resting at accommodation for the night'.\nDAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n- CONTINUOUS SEQUENCING (ZERO IDLE GAPS): Build seamless back-to-back schedules from morning to night with NO unallocated gaps.\n- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest. NEVER extend any attraction past 08:00 PM.\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (08:00 PM - 09:30 PM).\n- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night', with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots past 10:00 PM.\n- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM.\nHOTEL INCLUDED BREAKFAST PROTOCOL (TIME & COST EFFICIENCY):\n- Prefer hotels that provide complimentary/included breakfast.\n- On all exploration days (Day 2 onwards), schedule breakfast at 08:00 AM directly at the hotel's in-house restaurant/buffet to save 45+ minutes of morning transit time.\n- If breakfast is free, set 'price': 0.0 and 'price_display': 'Free / Included with Hotel Stay'.\n- If breakfast is not included or off-site, specify the min-max cost range in 'price_display' (e.g. 'USD 12.00 - 18.00') and set 'price': 15.00.\n- Always utilize in-house hotel breakfast unless the user specifically requests a named local bakery/cafe.\nTHEMATIC EMPHASIS (BALANCED & COMPLETE): Curate a balanced blend of top iconic landmarks, cultural highlights, local dining, and relaxing neighborhood strolls.\nTIMELINE REQUIREMENT (DEFAULT ROUND-TRIP): On Day 1, depart Atlanta at 09:00 AM on the outbound corridor. On Final Day (Day 4), execute the return driving journey back to Atlanta with midday lunch, arriving back in Atlanta by 05:30 PM for final vehicle return (05:30 PM - 06:00 PM), with NO return-day shopping or post-dropoff activities.\nRENTAL VEHICLE & TIMELINE LOGISTICS (ROAD TRIP):\n- Rental car pickup in Atlanta (08:30 AM - 09:00 AM) on Day 1 and final rental return in Atlanta (05:30 PM - 06:00 PM) on Day 4 are automatically managed by the system.\n- DO NOT add duplicate 'Pick up rental car', 'Return rental car', or 'Arrive in Atlanta to return car' placeholder activities in the activities list.\n- DAY 1 MORNING DEPARTURE: Day 1 first driving activity MUST start at 09:00 AM (immediately after the 08:30 AM vehicle pickup).\n- DAY 4 FINAL RETURN DAY CURATION (STRICT VEHICLE RETURN BY 06:00 PM, NO SHOPPING ON RETURN DAY):\n  1) 08:00 AM Breakfast at lodging,\n  2) 09:00 AM - 12:00 PM Morning scenic return driving leg,\n  3) 12:00 PM - 01:30 PM Midday highway lunch,\n  4) 01:30 PM - 05:30 PM Afternoon return drive leg arriving back in Atlanta by 05:30 PM,\n  5) 05:30 PM - 06:00 PM Final Rental Vehicle Return at Atlanta Rental Center (Concluding the trip by 06:00 PM).\n  - NO SHOPPING ON RETURN DAY: NEVER add shopping on the return day (shopping belongs exclusively on destination exploration days).\n  - NO ACTIVITIES AFTER 06:00 PM ON RETURN DAY: The road trip concludes with the 05:30 PM - 06:00 PM vehicle return.\nIncluded components: Flights=False, Hotels=True (1 rooms), Cars=True (1 car), Trains=False, Buses=False, Attractions=True, Activities=True, SeasonalAttractions=True, SeasonalActivities=True. Prompt details: '4 day trip from atlanta to port canaraval'.\nOUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {\"days\": [{\"day_number\": 1, \"date\": \"2026-09-17\", \"theme\": \"...\", \"activities\": [..., {\"name\": \"...\", \"time_slot\": \"08:00 AM - 09:00 AM\", \"category\": \"...\", \"description\": \"...\", \"travel_mode\": \"...\", \"next_activity\": {\"name\": \"...\", \"distance_km\": 5.0, \"distance_miles\": 3.1, \"travel_time_minutes\": 15, \"travel_time_display\": \"15 mins\", \"travel_mode\": \"walk\", \"transit_summary\": \"...\"}}]}]}.",
+  "user_prompt": "Plan a 4-day trip from Atlanta to Orlando from 2026-09-17 to 2026-09-20 for 2 passenger(s). Modality: Road Trip, Style: balanced, Budget: moderate.\nDEPARTURE LOGISTICS: Pick up rental vehicle in Atlanta at 08:30 AM - 09:00 AM. Morning road trip drive departs Atlanta at 09:00 AM heading toward Orlando.\nROAD TRIP HIGHWAY CORRIDOR & DEFAULT ROUND-TRIP REQUIREMENT:\n- DEFAULT ROUND TRIP: Every road trip is a ROUND TRIP starting from Atlanta and returning to Atlanta on Day 4 unless the user explicitly requested 'one-way'.\n- OUTBOUND & WAYPOINTS (Days 1 to 3): Construct the driving journey from Atlanta toward Orlando with authentic highway stops, state/national parks, roadside diners, and intermediate overnight stays in waypoint towns.\n- FINAL DAY RETURN (Day 4): The final day MUST be the return driving journey back to Atlanta (e.g. Orlando -> Highway Waypoints -> Atlanta), with lunch at 12:00 PM, return highway drive arriving back in Atlanta by 05:30 PM for rental vehicle return, and concluding with dinner in Atlanta.\n- Set 'travel_mode': 'drive' for all driving legs. Package tiers are: 'budget' (Budget Saver), 'balanced' (Balanced Choice), and 'luxury' (Signature Luxury VIP).\nSAFETY & WALKABILITY MANDATE (TOP PRIORITY):\n- LODGING SAFETY & WALKABILITY: Select only 4.5+ star verified hotels located in premier, safe, well-lit, highly walkable neighborhoods (downtown arts districts, historic boulevards, upscale business corridors). NEVER place lodging in unsafe, isolated, or industrial zones.\n- VEHICLE SAFETY: Prioritize tier-1 reputable rental fleets (Enterprise, National, Hertz) equipped with modern active safety features and 24/7 roadside assistance.\n- WALKABLE DINING & SIGHTSEEING: Ensure all evening dining, morning coffee, and strolling attractions are situated in vibrant, family-safe pedestrian zones with excellent guest safety reviews.\nREAL-WORLD NAMED ENTITY EXTRACTION MANDATE:\n- EVERY activity, hotel, restaurant, and attraction MUST be a real, specific named place (e.g. 'Courtyard by Marriott Valdosta', 'Universal Studios Florida', 'Mrs. Wilkes Dining Room', 'Ponce City Market'). NEVER output generic placeholders like 'Attraction', 'Hotel', or 'Dinner'.\n- CATEGORY CLASSIFICATION: Set 'category' accurately for each item ('Attraction', 'Hotel', 'Dining', 'Shopping', 'Transit').\n- CHRONOLOGICAL ORDERING: Output all activities in strict sequential time order from 08:00 AM to 09:30 PM without time overlaps.\nCONTINUOUS DAILY TIMELINE PROTOCOL (NO UNALLOCATED GAPS):\n- Every day's itinerary MUST be completely continuous with ZERO unallocated idle gaps between activities.\n- Every activity, meal, transit, or sightseeing slot must transition directly and back-to-back into the next (e.g. 08:00 AM Breakfast -> 09:00 AM Sightseeing/Drive -> 12:00 PM Lunch -> 01:00 PM Afternoon Activity -> 05:00 PM Exploration -> 06:00 PM Shopping -> 08:00 PM Dinner -> 09:30 PM Hotel Return).\n- Never leave 1-to-3 hour unallocated gaps before dinner, between theme park wrap-up and evening plans, or between road trip arrival and vehicle drop-off.\nEVENING SHOPPING PROTOCOL (DESTINATION EXPLORATION DAYS ONLY):\n- On intermediate exploration days (Days 2 through {duration_minus_1}), whenever afternoon sightseeing or theme park excursion concludes before dinner (e.g. 05:30 PM - 07:45 PM), schedule dedicated Evening Shopping, Artisan Market Browsing, or Promenade Walk to eliminate timeline gaps before 08:00 PM dinner.\n- SHOPPING TIMING MANDATE: Shopping MUST ALWAYS be placed in the evening before dinner on full exploration days. NEVER schedule shopping during morning/afternoon sightseeing, and NEVER schedule shopping on the final return driving day.\nMANDATORY 'next_activity' TRANSIT NODE FOR EVERY ACTIVITY:\n- EVERY activity and itinerary item MUST include a 'next_activity' object defining transit to the following step:\n  {\n    \"name\": \"<Next Activity / Landmark / Hotel Name>\",\n    \"distance_km\": <float distance in km>,\n    \"distance_miles\": <float distance in miles>,\n    \"distance_display\": \"<e.g. '15.2 km (9.4 miles)'>\",\n    \"travel_time_minutes\": <int transit minutes>,\n    \"travel_time_display\": \"<e.g. '20 mins' or '2 hrs 15 mins'>\",\n    \"travel_mode\": \"<walk | drive | transit | ferry>\",\n    \"transit_summary\": \"<e.g. 'Scenic drive via I-75 S' or '5-min walk to restaurant'>\"\n  }\n- For the final item of the day, set 'name': 'Return to <Specific Hotel Name> & Overnight Rest' (explicitly including the hotel name, e.g. 'Return to Courtyard by Marriott & Overnight Rest'), 'distance_km': 0.0, 'distance_miles': 0.0, 'travel_time_minutes': 0, 'travel_time_display': '0 mins', 'travel_mode': 'stay', 'transit_summary': 'Resting at <Specific Hotel Name> for the night'.\nDAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n- CONTINUOUS SEQUENCING (ZERO IDLE GAPS): Build seamless back-to-back schedules from morning to night with NO unallocated gaps.\n- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest. NEVER extend any attraction past 08:00 PM.\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (08:00 PM - 09:30 PM).\n- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY full day MUST be 'Return to <Specific Hotel Name> & Rest for the Night' (always explicitly naming the hotel, e.g. 'Return to Courtyard by Marriott & Rest for the Night'), with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots past 10:00 PM.\n- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM.\nHOTEL INCLUDED BREAKFAST PROTOCOL (TIME & COST EFFICIENCY):\n- Prefer hotels that provide complimentary/included breakfast.\n- On all exploration days (Day 2 onwards), schedule breakfast at 08:00 AM directly at the hotel's in-house restaurant/buffet to save 45+ minutes of morning transit time.\n- If breakfast is free, set 'price': 0.0 and 'price_display': 'Free / Included with Hotel Stay'.\n- If breakfast is not included or off-site, specify the min-max cost range in 'price_display' (e.g. 'USD 12.00 - 18.00') and set 'price': 15.00.\n- Always utilize in-house hotel breakfast unless the user specifically requests a named local bakery/cafe.\nMULTI-NIGHT HOTEL CONTINUITY MANDATE (NO HOTEL SWITCHING IN SAME CITY):\n- When spending multiple consecutive nights in the same destination city or area (e.g. Night 2 and Night 3 in Orlando, or Nights 1-3 in Dallas), ALWAYS stay at the EXACT SAME hotel for all consecutive nights.\n- NEVER switch hotels daily within the same destination city. Switching hotels every night causes extreme friction and is completely unrealistic.\n- Check in to a new hotel ONLY when traveling to a new city/overnight town.\n- On subsequent days at the same hotel (e.g. Day 3 in Orlando), DO NOT generate a 'Hotel Check-in' activity; start with Breakfast at that hotel and finish the day returning to that exact same hotel.\nTHEMATIC EMPHASIS (BALANCED & COMPLETE): Curate a balanced blend of top iconic landmarks, cultural highlights, local dining, and relaxing neighborhood strolls.\nTIMELINE REQUIREMENT (DEFAULT ROUND-TRIP): On Day 1, depart Atlanta at 09:00 AM on the outbound corridor. On Final Day (Day 4), execute the return driving journey back to Atlanta with midday lunch, arriving back in Atlanta by 05:30 PM for final vehicle return (05:30 PM - 06:00 PM), with NO return-day shopping or post-dropoff activities.\nRENTAL VEHICLE & TIMELINE LOGISTICS (ROAD TRIP):\n- Rental car pickup in Atlanta (08:30 AM - 09:00 AM) on Day 1 and final rental return in Atlanta (05:30 PM - 06:00 PM) on Day 4 are automatically managed by the system.\n- DO NOT add duplicate 'Pick up rental car', 'Return rental car', or 'Arrive in Atlanta to return car' placeholder activities in the activities list.\n- DAY 1 MORNING DEPARTURE: Day 1 first driving activity MUST start at 09:00 AM (immediately after the 08:30 AM vehicle pickup).\n- DAY 4 FINAL RETURN DAY CURATION (STRICT VEHICLE RETURN BY 06:00 PM, NO SHOPPING ON RETURN DAY):\n  1) 08:00 AM Breakfast at lodging,\n  2) 09:00 AM - 12:00 PM Morning scenic return driving leg,\n  3) 12:00 PM - 01:30 PM Midday highway lunch,\n  4) 01:30 PM - 05:30 PM Afternoon return drive leg arriving back in Atlanta by 05:30 PM,\n  5) 05:30 PM - 06:00 PM Final Rental Vehicle Return at Atlanta Rental Center (Concluding the trip by 06:00 PM).\n  - NO SHOPPING ON RETURN DAY: NEVER add shopping on the return day (shopping belongs exclusively on destination exploration days).\n  - NO ACTIVITIES AFTER 06:00 PM ON RETURN DAY: The road trip concludes with the 05:30 PM - 06:00 PM vehicle return.\nIncluded components: Flights=False, Hotels=True (1 rooms), Cars=True (1 car), Trains=False, Buses=False, Attractions=True, Activities=True, SeasonalAttractions=True, SeasonalActivities=True. Prompt details: '4 day trip from atlanta to orlando for 2 adults'.\nOUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {\"days\": [{\"day_number\": 1, \"date\": \"2026-09-17\", \"theme\": \"...\", \"activities\": [..., {\"name\": \"...\", \"time_slot\": \"08:00 AM - 09:00 AM\", \"category\": \"...\", \"description\": \"...\", \"travel_mode\": \"...\", \"next_activity\": {\"name\": \"...\", \"distance_km\": 5.0, \"distance_miles\": 3.1, \"travel_time_minutes\": 15, \"travel_time_display\": \"15 mins\", \"travel_mode\": \"walk\", \"transit_summary\": \"...\"}}]}]}.",
   "system_prompt": "You are a World-Class Global AI Travel Planner & Master Concierge. You specialize in analyzing complex travel requests and crafting hyper-curated, optimal travel itineraries and travel packages worldwide across top global destinations. You expertly identify user intentions for flights, hotels, car rentals, attractions, dining, multi-category travel bundles, driving road trips, and ocean/river cruises.\n\nTRAVEL MODALITY SPECIALIZATION (FLIGHTS vs ROAD TRIP vs CRUISE):\n1. ROAD TRIP MODE (NO FLIGHTS / DRIVING TRIPS):\n   - When planning a Road Trip or ground travel, do NOT restrict activities solely to the destination city.\n   - Construct the itinerary across the authentic driving highway/byway corridor between Origin and Destination (e.g. Atlanta -> Dallas via Birmingham, Tuscaloosa, Meridian, Jackson, Shreveport).\n   - Schedule authentic en-route morning attractions, famous roadside diners, state/national parks, scenic lookouts, and intermediate overnight stays in waypoint towns.\n   - In 'next_activity', set 'travel_mode': 'drive' for intercity and corridor transit legs with realistic driving distances and durations.\n   - Packages and bundles across all travel modes are categorized as: 'budget' (Budget Saver), 'balanced' (Balanced Choice), and 'luxury' (Signature Luxury VIP). Users can specify stylistic preferences like scenic in their prompt.\n   - NEVER generate flight segments or airport terminal references for pure road trips.\n2. CRUISE MODE (OCEAN / RIVER CRUISES):\n   - When planning a Cruise or sailing journey, structure the itinerary around port embarkation, daily ports-of-call, shore excursions, coastal sightseeing, harbor dining, and maritime transit ('travel_mode': 'boat' or 'ferry').\n   - Day 1: Port embarkation, ship check-in, and sail-away viewing. Final Day: Port debarkation and departure.\n3. FLIGHT & VACATION TRAVEL MODE:\n   - Structure around flight arrival logistics, airport transfers, hotel check-in, city sightseeing highlights, and return flight departure logistics.\n   - Packages are categorized as: 'cheapest' (Budget Saver), 'moderate' (Balanced Choice), and 'luxury' (Signature Luxury VIP).\n\nSTANDARD DAY TIMINGS & DEFINITIONS (STRICT COMPLIANCE REQUIRED):\n- MORNING (05:00 AM - 11:59 AM): Breakfast at 08:00 AM, morning cultural museums, iconic attractions, or road trip scenic morning stops at 09:30 AM - 11:30 AM.\n- NOON / MIDDAY (12:00 PM - 12:59 PM): Lunch at 12:00 PM - 01:30 PM at top-rated local cafes, bistros, or famous en-route highway diners.\n- AFTERNOON (01:00 PM - 04:59 PM): Afternoon promenades, historic districts, parks, viewpoints, en-route state/national parks, and cultural experiences (e.g. 02:00 PM - 04:30 PM on full days, or 03:15 PM - 05:15 PM on Day 1 after hotel check-in).\n- EVENING (05:00 PM - 07:59 PM): Evening sunset attractions, panoramic towers, viewpoints, and dedicated Evening Shopping / Local Artisan Boutiques (05:30 PM - 07:45 PM). NEVER schedule evening activities during the afternoon (12:00 PM - 04:59 PM).\n- NIGHT (08:00 PM - 11:59 PM): Signature regional dinner from 08:00 PM - 09:30 PM, followed by 'Return to Hotel & Rest for the Night' at 09:30 PM - 10:00 PM.\n- MIDNIGHT / LATE NIGHT (12:00 AM - 04:59 AM): Resting at hotel (NO activities permitted).\n\nREAL SPECIFIC NAMES (NO GENERIC PLACEHOLDERS):\n- NEVER use generic placeholder names like 'Evening Landmark Attraction', 'Famous Landmark / Museum', 'Signature Dinner Place', 'Artisanal Breakfast', 'Gourmet Lunch', or 'Afternoon Activity & Promenade'.\n- ALWAYS provide the REAL, ACTUAL, and FAMOUS name of the landmark, museum, restaurant, or experience.\n\nSTRICT TIMING & SEQUENCING RULES (UNBREAKABLE):\n- CONTINUOUS SEQUENCING (ZERO UNALLOCATED GAPS): Every day's schedule MUST be completely continuous with back-to-back transitions and zero idle gaps. Fill late afternoon or pre-dinner gaps with dedicated Evening Shopping or Local Artisan Market browsing.\n- SHOPPING PLACEMENT RULE: Shopping MUST ALWAYS be scheduled at the END OF THE DAY (in the evening before dinner or before returning to the hotel). NEVER schedule shopping during morning or afternoon sightseeing.\n- ATTRACTION CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest. NEVER extend any attraction past 08:00 PM.\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (08:00 PM - 09:30 PM).\n- MANDATORY HOTEL RETURN AS FINAL STEP (BEFORE 10:00 PM): The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night' (09:30 PM - 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots past 10:00 PM.\n- EXACT JSON ONLY: Return strictly valid JSON adhering to the specified schema.",
   "llm_metadata": {
     "is_live_llm": true,
@@ -13,118 +13,102 @@
     {
       "day_number": 1,
       "date": "2026-09-17",
-      "theme": "Scenic Highway Drive & Coastal Arrival",
+      "theme": "Scenic Drive to Orlando with Cultural Stops",
       "activities": [
         {
-          "name": "Pick up rental vehicle from Enterprise",
-          "time_slot": "08:30 AM - 09:00 AM",
+          "name": "Depart Atlanta",
+          "time_slot": "09:00 AM - 11:00 AM",
           "category": "Transit",
-          "description": "Collect your rental car from Enterprise in Atlanta, equipped with modern safety features for the road trip.",
+          "description": "Start your road trip journey from Atlanta heading towards Valdosta.",
           "travel_mode": "drive",
           "next_activity": {
-            "name": "Depart Atlanta on I-75 S",
-            "distance_km": 0.0,
-            "distance_miles": 0.0,
-            "travel_time_minutes": 0,
-            "travel_time_display": "0 mins",
+            "name": "Lunch at The Bleu Cafe, Valdosta",
+            "distance_km": 370.0,
+            "distance_miles": 229.9,
+            "travel_time_minutes": 120,
+            "travel_time_display": "2 hrs",
             "travel_mode": "drive",
-            "transit_summary": "Start your road trip journey towards Port Canaveral."
+            "transit_summary": "Scenic drive via I-75 S"
           }
         },
         {
-          "name": "Scenic Drive via I-75 S",
-          "time_slot": "09:00 AM - 12:00 PM",
-          "category": "Transit",
-          "description": "Enjoy a scenic drive through Georgia with potential stops for photos and short breaks.",
-          "travel_mode": "drive",
-          "next_activity": {
-            "name": "Lunch at Lane Southern Orchards",
-            "distance_km": 145.0,
-            "distance_miles": 90.1,
-            "travel_time_minutes": 95,
-            "travel_time_display": "1 hr 35 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive via I-75 S to Lane Southern Orchards for a farm-to-table lunch."
-          }
-        },
-        {
-          "name": "Lunch at Lane Southern Orchards",
+          "name": "Lunch at The Bleu Cafe, Valdosta",
           "time_slot": "12:00 PM - 01:30 PM",
           "category": "Dining",
-          "description": "Enjoy a delicious farm-to-table lunch at Lane Southern Orchards, famous for its peach cobbler.",
+          "description": "Enjoy a delicious lunch at The Bleu Cafe, known for its eclectic menu and charming atmosphere.",
           "travel_mode": "drive",
           "next_activity": {
-            "name": "Drive to Savannah, GA",
-            "distance_km": 240.0,
-            "distance_miles": 149.1,
-            "travel_time_minutes": 150,
-            "travel_time_display": "2 hrs 30 mins",
+            "name": "Visit Wild Adventures Theme Park",
+            "distance_km": 15.0,
+            "distance_miles": 9.3,
+            "travel_time_minutes": 15,
+            "travel_time_display": "15 mins",
             "travel_mode": "drive",
-            "transit_summary": "Continue driving east to the historic city of Savannah."
+            "transit_summary": "Short drive via Old Clyattville Rd"
           }
         },
         {
-          "name": "Explore Savannah Historic District",
-          "time_slot": "02:00 PM - 05:00 PM",
+          "name": "Visit Wild Adventures Theme Park",
+          "time_slot": "02:00 PM - 04:30 PM",
           "category": "Attraction",
-          "description": "Stroll through the charming streets of Savannah's Historic District, appreciating the antebellum architecture.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Drive to Port Canaveral",
-            "distance_km": 375.0,
-            "distance_miles": 233.0,
-            "travel_time_minutes": 210,
-            "travel_time_display": "3 hrs 30 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive south towards Port Canaveral, enjoying the coastal views."
-          }
-        },
-        {
-          "name": "Check-in at Courtyard by Marriott Cocoa Beach",
-          "time_slot": "08:00 PM - 08:30 PM",
-          "category": "Hotel",
-          "description": "Arrive and check-in at Courtyard by Marriott Cocoa Beach, located near the beach and local attractions.",
+          "description": "Explore Wild Adventures, a theme park featuring rides, a water park, and exotic animals.",
           "travel_mode": "drive",
           "next_activity": {
-            "name": "Dinner at Florida's Seafood Bar & Grill",
-            "distance_km": 4.0,
-            "distance_miles": 2.5,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 mins",
+            "name": "Drive to Gainesville for Overnight Stay",
+            "distance_km": 220.0,
+            "distance_miles": 136.7,
+            "travel_time_minutes": 120,
+            "travel_time_display": "2 hrs",
             "travel_mode": "drive",
-            "transit_summary": "Short drive to a renowned local seafood restaurant."
+            "transit_summary": "Drive south via I-75 S"
           }
         },
         {
-          "name": "Dinner at Florida's Seafood Bar & Grill",
-          "time_slot": "08:30 PM - 09:30 PM",
-          "category": "Dining",
-          "description": "Savor a fresh seafood dinner at Florida's Seafood Bar & Grill, known for its relaxed atmosphere.",
-          "travel_mode": "drive",
-          "next_activity": {
-            "name": "Return to Hotel & Rest for the Night",
-            "distance_km": 4.0,
-            "distance_miles": 2.5,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive back to the hotel for an overnight stay."
-          }
-        },
-        {
-          "name": "Return to Hotel & Rest for the Night",
-          "time_slot": "09:30 PM - 10:00 PM",
+          "name": "Check-in at Hotel Indigo Gainesville-Celebration Pointe",
+          "time_slot": "05:00 PM - 06:00 PM",
           "category": "Hotel",
-          "description": "Rest and recharge for the next day's adventures.",
+          "description": "Check-in at Hotel Indigo Gainesville-Celebration Pointe, offering comfortable accommodations and easy access to local attractions.",
           "travel_mode": "stay",
           "next_activity": {
-            "name": "Overnight Rest",
+            "name": "Explore Celebration Pointe",
             "distance_km": 0.0,
             "distance_miles": 0.0,
             "travel_time_minutes": 0,
             "travel_time_display": "0 mins",
-            "travel_mode": "stay",
-            "transit_summary": "Resting at accommodation for the night."
+            "travel_mode": "walk",
+            "transit_summary": "Located within hotel complex"
+          }
+        },
+        {
+          "name": "Explore Celebration Pointe",
+          "time_slot": "06:00 PM - 07:45 PM",
+          "category": "Shopping",
+          "description": "Stroll through Celebration Pointe, featuring local boutiques, entertainment, and dining options.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Dinner at Spurrier's Gridiron Grille",
+            "distance_km": 0.5,
+            "distance_miles": 0.3,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 mins",
+            "travel_mode": "walk",
+            "transit_summary": "Short walk to restaurant"
+          }
+        },
+        {
+          "name": "Dinner at Spurrier's Gridiron Grille",
+          "time_slot": "08:00 PM - 09:30 PM",
+          "category": "Dining",
+          "description": "Enjoy a delightful dinner at Spurrier's Gridiron Grille, offering a unique dining experience with a sports-themed environment.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Return to Hotel Indigo Gainesville-Celebration Pointe & Rest for the Night",
+            "distance_km": 0.5,
+            "distance_miles": 0.3,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 mins",
+            "travel_mode": "walk",
+            "transit_summary": "Walk back to hotel"
           }
         }
       ]
@@ -132,118 +116,86 @@
     {
       "day_number": 2,
       "date": "2026-09-18",
-      "theme": "Exploring Port Canaveral & Cocoa Beach",
+      "theme": "Explore Orlando's Iconic Attractions",
       "activities": [
         {
-          "name": "Breakfast at Courtyard by Marriott Cocoa Beach",
+          "name": "Breakfast at Hotel Indigo Gainesville-Celebration Pointe",
           "time_slot": "08:00 AM - 09:00 AM",
           "category": "Dining",
-          "description": "Enjoy a complimentary breakfast buffet at the hotel's restaurant.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Kennedy Space Center Visitor Complex",
-            "distance_km": 30.0,
-            "distance_miles": 18.6,
-            "travel_time_minutes": 30,
-            "travel_time_display": "30 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to the iconic Kennedy Space Center Visitor Complex."
-          }
-        },
-        {
-          "name": "Kennedy Space Center Visitor Complex",
-          "time_slot": "09:30 AM - 01:30 PM",
-          "category": "Attraction",
-          "description": "Explore the Kennedy Space Center, including the Space Shuttle Atlantis exhibit and the Rocket Garden.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Lunch at Space Shuttle Atlantis Cafe",
-            "distance_km": 0.0,
-            "distance_miles": 0.0,
-            "travel_time_minutes": 0,
-            "travel_time_display": "0 mins",
-            "travel_mode": "walk",
-            "transit_summary": "On-site dining at the Kennedy Space Center."
-          }
-        },
-        {
-          "name": "Lunch at Space Shuttle Atlantis Cafe",
-          "time_slot": "01:30 PM - 02:30 PM",
-          "category": "Dining",
-          "description": "Grab a quick lunch at the Space Shuttle Atlantis Cafe, located within the visitor complex.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Cocoa Beach Pier",
-            "distance_km": 29.0,
-            "distance_miles": 18.0,
-            "travel_time_minutes": 30,
-            "travel_time_display": "30 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive back to Cocoa Beach for afternoon relaxation."
-          }
-        },
-        {
-          "name": "Cocoa Beach Pier",
-          "time_slot": "03:00 PM - 05:00 PM",
-          "category": "Attraction",
-          "description": "Relax and enjoy the views from Cocoa Beach Pier, a local favorite for fishing and sunset watching.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Ron Jon Surf Shop",
-            "distance_km": 3.0,
-            "distance_miles": 1.9,
-            "travel_time_minutes": 5,
-            "travel_time_display": "5 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Quick drive to the world-famous Ron Jon Surf Shop."
-          }
-        },
-        {
-          "name": "Ron Jon Surf Shop",
-          "time_slot": "05:15 PM - 07:15 PM",
-          "category": "Shopping",
-          "description": "Browse and shop at the largest surf shop in the world, offering everything from beachwear to surfboards.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Dinner at The Tiny Turtle",
-            "distance_km": 4.0,
-            "distance_miles": 2.5,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to a cozy local spot for dinner."
-          }
-        },
-        {
-          "name": "Dinner at The Tiny Turtle",
-          "time_slot": "08:00 PM - 09:30 PM",
-          "category": "Dining",
-          "description": "Enjoy Caribbean-inspired dishes at The Tiny Turtle, a local favorite for its laid-back atmosphere.",
-          "travel_mode": "drive",
-          "next_activity": {
-            "name": "Return to Hotel & Rest for the Night",
-            "distance_km": 4.5,
-            "distance_miles": 2.8,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive back to the hotel for the night."
-          }
-        },
-        {
-          "name": "Return to Hotel & Rest for the Night",
-          "time_slot": "09:30 PM - 10:00 PM",
-          "category": "Hotel",
-          "description": "Return to the hotel for a restful night.",
+          "description": "Enjoy a complimentary breakfast at the hotel's restaurant.",
           "travel_mode": "stay",
           "next_activity": {
-            "name": "Overnight Rest",
-            "distance_km": 0.0,
-            "distance_miles": 0.0,
-            "travel_time_minutes": 0,
-            "travel_time_display": "0 mins",
-            "travel_mode": "stay",
-            "transit_summary": "Resting at accommodation for the night."
+            "name": "Drive to Orlando",
+            "distance_km": 175.0,
+            "distance_miles": 108.7,
+            "travel_time_minutes": 120,
+            "travel_time_display": "2 hrs",
+            "travel_mode": "drive",
+            "transit_summary": "Continue south on I-75 S and FL-91 S"
+          }
+        },
+        {
+          "name": "Visit Universal Studios Florida",
+          "time_slot": "11:00 AM - 04:00 PM",
+          "category": "Attraction",
+          "description": "Spend the day experiencing thrilling rides and attractions at Universal Studios Florida.",
+          "travel_mode": "drive",
+          "next_activity": {
+            "name": "Check-in at Hyatt Regency Orlando",
+            "distance_km": 10.0,
+            "distance_miles": 6.2,
+            "travel_time_minutes": 20,
+            "travel_time_display": "20 mins",
+            "travel_mode": "drive",
+            "transit_summary": "Drive via Universal Blvd and I-4 E"
+          }
+        },
+        {
+          "name": "Check-in at Hyatt Regency Orlando",
+          "time_slot": "04:30 PM - 05:30 PM",
+          "category": "Hotel",
+          "description": "Check-in at Hyatt Regency Orlando, a premier hotel located on International Drive with luxurious amenities.",
+          "travel_mode": "stay",
+          "next_activity": {
+            "name": "Explore Pointe Orlando",
+            "distance_km": 0.5,
+            "distance_miles": 0.3,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 mins",
+            "travel_mode": "walk",
+            "transit_summary": "Short walk from hotel"
+          }
+        },
+        {
+          "name": "Explore Pointe Orlando",
+          "time_slot": "05:30 PM - 07:45 PM",
+          "category": "Shopping",
+          "description": "Visit Pointe Orlando for shopping, entertainment, and dining options.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Dinner at The Capital Grille",
+            "distance_km": 1.0,
+            "distance_miles": 0.6,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "walk",
+            "transit_summary": "Walk to The Capital Grille"
+          }
+        },
+        {
+          "name": "Dinner at The Capital Grille",
+          "time_slot": "08:00 PM - 09:30 PM",
+          "category": "Dining",
+          "description": "Savor a fine dining experience at The Capital Grille, known for its dry-aged steaks and elegant ambiance.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Return to Hyatt Regency Orlando & Rest for the Night",
+            "distance_km": 1.0,
+            "distance_miles": 0.6,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "walk",
+            "transit_summary": "Walk back to hotel"
           }
         }
       ]
@@ -251,102 +203,102 @@
     {
       "day_number": 3,
       "date": "2026-09-19",
-      "theme": "Beach Day & Local Exploration",
+      "theme": "Relaxation and Exploration in Orlando",
       "activities": [
         {
-          "name": "Breakfast at the Hotel",
+          "name": "Breakfast at Hyatt Regency Orlando",
           "time_slot": "08:00 AM - 09:00 AM",
           "category": "Dining",
-          "description": "Start your day with a complimentary breakfast at the hotel.",
-          "travel_mode": "walk",
+          "description": "Enjoy breakfast at the hotel before starting your day.",
+          "travel_mode": "stay",
           "next_activity": {
-            "name": "Cocoa Beach",
-            "distance_km": 0.5,
-            "distance_miles": 0.3,
-            "travel_time_minutes": 5,
-            "travel_time_display": "5 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to the nearby Cocoa Beach for a morning of sun and sand."
-          }
-        },
-        {
-          "name": "Cocoa Beach",
-          "time_slot": "09:30 AM - 11:30 AM",
-          "category": "Attraction",
-          "description": "Enjoy a relaxing morning at Cocoa Beach, perfect for swimming or lounging.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Lunch at Sandbar Sports Grill",
+            "name": "Visit ICON Park",
             "distance_km": 2.0,
             "distance_miles": 1.2,
-            "travel_time_minutes": 5,
-            "travel_time_display": "5 mins",
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
             "travel_mode": "drive",
-            "transit_summary": "Short drive to a vibrant beachside grill for lunch."
+            "transit_summary": "Short drive via International Dr"
           }
         },
         {
-          "name": "Lunch at Sandbar Sports Grill",
-          "time_slot": "12:00 PM - 01:30 PM",
-          "category": "Dining",
-          "description": "Indulge in a casual lunch with local seafood and refreshing drinks.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Exploration of Historic Cocoa Village",
-            "distance_km": 16.0,
-            "distance_miles": 10.0,
-            "travel_time_minutes": 20,
-            "travel_time_display": "20 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to the charming Cocoa Village for an afternoon of exploration."
-          }
-        },
-        {
-          "name": "Exploration of Historic Cocoa Village",
-          "time_slot": "02:00 PM - 05:00 PM",
+          "name": "Visit ICON Park",
+          "time_slot": "09:30 AM - 11:30 AM",
           "category": "Attraction",
-          "description": "Explore the historic Cocoa Village, full of unique shops, galleries, and cafes.",
-          "travel_mode": "walk",
+          "description": "Explore ICON Park featuring The Wheel, Madame Tussauds, and SEA LIFE Orlando Aquarium.",
+          "travel_mode": "drive",
           "next_activity": {
-            "name": "Dinner at Café Margaux",
+            "name": "Lunch at Yard House",
             "distance_km": 0.5,
             "distance_miles": 0.3,
             "travel_time_minutes": 5,
             "travel_time_display": "5 mins",
             "travel_mode": "walk",
-            "transit_summary": "Walk to a nearby upscale dining experience."
+            "transit_summary": "Walk to Yard House within ICON Park"
           }
         },
         {
-          "name": "Dinner at Café Margaux",
-          "time_slot": "08:00 PM - 09:30 PM",
+          "name": "Lunch at Yard House",
+          "time_slot": "12:00 PM - 01:30 PM",
           "category": "Dining",
-          "description": "Savor a gourmet dinner at Café Margaux, offering a refined menu and elegant setting.",
+          "description": "Have lunch at Yard House, known for its extensive menu and vast selection of draft beers.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Return to Hotel & Rest for the Night",
-            "distance_km": 16.0,
-            "distance_miles": 10.0,
+            "name": "Relax at Lake Eola Park",
+            "distance_km": 18.0,
+            "distance_miles": 11.2,
+            "travel_time_minutes": 30,
+            "travel_time_display": "30 mins",
+            "travel_mode": "drive",
+            "transit_summary": "Drive via I-4 E to Lake Eola Park"
+          }
+        },
+        {
+          "name": "Relax at Lake Eola Park",
+          "time_slot": "02:00 PM - 04:30 PM",
+          "category": "Attraction",
+          "description": "Enjoy a relaxing afternoon at Lake Eola Park, known for its swan-filled lake and beautiful walking paths.",
+          "travel_mode": "drive",
+          "next_activity": {
+            "name": "Explore Thornton Park",
+            "distance_km": 1.5,
+            "distance_miles": 0.9,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 mins",
+            "travel_mode": "drive",
+            "transit_summary": "Short drive to Thornton Park"
+          }
+        },
+        {
+          "name": "Explore Thornton Park",
+          "time_slot": "05:00 PM - 07:45 PM",
+          "category": "Shopping",
+          "description": "Explore the quaint shops and cafes in Thornton Park, a charming neighborhood in downtown Orlando.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Dinner at Maxine's on Shine",
+            "distance_km": 2.0,
+            "distance_miles": 1.2,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to Maxine's on Shine"
+          }
+        },
+        {
+          "name": "Dinner at Maxine's on Shine",
+          "time_slot": "08:00 PM - 09:30 PM",
+          "category": "Dining",
+          "description": "Enjoy a unique dining experience at Maxine's on Shine, featuring American cuisine with a twist.",
+          "travel_mode": "drive",
+          "next_activity": {
+            "name": "Return to Hyatt Regency Orlando & Rest for the Night",
+            "distance_km": 15.0,
+            "distance_miles": 9.3,
             "travel_time_minutes": 20,
             "travel_time_display": "20 mins",
             "travel_mode": "drive",
-            "transit_summary": "Drive back to the hotel for the night."
-          }
-        },
-        {
-          "name": "Return to Hotel & Rest for the Night",
-          "time_slot": "09:30 PM - 10:00 PM",
-          "category": "Hotel",
-          "description": "Return to the hotel for a restful night.",
-          "travel_mode": "stay",
-          "next_activity": {
-            "name": "Overnight Rest",
-            "distance_km": 0.0,
-            "distance_miles": 0.0,
-            "travel_time_minutes": 0,
-            "travel_time_display": "0 mins",
-            "travel_mode": "stay",
-            "transit_summary": "Resting at accommodation for the night."
+            "transit_summary": "Drive back to hotel"
           }
         }
       ]
@@ -357,58 +309,42 @@
       "theme": "Return Journey to Atlanta",
       "activities": [
         {
-          "name": "Breakfast at the Hotel",
+          "name": "Breakfast at Hyatt Regency Orlando",
           "time_slot": "08:00 AM - 09:00 AM",
           "category": "Dining",
-          "description": "Enjoy your final breakfast at the hotel before checking out.",
-          "travel_mode": "walk",
+          "description": "Start your day with breakfast at the hotel before heading back to Atlanta.",
+          "travel_mode": "stay",
           "next_activity": {
-            "name": "Morning Drive via I-95 N",
-            "distance_km": 180.0,
-            "distance_miles": 111.8,
-            "travel_time_minutes": 120,
-            "travel_time_display": "2 hrs",
+            "name": "Drive from Orlando to Valdosta",
+            "distance_km": 370.0,
+            "distance_miles": 229.9,
+            "travel_time_minutes": 180,
+            "travel_time_display": "3 hrs",
             "travel_mode": "drive",
-            "transit_summary": "Begin your drive north on I-95 towards Savannah."
+            "transit_summary": "Drive north via I-75 N"
           }
         },
         {
-          "name": "Lunch at Mrs. Wilkes Dining Room",
+          "name": "Lunch at The Bleu Cafe, Valdosta",
           "time_slot": "12:00 PM - 01:30 PM",
           "category": "Dining",
-          "description": "Enjoy a hearty Southern lunch at the famous Mrs. Wilkes Dining Room in Savannah.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Afternoon Drive to Atlanta",
-            "distance_km": 400.0,
-            "distance_miles": 248.5,
-            "travel_time_minutes": 240,
-            "travel_time_display": "4 hrs",
-            "travel_mode": "drive",
-            "transit_summary": "Continue driving back to Atlanta via I-75 N."
-          }
-        },
-        {
-          "name": "Afternoon Drive to Atlanta",
-          "time_slot": "01:30 PM - 05:30 PM",
-          "category": "Transit",
-          "description": "Complete your drive back to Atlanta, enjoying the scenic route.",
+          "description": "Stop for lunch at The Bleu Cafe in Valdosta on your way back to Atlanta.",
           "travel_mode": "drive",
           "next_activity": {
-            "name": "Return Rental Vehicle in Atlanta",
-            "distance_km": 0.0,
-            "distance_miles": 0.0,
-            "travel_time_minutes": 0,
-            "travel_time_display": "0 mins",
+            "name": "Continue Drive to Atlanta",
+            "distance_km": 370.0,
+            "distance_miles": 229.9,
+            "travel_time_minutes": 180,
+            "travel_time_display": "3 hrs",
             "travel_mode": "drive",
-            "transit_summary": "Arrive at the rental center to return your vehicle."
+            "transit_summary": "Continue north via I-75 N"
           }
         },
         {
-          "name": "Return Rental Vehicle in Atlanta",
+          "name": "Arrival in Atlanta and Rental Car Return",
           "time_slot": "05:30 PM - 06:00 PM",
           "category": "Transit",
-          "description": "Return your rental vehicle at the Atlanta rental center, concluding your trip.",
+          "description": "Complete your road trip by returning the rental car in Atlanta.",
           "travel_mode": "stay",
           "next_activity": {
             "name": "End of Trip",
@@ -417,7 +353,7 @@
             "travel_time_minutes": 0,
             "travel_time_display": "0 mins",
             "travel_mode": "stay",
-            "transit_summary": "Trip concluded."
+            "transit_summary": "End of road trip"
           }
         }
       ]

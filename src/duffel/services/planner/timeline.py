@@ -87,6 +87,8 @@ def build_flight_item(
     return {
         "id": item_id,
         "type": "flight",
+        "activity_type": "flight",
+        "category": "Flight",
         "name": title,
         "title": title,
         "description": desc,
@@ -139,6 +141,8 @@ def build_car_rental_item(
     return {
         "id": item_id,
         "type": "car",
+        "activity_type": "car",
+        "category": "Rental Car",
         "name": title,
         "title": title,
         "description": desc,
@@ -187,6 +191,8 @@ def build_hotel_checkin_item(
     return {
         "id": item_id,
         "type": "hotel",
+        "activity_type": "hotel",
+        "category": "Hotel",
         "name": f"{ht_name} ({rooms_count} Room(s))",
         "title": f"{ht_name} ({rooms_count} Room(s))",
         "description": f"Check-in & Stay (Night 1 of {duration_days})" + (" (Price: TBD)" if is_price_tbd else ""),

@@ -1,18 +1,18 @@
 {
-  "prompt": "4 day trip from atlanta to port canaraval",
+  "prompt": "4 day trip from atlanta to orlando",
   "model": "gpt-4o-mini",
   "raw_response": {
     "trip_type": "round_trip",
     "origin": "ATL",
-    "destination": "PCF",
+    "destination": "MCO",
     "slices": [
       {
         "origin": "ATL",
-        "destination": "PCF",
+        "destination": "MCO",
         "departure_date": "2026-09-01"
       },
       {
-        "origin": "PCF",
+        "origin": "MCO",
         "destination": "ATL",
         "departure_date": "2026-09-05"
       }
@@ -36,15 +36,15 @@
   "normalized": {
     "trip_type": "round_trip",
     "origin": "ATL",
-    "destination": "PCF",
+    "destination": "MCO",
     "slices": [
       {
         "origin": "ATL",
-        "destination": "PCF",
+        "destination": "MCO",
         "departure_date": "2026-09-01"
       },
       {
-        "origin": "PCF",
+        "origin": "MCO",
         "destination": "ATL",
         "departure_date": "2026-09-05"
       }

@@ -82,6 +82,9 @@ def build_top_3_bundles(
     include_flights: bool = True,
     include_hotels: bool = True,
     include_cars: bool = True,
+    adults_count: int = 1,
+    children_count: int = 0,
+    children_ages: Optional[list[int]] = None,
 ) -> list[dict[str, Any]]:
     """Builds top 3 bundles: Budget, Balanced, Luxury with dedicated summary and data."""
     hotel_total = 0.0 if is_hotel_tbd else (hotel_cost_per_night * max(1, duration_days - 1))
@@ -159,24 +162,13 @@ def build_top_3_bundles(
 
         from .summary import build_trip_summary
         tier_summary = build_trip_summary(
-            dest_clean=dest_clean,
-            origin_code=origin_code,
-            start_date=start_date,
-            end_date=end_date,
-            duration_days=duration_days,
-            passengers_count=passengers_count,
-            rooms_count=rooms_count,
-            cars_count=cars_count,
-            include_flights=include_flights,
-            include_hotels=include_hotels,
-            include_cars=include_cars,
-            is_road_trip=is_road_trip,
-            is_cruise=is_cruise,
-            outbound_dep=outbound_dep,
-            return_arr=return_arr,
-            component_pricing=tier_pricing,
-            daily_itinerary=tier_itinerary,
-            top_3_bundles=[],
+            dest_clean=dest_clean, origin_code=origin_code, start_date=start_date, end_date=end_date,
+            duration_days=duration_days, passengers_count=passengers_count, rooms_count=rooms_count,
+            cars_count=cars_count, include_flights=include_flights, include_hotels=include_hotels,
+            include_cars=include_cars, is_road_trip=is_road_trip, is_cruise=is_cruise,
+            outbound_dep=outbound_dep, return_arr=return_arr, component_pricing=tier_pricing,
+            daily_itinerary=tier_itinerary, top_3_bundles=[], adults_count=adults_count,
+            children_count=children_count, children_ages=children_ages,
         )
 
         bundles.append({
