@@ -721,6 +721,22 @@ def book_flight(req: FlightBookingRequest, request: Request = None):
                 )
             except Exception as sb_err:
                 print(f"[SERVICE BUS NOTICE] Failed to publish order hold event: {sb_err}")
+        elif order_status in ["confirmed", "paid"]:
+            try:
+                from ...services.service_bus import ServiceBusPublisher
+                publisher = ServiceBusPublisher(config=client.config)
+                publisher.publish_booking_confirmed_event(
+                    booking_id=getattr(order, "id", ""),
+                    booking_reference=booking_ref,
+                    total_amount=str(getattr(order, "total_amount", "0.00")),
+                    total_currency=getattr(order, "total_currency", "USD"),
+                    booking_type="flight",
+                    recipient_email=cust_email,
+                    passengers=passengers_summary,
+                    slices=slices_summary,
+                )
+            except Exception as sb_err:
+                print(f"[SERVICE BUS NOTICE] Failed to publish booking confirmed event: {sb_err}")
 
         msg = (
             "Flight hold order created. Physical seats and price locked."
@@ -844,6 +860,26 @@ def pay_hold_order(order_id: str, req: OrderPaymentRequest = None):
             )
         except Exception as db_err:
             print(f"[ORDER DAO NOTICE] DB status update notice: {db_err}")
+
+        # Publish Booking Confirmed Event for Email Service
+        try:
+            from ...services.service_bus import ServiceBusPublisher
+            publisher = ServiceBusPublisher(config=client.config)
+            order_data = client.flights.get_order(order_id) if hasattr(client.flights, "get_order") else None
+            b_ref = getattr(order_data, "booking_reference", "") or order_id
+            tot_amt = getattr(order_data, "total_amount", "0.00") if order_data else "0.00"
+            tot_curr = getattr(order_data, "total_currency", "USD") if order_data else "USD"
+            pass_sum = [{"id": getattr(p, "id", ""), "name": f"{getattr(p, 'given_name', '')} {getattr(p, 'family_name', '')}".strip()} for p in getattr(order_data, "passengers", [])] if order_data else []
+            publisher.publish_booking_confirmed_event(
+                booking_id=order_id,
+                booking_reference=b_ref,
+                total_amount=str(tot_amt),
+                total_currency=tot_curr,
+                booking_type="flight",
+                passengers=pass_sum,
+            )
+        except Exception as sb_err:
+            print(f"[SERVICE BUS NOTICE] Failed to publish booking confirmed event: {sb_err}")
 
         return {
             "status": "success",

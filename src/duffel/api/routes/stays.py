@@ -364,6 +364,22 @@ def book_stay_endpoint(req: StayBookingRequest, request: Request = None):
         }
 
 
+        try:
+            from ...services.service_bus import ServiceBusPublisher
+            publisher = ServiceBusPublisher(config=client.config)
+            guest_email = (guests_list[0].get("email") if (guests_list and isinstance(guests_list[0], dict)) else None) or "customer@example.com"
+            publisher.publish_booking_confirmed_event(
+                booking_id=ord_id,
+                booking_reference=booking_ref,
+                total_amount=tot,
+                total_currency=curr,
+                booking_type="stay",
+                recipient_email=guest_email,
+                hotel={"name": acc_name, "check_in": check_in, "check_out": check_out},
+            )
+        except Exception as sb_err:
+            print(f"[SERVICE BUS NOTICE] Failed publishing stay booking confirmed event: {sb_err}")
+
         return StayBookingResponse(
             status="confirmed",
             timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

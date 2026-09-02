@@ -38,6 +38,8 @@ class EmailService:
         total_currency: str,
         passengers: list[dict[str, Any]],
         slices: list[dict[str, Any]],
+        is_hold: bool = False,
+        payment_required_by: Optional[str] = None,
     ) -> str:
         passengers_html = ""
         for p in passengers:
@@ -58,27 +60,45 @@ class EmailService:
             </div>
             """
 
+        header_bg = "linear-gradient(135deg, #d97706 0%, #b45309 100%)" if is_hold else "linear-gradient(135deg, #1e3a8a 0%, #059669 100%)"
+        header_title = "✈️ Flight Booking on Hold" if is_hold else "🎉 Flight Booking Confirmed"
+        header_sub = "Your seats and price are locked! Complete payment before expiration." if is_hold else "Your airline reservation is confirmed & ticketed!"
+        
+        urgency_box = ""
+        if is_hold:
+            deadline_str = payment_required_by or "within 24 hours of booking"
+            urgency_box = f"""
+            <div style="background:#fffbeb;border:2px dashed #f59e0b;border-radius:8px;padding:16px;text-align:center;margin-bottom:20px;">
+                <div style="font-size:14px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.5px;">⏰ Payment Action Required</div>
+                <div style="font-size:14px;color:#92400e;margin-top:6px;">Your physical seats are temporarily reserved. Please complete payment before:</div>
+                <div style="font-size:18px;font-weight:800;color:#b45309;margin-top:4px;">{deadline_str}</div>
+                <div style="font-size:12px;color:#78350f;margin-top:4px;">Reservations not paid before the deadline will be automatically cancelled by the airline.</div>
+            </div>
+            """
+
         html = f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Flight Booking Confirmation - {booking_reference}</title>
+    <title>{header_title} - {booking_reference}</title>
 </head>
 <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#f3f4f6;margin:0;padding:24px;">
     <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
         <!-- Header -->
-        <div style="background:linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);padding:28px 24px;text-align:center;color:#ffffff;">
-            <h1 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-0.5px;">Jojira Flights Confirmation</h1>
-            <p style="margin:6px 0 0 0;font-size:14px;opacity:0.9;">Your airline reservation is confirmed & ticketed!</p>
+        <div style="background:{header_bg};padding:28px 24px;text-align:center;color:#ffffff;">
+            <h1 style="margin:0;font-size:24px;font-weight:800;letter-spacing:-0.5px;">{header_title}</h1>
+            <p style="margin:6px 0 0 0;font-size:14px;opacity:0.9;">{header_sub}</p>
         </div>
 
         <!-- Body Content -->
         <div style="padding:24px;">
+            {urgency_box}
+
             <!-- Booking Ref Pill -->
             <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:16px;text-align:center;margin-bottom:20px;">
                 <div style="font-size:12px;color:#1e40af;text-transform:uppercase;font-weight:700;letter-spacing:0.5px;">Airline Booking Reference (PNR)</div>
                 <div style="font-size:28px;font-weight:900;color:#1e3a8a;margin-top:4px;letter-spacing:1.5px;">{booking_reference}</div>
-                <div style="font-size:12px;color:#6b7280;margin-top:4px;">Duffel Order ID: {order_id}</div>
+                <div style="font-size:12px;color:#6b7280;margin-top:4px;">Order ID: {order_id}</div>
             </div>
 
             <!-- Passengers Section -->
@@ -101,8 +121,8 @@ class EmailService:
 
             <!-- Price Summary -->
             <div style="background:#f9fafb;border-radius:8px;padding:16px;margin-top:20px;display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-size:16px;font-weight:600;color:#374151;">Total Amount Paid:</span>
-                <span style="font-size:22px;font-weight:800;color:#059669;">{total_currency} {total_amount}</span>
+                <span style="font-size:16px;font-weight:600;color:#374151;">{'Total Amount Due:' if is_hold else 'Total Amount Paid:'}</span>
+                <span style="font-size:22px;font-weight:800;color:{'#d97706' if is_hold else '#059669'};">{total_currency} {total_amount}</span>
             </div>
         </div>
 
@@ -125,9 +145,11 @@ class EmailService:
         passengers: list[dict[str, Any]],
         slices: list[dict[str, Any]],
         recipient_email: str = "customer@example.com",
+        is_hold: bool = False,
+        payment_required_by: Optional[str] = None,
     ) -> dict[str, Any]:
         """
-        Compose and send booking confirmation email or write to dry-run output file.
+        Compose and send booking confirmation/hold email or write to dry-run output file.
         """
         html_content = self._render_html_template(
             order_id=order_id,
@@ -136,6 +158,8 @@ class EmailService:
             total_currency=total_currency,
             passengers=passengers,
             slices=slices,
+            is_hold=is_hold,
+            payment_required_by=payment_required_by,
         )
 
         file_name = f"{order_id}_confirmation.html"
@@ -154,11 +178,18 @@ class EmailService:
         if self.enabled and self.smtp_username and self.smtp_host:
             try:
                 msg = MIMEMultipart("alternative")
-                msg["Subject"] = f"✈️ Flight Booking Confirmed - PNR: {booking_reference}"
+                if is_hold:
+                    msg["Subject"] = f"⏰ Action Required: Flight Booking on Hold - PNR: {booking_reference}"
+                else:
+                    msg["Subject"] = f"🎉 Flight Booking Confirmed - PNR: {booking_reference}"
                 msg["From"] = self.from_email
                 msg["To"] = recipient_email
 
-                plain_text = f"Flight Confirmation\nBooking Reference (PNR): {booking_reference}\nOrder ID: {order_id}\nTotal Paid: {total_currency} {total_amount}\n"
+                plain_text = (
+                    f"Flight Booking on Hold\nBooking Reference (PNR): {booking_reference}\nOrder ID: {order_id}\nTotal Due: {total_currency} {total_amount}\nPlease complete payment before {payment_required_by or '24 hours'}.\n"
+                    if is_hold
+                    else f"Flight Confirmation\nBooking Reference (PNR): {booking_reference}\nOrder ID: {order_id}\nTotal Paid: {total_currency} {total_amount}\n"
+                )
                 msg.attach(MIMEText(plain_text, "plain"))
                 msg.attach(MIMEText(html_content, "html"))
 

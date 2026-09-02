@@ -626,6 +626,28 @@ class BundlesService(BaseService):
                 gross_amount=f"{gross_val:.2f}",
                 discount_amount=f"{disc_val:.2f}",
             )
+
+            # 5. Publish Master Booking Confirmed Event for Email Service
+            try:
+                from .event_publisher import EventPublisher
+                publisher = EventPublisher(config=cfg)
+                c_email = (passengers[0].get("email") if (passengers and isinstance(passengers[0], dict)) else None) or "customer@example.com"
+                publisher.publish_booking_confirmed_event(
+                    booking_id=bundle_order_id,
+                    booking_reference=fl_pnr or bundle_order_id,
+                    total_amount=f"{tot_amount:.2f}",
+                    total_currency="USD",
+                    booking_type="bundle",
+                    recipient_email=c_email,
+                    passengers=passengers or [],
+                    bundle_components=[
+                        {"type": "flight", "order_id": fl_order_id, "pnr": fl_pnr},
+                        {"type": "stay", "order_id": st_order_id, "reference": st_ref},
+                        {"type": "car", "order_id": cr_order_id, "reference": cr_ref},
+                    ],
+                )
+            except Exception as sb_err:
+                print(f"[SERVICE BUS NOTICE] Failed publishing bundle booking confirmed event: {sb_err}")
         except Exception as db_err:
             print(f"[BUNDLE DAO NOTICE] Failed saving bundle orders to database: {db_err}")
 

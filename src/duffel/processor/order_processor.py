@@ -73,7 +73,9 @@ class OrderProcessor:
                 recipient_email = p_email
                 break
 
-        # Step 3: Trigger Confirmation Email Service
+        # Step 3: Trigger Confirmation Email Service (Hold vs Confirmed)
+        is_paid = isinstance(pay_res, dict) and pay_res.get("status") in ["paid", "confirmed"]
+        pay_req_by = event_data.get("payment_required_by")
         email_res = self.email_service.send_booking_confirmation(
             order_id=order_id,
             booking_reference=booking_ref,
@@ -82,6 +84,8 @@ class OrderProcessor:
             passengers=passengers,
             slices=slices,
             recipient_email=recipient_email,
+            is_hold=not is_paid,
+            payment_required_by=pay_req_by,
         )
 
         # Step 4: Update Order DAO (Database) record with confirmed status, payment_status, and email_confirmation_status
@@ -112,11 +116,49 @@ class OrderProcessor:
             "processed_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         }
 
+    def process_booking_confirmed_event(self, event_data: dict[str, Any]) -> dict[str, Any]:
+        """
+        Process a BOOKING_CONFIRMED event:
+        Delivers the confirmed booking email notification directly to the customer.
+        """
+        booking_id = event_data.get("booking_id") or event_data.get("order_id", "")
+        booking_ref = event_data.get("booking_reference") or booking_id
+        recipient_email = event_data.get("recipient_email", "customer@example.com")
+        total_amount = event_data.get("total_amount", "0.00")
+        total_currency = event_data.get("total_currency", "USD")
+        passengers = event_data.get("passengers", [])
+        slices = event_data.get("slices", [])
+
+        print(f"[ORDER PROCESSOR] Processing BookingConfirmedEvent for '{booking_id}' (PNR: {booking_ref}, Recipient: {recipient_email})...")
+        email_res = self.email_service.send_booking_confirmation(
+            order_id=booking_id,
+            booking_reference=booking_ref,
+            total_amount=total_amount,
+            total_currency=total_currency,
+            passengers=passengers,
+            slices=slices,
+            recipient_email=recipient_email,
+        )
+        return {
+            "status": "completed",
+            "event_type": "BOOKING_CONFIRMED",
+            "booking_id": booking_id,
+            "booking_reference": booking_ref,
+            "email_confirmation": email_res,
+            "processed_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+
     def process_pending_events(self, max_messages: int = 10) -> list[dict[str, Any]]:
         """
-        Polls and processes pending order hold events from RabbitMQ, Azure Service Bus, or fallback queue.
+        Polls and processes pending events from RabbitMQ, Azure Service Bus, or fallback queue.
         """
         results = []
+
+        def _dispatch_event(event_data: dict[str, Any]) -> dict[str, Any]:
+            ev_type = event_data.get("event_type", "ORDER_HOLD_CREATED")
+            if ev_type == "BOOKING_CONFIRMED":
+                return self.process_booking_confirmed_event(event_data)
+            return self.process_order_hold_event(event_data)
 
         # 1. RabbitMQ Consumer
         if self.publisher.broker_type == "rabbitmq" and self.publisher.pika_available:
@@ -135,7 +177,7 @@ class OrderProcessor:
                     if method_frame:
                         try:
                             event_data = json.loads(body.decode("utf-8"))
-                            res = self.process_order_hold_event(event_data)
+                            res = _dispatch_event(event_data)
                             channel.basic_ack(method_frame.delivery_tag)
                             results.append(res)
                             count += 1
@@ -161,7 +203,7 @@ class OrderProcessor:
                         try:
                             body_str = str(msg)
                             event_data = json.loads(body_str)
-                            res = self.process_order_hold_event(event_data)
+                            res = _dispatch_event(event_data)
                             receiver.complete_message(msg)
                             results.append(res)
                         except Exception as msg_err:
@@ -177,7 +219,7 @@ class OrderProcessor:
             event = EventPublisher.pop_fallback_event(timeout=0.2)
             if not event:
                 break
-            res = self.process_order_hold_event(event)
+            res = _dispatch_event(event)
             results.append(res)
             count += 1
 

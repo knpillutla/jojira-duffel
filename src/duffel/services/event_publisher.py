@@ -123,6 +123,80 @@ class EventPublisher:
         print(f"[SERVICE BUS FALLBACK] Enqueued OrderHoldEvent for order '{order_id}' into fallback queue.")
         return {"status": "queued_in_memory_fallback", "order_id": order_id, "payload": payload}
 
+    def publish_booking_confirmed_event(
+        self,
+        booking_id: str,
+        booking_reference: str,
+        total_amount: str,
+        total_currency: str = "USD",
+        booking_type: str = "flight",
+        recipient_email: str = "customer@example.com",
+        passengers: Optional[list[dict[str, Any]]] = None,
+        slices: Optional[list[dict[str, Any]]] = None,
+        hotel: Optional[dict[str, Any]] = None,
+        car: Optional[dict[str, Any]] = None,
+        bundle_components: Optional[list[dict[str, Any]]] = None,
+    ) -> dict[str, Any]:
+        """
+        Construct and publish a BookingConfirmedEvent when all components in a booking are fully confirmed.
+        """
+        payload = {
+            "event_id": f"evt_conf_{int(time.time() * 1000)}",
+            "event_type": "BOOKING_CONFIRMED",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "booking_id": booking_id,
+            "order_id": booking_id,
+            "booking_reference": booking_reference,
+            "booking_type": booking_type,
+            "total_amount": str(total_amount),
+            "total_currency": total_currency,
+            "recipient_email": recipient_email,
+            "passengers": passengers or [],
+            "slices": slices or [],
+            "hotel": hotel or {},
+            "car": car or {},
+            "bundle_components": bundle_components or [],
+        }
+
+        # 1. RabbitMQ
+        if self.broker_type == "rabbitmq" and self.pika_available:
+            try:
+                import pika
+                credentials = pika.PlainCredentials(self.rmq_user, self.rmq_pass)
+                connection = pika.BlockingConnection(
+                    pika.ConnectionParameters(host=self.rmq_host, port=self.rmq_port, credentials=credentials, connection_attempts=1, retry_delay=1)
+                )
+                channel = connection.channel()
+                channel.queue_declare(queue=self.queue_name, durable=True)
+                channel.basic_publish(
+                    exchange="",
+                    routing_key=self.queue_name,
+                    body=json.dumps(payload),
+                    properties=pika.BasicProperties(delivery_mode=2),
+                )
+                connection.close()
+                print(f"[RABBITMQ PUBLISHER] Published BookingConfirmedEvent for '{booking_id}' (PNR: {booking_reference}).")
+                return {"status": "published_rabbitmq", "queue": self.queue_name, "booking_id": booking_id}
+            except Exception as rmq_err:
+                print(f"[RABBITMQ NOTICE] Could not connect to RabbitMQ ({rmq_err}). Enqueueing event into fallback queue.")
+
+        # 2. Azure Service Bus
+        elif self.broker_type == "azure_service_bus" and self.azure_available and self._sb_client:
+            try:
+                from azure.servicebus import ServiceBusMessage
+                sender = self._sb_client.get_queue_sender(queue_name=self.sb_queue_name)
+                with sender:
+                    sender.send_messages(ServiceBusMessage(json.dumps(payload)))
+                print(f"[AZURE SERVICE BUS] Published BookingConfirmedEvent for '{booking_id}' (PNR: {booking_reference}).")
+                return {"status": "published_azure_service_bus", "queue": self.sb_queue_name, "booking_id": booking_id}
+            except Exception as sb_err:
+                print(f"[AZURE SERVICE BUS NOTICE] Failed to publish message: {sb_err}. Enqueueing into fallback queue.")
+
+        # 3. Fallback in-memory queue
+        _IN_MEMORY_EVENT_QUEUE.put(payload)
+        print(f"[SERVICE BUS FALLBACK] Enqueued BookingConfirmedEvent for '{booking_id}' into fallback queue.")
+        return {"status": "queued_in_memory_fallback", "booking_id": booking_id, "payload": payload}
+
     @staticmethod
     def pop_fallback_event(timeout: float = 0.5) -> Optional[dict[str, Any]]:
         """Pop an event from the fallback in-memory queue."""
