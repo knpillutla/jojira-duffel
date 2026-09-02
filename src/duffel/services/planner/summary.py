@@ -242,18 +242,22 @@ def build_trip_summary(
     }
 
     # 6. Flight Summary
+    air_name = str(component_pricing.get("airline_name") or component_pricing.get("airline") or "Delta Air Lines") if include_flights else None
     flight_cost_tot = component_pricing.get("flight_cost", 250.0) * passengers_count if include_flights else 0.0
     flights_summary = {
-        "included": bool(include_flights),
-        "passengers_count": passengers_count,
-        "total_cost": flight_cost_tot,
-        "currency": "USD",
+        "included": bool(include_flights), "airline": air_name, "airline_name": air_name,
+        "origin": str(origin_code or "").upper() if include_flights else str(origin_code),
+        "destination": str(dest_clean or "").upper() if include_flights else str(dest_clean),
+        "passengers_count": passengers_count, "total_cost": flight_cost_tot, "currency": "USD",
     }
 
     # 7. Overall Grand Total Cost
     overall_total_cost = flight_cost_tot + total_hotels_cost + car_cost_tot + total_attractions_cost
 
     return {
+        "origin": str(origin_code or "").upper() if include_flights else str(origin_code),
+        "destination": str(dest_clean or "").upper() if include_flights else str(dest_clean),
+        "airline": air_name, "airline_name": air_name,
         "start_date": start_date, "start_time": outbound_dep or "08:30 AM", "start_datetime": f"{start_date} {outbound_dep or '08:30 AM'}",
         "end_date": end_date, "end_time": return_arr or "06:00 PM", "end_datetime": f"{end_date} {return_arr or '06:00 PM'}",
         "total_days": duration_days, "travel_days": travel_days_count, "travel_days_list": travel_days_list,

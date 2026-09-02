@@ -136,6 +136,8 @@ def classify_travel_scope_and_type(
     user_location: Optional[str] = None,
     include_flights: bool = True,
     include_cars: bool = True,
+    road_trip: Optional[bool] = None,
+    fly_and_drive: Optional[bool] = None,
 ) -> dict[str, Any]:
     """Classifies trip scope (domestic vs international), trip type, and modality flags."""
     user_home_country = resolve_location_country(user_location) or resolve_location_country(resolved_origin) or "US"
@@ -151,36 +153,35 @@ def classify_travel_scope_and_type(
     has_explicit_drive = any(k in p_lower_check for k in ["road trip", "roadtrip", "drive", "driving", "by car", "car trip", "drive to", "drive from"])
     is_cruise = any(k in p_lower_check for k in ["cruise", "sailing", "sail", "cruise ship", "caribbean cruise", "alaska cruise", "mediterranean cruise"])
 
-    if is_cruise:
-        trip_type_val = "cruise"
-        base_trip_type = "Cruise Trip"
-        is_road_trip = False
-        eff_include_flights = False
-    elif has_explicit_drive:
-        is_road_trip = True
-        eff_include_flights = False
-        trip_type_val = "road_trip"
-        base_trip_type = "Road Trip"
+    # 1. Explicit parameter overrides take top precedence
+    if fly_and_drive:
+        is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, False, True, True
+        trip_type_val, base_trip_type = "fly_and_drive", "Fly & Drive"
+    elif road_trip is True:
+        is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, True, False, False
+        trip_type_val, base_trip_type = "road_trip", "Road Trip"
+    elif is_cruise:
+        is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = True, False, False, False
+        trip_type_val, base_trip_type = "cruise", "Cruise Trip"
+    elif has_explicit_drive and road_trip is not False:
+        is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, True, False, False
+        trip_type_val, base_trip_type = "road_trip", "Road Trip"
     elif has_explicit_flight:
-        is_road_trip = False
-        eff_include_flights = True
-        trip_type_val = "vacation_travel"
-        base_trip_type = "Vacation Travel"
-    elif not is_international and not has_explicit_flight:
-        is_road_trip = True
-        eff_include_flights = False
-        trip_type_val = "road_trip"
-        base_trip_type = "Road Trip"
+        is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, False, False, True
+        trip_type_val, base_trip_type = "vacation_travel", "Vacation Travel"
+    elif not is_international and not has_explicit_flight and not include_flights:
+        is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, True, False, False
+        trip_type_val, base_trip_type = "road_trip", "Road Trip"
     else:
         is_road_trip = not include_flights
         eff_include_flights = include_flights
+        is_cruise, is_fly_and_drive = False, False
         trip_type_val = "road_trip" if is_road_trip else "vacation_travel"
         base_trip_type = "Road Trip" if is_road_trip else "Vacation Travel"
 
-    is_fly_and_drive = bool(eff_include_flights and include_cars and has_explicit_drive)
-    if is_fly_and_drive:
-        trip_type_val = "fly_and_drive"
-        base_trip_type = "Fly & Drive"
+    if not is_fly_and_drive and (eff_include_flights and include_cars and (has_explicit_drive or fly_and_drive)):
+        is_fly_and_drive = True
+        trip_type_val, base_trip_type = "fly_and_drive", "Fly & Drive"
 
     return {
         "trip_scope": trip_scope,

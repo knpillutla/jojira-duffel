@@ -78,6 +78,8 @@ def generate_itinerary_endpoint(
             user_language=x_user_language,
             user_coordinates=x_user_coordinates,
             force_refresh=req.force_refresh,
+            road_trip=req.road_trip,
+            fly_and_drive=req.fly_and_drive,
         )
 
 

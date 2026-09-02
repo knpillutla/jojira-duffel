@@ -81,9 +81,15 @@ def build_flight_item(
     base_lat: float,
     base_lng: float,
     is_return: bool = False,
+    airline_name: Optional[str] = None,
 ) -> dict[str, Any]:
-    """Constructs official Outbound or Return Flight card."""
-    desc = f"{'Return Flight' if is_return else 'Flight Arrival'} from {dest_clean if is_return else origin_code} to {origin_code if is_return else dest_clean} ({passengers_count} pax). Departure time: {dep_time}, Arrival time: {arr_time}."
+    """Constructs official Outbound or Return Flight card with capital airport codes and airline name."""
+    orig_cap = str(origin_code or "").upper().strip()
+    dest_cap = str(dest_upper or "").upper().strip()
+    dep_code = dest_cap if is_return else orig_cap
+    arr_code = orig_cap if is_return else dest_cap
+    carrier = airline_name or "Delta Air Lines"
+    desc = f"{'Return Flight' if is_return else 'Flight Arrival'} on {carrier} from {dep_code} to {arr_code} ({passengers_count} pax). Departure time: {dep_time}, Arrival time: {arr_time}."
     return {
         "id": item_id,
         "type": "flight",
@@ -91,17 +97,23 @@ def build_flight_item(
         "category": "Flight",
         "name": title,
         "title": title,
+        "airline": carrier,
+        "airline_name": carrier,
+        "origin": dep_code,
+        "destination": arr_code,
+        "origin_code": orig_cap,
+        "destination_code": dest_cap,
         "description": desc,
         "price": round(price, 2),
         "currency": "USD",
         "departure_time": dep_time,
         "arrival_time": arr_time,
         "time_slot": f"Departure: {dep_time} | Arrival: {arr_time}",
-        "address": f"{dest_clean} Airport ({dest_upper})",
+        "address": f"{dest_clean} Airport ({dest_cap})",
         "phone_number": "+1 800 555 0199",
         "geo_location": {
-            "name": f"{dest_clean} Airport",
-            "address": f"{dest_clean} Airport ({dest_upper})",
+            "name": f"{dest_clean} Airport ({dest_cap})",
+            "address": f"{dest_clean} Airport ({dest_cap})",
             "phone_number": "+1 800 555 0199",
             "latitude": base_lat + 0.05,
             "longitude": base_lng + 0.05,
@@ -123,8 +135,8 @@ def build_car_rental_item(
     is_price_tbd: bool,
     base_lat: float,
     base_lng: float,
-    is_return: bool = False,
     is_road_trip: bool = False,
+    is_return: bool = False,
 ) -> dict[str, Any]:
     """Constructs official Rental Vehicle Pickup or Return card."""
     facility_type = f"{dest_clean} City Rental Center" if is_road_trip else f"{dest_clean} Airport Rental Facility"
@@ -235,8 +247,27 @@ def build_hotel_checkin_item(
 
 def fetch_live_component_pricing(**kwargs) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
     """Mock/Live pricing aggregator for flights, hotels, and rental cars."""
+    orig = str(kwargs.get("origin") or "").upper().strip()
+    dest = str(kwargs.get("destination") or "").upper().strip()
+    if dest in ["LHR", "LGW"] or orig in ["LHR", "LGW"]:
+        air = "British Airways"
+    elif dest in ["CDG", "ORY"] or orig in ["CDG", "ORY"]:
+        air = "Air France"
+    elif dest in ["DXB"] or orig in ["DXB"]:
+        air = "Emirates"
+    elif dest in ["HND", "NRT"] or orig in ["HND", "NRT"]:
+        air = "All Nippon Airways (ANA)"
+    elif orig in ["DFW", "MIA", "CLT"] or dest in ["DFW", "MIA", "CLT"]:
+        air = "American Airlines"
+    elif orig in ["ORD", "EWR", "SFO", "IAH"] or dest in ["ORD", "EWR", "SFO", "IAH"]:
+        air = "United Airlines"
+    else:
+        air = "Delta Air Lines"
+
     comp_pricing = {
         "flight_cost": 250.0,
+        "airline": air,
+        "airline_name": air,
         "hotel_cost_per_night": 140.0,
         "car_cost_total": 180.0,
         "outbound_departure_time": "08:30 AM",

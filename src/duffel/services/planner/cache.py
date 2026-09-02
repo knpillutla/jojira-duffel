@@ -162,3 +162,55 @@ def seed_itinerary_to_postgres(
         print(f"[PLANNER SEEDING] Auto-seeded {seeded_count} modules into PostgreSQL for '{destination}'.")
     except Exception as seed_err:
         print(f"[PLANNER SEEDING NOTICE] Auto-seeding notice: {seed_err}")
+
+
+def build_execution_and_cache_insights(
+    src_type: str,
+    dest_clean: str,
+    duration_days: int,
+    start_date: str,
+    end_date: str,
+    include_flights: bool,
+    is_road_trip: bool,
+    component_pricing: dict[str, Any],
+    outbound_dep: str,
+    outbound_arr: str,
+    return_dep: str,
+    return_arr: str,
+    llm_meta: Optional[dict[str, Any]] = None,
+) -> tuple[dict[str, Any], list[str]]:
+    """Builds insight metadata and human-readable audit trail explaining cache provenance and interpolation."""
+    is_from_postgres = (src_type == "modular_postgres_assembly")
+    is_from_redis = (src_type == "modular_redis_cache")
+    fl_cost = component_pricing.get("flight_cost", 0.0)
+
+    insights: list[str] = []
+    if is_from_postgres:
+        insights.append(f"Itinerary source: Read from PostgreSQL pre-stored modules for {dest_clean} ({duration_days} days) - 0ms LLM latency")
+        insights.append(f"Dates interpolated: Stitched activities onto concrete calendar dates {start_date} to {end_date}")
+        if include_flights:
+            insights.append(f"Flights interpolated: Bound live flight pricing (${fl_cost:.2f}) and schedule slots ({outbound_dep}-{outbound_arr} / {return_dep}-{return_arr})")
+        elif is_road_trip:
+            insights.append(f"Road trip interpolated: Bound driving departure ({outbound_dep}) and return drive ({return_arr})")
+    elif is_from_redis:
+        insights.append("Itinerary source: Read from L1 Redis fast memory cache (<1ms)")
+        insights.append(f"Dates & components retrieved for {start_date} to {end_date}")
+    else:
+        prov = (llm_meta or {}).get("llm_provider", "ai")
+        insights.append(f"Itinerary source: Generated via live LLM ({prov}) and seeded to PostgreSQL database")
+
+    print("\n" + "=" * 60 + "\n[PLANNER EXECUTION & CACHE INSIGHTS]")
+    for ins in insights:
+        print(f"  • {ins}")
+    print("=" * 60 + "\n", flush=True)
+
+    summary_fields = {
+        "is_read_from_postgres": is_from_postgres,
+        "itinerary_source": "postgres_database" if is_from_postgres else ("redis_cache" if is_from_redis else "live_llm"),
+        "interpolated_dates": bool(is_from_postgres or is_from_redis),
+        "interpolated_flights": bool((is_from_postgres or is_from_redis) and include_flights),
+        "interpolated_road_trip": bool((is_from_postgres or is_from_redis) and is_road_trip),
+        "insights": insights,
+        "execution_insights": insights,
+    }
+    return summary_fields, insights

@@ -13,6 +13,7 @@ def adapt_itinerary_for_tier(
     c_tier: str,
     f_tier: str,
     cars_count: int,
+    airline_name: Optional[str] = None,
 ) -> list[dict[str, Any]]:
     """Adapts item titles and pricing in daily itinerary for a specific package tier."""
     if not base_itinerary:
@@ -33,9 +34,12 @@ def adapt_itinerary_for_tier(
                     p_base = float(it_copy.get("price") or 180.0)
                     it_copy["price"] = round(p_base * (1.15 if tier_id == "luxury" else (0.85 if tier_id == "budget" else 1.0)), 2)
                     it_copy["price_display"] = f"USD {it_copy['price']:.2f}"
-            elif it_type == "flight":
+            elif it_type == "flight" or it_cat == "flight":
                 it_copy["name"] = f"Flight: {f_tier}"
                 it_copy["title"] = it_copy["name"]
+                it_air = airline_name or it_copy.get("airline_name") or it_copy.get("airline") or "Delta Air Lines"
+                it_copy["airline"] = it_air
+                it_copy["airline_name"] = it_air
                 if not it_copy.get("is_return"):
                     p_base = float(it_copy.get("price") or 250.0)
                     it_copy["price"] = round(p_base * mult, 2)
@@ -85,6 +89,7 @@ def build_top_3_bundles(
     adults_count: int = 1,
     children_count: int = 0,
     children_ages: Optional[list[int]] = None,
+    airline_name: Optional[str] = None,
 ) -> list[dict[str, Any]]:
     """Builds top 3 bundles: Budget, Balanced, Luxury with dedicated summary and data."""
     hotel_total = 0.0 if is_hotel_tbd else (hotel_cost_per_night * max(1, duration_days - 1))
@@ -118,19 +123,21 @@ def build_top_3_bundles(
             1.50,
             "Ultimate indulgence featuring 5-star luxury suites, premium SUV, fine dining, and private concierge tours.",
             "5-Star Luxury Resort Suites (The Adolphus / Ritz-Carlton / Four Seasons)",
-            "Premium Luxury Full-Size SUV (Cadillac Escalade / BMW X5)",
-            "First Class / Business Class Direct Flights",
-            "Michelin-Starred / Chef's Tasting Menus & Private VIP Guided Access",
+            "Premium Luxury SUV (Cadillac Escalade / Lincoln Navigator)",
+            "First Class / Business Direct Flights with Lounge Access",
+            "Michelin-Starred & Chef's Tasting Menus with Private VIP Tours",
         ),
     ]
 
     bundles = []
+    base_air = airline_name or "Delta Air Lines"
     for idx, (tier_id, tier_label, mult, tier_desc, h_tier, c_tier, f_tier, d_tier) in enumerate(tiers):
-        t_flight = round(flight_total * (mult if not is_road_trip else 1.0), 2)
+        t_flight = round(flight_total * mult, 2)
         t_hotel = round(hotel_total * mult, 2)
         t_car = round(car_total * (1.15 if idx == 2 else (0.85 if idx == 0 else 1.0)), 2)
         t_act = round(activities_total_cost * mult, 2)
         t_total = round(t_flight + t_hotel + t_car + t_act, 2)
+        tier_air = f"{base_air} (First Class)" if (tier_id == "luxury") else base_air
 
         p_name = generate_contextual_bundle_title(
             destination=dest_clean,
@@ -150,10 +157,13 @@ def build_top_3_bundles(
             c_tier=c_tier,
             f_tier=f_tier,
             cars_count=cars_count,
+            airline_name=tier_air,
         )
 
         tier_pricing = {
             "flight_cost": round(flight_cost * mult, 2),
+            "airline": tier_air,
+            "airline_name": tier_air,
             "hotel_cost_per_night": round(hotel_cost_per_night * mult, 2),
             "car_cost_total": t_car,
             "outbound_departure_time": outbound_dep,
@@ -178,6 +188,8 @@ def build_top_3_bundles(
             "title": p_name,
             "package_name": p_name,
             "name": p_name,
+            "airline": tier_air if include_flights and not is_road_trip else None,
+            "airline_name": tier_air if include_flights and not is_road_trip else None,
             "description": tier_desc,
             "hotel_tier": h_tier,
             "car_tier": c_tier if (is_road_trip or not is_cruise) else "N/A",

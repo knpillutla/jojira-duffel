@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-09-02T12:52:17.208616+00:00",
-  "destination": "Orlando",
+  "timestamp": "2026-09-02T13:35:47.539253+00:00",
+  "destination": "JFK",
   "duration_days": 4,
-  "user_prompt": "Plan a 4-day trip from Atlanta to Orlando from 2026-09-17 to 2026-09-20 for 1 passenger(s). Modality: Road Trip, Style: balanced, Budget: moderate.\nDEPARTURE LOGISTICS: Pick up rental vehicle in Atlanta at 08:30 AM - 09:00 AM. Morning road trip drive departs Atlanta at 09:00 AM heading toward Orlando.\nROAD TRIP HIGHWAY CORRIDOR & DEFAULT ROUND-TRIP REQUIREMENT:\n- DEFAULT ROUND TRIP: Every road trip is a ROUND TRIP starting from Atlanta and returning to Atlanta on Day 4 unless the user explicitly requested 'one-way'.\n- OUTBOUND & WAYPOINTS (Days 1 to 3): Construct the driving journey from Atlanta toward Orlando with authentic highway stops, state/national parks, roadside diners, and intermediate overnight stays in waypoint towns.\n- FINAL DAY RETURN (Day 4): The final day MUST be the return driving journey back to Atlanta (e.g. Orlando -> Highway Waypoints -> Atlanta), with lunch at 12:00 PM, return highway drive arriving back in Atlanta by 05:30 PM for rental vehicle return, and concluding with dinner in Atlanta.\n- Set 'travel_mode': 'drive' for all driving legs. Package tiers are: 'budget' (Budget Saver), 'balanced' (Balanced Choice), and 'luxury' (Signature Luxury VIP).\nSAFETY & WALKABILITY MANDATE (TOP PRIORITY):\n- LODGING SAFETY & WALKABILITY: Select only 4.5+ star verified hotels located in premier, safe, well-lit, highly walkable neighborhoods (downtown arts districts, historic boulevards, upscale business corridors). NEVER place lodging in unsafe, isolated, or industrial zones.\n- VEHICLE SAFETY: Prioritize tier-1 reputable rental fleets (Enterprise, National, Hertz) equipped with modern active safety features and 24/7 roadside assistance.\n- WALKABLE DINING & SIGHTSEEING: Ensure all evening dining, morning coffee, and strolling attractions are situated in vibrant, family-safe pedestrian zones with excellent guest safety reviews.\nREAL-WORLD NAMED ENTITY EXTRACTION MANDATE:\n- EVERY activity, hotel, restaurant, and attraction MUST be a real, specific named place (e.g. 'Courtyard by Marriott Valdosta', 'Universal Studios Florida', 'Mrs. Wilkes Dining Room', 'Ponce City Market'). NEVER output generic placeholders like 'Attraction', 'Hotel', or 'Dinner'.\n- CATEGORY CLASSIFICATION: Set 'category' accurately for each item ('Attraction', 'Hotel', 'Dining', 'Shopping', 'Transit').\n- CHRONOLOGICAL ORDERING: Output all activities in strict sequential time order from 08:00 AM to 09:30 PM without time overlaps.\nCONTINUOUS DAILY TIMELINE PROTOCOL (NO UNALLOCATED GAPS):\n- Every day's itinerary MUST be completely continuous with ZERO unallocated idle gaps between activities.\n- Every activity, meal, transit, or sightseeing slot must transition directly and back-to-back into the next (e.g. 08:00 AM Breakfast -> 09:00 AM Sightseeing/Drive -> 12:00 PM Lunch -> 01:00 PM Afternoon Activity -> 05:00 PM Exploration -> 06:00 PM Shopping -> 08:00 PM Dinner -> 09:30 PM Hotel Return).\n- Never leave 1-to-3 hour unallocated gaps before dinner, between theme park wrap-up and evening plans, or between road trip arrival and vehicle drop-off.\nEVENING SHOPPING PROTOCOL (DESTINATION EXPLORATION DAYS ONLY):\n- On intermediate exploration days (Days 2 through {duration_minus_1}), whenever afternoon sightseeing or theme park excursion concludes before dinner (e.g. 05:30 PM - 07:45 PM), schedule dedicated Evening Shopping, Artisan Market Browsing, or Promenade Walk to eliminate timeline gaps before 08:00 PM dinner.\n- SHOPPING TIMING MANDATE: Shopping MUST ALWAYS be placed in the evening before dinner on full exploration days. NEVER schedule shopping during morning/afternoon sightseeing, and NEVER schedule shopping on the final return driving day.\nMANDATORY 'next_activity' TRANSIT NODE FOR EVERY ACTIVITY:\n- EVERY activity and itinerary item MUST include a 'next_activity' object defining transit to the following step:\n  {\n    \"name\": \"<Next Activity / Landmark / Hotel Name>\",\n    \"distance_km\": <float distance in km>,\n    \"distance_miles\": <float distance in miles>,\n    \"distance_display\": \"<e.g. '15.2 km (9.4 miles)'>\",\n    \"travel_time_minutes\": <int transit minutes>,\n    \"travel_time_display\": \"<e.g. '20 mins' or '2 hrs 15 mins'>\",\n    \"travel_mode\": \"<walk | drive | transit | ferry>\",\n    \"transit_summary\": \"<e.g. 'Scenic drive via I-75 S' or '5-min walk to restaurant'>\"\n  }\n- For the final item of the day, set 'name': 'Return to <Specific Hotel Name> & Overnight Rest' (explicitly including the hotel name, e.g. 'Return to Courtyard by Marriott & Overnight Rest'), 'distance_km': 0.0, 'distance_miles': 0.0, 'travel_time_minutes': 0, 'travel_time_display': '0 mins', 'travel_mode': 'stay', 'transit_summary': 'Resting at <Specific Hotel Name> for the night'.\nDAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n- CONTINUOUS SEQUENCING (ZERO IDLE GAPS): Build seamless back-to-back schedules from morning to night with NO unallocated gaps.\n- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest. NEVER extend any attraction past 08:00 PM.\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (08:00 PM - 09:30 PM).\n- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY full day MUST be 'Return to <Specific Hotel Name> & Rest for the Night' (always explicitly naming the hotel, e.g. 'Return to Courtyard by Marriott & Rest for the Night'), with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots past 10:00 PM.\n- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM.\nHOTEL INCLUDED BREAKFAST PROTOCOL (TIME & COST EFFICIENCY):\n- Prefer hotels that provide complimentary/included breakfast.\n- On all exploration days (Day 2 onwards), schedule breakfast at 08:00 AM directly at the hotel's in-house restaurant/buffet to save 45+ minutes of morning transit time.\n- If breakfast is free, set 'price': 0.0 and 'price_display': 'Free / Included with Hotel Stay'.\n- If breakfast is not included or off-site, specify the min-max cost range in 'price_display' (e.g. 'USD 12.00 - 18.00') and set 'price': 15.00.\n- Always utilize in-house hotel breakfast unless the user specifically requests a named local bakery/cafe.\nMULTI-NIGHT HOTEL CONTINUITY MANDATE (NO HOTEL SWITCHING IN SAME CITY):\n- When spending multiple consecutive nights in the same destination city or area (e.g. Night 2 and Night 3 in Orlando, or Nights 1-3 in Dallas), ALWAYS stay at the EXACT SAME hotel for all consecutive nights.\n- NEVER switch hotels daily within the same destination city. Switching hotels every night causes extreme friction and is completely unrealistic.\n- Check in to a new hotel ONLY when traveling to a new city/overnight town.\n- On subsequent days at the same hotel (e.g. Day 3 in Orlando), DO NOT generate a 'Hotel Check-in' activity; start with Breakfast at that hotel and finish the day returning to that exact same hotel.\nTHEMATIC EMPHASIS (BALANCED & COMPLETE): Curate a balanced blend of top iconic landmarks, cultural highlights, local dining, and relaxing neighborhood strolls.\nTIMELINE REQUIREMENT (DEFAULT ROUND-TRIP): On Day 1, depart Atlanta at 09:00 AM on the outbound corridor. On Final Day (Day 4), execute the return driving journey back to Atlanta with midday lunch, arriving back in Atlanta by 05:30 PM for final vehicle return (05:30 PM - 06:00 PM), with NO return-day shopping or post-dropoff activities.\nRENTAL VEHICLE & TIMELINE LOGISTICS (ROAD TRIP):\n- Rental car pickup in Atlanta (08:30 AM - 09:00 AM) on Day 1 and final rental return in Atlanta (05:30 PM - 06:00 PM) on Day 4 are automatically managed by the system.\n- DO NOT add duplicate 'Pick up rental car', 'Return rental car', or 'Arrive in Atlanta to return car' placeholder activities in the activities list.\n- DAY 1 MORNING DEPARTURE: Day 1 first driving activity MUST start at 09:00 AM (immediately after the 08:30 AM vehicle pickup).\n- DAY 4 FINAL RETURN DAY CURATION (STRICT VEHICLE RETURN BY 06:00 PM, NO SHOPPING ON RETURN DAY):\n  1) 08:00 AM Breakfast at lodging,\n  2) 09:00 AM - 12:00 PM Morning scenic return driving leg,\n  3) 12:00 PM - 01:30 PM Midday highway lunch,\n  4) 01:30 PM - 05:30 PM Afternoon return drive leg arriving back in Atlanta by 05:30 PM,\n  5) 05:30 PM - 06:00 PM Final Rental Vehicle Return at Atlanta Rental Center (Concluding the trip by 06:00 PM).\n  - NO SHOPPING ON RETURN DAY: NEVER add shopping on the return day (shopping belongs exclusively on destination exploration days).\n  - NO ACTIVITIES AFTER 06:00 PM ON RETURN DAY: The road trip concludes with the 05:30 PM - 06:00 PM vehicle return.\nIncluded components: Flights=False, Hotels=True (1 rooms), Cars=True (1 car), Trains=False, Buses=False, Attractions=True, Activities=True, SeasonalAttractions=True, SeasonalActivities=True. Prompt details: '4 day trip from atlanta to orlando Road Trip'.\nOUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {\"days\": [{\"day_number\": 1, \"date\": \"2026-09-17\", \"theme\": \"...\", \"activities\": [..., {\"name\": \"...\", \"time_slot\": \"08:00 AM - 09:00 AM\", \"category\": \"...\", \"description\": \"...\", \"travel_mode\": \"...\", \"next_activity\": {\"name\": \"...\", \"distance_km\": 5.0, \"distance_miles\": 3.1, \"travel_time_minutes\": 15, \"travel_time_display\": \"15 mins\", \"travel_mode\": \"walk\", \"transit_summary\": \"...\"}}]}]}.",
+  "user_prompt": "Plan a 4-day trip from ATL to JFK from 2026-09-17 to 2026-09-20 for 1 passenger(s). Modality: Flight Vacation, Style: balanced, Budget: moderate.\nDEPARTURE LOGISTICS: Pick up rental vehicle in ATL at 08:30 AM - 09:00 AM. Morning road trip drive departs ATL at 09:00 AM heading toward JFK.\nFLY & DRIVE COMBINATION LOGISTICS:\nThis is a Fly-and-Drive journey from ATL to JFK. Fly into JFK, pick up rental car at the airport, and embark on scenic regional road trips and day excursions across the surrounding region before returning to the hub.\nSAFETY & WALKABILITY MANDATE (TOP PRIORITY):\n- LODGING SAFETY & WALKABILITY: Select only 4.5+ star verified hotels located in premier, safe, well-lit, highly walkable neighborhoods (downtown arts districts, historic boulevards, upscale business corridors). NEVER place lodging in unsafe, isolated, or industrial zones.\n- VEHICLE SAFETY: Prioritize tier-1 reputable rental fleets (Enterprise, National, Hertz) equipped with modern active safety features and 24/7 roadside assistance.\n- WALKABLE DINING & SIGHTSEEING: Ensure all evening dining, morning coffee, and strolling attractions are situated in vibrant, family-safe pedestrian zones with excellent guest safety reviews.\nREAL-WORLD NAMED ENTITY EXTRACTION MANDATE:\n- EVERY activity, hotel, restaurant, and attraction MUST be a real, specific named place (e.g. 'Courtyard by Marriott Valdosta', 'Universal Studios Florida', 'Mrs. Wilkes Dining Room', 'Ponce City Market'). NEVER output generic placeholders like 'Attraction', 'Hotel', or 'Dinner'.\n- CATEGORY CLASSIFICATION: Set 'category' accurately for each item ('Attraction', 'Hotel', 'Dining', 'Shopping', 'Transit').\n- CHRONOLOGICAL ORDERING: Output all activities in strict sequential time order from 08:00 AM to 09:30 PM without time overlaps.\nCONTINUOUS DAILY TIMELINE PROTOCOL (NO UNALLOCATED GAPS):\n- Every day's itinerary MUST be completely continuous with ZERO unallocated idle gaps between activities.\n- Every activity, meal, transit, or sightseeing slot must transition directly and back-to-back into the next (e.g. 08:00 AM Breakfast -> 09:00 AM Sightseeing/Drive -> 12:00 PM Lunch -> 01:00 PM Afternoon Activity -> 05:00 PM Exploration -> 06:00 PM Shopping -> 08:00 PM Dinner -> 09:30 PM Hotel Return).\n- Never leave 1-to-3 hour unallocated gaps before dinner, between theme park wrap-up and evening plans, or between road trip arrival and vehicle drop-off.\nEVENING SHOPPING PROTOCOL (DESTINATION EXPLORATION DAYS ONLY):\n- On intermediate exploration days (Days 2 through {duration_minus_1}), whenever afternoon sightseeing or theme park excursion concludes before dinner (e.g. 05:30 PM - 07:45 PM), schedule dedicated Evening Shopping, Artisan Market Browsing, or Promenade Walk to eliminate timeline gaps before 08:00 PM dinner.\n- SHOPPING TIMING MANDATE: Shopping MUST ALWAYS be placed in the evening before dinner on full exploration days. NEVER schedule shopping during morning/afternoon sightseeing, and NEVER schedule shopping on the final return driving day.\nMANDATORY 'next_activity' TRANSIT NODE FOR EVERY ACTIVITY:\n- EVERY activity and itinerary item MUST include a 'next_activity' object defining transit to the following step:\n  {\n    \"name\": \"<Next Activity / Landmark / Hotel Name>\",\n    \"distance_km\": <float distance in km>,\n    \"distance_miles\": <float distance in miles>,\n    \"distance_display\": \"<e.g. '15.2 km (9.4 miles)'>\",\n    \"travel_time_minutes\": <int transit minutes>,\n    \"travel_time_display\": \"<e.g. '20 mins' or '2 hrs 15 mins'>\",\n    \"travel_mode\": \"<walk | drive | transit | ferry>\",\n    \"transit_summary\": \"<e.g. 'Scenic drive via I-75 S' or '5-min walk to restaurant'>\"\n  }\n- For the final item of the day, set 'name': 'Return to <Specific Hotel Name> & Overnight Rest' (explicitly including the hotel name, e.g. 'Return to Courtyard by Marriott & Overnight Rest'), 'distance_km': 0.0, 'distance_miles': 0.0, 'travel_time_minutes': 0, 'travel_time_display': '0 mins', 'travel_mode': 'stay', 'transit_summary': 'Resting at <Specific Hotel Name> for the night'.\nDAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n- CONTINUOUS SEQUENCING (ZERO IDLE GAPS): Build seamless back-to-back schedules from morning to night with NO unallocated gaps.\n- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest. NEVER extend any attraction past 08:00 PM.\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (08:00 PM - 09:30 PM).\n- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY full day MUST be 'Return to <Specific Hotel Name> & Rest for the Night' (always explicitly naming the hotel, e.g. 'Return to Courtyard by Marriott & Rest for the Night'), with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots past 10:00 PM.\n- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM.\nHOTEL INCLUDED BREAKFAST PROTOCOL (TIME & COST EFFICIENCY):\n- Prefer hotels that provide complimentary/included breakfast.\n- On all exploration days (Day 2 onwards), schedule breakfast at 08:00 AM directly at the hotel's in-house restaurant/buffet to save 45+ minutes of morning transit time.\n- If breakfast is free, set 'price': 0.0 and 'price_display': 'Free / Included with Hotel Stay'.\n- If breakfast is not included or off-site, specify the min-max cost range in 'price_display' (e.g. 'USD 12.00 - 18.00') and set 'price': 15.00.\n- Always utilize in-house hotel breakfast unless the user specifically requests a named local bakery/cafe.\nMULTI-NIGHT HOTEL CONTINUITY MANDATE (NO HOTEL SWITCHING IN SAME CITY):\n- When spending multiple consecutive nights in the same destination city or area (e.g. Night 2 and Night 3 in Orlando, or Nights 1-3 in Dallas), ALWAYS stay at the EXACT SAME hotel for all consecutive nights.\n- NEVER switch hotels daily within the same destination city. Switching hotels every night causes extreme friction and is completely unrealistic.\n- Check in to a new hotel ONLY when traveling to a new city/overnight town.\n- On subsequent days at the same hotel (e.g. Day 3 in Orlando), DO NOT generate a 'Hotel Check-in' activity; start with Breakfast at that hotel and finish the day returning to that exact same hotel.\nTHEMATIC EMPHASIS (BALANCED & COMPLETE): Curate a balanced blend of top iconic landmarks, cultural highlights, local dining, and relaxing neighborhood strolls.\nTIMELINE REQUIREMENT: On Day 1, schedule all activities strictly after flight arrival at 12:30 PM. On Final Day, wrap up before flight departure at 05:00 PM.\nRENTAL VEHICLE LOGISTICS (FLIGHT VACATION): Rental car pickup at JFK Airport on Day 1 and rental return on Day 4 are automatically managed by the system. DO NOT add a duplicate 'Pick up rental car' activity in the activities list.\nIncluded components: Flights=True, Hotels=True (1 rooms), Cars=True (1 car), Trains=False, Buses=False, Attractions=True, Activities=True, SeasonalAttractions=True, SeasonalActivities=True. Prompt details: '4 day trip from atlanta to newyork in october'.\nOUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {\"days\": [{\"day_number\": 1, \"date\": \"2026-09-17\", \"theme\": \"...\", \"activities\": [..., {\"name\": \"...\", \"time_slot\": \"08:00 AM - 09:00 AM\", \"category\": \"...\", \"description\": \"...\", \"travel_mode\": \"...\", \"next_activity\": {\"name\": \"...\", \"distance_km\": 5.0, \"distance_miles\": 3.1, \"travel_time_minutes\": 15, \"travel_time_display\": \"15 mins\", \"travel_mode\": \"walk\", \"transit_summary\": \"...\"}}]}]}.",
   "system_prompt": "You are a World-Class Global AI Travel Planner & Master Concierge. You specialize in analyzing complex travel requests and crafting hyper-curated, optimal travel itineraries and travel packages worldwide across top global destinations. You expertly identify user intentions for flights, hotels, car rentals, attractions, dining, multi-category travel bundles, driving road trips, and ocean/river cruises.\n\nTRAVEL MODALITY SPECIALIZATION (FLIGHTS vs ROAD TRIP vs CRUISE):\n1. ROAD TRIP MODE (NO FLIGHTS / DRIVING TRIPS):\n   - When planning a Road Trip or ground travel, do NOT restrict activities solely to the destination city.\n   - Construct the itinerary across the authentic driving highway/byway corridor between Origin and Destination (e.g. Atlanta -> Dallas via Birmingham, Tuscaloosa, Meridian, Jackson, Shreveport).\n   - Schedule authentic en-route morning attractions, famous roadside diners, state/national parks, scenic lookouts, and intermediate overnight stays in waypoint towns.\n   - In 'next_activity', set 'travel_mode': 'drive' for intercity and corridor transit legs with realistic driving distances and durations.\n   - Packages and bundles across all travel modes are categorized as: 'budget' (Budget Saver), 'balanced' (Balanced Choice), and 'luxury' (Signature Luxury VIP). Users can specify stylistic preferences like scenic in their prompt.\n   - NEVER generate flight segments or airport terminal references for pure road trips.\n2. CRUISE MODE (OCEAN / RIVER CRUISES):\n   - When planning a Cruise or sailing journey, structure the itinerary around port embarkation, daily ports-of-call, shore excursions, coastal sightseeing, harbor dining, and maritime transit ('travel_mode': 'boat' or 'ferry').\n   - Day 1: Port embarkation, ship check-in, and sail-away viewing. Final Day: Port debarkation and departure.\n3. FLIGHT & VACATION TRAVEL MODE:\n   - Structure around flight arrival logistics, airport transfers, hotel check-in, city sightseeing highlights, and return flight departure logistics.\n   - Packages are categorized as: 'cheapest' (Budget Saver), 'moderate' (Balanced Choice), and 'luxury' (Signature Luxury VIP).\n\nSTANDARD DAY TIMINGS & DEFINITIONS (STRICT COMPLIANCE REQUIRED):\n- MORNING (05:00 AM - 11:59 AM): Breakfast at 08:00 AM, morning cultural museums, iconic attractions, or road trip scenic morning stops at 09:30 AM - 11:30 AM.\n- NOON / MIDDAY (12:00 PM - 12:59 PM): Lunch at 12:00 PM - 01:30 PM at top-rated local cafes, bistros, or famous en-route highway diners.\n- AFTERNOON (01:00 PM - 04:59 PM): Afternoon promenades, historic districts, parks, viewpoints, en-route state/national parks, and cultural experiences (e.g. 02:00 PM - 04:30 PM on full days, or 03:15 PM - 05:15 PM on Day 1 after hotel check-in).\n- EVENING (05:00 PM - 07:59 PM): Evening sunset attractions, panoramic towers, viewpoints, and dedicated Evening Shopping / Local Artisan Boutiques (05:30 PM - 07:45 PM). NEVER schedule evening activities during the afternoon (12:00 PM - 04:59 PM).\n- NIGHT (08:00 PM - 11:59 PM): Signature regional dinner from 08:00 PM - 09:30 PM, followed by 'Return to Hotel & Rest for the Night' at 09:30 PM - 10:00 PM.\n- MIDNIGHT / LATE NIGHT (12:00 AM - 04:59 AM): Resting at hotel (NO activities permitted).\n\nREAL SPECIFIC NAMES (NO GENERIC PLACEHOLDERS):\n- NEVER use generic placeholder names like 'Evening Landmark Attraction', 'Famous Landmark / Museum', 'Signature Dinner Place', 'Artisanal Breakfast', 'Gourmet Lunch', or 'Afternoon Activity & Promenade'.\n- ALWAYS provide the REAL, ACTUAL, and FAMOUS name of the landmark, museum, restaurant, or experience.\n\nSTRICT TIMING & SEQUENCING RULES (UNBREAKABLE):\n- CONTINUOUS SEQUENCING (ZERO UNALLOCATED GAPS): Every day's schedule MUST be completely continuous with back-to-back transitions and zero idle gaps. Fill late afternoon or pre-dinner gaps with dedicated Evening Shopping or Local Artisan Market browsing.\n- SHOPPING PLACEMENT RULE: Shopping MUST ALWAYS be scheduled at the END OF THE DAY (in the evening before dinner or before returning to the hotel). NEVER schedule shopping during morning or afternoon sightseeing.\n- ATTRACTION CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest. NEVER extend any attraction past 08:00 PM.\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (08:00 PM - 09:30 PM).\n- MANDATORY HOTEL RETURN AS FINAL STEP (BEFORE 10:00 PM): The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night' (09:30 PM - 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots past 10:00 PM.\n- EXACT JSON ONLY: Return strictly valid JSON adhering to the specified schema.",
   "llm_metadata": {
     "is_live_llm": true,
@@ -13,86 +13,118 @@
     {
       "day_number": 1,
       "date": "2026-09-17",
-      "theme": "Road Trip from Atlanta to Orlando",
+      "theme": "Arrival and Evening in New York City",
       "activities": [
         {
-          "name": "Depart from Atlanta",
-          "time_slot": "09:00 AM - 11:00 AM",
+          "name": "Flight from Atlanta (ATL) to New York City (JFK)",
+          "time_slot": "09:00 AM - 12:30 PM",
           "category": "Transit",
-          "description": "Begin the road trip from Atlanta towards Orlando, passing through scenic routes.",
-          "travel_mode": "drive",
+          "description": "Direct flight to New York City arriving at JFK Airport.",
+          "travel_mode": "flight",
           "next_activity": {
-            "name": "Lunch at The Varsity, Atlanta",
-            "distance_km": 2.5,
-            "distance_miles": 1.6,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Short drive to The Varsity for lunch."
+            "name": "Pick up rental car at JFK Airport",
+            "distance_km": 0.0,
+            "distance_miles": 0.0,
+            "travel_time_minutes": 0,
+            "travel_time_display": "0 mins",
+            "travel_mode": "stay",
+            "transit_summary": "Rental car pickup at JFK Airport."
           }
         },
         {
-          "name": "Lunch at The Varsity, Atlanta",
-          "time_slot": "11:00 AM - 12:00 PM",
-          "category": "Dining",
-          "description": "Enjoy a classic American lunch at The Varsity, famous for its hot dogs and hamburgers.",
-          "travel_mode": "drive",
-          "next_activity": {
-            "name": "Explore Ocmulgee Mounds National Historical Park",
-            "distance_km": 145.0,
-            "distance_miles": 90.1,
-            "travel_time_minutes": 90,
-            "travel_time_display": "1 hr 30 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive from Atlanta to Macon to visit the Ocmulgee Mounds."
-          }
-        },
-        {
-          "name": "Explore Ocmulgee Mounds National Historical Park",
-          "time_slot": "01:30 PM - 03:00 PM",
-          "category": "Attraction",
-          "description": "Visit the Ocmulgee Mounds National Historical Park, a significant archaeological site preserving over 17,000 years of continuous human habitation.",
-          "travel_mode": "drive",
-          "next_activity": {
-            "name": "Check-in at Valdosta Courtyard by Marriott",
-            "distance_km": 220.0,
-            "distance_miles": 136.7,
-            "travel_time_minutes": 135,
-            "travel_time_display": "2 hrs 15 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Continue the drive from Macon to Valdosta."
-          }
-        },
-        {
-          "name": "Check-in at Courtyard by Marriott Valdosta",
-          "time_slot": "05:15 PM - 05:45 PM",
+          "name": "Check-in at The Westin New York at Times Square",
+          "time_slot": "01:00 PM - 01:30 PM",
           "category": "Hotel",
-          "description": "Check-in and relax at the Courtyard by Marriott Valdosta.",
-          "travel_mode": "stay",
+          "description": "Check-in at The Westin New York, located in a vibrant and walkable area near Times Square.",
+          "travel_mode": "drive",
           "next_activity": {
-            "name": "Dinner at Steel Magnolias, Valdosta",
-            "distance_km": 3.0,
-            "distance_miles": 1.9,
+            "name": "Lunch at Junior's Restaurant & Bakery",
+            "distance_km": 1.3,
+            "distance_miles": 0.8,
             "travel_time_minutes": 10,
             "travel_time_display": "10 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to Steel Magnolias for dinner."
+            "travel_mode": "walk",
+            "transit_summary": "10-min walk to Junior's Restaurant & Bakery."
           }
         },
         {
-          "name": "Dinner at Steel Magnolias, Valdosta",
+          "name": "Lunch at Junior's Restaurant & Bakery",
+          "time_slot": "01:30 PM - 02:30 PM",
+          "category": "Dining",
+          "description": "Enjoy classic New York-style sandwiches and famous cheesecakes at Junior's.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Stroll through Central Park",
+            "distance_km": 3.2,
+            "distance_miles": 2.0,
+            "travel_time_minutes": 15,
+            "travel_time_display": "15 mins",
+            "travel_mode": "transit",
+            "transit_summary": "15-min subway ride to Central Park."
+          }
+        },
+        {
+          "name": "Stroll through Central Park",
+          "time_slot": "02:45 PM - 04:30 PM",
+          "category": "Attraction",
+          "description": "Relax and explore the beautiful landscapes and attractions within Central Park.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Visit The Metropolitan Museum of Art",
+            "distance_km": 2.1,
+            "distance_miles": 1.3,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "walk",
+            "transit_summary": "10-min walk to The Met."
+          }
+        },
+        {
+          "name": "Visit The Metropolitan Museum of Art",
+          "time_slot": "04:45 PM - 07:00 PM",
+          "category": "Attraction",
+          "description": "Explore the vast and diverse art collections at The Met.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Evening Shopping at Fifth Avenue",
+            "distance_km": 1.5,
+            "distance_miles": 0.9,
+            "travel_time_minutes": 15,
+            "travel_time_display": "15 mins",
+            "travel_mode": "walk",
+            "transit_summary": "15-min walk to Fifth Avenue."
+          }
+        },
+        {
+          "name": "Evening Shopping at Fifth Avenue",
+          "time_slot": "07:15 PM - 07:45 PM",
+          "category": "Shopping",
+          "description": "Browse luxury stores and boutiques along the iconic Fifth Avenue.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Dinner at Carmine's Italian Restaurant",
+            "distance_km": 2.0,
+            "distance_miles": 1.2,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "walk",
+            "transit_summary": "10-min walk to Carmine's Italian Restaurant."
+          }
+        },
+        {
+          "name": "Dinner at Carmine's Italian Restaurant",
           "time_slot": "08:00 PM - 09:30 PM",
           "category": "Dining",
-          "description": "Enjoy a Southern-inspired dinner at Steel Magnolias, known for its elegant atmosphere and locally sourced ingredients.",
-          "travel_mode": "drive",
+          "description": "Enjoy a family-style Italian dinner at Carmine's, known for its generous portions.",
+          "travel_mode": "walk",
           "next_activity": {
-            "name": "Return to Courtyard by Marriott Valdosta & Overnight Rest",
-            "distance_km": 3.0,
-            "distance_miles": 1.9,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Return to the hotel for overnight rest."
+            "name": "Return to The Westin New York at Times Square & Rest for the Night",
+            "distance_km": 0.5,
+            "distance_miles": 0.3,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 mins",
+            "travel_mode": "walk",
+            "transit_summary": "5-min walk back to The Westin New York at Times Square."
           }
         }
       ]
@@ -100,102 +132,120 @@
     {
       "day_number": 2,
       "date": "2026-09-18",
-      "theme": "Continue Road Trip to Orlando",
+      "theme": "Exploration of New York City's Landmarks",
       "activities": [
         {
-          "name": "Breakfast at Courtyard by Marriott Valdosta",
+          "name": "Breakfast at The Westin New York at Times Square",
           "time_slot": "08:00 AM - 09:00 AM",
           "category": "Dining",
-          "description": "Start your day with a complimentary breakfast at the hotel.",
+          "description": "Enjoy a hearty breakfast at the hotel to start your day.",
+          "price": 0.0,
+          "price_display": "Free / Included with Hotel Stay",
           "travel_mode": "stay",
           "next_activity": {
-            "name": "Drive to Gainesville for a Visit",
-            "distance_km": 200.0,
-            "distance_miles": 124.3,
-            "travel_time_minutes": 120,
-            "travel_time_display": "2 hrs",
-            "travel_mode": "drive",
-            "transit_summary": "Continue the journey towards Gainesville."
-          }
-        },
-        {
-          "name": "Visit Kanapaha Botanical Gardens, Gainesville",
-          "time_slot": "11:00 AM - 12:30 PM",
-          "category": "Attraction",
-          "description": "Explore the beautiful Kanapaha Botanical Gardens, known for its bamboo garden and picturesque landscapes.",
-          "travel_mode": "drive",
-          "next_activity": {
-            "name": "Lunch at The Top, Gainesville",
+            "name": "Visit Statue of Liberty and Ellis Island",
             "distance_km": 10.0,
             "distance_miles": 6.2,
+            "travel_time_minutes": 30,
+            "travel_time_display": "30 mins",
+            "travel_mode": "transit",
+            "transit_summary": "30-min subway ride and ferry to Liberty Island."
+          }
+        },
+        {
+          "name": "Visit Statue of Liberty and Ellis Island",
+          "time_slot": "09:30 AM - 12:30 PM",
+          "category": "Attraction",
+          "description": "Experience the iconic Statue of Liberty and explore Ellis Island.",
+          "travel_mode": "ferry",
+          "next_activity": {
+            "name": "Lunch at Fraunces Tavern",
+            "distance_km": 3.0,
+            "distance_miles": 1.9,
             "travel_time_minutes": 15,
             "travel_time_display": "15 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to The Top restaurant for lunch."
+            "travel_mode": "walk",
+            "transit_summary": "15-min walk to Fraunces Tavern."
           }
         },
         {
-          "name": "Lunch at The Top, Gainesville",
-          "time_slot": "12:45 PM - 02:00 PM",
+          "name": "Lunch at Fraunces Tavern",
+          "time_slot": "12:45 PM - 01:45 PM",
           "category": "Dining",
-          "description": "Enjoy a hearty lunch at The Top, famous for its eclectic menu and vibrant atmosphere.",
-          "travel_mode": "drive",
+          "description": "Dine at a historic tavern that played a role in the American Revolution.",
+          "travel_mode": "walk",
           "next_activity": {
-            "name": "Drive to Orlando",
-            "distance_km": 160.0,
-            "distance_miles": 99.4,
-            "travel_time_minutes": 105,
-            "travel_time_display": "1 hr 45 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Continue the drive to Orlando."
-          }
-        },
-        {
-          "name": "Check-in at Hyatt Regency Orlando",
-          "time_slot": "03:45 PM - 04:15 PM",
-          "category": "Hotel",
-          "description": "Check-in at the luxurious Hyatt Regency Orlando located on International Drive.",
-          "travel_mode": "stay",
-          "next_activity": {
-            "name": "Explore ICON Park Orlando",
-            "distance_km": 5.0,
-            "distance_miles": 3.1,
+            "name": "Explore the 9/11 Memorial and Museum",
+            "distance_km": 1.0,
+            "distance_miles": 0.6,
             "travel_time_minutes": 10,
             "travel_time_display": "10 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to ICON Park for evening exploration."
+            "travel_mode": "walk",
+            "transit_summary": "10-min walk to the 9/11 Memorial and Museum."
           }
         },
         {
-          "name": "Explore ICON Park Orlando",
-          "time_slot": "04:30 PM - 06:30 PM",
+          "name": "Explore the 9/11 Memorial and Museum",
+          "time_slot": "02:00 PM - 04:00 PM",
           "category": "Attraction",
-          "description": "Visit ICON Park, home to The Wheel, Madame Tussauds, and various dining options.",
-          "travel_mode": "drive",
+          "description": "Pay respects and learn about the events of September 11, 2001, at this poignant memorial and museum.",
+          "travel_mode": "walk",
           "next_activity": {
-            "name": "Dinner at The Capital Grille, Orlando",
+            "name": "Visit One World Observatory",
             "distance_km": 0.5,
             "distance_miles": 0.3,
             "travel_time_minutes": 5,
             "travel_time_display": "5 mins",
             "travel_mode": "walk",
-            "transit_summary": "Short walk to The Capital Grille for dinner."
+            "transit_summary": "5-min walk to One World Observatory."
           }
         },
         {
-          "name": "Dinner at The Capital Grille, Orlando",
-          "time_slot": "08:00 PM - 09:30 PM",
-          "category": "Dining",
-          "description": "Enjoy a luxurious steakhouse dinner at The Capital Grille, known for its dry-aged steaks and exquisite wine selection.",
+          "name": "Visit One World Observatory",
+          "time_slot": "04:15 PM - 05:45 PM",
+          "category": "Attraction",
+          "description": "Take in breathtaking views of the city from the top of One World Trade Center.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Return to Hyatt Regency Orlando & Overnight Rest",
-            "distance_km": 5.0,
-            "distance_miles": 3.1,
+            "name": "Evening Stroll and Shopping at Brookfield Place",
+            "distance_km": 0.7,
+            "distance_miles": 0.4,
             "travel_time_minutes": 10,
             "travel_time_display": "10 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Return to the hotel for overnight rest."
+            "travel_mode": "walk",
+            "transit_summary": "10-min walk to Brookfield Place."
+          }
+        },
+        {
+          "name": "Evening Stroll and Shopping at Brookfield Place",
+          "time_slot": "06:00 PM - 07:45 PM",
+          "category": "Shopping",
+          "description": "Enjoy a leisurely stroll through Brookfield Place, featuring luxury shopping and dining options.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Dinner at The Capital Grille",
+            "distance_km": 1.2,
+            "distance_miles": 0.7,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "walk",
+            "transit_summary": "10-min walk to The Capital Grille."
+          }
+        },
+        {
+          "name": "Dinner at The Capital Grille",
+          "time_slot": "08:00 PM - 09:30 PM",
+          "category": "Dining",
+          "description": "Savor a classic steakhouse dinner at The Capital Grille.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Return to The Westin New York at Times Square & Rest for the Night",
+            "distance_km": 8.0,
+            "distance_miles": 5.0,
+            "travel_time_minutes": 20,
+            "travel_time_display": "20 mins",
+            "travel_mode": "transit",
+            "transit_summary": "20-min subway ride back to The Westin New York at Times Square."
           }
         }
       ]
@@ -203,70 +253,104 @@
     {
       "day_number": 3,
       "date": "2026-09-19",
-      "theme": "Explore Orlando Attractions",
+      "theme": "Day Trip to the Hudson Valley",
       "activities": [
         {
-          "name": "Breakfast at Hyatt Regency Orlando",
+          "name": "Breakfast at The Westin New York at Times Square",
           "time_slot": "08:00 AM - 09:00 AM",
           "category": "Dining",
-          "description": "Start your day with a delicious breakfast at the hotel.",
+          "description": "Enjoy a hearty breakfast at the hotel to start your day.",
+          "price": 0.0,
+          "price_display": "Free / Included with Hotel Stay",
           "travel_mode": "stay",
           "next_activity": {
-            "name": "Visit Universal Studios Florida",
-            "distance_km": 8.0,
-            "distance_miles": 5.0,
-            "travel_time_minutes": 15,
-            "travel_time_display": "15 mins",
+            "name": "Drive to Sleepy Hollow",
+            "distance_km": 50.0,
+            "distance_miles": 31.1,
+            "travel_time_minutes": 60,
+            "travel_time_display": "1 hr",
             "travel_mode": "drive",
-            "transit_summary": "Drive to Universal Studios for a day of adventure."
+            "transit_summary": "Scenic drive to Sleepy Hollow."
           }
         },
         {
-          "name": "Visit Universal Studios Florida",
-          "time_slot": "09:15 AM - 05:00 PM",
+          "name": "Explore Sleepy Hollow Cemetery",
+          "time_slot": "10:00 AM - 11:30 AM",
           "category": "Attraction",
-          "description": "Spend the day enjoying rides and attractions at Universal Studios Florida, including Harry Potter World and thrilling roller coasters.",
-          "travel_mode": "drive",
-          "next_activity": {
-            "name": "Shopping at Disney Springs",
-            "distance_km": 15.0,
-            "distance_miles": 9.3,
-            "travel_time_minutes": 20,
-            "travel_time_display": "20 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to Disney Springs for evening shopping."
-          }
-        },
-        {
-          "name": "Shopping at Disney Springs",
-          "time_slot": "05:30 PM - 07:30 PM",
-          "category": "Shopping",
-          "description": "Explore the shops and entertainment at Disney Springs, featuring a variety of stores and live entertainment.",
-          "travel_mode": "drive",
-          "next_activity": {
-            "name": "Dinner at Morimoto Asia, Disney Springs",
-            "distance_km": 0.3,
-            "distance_miles": 0.2,
-            "travel_time_minutes": 5,
-            "travel_time_display": "5 mins",
-            "travel_mode": "walk",
-            "transit_summary": "Short walk to Morimoto Asia for dinner."
-          }
-        },
-        {
-          "name": "Dinner at Morimoto Asia, Disney Springs",
-          "time_slot": "08:00 PM - 09:30 PM",
-          "category": "Dining",
-          "description": "Savor Pan-Asian cuisine at Morimoto Asia, a restaurant by Iron Chef Masaharu Morimoto.",
+          "description": "Tour the historic Sleepy Hollow Cemetery, known for its beautiful monuments and famous residents.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Return to Hyatt Regency Orlando & Overnight Rest",
-            "distance_km": 15.0,
-            "distance_miles": 9.3,
-            "travel_time_minutes": 20,
-            "travel_time_display": "20 mins",
+            "name": "Visit Kykuit: The Rockefeller Estate",
+            "distance_km": 5.0,
+            "distance_miles": 3.1,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
             "travel_mode": "drive",
-            "transit_summary": "Return to the hotel for overnight rest."
+            "transit_summary": "Short drive to Kykuit."
+          }
+        },
+        {
+          "name": "Visit Kykuit: The Rockefeller Estate",
+          "time_slot": "11:45 AM - 01:15 PM",
+          "category": "Attraction",
+          "description": "Explore the opulent Rockefeller Estate with stunning gardens and art collections.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Lunch at Bridge View Tavern",
+            "distance_km": 3.0,
+            "distance_miles": 1.9,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to Bridge View Tavern."
+          }
+        },
+        {
+          "name": "Lunch at Bridge View Tavern",
+          "time_slot": "01:30 PM - 02:30 PM",
+          "category": "Dining",
+          "description": "Enjoy a laid-back lunch with a view of the Hudson River.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Visit the Storm King Art Center",
+            "distance_km": 40.0,
+            "distance_miles": 24.9,
+            "travel_time_minutes": 45,
+            "travel_time_display": "45 mins",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to Storm King Art Center."
+          }
+        },
+        {
+          "name": "Visit the Storm King Art Center",
+          "time_slot": "03:15 PM - 05:30 PM",
+          "category": "Attraction",
+          "description": "Immerse yourself in the vast outdoor sculpture park at Storm King Art Center.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Drive back to New York City",
+            "distance_km": 80.0,
+            "distance_miles": 49.7,
+            "travel_time_minutes": 75,
+            "travel_time_display": "1 hr 15 mins",
+            "travel_mode": "drive",
+            "transit_summary": "Drive back to New York City."
+          }
+        },
+        {
+          "name": "Dinner at The Smith",
+          "time_slot": "08:00 PM - 09:30 PM",
+          "category": "Dining",
+          "description": "Dine at The Smith, a popular American brasserie in the city.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Return to The Westin New York at Times Square & Rest for the Night",
+            "distance_km": 2.0,
+            "distance_miles": 1.2,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "walk",
+            "transit_summary": "10-min walk back to The Westin New York at Times Square."
           }
         }
       ]
@@ -274,54 +358,88 @@
     {
       "day_number": 4,
       "date": "2026-09-20",
-      "theme": "Return Trip to Atlanta",
+      "theme": "Final Day and Departure",
       "activities": [
         {
-          "name": "Breakfast at Hyatt Regency Orlando",
+          "name": "Breakfast at The Westin New York at Times Square",
           "time_slot": "08:00 AM - 09:00 AM",
           "category": "Dining",
-          "description": "Enjoy a final breakfast at the hotel before starting the journey back to Atlanta.",
+          "description": "Enjoy a hearty breakfast at the hotel to start your day.",
+          "price": 0.0,
+          "price_display": "Free / Included with Hotel Stay",
           "travel_mode": "stay",
           "next_activity": {
-            "name": "Drive from Orlando to Valdosta",
-            "distance_km": 330.0,
-            "distance_miles": 205.1,
-            "travel_time_minutes": 210,
-            "travel_time_display": "3 hrs 30 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Begin the return drive from Orlando to Valdosta."
+            "name": "Visit The Museum of Modern Art (MoMA)",
+            "distance_km": 2.5,
+            "distance_miles": 1.6,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "walk",
+            "transit_summary": "10-min walk to MoMA."
           }
         },
         {
-          "name": "Lunch at Smok'n Pig BBQ, Valdosta",
-          "time_slot": "12:00 PM - 01:30 PM",
+          "name": "Visit The Museum of Modern Art (MoMA)",
+          "time_slot": "09:30 AM - 11:30 AM",
+          "category": "Attraction",
+          "description": "Explore an extensive collection of modern and contemporary art at MoMA.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Lunch at The Modern",
+            "distance_km": 0.1,
+            "distance_miles": 0.1,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 mins",
+            "travel_mode": "walk",
+            "transit_summary": "5-min walk to The Modern."
+          }
+        },
+        {
+          "name": "Lunch at The Modern",
+          "time_slot": "12:00 PM - 01:00 PM",
           "category": "Dining",
-          "description": "Stop for a hearty Southern BBQ lunch at Smok'n Pig BBQ in Valdosta.",
-          "travel_mode": "drive",
+          "description": "Dine at The Modern, a Michelin-starred restaurant located within MoMA.",
+          "travel_mode": "walk",
           "next_activity": {
-            "name": "Drive from Valdosta to Atlanta",
-            "distance_km": 370.0,
-            "distance_miles": 229.9,
-            "travel_time_minutes": 240,
-            "travel_time_display": "4 hrs",
+            "name": "Return rental car at JFK Airport",
+            "distance_km": 25.0,
+            "distance_miles": 15.5,
+            "travel_time_minutes": 45,
+            "travel_time_display": "45 mins",
             "travel_mode": "drive",
-            "transit_summary": "Continue the drive back to Atlanta."
+            "transit_summary": "Drive to JFK Airport for rental car return."
           }
         },
         {
-          "name": "Return to Atlanta",
-          "time_slot": "05:30 PM - 06:00 PM",
+          "name": "Return rental car at JFK Airport",
+          "time_slot": "01:45 PM - 02:00 PM",
           "category": "Transit",
-          "description": "Arrive back in Atlanta and return the rental vehicle.",
+          "description": "Return the rental car at JFK Airport.",
           "travel_mode": "drive",
           "next_activity": {
-            "name": "End of Road Trip",
+            "name": "Flight from New York City (JFK) to Atlanta (ATL)",
+            "distance_km": 0.0,
+            "distance_miles": 0.0,
+            "travel_time_minutes": 0,
+            "travel_time_display": "0 mins",
+            "travel_mode": "flight",
+            "transit_summary": "Flight back to Atlanta."
+          }
+        },
+        {
+          "name": "Flight from New York City (JFK) to Atlanta (ATL)",
+          "time_slot": "03:00 PM - 05:00 PM",
+          "category": "Transit",
+          "description": "Return flight to Atlanta, concluding your trip.",
+          "travel_mode": "flight",
+          "next_activity": {
+            "name": "End of Trip",
             "distance_km": 0.0,
             "distance_miles": 0.0,
             "travel_time_minutes": 0,
             "travel_time_display": "0 mins",
             "travel_mode": "stay",
-            "transit_summary": "End of the journey."
+            "transit_summary": "End of trip."
           }
         }
       ]
