@@ -21,7 +21,7 @@ def format_proper_title(text: str) -> str:
     if not text:
         return ""
     lowercase_words = {"a", "an", "the", "and", "but", "or", "for", "nor", "on", "at", "to", "from", "by", "of", "in", "with", "de", "la", "van", "von"}
-    uppercase_words = {"ATL", "CDG", "JFK", "LHR", "LAX", "ORD", "MIA", "SFO", "DXB", "HND", "VIP", "SUV", "AI", "ID", "USD"}
+    uppercase_words = {"ATL", "CDG", "JFK", "LHR", "LAX", "ORD", "MIA", "SFO", "DXB", "HND", "VIP", "SUV", "AI", "ID", "USD", "TN", "OH", "NY", "CA", "FL", "GA"}
 
     words = re.split(r'(\s+|-)', str(text).strip())
     result = []
@@ -29,14 +29,28 @@ def format_proper_title(text: str) -> str:
         if not word.strip():
             result.append(word)
             continue
-        w_upper = word.upper()
-        if w_upper in uppercase_words:
-            result.append(w_upper)
-        elif i == 0 or word.lower() not in lowercase_words:
-            result.append(word.capitalize())
+        m = re.match(r'^([^a-zA-Z0-9]*)(.*?)([^a-zA-Z0-9]*)$', word)
+        if m and m.group(2):
+            lead, core, trail = m.group(1), m.group(2), m.group(3)
+            core_upper = core.upper()
+            if core_upper in uppercase_words:
+                formatted_core = core_upper
+            elif i == 0 or core.lower() not in lowercase_words:
+                formatted_core = core.capitalize()
+            else:
+                formatted_core = core.lower()
+            result.append(f"{lead}{formatted_core}{trail}")
         else:
-            result.append(word.lower())
-    return "".join(result)
+            w_upper = word.upper()
+            if w_upper in uppercase_words:
+                result.append(w_upper)
+            elif i == 0 or word.lower() not in lowercase_words:
+                result.append(word.capitalize())
+            else:
+                result.append(word.lower())
+
+    formatted = "".join(result)
+    return re.sub(r'\b[Vv][Ii][Pp]\b', 'VIP', formatted)
 
 
 DEFAULT_GEO_MAP: dict[str, dict[str, Any]] = {

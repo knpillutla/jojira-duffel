@@ -114,7 +114,7 @@ def generate_contextual_bundle_title(
             return format_proper_title(f"Adventure Saver: Essential {dest}{act_snippet}")
         elif is_tier_lux:
             act_snippet = f" & {act1}" if act1 else ""
-            return format_proper_title(f"Signature Luxury: Exclusive {dest} Mountain Panorama & Spa{act_snippet}")
+            return format_proper_title(f"Signature Luxury VIP: Exclusive {dest} Mountain Panorama & Spa{act_snippet}")
         else:
             act_snippet = f" & {act1}" if act1 else " & Nature Trails"
             return format_proper_title(f"Scenic Explorer: {dest} Outdoor Highlights{act_snippet}")
@@ -128,9 +128,9 @@ def generate_contextual_bundle_title(
             return format_proper_title(f"Budget Saver: Essential {dest} City Highlights")
     elif is_tier_lux or is_luxury_req:
         if act1:
-            return format_proper_title(f"Signature Luxury: VIP {dest} Experience & Private {act1}")
+            return format_proper_title(f"Signature Luxury VIP: {dest} Experience & Private {act1}")
         else:
-            return format_proper_title(f"Signature Luxury: Exclusive {dest} VIP Experience & Fine Dining")
+            return format_proper_title(f"Signature Luxury VIP: Exclusive {dest} VIP Experience & Fine Dining")
     else:
         if act1 and act2:
             return format_proper_title(f"Balanced Choice: {dest} Highlights ({act1} & {act2})")

@@ -1,24 +1,19 @@
 {
-  "prompt": "4 day trip from atlanta to orlando",
+  "prompt": "4 day trip from atlanta to orlando road trip",
   "model": "gpt-4o-mini",
   "raw_response": {
-    "trip_type": "round_trip",
+    "trip_type": "one_way",
     "origin": "ATL",
     "destination": "MCO",
     "slices": [
       {
         "origin": "ATL",
         "destination": "MCO",
-        "departure_date": "2026-09-01"
-      },
-      {
-        "origin": "MCO",
-        "destination": "ATL",
-        "departure_date": "2026-09-05"
+        "departure_date": "2026-09-02"
       }
     ],
-    "from_date": "2026-09-01",
-    "to_date": "2026-09-05",
+    "from_date": "2026-09-02",
+    "to_date": "2026-09-06",
     "duration_days": 4,
     "min_price": null,
     "max_price": null,
@@ -34,23 +29,18 @@
     }
   },
   "normalized": {
-    "trip_type": "round_trip",
+    "trip_type": "one_way",
     "origin": "ATL",
     "destination": "MCO",
     "slices": [
       {
         "origin": "ATL",
         "destination": "MCO",
-        "departure_date": "2026-09-01"
-      },
-      {
-        "origin": "MCO",
-        "destination": "ATL",
-        "departure_date": "2026-09-05"
+        "departure_date": "2026-09-02"
       }
     ],
-    "from_date": "2026-09-01",
-    "to_date": "2026-09-05",
+    "from_date": "2026-09-02",
+    "to_date": "2026-09-06",
     "duration_days": 4,
     "min_price": null,
     "max_price": null,
@@ -64,9 +54,9 @@
       "favorite_cuisines": [],
       "dietary_restrictions": []
     },
-    "target_return_date": "2026-09-05",
-    "departure_date": "2026-09-01",
-    "return_date": "2026-09-05",
+    "target_return_date": null,
+    "departure_date": "2026-09-02",
+    "return_date": null,
     "meal_preferences": [],
     "favorite_cuisines": [],
     "dietary_restrictions": []
