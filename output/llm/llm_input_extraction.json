@@ -1,24 +1,24 @@
 {
-  "prompt": "atl to hyd",
+  "prompt": "atl to paris",
   "model": "gpt-4o-mini",
   "raw_response": {
     "trip_type": "round_trip",
     "origin": "ATL",
-    "destination": "HYD",
+    "destination": "CDG",
     "slices": [
       {
         "origin": "ATL",
-        "destination": "HYD",
+        "destination": "CDG",
         "departure_date": "2026-09-17"
       },
       {
-        "origin": "HYD",
+        "origin": "CDG",
         "destination": "ATL",
         "departure_date": "2026-09-24"
       }
     ],
     "departure_date": "2026-09-17",
-    "return_date": "2026-09-24",
+    "return_date": null,
     "target_return_date": null,
     "from_date": "2026-09-17",
     "to_date": "2026-09-24",
@@ -34,20 +34,21 @@
       "meal_preferences": [],
       "favorite_cuisines": [],
       "dietary_restrictions": []
-    }
+    },
+    "theme": "balanced"
   },
   "normalized": {
     "trip_type": "round_trip",
     "origin": "ATL",
-    "destination": "HYD",
+    "destination": "CDG",
     "slices": [
       {
         "origin": "ATL",
-        "destination": "HYD",
+        "destination": "CDG",
         "departure_date": "2026-09-17"
       },
       {
-        "origin": "HYD",
+        "origin": "CDG",
         "destination": "ATL",
         "departure_date": "2026-09-24"
       }
@@ -70,8 +71,10 @@
       "favorite_cuisines": [],
       "dietary_restrictions": []
     },
+    "theme": "balanced",
     "meal_preferences": [],
     "favorite_cuisines": [],
-    "dietary_restrictions": []
+    "dietary_restrictions": [],
+    "style": "balanced"
   }
 }

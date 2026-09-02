@@ -490,3 +490,28 @@ class ItineraryModuleDAO:
             return 0
         finally:
             conn.close()
+
+    def has_modules(
+        self,
+        destination: str,
+        duration_days: int,
+        trip_type: str = "flight",
+        style: str = "balanced",
+    ) -> bool:
+        """Ultra-fast existence check for pre-generated modules in database."""
+        dest_clean = str(destination).strip().lower()
+        tt_clean = str(trip_type).strip().lower()
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            q = (
+                "SELECT 1 FROM itinerary_modules WHERE destination = %s AND trip_type = %s AND duration_days = %s LIMIT 1;"
+                if self.db_engine == "postgresql"
+                else "SELECT 1 FROM itinerary_modules WHERE destination = ? AND trip_type = ? AND duration_days = ? LIMIT 1;"
+            )
+            cursor.execute(q, (dest_clean, tt_clean, duration_days))
+            return cursor.fetchone() is not None
+        except Exception:
+            return False
+        finally:
+            conn.close()

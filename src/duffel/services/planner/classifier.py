@@ -158,14 +158,22 @@ def classify_travel_scope_and_type(
         is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, False, True, True
         trip_type_val, base_trip_type = "fly_and_drive", "Fly & Drive"
     elif road_trip is True:
-        is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, True, False, False
-        trip_type_val, base_trip_type = "road_trip", "Road Trip"
+        if is_international:
+            is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, False, True, True
+            trip_type_val, base_trip_type = "fly_and_drive", "Fly & Drive"
+        else:
+            is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, True, False, False
+            trip_type_val, base_trip_type = "road_trip", "Road Trip"
     elif is_cruise:
         is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = True, False, False, False
         trip_type_val, base_trip_type = "cruise", "Cruise Trip"
     elif has_explicit_drive and road_trip is not False:
-        is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, True, False, False
-        trip_type_val, base_trip_type = "road_trip", "Road Trip"
+        if is_international:
+            is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, False, True, True
+            trip_type_val, base_trip_type = "fly_and_drive", "Fly & Drive"
+        else:
+            is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, True, False, False
+            trip_type_val, base_trip_type = "road_trip", "Road Trip"
     elif has_explicit_flight:
         is_cruise, is_road_trip, is_fly_and_drive, eff_include_flights = False, False, False, True
         trip_type_val, base_trip_type = "vacation_travel", "Vacation Travel"

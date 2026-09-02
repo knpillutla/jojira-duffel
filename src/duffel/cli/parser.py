@@ -85,30 +85,33 @@ CITY_IATA_MAP = {
     "europe hub": "LHR",
     "asia": "SIN",
     "india": "DEL",
-    "london": "LHR",
+    "london": "LON",
     "lhr": "LHR",
-    "lon": "LHR",
+    "lon": "LON",
     "lgw": "LGW",
-    "new york": "JFK",
-    "newyork": "JFK",
-    "nyc": "JFK",
+    "new york": "NYC",
+    "newyork": "NYC",
+    "nyc": "NYC",
     "jfk": "JFK",
     "ewr": "EWR",
+    "lga": "LGA",
     "san diego": "SAN",
     "sandiego": "SAN",
     "san diego ca": "SAN",
     "australia": "SYD",
     "los angeles": "LAX",
     "lax": "LAX",
-    "paris": "CDG",
+    "paris": "PAR",
     "cdg": "CDG",
-    "tokyo": "HND",
+    "ory": "ORY",
+    "tokyo": "TYO",
     "hnd": "HND",
     "nrt": "NRT",
     "san francisco": "SFO",
     "sfo": "SFO",
-    "chicago": "ORD",
+    "chicago": "CHI",
     "ord": "ORD",
+    "mdw": "MDW",
     "miami": "MIA",
     "mia": "MIA",
     "dubai": "DXB",
@@ -121,6 +124,8 @@ CITY_IATA_MAP = {
     "mel": "MEL",
     "atlanta": "ATL",
     "atl": "ATL",
+    "valdosta": "VLD",
+    "vld": "VLD",
     "orlando": "MCO",
     "mco": "MCO",
     "oslo": "OSL",
@@ -129,8 +134,11 @@ CITY_IATA_MAP = {
     "sea": "SEA",
     "boston": "BOS",
     "bos": "BOS",
-    "washington": "IAD",
+    "washington": "WAS",
+    "was": "WAS",
     "iad": "IAD",
+    "dca": "DCA",
+    "bwi": "BWI",
     "hyderabad": "HYD",
     "hyderabad,india": "HYD",
     "hyderabad, india": "HYD",
@@ -1075,6 +1083,28 @@ class PromptExtractor:
         normalized["favorite_cuisines"] = pref_cuisines
         normalized["dietary_restrictions"] = pref_dietary
 
+        # Resolve theme / style
+        extracted_theme = (result.get("theme") or result.get("style") or normalized.get("theme") or "").strip().lower()
+        if not extracted_theme or extracted_theme == "balanced":
+            if any(w in p_str for w in ["scenic", "landscape", "views", "panorama", "viewpoint"]):
+                extracted_theme = "scenic"
+            elif any(w in p_lower for w in ["romantic", "honeymoon", "couples", "anniversary"]) if "p_lower" in locals() else any(w in p_str for w in ["romantic", "honeymoon", "couples", "anniversary"]):
+                extracted_theme = "romantic"
+            elif any(w in p_str for w in ["family", "kids", "children"]):
+                extracted_theme = "family"
+            elif any(w in p_str for w in ["architecture", "monuments"]):
+                extracted_theme = "architecture"
+            elif any(w in p_str for w in ["culinary", "food", "wine", "gastronomy", "dining", "foodie"]):
+                extracted_theme = "culinary"
+            elif any(w in p_str for w in ["adventure", "hiking", "outdoor", "nature", "trails", "mountains"]):
+                extracted_theme = "adventure"
+            elif any(w in p_str for w in ["cultural", "history", "heritage", "museum"]):
+                extracted_theme = "cultural"
+            else:
+                extracted_theme = "balanced"
+        normalized["theme"] = extracted_theme
+        normalized["style"] = extracted_theme
+
         normalized.setdefault("cabin_class", "economy")
         normalized.setdefault("passengers_count", 1)
         normalized.setdefault("included_airlines", [])
@@ -1115,7 +1145,8 @@ class PromptExtractor:
             "7. MEAL PREFERENCES & DIET: Extract meal preferences, favorite cuisines, and dietary restrictions mentioned (e.g. 'vegetarian', 'vegan', 'halal', 'kosher', 'gluten-free', 'Italian', 'French', 'Japanese', 'fine dining', 'street food') in 'preferences': { 'meal_preferences': [...], 'favorite_cuisines': [...], 'dietary_restrictions': [...] }.\n"
             "8. SAFE HOTEL SELECTION: For hotel recommendations, prioritize central, safe, and secure hotels for families, adults, and solo/single travelers. Strictly avoid dangerous neighborhoods, high-crime areas, noisy nightclub strips, or areas with gang activity.\n"
             f"{'10. USER LOCATION & NEAREST ORIGIN AIRPORT: User location is ' + repr(user_location) + '. If prompt does NOT explicitly specify a departure city or origin airport, resolve user location to nearest standard 3-letter IATA origin airport (e.g. New York -> JFK, Atlanta -> ATL, London -> LHR). Set top-level origin and slices.[0].origin to this nearest IATA code.' if user_location else ''}\n"
-            "9. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines, preferences.\n"
+            "9. THEME & STYLE: Extract travel theme or style in 'theme' (e.g. 'scenic', 'cultural', 'culinary', 'family', 'romantic', 'adventure', 'luxury', or default 'balanced').\n"
+            "10. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines, preferences, theme.\n"
             "User request: " + prompt
         )
         model_name = getattr(config, "openai_extraction_model", "") or getattr(config, "openai_model", "gpt-4o-mini") or "gpt-4o-mini"
@@ -1203,7 +1234,8 @@ class PromptExtractor:
             "6. STOPOVERS & BREAKS: If user requests a destination stay for N days with a break in an intermediate city (+7 days), sum stay + break duration for total trip length (28 days). Set trip_type: 'multi_city' and populate 'slices' array with sequential flight legs.\n"
             "7. MEAL PREFERENCES & DIET: Extract meal preferences, favorite cuisines, and dietary restrictions in 'preferences': { 'meal_preferences': [...], 'favorite_cuisines': [...], 'dietary_restrictions': [...] }.\n"
             "8. SAFE HOTEL SELECTION: For hotel recommendations, prioritize central, safe, and secure hotels for families, adults, and solo/single travelers. Strictly avoid dangerous neighborhoods, high-crime areas, noisy nightclub strips, or areas with gang activity.\n"
-            "9. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines, preferences.\n"
+            "9. THEME & STYLE: Extract travel theme or style in 'theme' (e.g. 'scenic', 'cultural', 'culinary', 'family', 'romantic', 'adventure', 'luxury', or default 'balanced').\n"
+            "10. Return JSON with keys: trip_type, origin, destination, slices, departure_date, return_date, target_return_date, from_date, to_date, duration_days, min_price, max_price, cabin_class, passengers_count, preferred_airline, included_airlines, excluded_airlines, preferences, theme.\n"
             f"User request: {prompt}"
         )
         gemini_model = getattr(config, "gemini_extraction_model", "") or getattr(config, "gemini_model", "gemini-1.5-flash") or "gemini-1.5-flash"

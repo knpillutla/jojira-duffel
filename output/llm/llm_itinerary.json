@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-09-02T17:06:20.783214+00:00",
-  "destination": "Ber",
+  "timestamp": "2026-09-02T19:01:38.313995+00:00",
+  "destination": "LHR",
   "duration_days": 4,
-  "user_prompt": "Plan a 4-day trip from ATL to Ber from 2026-09-17 to 2026-09-20 for 1 passenger(s). Modality: Flight Vacation, Style: balanced, Budget: moderate.\nDEPARTURE LOGISTICS: Pick up rental vehicle in ATL at 08:30 AM - 09:00 AM. Morning road trip drive departs ATL at 09:00 AM heading toward Ber.\nFLY & DRIVE COMBINATION LOGISTICS:\nThis is a Fly-and-Drive journey from ATL to Ber. Fly into Ber, pick up rental car at the airport, and embark on scenic regional road trips and day excursions across the surrounding region before returning to the hub.\nSAFETY & WALKABILITY MANDATE (TOP PRIORITY):\n- LODGING SAFETY & WALKABILITY: Select only 4.5+ star verified hotels located in premier, safe, well-lit, highly walkable neighborhoods (downtown arts districts, historic boulevards, upscale business corridors). NEVER place lodging in unsafe, isolated, or industrial zones.\n- VEHICLE SAFETY: Prioritize tier-1 reputable rental fleets (Enterprise, National, Hertz) equipped with modern active safety features and 24/7 roadside assistance.\n- WALKABLE DINING & SIGHTSEEING: Ensure all evening dining, morning coffee, and strolling attractions are situated in vibrant, family-safe pedestrian zones with excellent guest safety reviews.\nREAL-WORLD NAMED ENTITY EXTRACTION MANDATE:\n- EVERY activity, hotel, restaurant, and attraction MUST be a real, specific named place (e.g. 'Courtyard by Marriott Valdosta', 'Universal Studios Florida', 'Mrs. Wilkes Dining Room', 'Ponce City Market'). NEVER output generic placeholders like 'Attraction', 'Hotel', or 'Dinner'.\n- CATEGORY CLASSIFICATION: Set 'category' accurately for each item ('Attraction', 'Hotel', 'Dining', 'Shopping', 'Transit').\n- CHRONOLOGICAL ORDERING: Output all activities in strict sequential time order from 08:00 AM to 09:30 PM without time overlaps.\nCONTINUOUS DAILY TIMELINE PROTOCOL (NO UNALLOCATED GAPS):\n- Every day's itinerary MUST be completely continuous with ZERO unallocated idle gaps between activities.\n- Every activity, meal, transit, or sightseeing slot must transition directly and back-to-back into the next (e.g. 08:00 AM Breakfast -> 09:00 AM Sightseeing/Drive -> 12:00 PM Lunch -> 01:00 PM Afternoon Activity -> 05:00 PM Exploration -> 06:00 PM Shopping -> 08:00 PM Dinner -> 09:30 PM Hotel Return).\n- Never leave 1-to-3 hour unallocated gaps before dinner, between theme park wrap-up and evening plans, or between road trip arrival and vehicle drop-off.\nEVENING SHOPPING PROTOCOL (DESTINATION EXPLORATION DAYS ONLY):\n- On intermediate exploration days (Days 2 through {duration_minus_1}), whenever afternoon sightseeing or theme park excursion concludes before dinner (e.g. 05:30 PM - 07:45 PM), schedule dedicated Evening Shopping, Artisan Market Browsing, or Promenade Walk to eliminate timeline gaps before 08:00 PM dinner.\n- SHOPPING TIMING MANDATE: Shopping MUST ALWAYS be placed in the evening before dinner on full exploration days. NEVER schedule shopping during morning/afternoon sightseeing, and NEVER schedule shopping on the final return driving day.\nMANDATORY 'next_activity' TRANSIT NODE FOR EVERY ACTIVITY:\n- EVERY activity and itinerary item MUST include a 'next_activity' object defining transit to the following step:\n  {\n    \"name\": \"<Next Activity / Landmark / Hotel Name>\",\n    \"distance_km\": <float distance in km>,\n    \"distance_miles\": <float distance in miles>,\n    \"distance_display\": \"<e.g. '15.2 km (9.4 miles)'>\",\n    \"travel_time_minutes\": <int transit minutes>,\n    \"travel_time_display\": \"<e.g. '20 mins' or '2 hrs 15 mins'>\",\n    \"travel_mode\": \"<walk | drive | transit | ferry>\",\n    \"transit_summary\": \"<e.g. 'Scenic drive via I-75 S' or '5-min walk to restaurant'>\"\n  }\n- For the final item of the day, set 'name': 'Return to <Specific Hotel Name> & Overnight Rest' (explicitly including the hotel name, e.g. 'Return to Courtyard by Marriott & Overnight Rest'), 'distance_km': 0.0, 'distance_miles': 0.0, 'travel_time_minutes': 0, 'travel_time_display': '0 mins', 'travel_mode': 'stay', 'transit_summary': 'Resting at <Specific Hotel Name> for the night'.\nDAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n- CONTINUOUS SEQUENCING (ZERO IDLE GAPS): Build seamless back-to-back schedules from morning to night with NO unallocated gaps.\n- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest. NEVER extend any attraction past 08:00 PM.\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (08:00 PM - 09:30 PM).\n- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY full day MUST be 'Return to <Specific Hotel Name> & Rest for the Night' (always explicitly naming the hotel, e.g. 'Return to Courtyard by Marriott & Rest for the Night'), with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots past 10:00 PM.\n- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM.\nHOTEL INCLUDED BREAKFAST PROTOCOL (TIME & COST EFFICIENCY):\n- Prefer hotels that provide complimentary/included breakfast.\n- On all exploration days (Day 2 onwards), schedule breakfast at 08:00 AM directly at the hotel's in-house restaurant/buffet to save 45+ minutes of morning transit time.\n- If breakfast is free, set 'price': 0.0 and 'price_display': 'Free / Included with Hotel Stay'.\n- If breakfast is not included or off-site, specify the min-max cost range in 'price_display' (e.g. 'USD 12.00 - 18.00') and set 'price': 15.00.\n- Always utilize in-house hotel breakfast unless the user specifically requests a named local bakery/cafe.\nMULTI-NIGHT HOTEL CONTINUITY MANDATE (NO HOTEL SWITCHING IN SAME CITY):\n- When spending multiple consecutive nights in the same destination city or area (e.g. Night 2 and Night 3 in Orlando, or Nights 1-3 in Dallas), ALWAYS stay at the EXACT SAME hotel for all consecutive nights.\n- NEVER switch hotels daily within the same destination city. Switching hotels every night causes extreme friction and is completely unrealistic.\n- Check in to a new hotel ONLY when traveling to a new city/overnight town.\n- On subsequent days at the same hotel (e.g. Day 3 in Orlando), DO NOT generate a 'Hotel Check-in' activity; start with Breakfast at that hotel and finish the day returning to that exact same hotel.\nTHEMATIC EMPHASIS (BALANCED & COMPLETE): Curate a balanced blend of top iconic landmarks, cultural highlights, local dining, and relaxing neighborhood strolls.\nTIMELINE REQUIREMENT: On Day 1, schedule all activities strictly after flight arrival at 12:30 PM. On Final Day, wrap up before flight departure at 05:00 PM.\nRENTAL VEHICLE LOGISTICS (FLIGHT VACATION): Rental car pickup at Ber Airport on Day 1 and rental return on Day 4 are automatically managed by the system. DO NOT add a duplicate 'Pick up rental car' activity in the activities list.\nIncluded components: Flights=True, Hotels=True (1 rooms), Cars=True (1 car), Trains=False, Buses=False, Attractions=True, Activities=True, SeasonalAttractions=True, SeasonalActivities=True. Prompt details: '4-day trip to Berlin from Atlanta'.\nOUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {\"days\": [{\"day_number\": 1, \"date\": \"2026-09-17\", \"theme\": \"...\", \"activities\": [..., {\"name\": \"...\", \"time_slot\": \"08:00 AM - 09:00 AM\", \"category\": \"...\", \"description\": \"...\", \"travel_mode\": \"...\", \"next_activity\": {\"name\": \"...\", \"distance_km\": 5.0, \"distance_miles\": 3.1, \"travel_time_minutes\": 15, \"travel_time_display\": \"15 mins\", \"travel_mode\": \"walk\", \"transit_summary\": \"...\"}}]}]}.",
+  "user_prompt": "Plan a 4-day trip from JFK to LHR from 2026-09-17 to 2026-09-21 for 1 passenger(s). Modality: Flight Vacation, Style: balanced, Budget: moderate.\nEXACT LIVE FLIGHT SCHEDULE FROM AI SEARCH:\n- Outbound Flight: Departs JFK at 08:00 AM, Arrives in LHR at 12:00 PM.\n- Return Flight: Departs LHR at 05:00 PM, Arrives in JFK at 09:00 PM.\nAIRPORT LUNCH PROTOCOL (FLIGHT ARRIVAL AT 12:00 PM): Outbound flight arrives at 12:00 PM (after 12:00 PM). Schedule Day 1 Lunch IMMEDIATELY at an Airport Terminal Restaurant/Cafe upon landing (e.g. at 01:00 PM) before picking up rental car or traveling into the city center. LUNCH MUST NEVER BE SCHEDULED AFTER 02:00 PM ON ANY DAY!\nFLIGHT VACATION LOGISTICS:\nThis is a flight-based vacation from JFK to LHR. Default is round-trip flight. Structure activities around flight arrival logistics on Day 1, central hotel check-in, iconic city sightseeing, and departure wrap-up on Day 4. Package tiers are: 'budget' (Budget Saver), 'balanced' (Balanced Choice), and 'luxury' (Signature Luxury VIP).\nSAFETY & WALKABILITY MANDATE (TOP PRIORITY):\n- LODGING SAFETY & WALKABILITY: Select only 4.5+ star verified hotels located in premier, safe, well-lit, highly walkable neighborhoods (downtown arts districts, historic boulevards, upscale business corridors). NEVER place lodging in unsafe, isolated, or industrial zones.\n- VEHICLE SAFETY: Prioritize tier-1 reputable rental fleets (Enterprise, National, Hertz) equipped with modern active safety features and 24/7 roadside assistance.\n- WALKABLE DINING & SIGHTSEEING: Ensure all evening dining, morning coffee, and strolling attractions are situated in vibrant, family-safe pedestrian zones with excellent guest safety reviews.\nREAL-WORLD NAMED ENTITY EXTRACTION MANDATE:\n- EVERY activity, hotel, restaurant, and attraction MUST be a real, specific named place (e.g. 'Courtyard by Marriott Valdosta', 'Universal Studios Florida', 'Mrs. Wilkes Dining Room', 'Ponce City Market'). NEVER output generic placeholders like 'Attraction', 'Hotel', or 'Dinner'.\n- CATEGORY CLASSIFICATION: Set 'category' accurately for each item ('Attraction', 'Hotel', 'Dining', 'Shopping', 'Transit').\n- CHRONOLOGICAL ORDERING: Output all activities in strict sequential time order from 08:00 AM to 09:30 PM without time overlaps.\nCONTINUOUS DAILY TIMELINE PROTOCOL (NO UNALLOCATED GAPS):\n- Every day's itinerary MUST be completely continuous with ZERO unallocated idle gaps between activities.\n- Every activity, meal, transit, or sightseeing slot must transition directly and back-to-back into the next (e.g. 08:00 AM Breakfast -> 09:00 AM Sightseeing/Drive -> 12:00 PM Lunch -> 01:00 PM Afternoon Activity -> 05:00 PM Exploration -> 06:00 PM Shopping -> 08:00 PM Dinner -> 09:30 PM Hotel Return).\n- Never leave 1-to-3 hour unallocated gaps before dinner, between theme park wrap-up and evening plans, or between road trip arrival and vehicle drop-off.\nEVENING SHOPPING PROTOCOL (DESTINATION EXPLORATION DAYS ONLY):\n- On intermediate exploration days (Days 2 through {duration_minus_1}), whenever afternoon sightseeing or theme park excursion concludes before dinner (e.g. 05:30 PM - 07:45 PM), schedule dedicated Evening Shopping, Artisan Market Browsing, or Promenade Walk to eliminate timeline gaps before 08:00 PM dinner.\n- SHOPPING TIMING MANDATE: Shopping MUST ALWAYS be placed in the evening before dinner on full exploration days. NEVER schedule shopping during morning/afternoon sightseeing, and NEVER schedule shopping on the final return driving day.\nMANDATORY 'next_activity' TRANSIT NODE FOR EVERY ACTIVITY:\n- EVERY activity and itinerary item MUST include a 'next_activity' object defining transit to the following step:\n  {\n    \"name\": \"<Next Activity / Landmark / Hotel Name>\",\n    \"distance_km\": <float distance in km>,\n    \"distance_miles\": <float distance in miles>,\n    \"distance_display\": \"<e.g. '15.2 km (9.4 miles)'>\",\n    \"travel_time_minutes\": <int transit minutes>,\n    \"travel_time_display\": \"<e.g. '20 mins' or '2 hrs 15 mins'>\",\n    \"travel_mode\": \"<walk | drive | transit | ferry>\",\n    \"transit_summary\": \"<e.g. 'Scenic drive via I-75 S' or '5-min walk to restaurant'>\"\n  }\n- For the final item of the day, set 'name': 'Return to <Specific Hotel Name> & Overnight Rest' (explicitly including the hotel name, e.g. 'Return to Courtyard by Marriott & Overnight Rest'), 'distance_km': 0.0, 'distance_miles': 0.0, 'travel_time_minutes': 0, 'travel_time_display': '0 mins', 'travel_mode': 'stay', 'transit_summary': 'Resting at <Specific Hotel Name> for the night'.\nDAILY OPERATING BOUNDARIES & TIMELINE RULES (STRICTLY ENFORCED):\n- CONTINUOUS SEQUENCING (ZERO IDLE GAPS): Build seamless back-to-back schedules from morning to night with NO unallocated gaps.\n- DAY START AT 08:00 AM: Every full day MUST start at 08:00 AM (with Breakfast or Quick Grab-and-Go Coffee Shop). Never start activities before 08:00 AM.\n- ATTRACTION END CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest. NEVER extend any attraction past 08:00 PM.\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (08:00 PM - 09:30 PM).\n- MANDATORY HOTEL RETURN BEFORE 10:00 PM: The final step of EVERY full day MUST be 'Return to <Specific Hotel Name> & Rest for the Night' (always explicitly naming the hotel, e.g. 'Return to Courtyard by Marriott & Rest for the Night'), with hotel arrival strictly BEFORE 10:00 PM (scheduled between 09:30 PM and 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots past 10:00 PM.\n- MORNING BREAKFAST PROTOCOL: Every next day MUST begin with Breakfast at 08:00 AM.\nHOTEL INCLUDED BREAKFAST PROTOCOL (TIME & COST EFFICIENCY):\n- Prefer hotels that provide complimentary/included breakfast.\n- On all exploration days (Day 2 onwards), schedule breakfast at 08:00 AM directly at the hotel's in-house restaurant/buffet to save 45+ minutes of morning transit time.\n- If breakfast is free, set 'price': 0.0 and 'price_display': 'Free / Included with Hotel Stay'.\n- If breakfast is not included or off-site, specify the min-max cost range in 'price_display' (e.g. 'USD 12.00 - 18.00') and set 'price': 15.00.\n- Always utilize in-house hotel breakfast unless the user specifically requests a named local bakery/cafe.\nMULTI-NIGHT HOTEL CONTINUITY MANDATE (NO HOTEL SWITCHING IN SAME CITY):\n- When spending multiple consecutive nights in the same destination city or area (e.g. Night 2 and Night 3 in Orlando, or Nights 1-3 in Dallas), ALWAYS stay at the EXACT SAME hotel for all consecutive nights.\n- NEVER switch hotels daily within the same destination city. Switching hotels every night causes extreme friction and is completely unrealistic.\n- Check in to a new hotel ONLY when traveling to a new city/overnight town.\n- On subsequent days at the same hotel (e.g. Day 3 in Orlando), DO NOT generate a 'Hotel Check-in' activity; start with Breakfast at that hotel and finish the day returning to that exact same hotel.\nTHEMATIC EMPHASIS (BALANCED & COMPLETE): Curate a balanced blend of top iconic landmarks, cultural highlights, local dining, and relaxing neighborhood strolls.\nTIMELINE REQUIREMENT: On Day 1, schedule all activities strictly after flight arrival at 12:00 PM. On Final Day, wrap up before flight departure at 05:00 PM.\nFLIGHT & RENTAL LOGISTICS (FLIGHT VACATION):\n- Outbound flight on Day 1 (arriving at LHR Airport) and Return flight on Day 4 are automatically booked and scheduled by the system.\n- NEVER add duplicate 'Flight from...', 'Flight to...', 'Fly to...', 'Fly from...', 'Board flight', 'Catch flight', or airport transit activities in the activities list. Day 1 activities MUST begin AFTER landing in LHR.\n- Rental car pickup at LHR Airport on Day 1 and rental return on Day 4 are automatically managed by the system. DO NOT add duplicate car rental activities.\nIncluded components: Flights=True, Hotels=True (1 rooms), Cars=True (1 car), Trains=False, Buses=False, Attractions=True, Activities=True, SeasonalAttractions=True, SeasonalActivities=True. Prompt details: '4-day trip to London Road Trip'.\nOUTPUT FORMAT REQUIREMENT: Return strictly valid JSON with top-level 'days' array matching: {\"days\": [{\"day_number\": 1, \"date\": \"2026-09-17\", \"theme\": \"...\", \"activities\": [..., {\"name\": \"...\", \"time_slot\": \"08:00 AM - 09:00 AM\", \"category\": \"...\", \"description\": \"...\", \"travel_mode\": \"...\", \"next_activity\": {\"name\": \"...\", \"distance_km\": 5.0, \"distance_miles\": 3.1, \"travel_time_minutes\": 15, \"travel_time_display\": \"15 mins\", \"travel_mode\": \"walk\", \"transit_summary\": \"...\"}}]}]}.",
   "system_prompt": "You are a World-Class Global AI Travel Planner & Master Concierge. You specialize in analyzing complex travel requests and crafting hyper-curated, optimal travel itineraries and travel packages worldwide across top global destinations. You expertly identify user intentions for flights, hotels, car rentals, attractions, dining, multi-category travel bundles, driving road trips, and ocean/river cruises.\n\nTRAVEL MODALITY SPECIALIZATION (FLIGHTS vs ROAD TRIP vs CRUISE):\n1. ROAD TRIP MODE (NO FLIGHTS / DRIVING TRIPS):\n   - When planning a Road Trip or ground travel, do NOT restrict activities solely to the destination city.\n   - Construct the itinerary across the authentic driving highway/byway corridor between Origin and Destination (e.g. Atlanta -> Dallas via Birmingham, Tuscaloosa, Meridian, Jackson, Shreveport).\n   - Schedule authentic en-route morning attractions, famous roadside diners, state/national parks, scenic lookouts, and intermediate overnight stays in waypoint towns.\n   - In 'next_activity', set 'travel_mode': 'drive' for intercity and corridor transit legs with realistic driving distances and durations.\n   - Packages and bundles across all travel modes are categorized as: 'budget' (Budget Saver), 'balanced' (Balanced Choice), and 'luxury' (Signature Luxury VIP). Users can specify stylistic preferences like scenic in their prompt.\n   - NEVER generate flight segments or airport terminal references for pure road trips.\n2. CRUISE MODE (OCEAN / RIVER CRUISES):\n   - When planning a Cruise or sailing journey, structure the itinerary around port embarkation, daily ports-of-call, shore excursions, coastal sightseeing, harbor dining, and maritime transit ('travel_mode': 'boat' or 'ferry').\n   - Day 1: Port embarkation, ship check-in, and sail-away viewing. Final Day: Port debarkation and departure.\n3. FLIGHT & VACATION TRAVEL MODE:\n   - Structure around flight arrival logistics, airport transfers, hotel check-in, city sightseeing highlights, and return flight departure logistics.\n   - Packages are categorized as: 'cheapest' (Budget Saver), 'moderate' (Balanced Choice), and 'luxury' (Signature Luxury VIP).\n\nSTANDARD DAY TIMINGS & DEFINITIONS (STRICT COMPLIANCE REQUIRED):\n- MORNING (05:00 AM - 11:59 AM): Breakfast at 08:00 AM, morning cultural museums, iconic attractions, or road trip scenic morning stops at 09:30 AM - 11:30 AM.\n- NOON / MIDDAY (12:00 PM - 12:59 PM): Lunch at 12:00 PM - 01:30 PM at top-rated local cafes, bistros, or famous en-route highway diners.\n- AFTERNOON (01:00 PM - 04:59 PM): Afternoon promenades, historic districts, parks, viewpoints, en-route state/national parks, and cultural experiences (e.g. 02:00 PM - 04:30 PM on full days, or 03:15 PM - 05:15 PM on Day 1 after hotel check-in).\n- EVENING (05:00 PM - 07:59 PM): Evening sunset attractions, panoramic towers, viewpoints, and dedicated Evening Shopping / Local Artisan Boutiques (05:30 PM - 07:45 PM). NEVER schedule evening activities during the afternoon (12:00 PM - 04:59 PM).\n- NIGHT (08:00 PM - 11:59 PM): Signature regional dinner from 08:00 PM - 09:30 PM, followed by 'Return to Hotel & Rest for the Night' at 09:30 PM - 10:00 PM.\n- MIDNIGHT / LATE NIGHT (12:00 AM - 04:59 AM): Resting at hotel (NO activities permitted).\n\nREAL SPECIFIC NAMES (NO GENERIC PLACEHOLDERS):\n- NEVER use generic placeholder names like 'Evening Landmark Attraction', 'Famous Landmark / Museum', 'Signature Dinner Place', 'Artisanal Breakfast', 'Gourmet Lunch', or 'Afternoon Activity & Promenade'.\n- ALWAYS provide the REAL, ACTUAL, and FAMOUS name of the landmark, museum, restaurant, or experience.\n\nSTRICT TIMING & SEQUENCING RULES (UNBREAKABLE):\n- CONTINUOUS SEQUENCING (ZERO UNALLOCATED GAPS): Every day's schedule MUST be completely continuous with back-to-back transitions and zero idle gaps. Fill late afternoon or pre-dinner gaps with dedicated Evening Shopping or Local Artisan Market browsing.\n- SHOPPING PLACEMENT RULE: Shopping MUST ALWAYS be scheduled at the END OF THE DAY (in the evening before dinner or before returning to the hotel). NEVER schedule shopping during morning or afternoon sightseeing.\n- ATTRACTION CUTOFF (08:00 PM MAXIMUM): Any attraction, museum, or sightseeing activity MUST end by 08:00 PM at the latest. NEVER extend any attraction past 08:00 PM.\n- MANDATORY DINNER START AT 08:00 PM: Dinner MUST start at 08:00 PM at any cost (08:00 PM - 09:30 PM).\n- MANDATORY HOTEL RETURN AS FINAL STEP (BEFORE 10:00 PM): The final step of EVERY day MUST be 'Return to Hotel & Rest for the Night' (09:30 PM - 10:00 PM).\n- NO OVERNIGHT / EARLY MORNING SLOTS: Never generate activity or dinner time slots past 10:00 PM.\n- EXACT JSON ONLY: Return strictly valid JSON adhering to the specified schema.",
   "llm_metadata": {
     "is_live_llm": true,
@@ -13,118 +13,102 @@
     {
       "day_number": 1,
       "date": "2026-09-17",
-      "theme": "Arrival and Evening Exploration",
+      "theme": "Arrival and Initial Exploration",
       "activities": [
         {
-          "name": "Flight from Atlanta (ATL) to Berlin (BER)",
-          "time_slot": "09:00 AM - 12:30 PM",
-          "category": "Transit",
-          "description": "Direct flight to Berlin Brandenburg Airport.",
-          "travel_mode": "flight",
+          "name": "Lunch at Gordon Ramsay Plane Food",
+          "time_slot": "01:00 PM - 02:00 PM",
+          "category": "Dining",
+          "description": "Enjoy a gourmet lunch at Gordon Ramsay Plane Food located in Heathrow Terminal 5.",
+          "travel_mode": "walk",
           "next_activity": {
-            "name": "Hotel Adlon Kempinski Berlin",
-            "distance_km": 30.0,
-            "distance_miles": 18.6,
-            "travel_time_minutes": 45,
-            "travel_time_display": "45 mins",
+            "name": "Check-in at The Clermont, Victoria",
+            "distance_km": 26.0,
+            "distance_miles": 16.2,
+            "travel_time_minutes": 40,
+            "travel_time_display": "40 mins",
             "travel_mode": "drive",
-            "transit_summary": "Drive from BER Airport to Hotel Adlon Kempinski Berlin."
+            "transit_summary": "Drive via M4 to central London."
           }
         },
         {
-          "name": "Hotel Adlon Kempinski Berlin Check-in",
-          "time_slot": "01:15 PM - 02:00 PM",
+          "name": "Check-in at The Clermont, Victoria",
+          "time_slot": "02:45 PM - 03:15 PM",
           "category": "Hotel",
-          "description": "Check-in at Hotel Adlon Kempinski Berlin, a luxury hotel located near Brandenburg Gate.",
-          "travel_mode": "stay",
+          "description": "Check in to The Clermont, Victoria, a 4.5-star hotel in a prime location.",
+          "travel_mode": "drive",
           "next_activity": {
-            "name": "Brandenburg Gate",
-            "distance_km": 0.5,
-            "distance_miles": 0.3,
+            "name": "Explore Westminster Abbey",
+            "distance_km": 1.2,
+            "distance_miles": 0.7,
             "travel_time_minutes": 5,
             "travel_time_display": "5 mins",
             "travel_mode": "walk",
-            "transit_summary": "5-min walk to Brandenburg Gate."
+            "transit_summary": "Short walk to Westminster Abbey."
           }
         },
         {
-          "name": "Brandenburg Gate",
-          "time_slot": "02:00 PM - 03:00 PM",
+          "name": "Explore Westminster Abbey",
+          "time_slot": "03:30 PM - 05:00 PM",
           "category": "Attraction",
-          "description": "Visit the iconic Brandenburg Gate, a symbol of Berlin's history and unity.",
+          "description": "Visit the iconic Westminster Abbey, a UNESCO World Heritage Site.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Reichstag Building",
-            "distance_km": 1.0,
-            "distance_miles": 0.6,
+            "name": "Stroll through St. James's Park",
+            "distance_km": 0.8,
+            "distance_miles": 0.5,
             "travel_time_minutes": 10,
             "travel_time_display": "10 mins",
             "travel_mode": "walk",
-            "transit_summary": "10-min walk to Reichstag Building."
+            "transit_summary": "Leisurely walk to St. James's Park."
           }
         },
         {
-          "name": "Reichstag Building",
-          "time_slot": "03:00 PM - 04:30 PM",
+          "name": "Stroll through St. James's Park",
+          "time_slot": "05:15 PM - 06:30 PM",
           "category": "Attraction",
-          "description": "Tour the historic Reichstag Building and enjoy panoramic views from the glass dome.",
+          "description": "Enjoy a peaceful walk in one of London's most famous parks.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Gendarmenmarkt",
-            "distance_km": 2.0,
-            "distance_miles": 1.2,
+            "name": "Evening Shopping at Piccadilly Circus",
+            "distance_km": 1.5,
+            "distance_miles": 0.9,
             "travel_time_minutes": 15,
             "travel_time_display": "15 mins",
             "travel_mode": "walk",
-            "transit_summary": "15-min walk to Gendarmenmarkt."
+            "transit_summary": "Walk to the bustling Piccadilly Circus for shopping."
           }
         },
         {
-          "name": "Gendarmenmarkt",
-          "time_slot": "04:30 PM - 05:30 PM",
-          "category": "Attraction",
-          "description": "Explore Gendarmenmarkt, one of Berlin's most beautiful squares.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Friedrichstraße Shopping",
-            "distance_km": 1.0,
-            "distance_miles": 0.6,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 mins",
-            "travel_mode": "walk",
-            "transit_summary": "10-min walk to Friedrichstraße for shopping."
-          }
-        },
-        {
-          "name": "Friedrichstraße Shopping",
-          "time_slot": "05:30 PM - 07:45 PM",
+          "name": "Evening Shopping at Piccadilly Circus",
+          "time_slot": "06:45 PM - 07:45 PM",
           "category": "Shopping",
-          "description": "Evening shopping at Friedrichstraße, a major shopping street in Berlin.",
+          "description": "Explore shops and boutiques in the vibrant Piccadilly Circus area.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Lutter & Wegner",
-            "distance_km": 0.5,
-            "distance_miles": 0.3,
+            "name": "Dinner at Brasserie Zédel",
+            "distance_km": 0.3,
+            "distance_miles": 0.2,
             "travel_time_minutes": 5,
             "travel_time_display": "5 mins",
             "travel_mode": "walk",
-            "transit_summary": "5-min walk to Lutter & Wegner for dinner."
+            "transit_summary": "Walk to Brasserie Zédel for dinner."
           }
         },
         {
-          "name": "Dinner at Lutter & Wegner",
+          "name": "Dinner at Brasserie Zédel",
           "time_slot": "08:00 PM - 09:30 PM",
           "category": "Dining",
-          "description": "Enjoy a traditional German dinner at Lutter & Wegner.",
+          "description": "Enjoy a classic French dinner at Brasserie Zédel.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Return to Hotel Adlon Kempinski Berlin & Rest for the Night",
-            "distance_km": 0.5,
-            "distance_miles": 0.3,
-            "travel_time_minutes": 5,
-            "travel_time_display": "5 mins",
-            "travel_mode": "walk",
-            "transit_summary": "5-min walk back to the hotel."
+            "name": "Return to The Clermont, Victoria & Rest for the Night",
+            "distance_km": 2.0,
+            "distance_miles": 1.2,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "drive",
+            "transit_summary": "Drive back to the hotel for the night."
           }
         }
       ]
@@ -132,120 +116,118 @@
     {
       "day_number": 2,
       "date": "2026-09-18",
-      "theme": "Cultural Exploration in Berlin",
+      "theme": "Cultural and Historic Exploration",
       "activities": [
         {
-          "name": "Breakfast at Hotel Adlon Kempinski Berlin",
+          "name": "Breakfast at The Clermont, Victoria",
           "time_slot": "08:00 AM - 09:00 AM",
           "category": "Dining",
           "description": "Enjoy a complimentary breakfast at the hotel's restaurant.",
-          "price": 0.0,
-          "price_display": "Free / Included with Hotel Stay",
           "travel_mode": "stay",
           "next_activity": {
-            "name": "Museum Island",
-            "distance_km": 1.5,
-            "distance_miles": 0.9,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 mins",
-            "travel_mode": "walk",
-            "transit_summary": "10-min walk to Museum Island."
+            "name": "Visit The British Museum",
+            "distance_km": 3.5,
+            "distance_miles": 2.2,
+            "travel_time_minutes": 20,
+            "travel_time_display": "20 mins",
+            "travel_mode": "transit",
+            "transit_summary": "Take public transit to The British Museum."
           }
         },
         {
-          "name": "Museum Island",
-          "time_slot": "09:30 AM - 11:30 AM",
+          "name": "Visit The British Museum",
+          "time_slot": "09:30 AM - 12:00 PM",
           "category": "Attraction",
-          "description": "Visit Museum Island, home to five world-renowned museums.",
-          "travel_mode": "walk",
+          "description": "Explore the world-renowned British Museum.",
+          "travel_mode": "transit",
           "next_activity": {
-            "name": "Lunch at Hackescher Markt",
+            "name": "Lunch at Dishoom Covent Garden",
             "distance_km": 1.0,
             "distance_miles": 0.6,
             "travel_time_minutes": 10,
             "travel_time_display": "10 mins",
             "travel_mode": "walk",
-            "transit_summary": "10-min walk to Hackescher Markt for lunch."
+            "transit_summary": "Walk to Dishoom Covent Garden for lunch."
           }
         },
         {
-          "name": "Lunch at Hackescher Markt",
-          "time_slot": "12:00 PM - 01:30 PM",
+          "name": "Lunch at Dishoom Covent Garden",
+          "time_slot": "12:15 PM - 01:30 PM",
           "category": "Dining",
-          "description": "Have lunch at one of the vibrant cafes in Hackescher Markt.",
+          "description": "Savor the famous Bombay canteen-style lunch at Dishoom.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Berlin Wall Memorial",
-            "distance_km": 3.0,
-            "distance_miles": 1.9,
-            "travel_time_minutes": 15,
-            "travel_time_display": "15 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to Berlin Wall Memorial."
-          }
-        },
-        {
-          "name": "Berlin Wall Memorial",
-          "time_slot": "02:00 PM - 04:00 PM",
-          "category": "Attraction",
-          "description": "Explore the Berlin Wall Memorial, a poignant site of historical significance.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Potsdamer Platz",
-            "distance_km": 3.5,
-            "distance_miles": 2.2,
-            "travel_time_minutes": 20,
-            "travel_time_display": "20 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to Potsdamer Platz."
-          }
-        },
-        {
-          "name": "Potsdamer Platz",
-          "time_slot": "04:30 PM - 05:30 PM",
-          "category": "Attraction",
-          "description": "Visit Potsdamer Platz, a vibrant public square and popular tourist spot.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Kurfürstendamm Shopping Street",
+            "name": "Tour of the Tower of London",
             "distance_km": 4.0,
             "distance_miles": 2.5,
-            "travel_time_minutes": 15,
-            "travel_time_display": "15 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to Kurfürstendamm for evening shopping."
+            "travel_time_minutes": 25,
+            "travel_time_display": "25 mins",
+            "travel_mode": "transit",
+            "transit_summary": "Take public transit to the Tower of London."
           }
         },
         {
-          "name": "Kurfürstendamm Shopping Street",
+          "name": "Tour of the Tower of London",
+          "time_slot": "02:00 PM - 04:30 PM",
+          "category": "Attraction",
+          "description": "Discover the history of the Tower of London, home to the Crown Jewels.",
+          "travel_mode": "transit",
+          "next_activity": {
+            "name": "Evening Stroll across Tower Bridge",
+            "distance_km": 0.3,
+            "distance_miles": 0.2,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 mins",
+            "travel_mode": "walk",
+            "transit_summary": "Walk to Tower Bridge for an evening stroll."
+          }
+        },
+        {
+          "name": "Evening Stroll across Tower Bridge",
+          "time_slot": "04:45 PM - 05:30 PM",
+          "category": "Attraction",
+          "description": "Take a scenic walk across the iconic Tower Bridge.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Evening Shopping at Borough Market",
+            "distance_km": 1.0,
+            "distance_miles": 0.6,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "walk",
+            "transit_summary": "Walk to Borough Market for shopping."
+          }
+        },
+        {
+          "name": "Evening Shopping at Borough Market",
           "time_slot": "05:45 PM - 07:45 PM",
           "category": "Shopping",
-          "description": "Evening shopping at Kurfürstendamm, Berlin's premier shopping boulevard.",
+          "description": "Explore the food stalls and artisanal products at Borough Market.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Dinner at Restaurant Tim Raue",
-            "distance_km": 5.0,
-            "distance_miles": 3.1,
-            "travel_time_minutes": 20,
-            "travel_time_display": "20 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to Restaurant Tim Raue for dinner."
+            "name": "Dinner at Hawksmoor Borough",
+            "distance_km": 0.2,
+            "distance_miles": 0.1,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 mins",
+            "travel_mode": "walk",
+            "transit_summary": "Walk to Hawksmoor Borough for dinner."
           }
         },
         {
-          "name": "Dinner at Restaurant Tim Raue",
+          "name": "Dinner at Hawksmoor Borough",
           "time_slot": "08:00 PM - 09:30 PM",
           "category": "Dining",
-          "description": "Enjoy a fusion dinner at Restaurant Tim Raue, a Michelin-starred establishment.",
+          "description": "Enjoy a premium steak dinner at Hawksmoor Borough.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Return to Hotel Adlon Kempinski Berlin & Rest for the Night",
-            "distance_km": 5.5,
-            "distance_miles": 3.4,
-            "travel_time_minutes": 15,
-            "travel_time_display": "15 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive back to Hotel Adlon Kempinski Berlin."
+            "name": "Return to The Clermont, Victoria & Rest for the Night",
+            "distance_km": 4.5,
+            "distance_miles": 2.8,
+            "travel_time_minutes": 20,
+            "travel_time_display": "20 mins",
+            "travel_mode": "transit",
+            "transit_summary": "Take public transit back to the hotel for the night."
           }
         }
       ]
@@ -253,120 +235,118 @@
     {
       "day_number": 3,
       "date": "2026-09-19",
-      "theme": "Scenic Day Trip to Potsdam",
+      "theme": "Modern London and Relaxation",
       "activities": [
         {
-          "name": "Breakfast at Hotel Adlon Kempinski Berlin",
+          "name": "Breakfast at The Clermont, Victoria",
           "time_slot": "08:00 AM - 09:00 AM",
           "category": "Dining",
           "description": "Enjoy a complimentary breakfast at the hotel's restaurant.",
-          "price": 0.0,
-          "price_display": "Free / Included with Hotel Stay",
           "travel_mode": "stay",
           "next_activity": {
-            "name": "Drive to Sanssouci Palace, Potsdam",
-            "distance_km": 35.0,
-            "distance_miles": 21.7,
-            "travel_time_minutes": 45,
-            "travel_time_display": "45 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Scenic drive to Sanssouci Palace in Potsdam."
-          }
-        },
-        {
-          "name": "Sanssouci Palace",
-          "time_slot": "09:45 AM - 11:45 AM",
-          "category": "Attraction",
-          "description": "Tour the stunning Sanssouci Palace and gardens, a UNESCO World Heritage site.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Lunch in Potsdam City Center",
+            "name": "Visit the Tate Modern",
             "distance_km": 3.0,
             "distance_miles": 1.9,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to Potsdam City Center for lunch."
-          }
-        },
-        {
-          "name": "Lunch in Potsdam City Center",
-          "time_slot": "12:00 PM - 01:30 PM",
-          "category": "Dining",
-          "description": "Have lunch at a local café in Potsdam's charming city center.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Park Babelsberg",
-            "distance_km": 4.0,
-            "distance_miles": 2.5,
             "travel_time_minutes": 15,
             "travel_time_display": "15 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to Park Babelsberg."
+            "travel_mode": "transit",
+            "transit_summary": "Take public transit to the Tate Modern."
           }
         },
         {
-          "name": "Park Babelsberg",
-          "time_slot": "02:00 PM - 04:00 PM",
+          "name": "Visit the Tate Modern",
+          "time_slot": "09:30 AM - 11:30 AM",
           "category": "Attraction",
-          "description": "Explore the picturesque Park Babelsberg with its beautiful landscape and views.",
-          "travel_mode": "walk",
+          "description": "Explore contemporary art at the Tate Modern.",
+          "travel_mode": "transit",
           "next_activity": {
-            "name": "Drive back to Berlin",
-            "distance_km": 35.0,
-            "distance_miles": 21.7,
-            "travel_time_minutes": 45,
-            "travel_time_display": "45 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Return drive to Berlin."
-          }
-        },
-        {
-          "name": "Alexanderplatz",
-          "time_slot": "04:45 PM - 05:45 PM",
-          "category": "Attraction",
-          "description": "Visit Alexanderplatz, a vibrant square with shopping and entertainment options.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Evening Shopping at Alexa Shopping Center",
-            "distance_km": 0.5,
-            "distance_miles": 0.3,
+            "name": "Lunch at The Swan at the Globe",
+            "distance_km": 0.2,
+            "distance_miles": 0.1,
             "travel_time_minutes": 5,
             "travel_time_display": "5 mins",
             "travel_mode": "walk",
-            "transit_summary": "5-min walk to Alexa Shopping Center."
+            "transit_summary": "Walk to The Swan at the Globe for lunch."
           }
         },
         {
-          "name": "Evening Shopping at Alexa Shopping Center",
-          "time_slot": "06:00 PM - 07:45 PM",
-          "category": "Shopping",
-          "description": "Shop at Alexa Shopping Center, one of Berlin's largest malls.",
+          "name": "Lunch at The Swan at the Globe",
+          "time_slot": "12:00 PM - 01:30 PM",
+          "category": "Dining",
+          "description": "Dine with views of the Thames at The Swan.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Dinner at Hofbräu Berlin",
-            "distance_km": 0.7,
-            "distance_miles": 0.4,
+            "name": "Visit the Sky Garden",
+            "distance_km": 2.0,
+            "distance_miles": 1.2,
+            "travel_time_minutes": 15,
+            "travel_time_display": "15 mins",
+            "travel_mode": "transit",
+            "transit_summary": "Take transit to the Sky Garden for panoramic views."
+          }
+        },
+        {
+          "name": "Visit the Sky Garden",
+          "time_slot": "02:00 PM - 03:30 PM",
+          "category": "Attraction",
+          "description": "Enjoy panoramic views of London from the Sky Garden.",
+          "travel_mode": "transit",
+          "next_activity": {
+            "name": "Relax at Hyde Park",
+            "distance_km": 5.5,
+            "distance_miles": 3.4,
+            "travel_time_minutes": 30,
+            "travel_time_display": "30 mins",
+            "travel_mode": "transit",
+            "transit_summary": "Take public transit to Hyde Park for relaxation."
+          }
+        },
+        {
+          "name": "Relax at Hyde Park",
+          "time_slot": "04:00 PM - 05:30 PM",
+          "category": "Attraction",
+          "description": "Relax and unwind at Hyde Park, London’s largest royal park.",
+          "travel_mode": "transit",
+          "next_activity": {
+            "name": "Evening Shopping at Oxford Street",
+            "distance_km": 2.0,
+            "distance_miles": 1.2,
             "travel_time_minutes": 10,
             "travel_time_display": "10 mins",
             "travel_mode": "walk",
-            "transit_summary": "10-min walk to Hofbräu Berlin for dinner."
+            "transit_summary": "Walk to Oxford Street for shopping."
           }
         },
         {
-          "name": "Dinner at Hofbräu Berlin",
-          "time_slot": "08:00 PM - 09:30 PM",
-          "category": "Dining",
-          "description": "Enjoy a traditional Bavarian dinner at Hofbräu Berlin.",
+          "name": "Evening Shopping at Oxford Street",
+          "time_slot": "05:45 PM - 07:45 PM",
+          "category": "Shopping",
+          "description": "Shop at the famous Oxford Street, Europe’s busiest shopping street.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Return to Hotel Adlon Kempinski Berlin & Rest for the Night",
-            "distance_km": 3.0,
-            "distance_miles": 1.9,
+            "name": "Dinner at The Ivy",
+            "distance_km": 1.0,
+            "distance_miles": 0.6,
+            "travel_time_minutes": 10,
+            "travel_time_display": "10 mins",
+            "travel_mode": "walk",
+            "transit_summary": "Walk to The Ivy for an exquisite dinner."
+          }
+        },
+        {
+          "name": "Dinner at The Ivy",
+          "time_slot": "08:00 PM - 09:30 PM",
+          "category": "Dining",
+          "description": "Indulge in a classic dinner at The Ivy, known for its refined British cuisine.",
+          "travel_mode": "walk",
+          "next_activity": {
+            "name": "Return to The Clermont, Victoria & Rest for the Night",
+            "distance_km": 2.5,
+            "distance_miles": 1.6,
             "travel_time_minutes": 15,
             "travel_time_display": "15 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive back to Hotel Adlon Kempinski Berlin."
+            "travel_mode": "transit",
+            "transit_summary": "Take public transit back to the hotel for the night."
           }
         }
       ]
@@ -377,101 +357,83 @@
       "theme": "Final Day and Departure",
       "activities": [
         {
-          "name": "Breakfast at Hotel Adlon Kempinski Berlin",
+          "name": "Breakfast at The Clermont, Victoria",
           "time_slot": "08:00 AM - 09:00 AM",
           "category": "Dining",
           "description": "Enjoy a complimentary breakfast at the hotel's restaurant.",
-          "price": 0.0,
-          "price_display": "Free / Included with Hotel Stay",
           "travel_mode": "stay",
           "next_activity": {
-            "name": "East Side Gallery",
-            "distance_km": 5.0,
-            "distance_miles": 3.1,
+            "name": "Visit the Natural History Museum",
+            "distance_km": 3.5,
+            "distance_miles": 2.2,
             "travel_time_minutes": 20,
             "travel_time_display": "20 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to East Side Gallery."
+            "travel_mode": "transit",
+            "transit_summary": "Take public transit to the Natural History Museum."
           }
         },
         {
-          "name": "East Side Gallery",
-          "time_slot": "09:30 AM - 11:00 AM",
+          "name": "Visit the Natural History Museum",
+          "time_slot": "09:30 AM - 12:00 PM",
           "category": "Attraction",
-          "description": "Visit the East Side Gallery, an open-air gallery featuring murals on remnants of the Berlin Wall.",
-          "travel_mode": "walk",
+          "description": "Explore the fascinating exhibits at the Natural History Museum.",
+          "travel_mode": "transit",
           "next_activity": {
-            "name": "Lunch at Markthalle Neun",
-            "distance_km": 2.5,
-            "distance_miles": 1.6,
-            "travel_time_minutes": 15,
-            "travel_time_display": "15 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to Markthalle Neun for lunch."
+            "name": "Lunch at The V&A Café",
+            "distance_km": 0.2,
+            "distance_miles": 0.1,
+            "travel_time_minutes": 5,
+            "travel_time_display": "5 mins",
+            "travel_mode": "walk",
+            "transit_summary": "Walk to The V&A Café for lunch."
           }
         },
         {
-          "name": "Lunch at Markthalle Neun",
-          "time_slot": "12:00 PM - 01:30 PM",
+          "name": "Lunch at The V&A Café",
+          "time_slot": "12:15 PM - 01:30 PM",
           "category": "Dining",
-          "description": "Enjoy a diverse culinary experience at Markthalle Neun, a popular food market.",
+          "description": "Enjoy lunch at the Victoria and Albert Museum's café.",
           "travel_mode": "walk",
           "next_activity": {
-            "name": "Checkpoint Charlie",
-            "distance_km": 3.0,
-            "distance_miles": 1.9,
-            "travel_time_minutes": 15,
-            "travel_time_display": "15 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to Checkpoint Charlie."
-          }
-        },
-        {
-          "name": "Checkpoint Charlie",
-          "time_slot": "02:00 PM - 03:00 PM",
-          "category": "Attraction",
-          "description": "Visit Checkpoint Charlie, the famous Cold War crossing point.",
-          "travel_mode": "walk",
-          "next_activity": {
-            "name": "Return to Hotel Adlon Kempinski Berlin",
-            "distance_km": 2.0,
-            "distance_miles": 1.2,
-            "travel_time_minutes": 10,
-            "travel_time_display": "10 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive back to the hotel to check out."
-          }
-        },
-        {
-          "name": "Hotel Check-out and Drive to Berlin Brandenburg Airport",
-          "time_slot": "03:00 PM - 04:00 PM",
-          "category": "Transit",
-          "description": "Check out from the hotel and drive to the airport for departure.",
-          "travel_mode": "drive",
-          "next_activity": {
-            "name": "Return Rental Car & Flight from Berlin (BER) to Atlanta (ATL)",
-            "distance_km": 30.0,
-            "distance_miles": 18.6,
-            "travel_time_minutes": 45,
-            "travel_time_display": "45 mins",
-            "travel_mode": "drive",
-            "transit_summary": "Drive to BER Airport, return rental car, and board the flight to Atlanta."
-          }
-        },
-        {
-          "name": "Return Rental Car & Flight from Berlin (BER) to Atlanta (ATL)",
-          "time_slot": "05:00 PM - 08:30 PM",
-          "category": "Transit",
-          "description": "Return the rental car and take the flight back to Atlanta.",
-          "travel_mode": "flight",
-          "next_activity": {
-            "name": "End of Trip",
+            "name": "Explore the Victoria and Albert Museum",
             "distance_km": 0.0,
             "distance_miles": 0.0,
             "travel_time_minutes": 0,
             "travel_time_display": "0 mins",
             "travel_mode": "stay",
-            "transit_summary": "End of journey."
+            "transit_summary": "Stay at the V&A for further exploration."
+          }
+        },
+        {
+          "name": "Explore the Victoria and Albert Museum",
+          "time_slot": "01:45 PM - 03:00 PM",
+          "category": "Attraction",
+          "description": "Delve into the art and design collections at the V&A Museum.",
+          "travel_mode": "transit",
+          "next_activity": {
+            "name": "Return to The Clermont, Victoria & Check-out",
+            "distance_km": 3.5,
+            "distance_miles": 2.2,
+            "travel_time_minutes": 20,
+            "travel_time_display": "20 mins",
+            "travel_mode": "transit",
+            "transit_summary": "Take public transit back to the hotel for check-out."
+          }
+        },
+        {
+          "name": "Return to The Clermont, Victoria & Check-out",
+          "time_slot": "03:30 PM - 04:00 PM",
+          "category": "Hotel",
+          "description": "Check-out from The Clermont, Victoria and prepare for departure.",
+          "travel_mode": "stay",
+          "next_activity": {
+            "name": "Drive to Heathrow Airport",
+            "distance_km": 26.0,
+            "distance_miles": 16.2,
+            "travel_time_minutes": 40,
+            "travel_time_display": "40 mins",
+            "travel_mode": "drive",
+            "transit_summary": "Drive to Heathrow Airport for your return flight."
           }
         }
       ]

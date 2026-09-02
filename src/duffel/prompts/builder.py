@@ -123,6 +123,8 @@ def build_planner_user_prompt(
         effective_style = "budget"
     elif any(w in p_lower for w in ["luxury", "vip", "michelin", "penthouse"]):
         effective_style = "luxury"
+    elif any(w in p_lower for w in ["scenic", "landscape", "views", "panorama", "viewpoints"]):
+        effective_style = "scenic"
     elif any(w in p_lower for w in ["cultural", "history", "heritage", "museum"]):
         effective_style = "cultural"
     else:
