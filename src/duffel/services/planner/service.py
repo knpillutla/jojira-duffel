@@ -1,9 +1,5 @@
 from datetime import datetime, timedelta, timezone
-import hashlib
-import json
-import math
-import os
-import re
+import math, re
 from typing import Any, Optional
 
 from ..base import BaseService
@@ -69,10 +65,9 @@ class TravelPlannerService(BaseService):
 
             classification = classify_travel_scope_and_type(
                 prompt=prompt, resolved_origin=resolved_origin, dest_clean=raw_dest_str,
-                user_location=user_location, include_flights=include_flights, include_cars=include_cars,
-                road_trip=road_trip, fly_and_drive=fly_and_drive,
+                user_location=user_location, include_flights=include_flights, include_cars=include_cars, road_trip=road_trip,
             )
-            is_road_trip, is_cruise, is_fly_and_drive, include_flights = classification["is_road_trip"], classification["is_cruise"], classification["is_fly_and_drive"], classification["include_flights"]
+            is_road_trip, is_cruise, include_flights = classification["is_road_trip"], classification["is_cruise"], classification["include_flights"]
 
             if not include_flights:
                 dest_clean, origin_clean = PromptExtractor._resolve_city_name(raw_dest_str), PromptExtractor._resolve_city_name(str(resolved_origin).strip())
@@ -82,19 +77,22 @@ class TravelPlannerService(BaseService):
                 origin_code = str(PromptExtractor._resolve_iata(origin_clean) or origin_clean).upper().strip()
                 dest_upper = str(PromptExtractor._resolve_iata(dest_clean) or dest_clean).upper().strip()
 
-            duration_days = days or intent.get("duration_days") or 4
+            has_fixed_dates = bool(start_date and end_date)
             now = datetime.now(timezone.utc)
+            duration_days = days or intent.get("duration_days") or 7
+            if duration_days > 30:
+                err_m = f"Trip duration of {duration_days} days exceeds the maximum allowed limit of 30 days. Please select 30 days or less."
+                return {"status": "error", "error": "duration_exceeded", "message": err_m, "meta_data": {"type": "planner", "error": err_m}, "data": {"summary": {}, "daily_itinerary": [], "bundles": []}}
             start_dt = datetime.strptime(start_date, "%Y-%m-%d").replace(tzinfo=timezone.utc) if start_date else (now + timedelta(days=15))
-            start_date, end_date = start_dt.strftime("%Y-%m-%d"), (end_date or (start_dt + timedelta(days=max(0, duration_days - 1))).strftime("%Y-%m-%d"))
+            start_date, end_date = start_dt.strftime("%Y-%m-%d"), (end_date or (start_dt + timedelta(days=max(1, duration_days))).strftime("%Y-%m-%d"))
 
             pax_info = intent.get("passengers") or {}
             raw_adults, raw_children, c_ages = pax_info.get("adults"), pax_info.get("children", 0), pax_info.get("children_ages") or []
             if raw_adults is None:
-                a_m = re.search(r"(\d+)\s*adult", prompt, re.I)
-                raw_adults = int(a_m.group(1)) if a_m else (passengers_count if not raw_children else max(1, passengers_count - raw_children))
-            if not raw_children:
-                c_m = re.search(r"(\d+)\s*(?:kid|child|children)", prompt, re.I)
-                raw_children = int(c_m.group(1)) if c_m else 0
+                m_ad = re.search(r"(\d+)\s*adult", prompt, re.I)
+                raw_adults = int(m_ad.group(1)) if m_ad else (passengers_count if not raw_children else max(1, passengers_count - raw_children))
+            if not raw_children and re.search(r"(\d+)\s*(?:kid|child|children)", prompt, re.I):
+                raw_children = int(re.search(r"(\d+)\s*(?:kid|child|children)", prompt, re.I).group(1))
             if not c_ages and raw_children > 0:
                 c_ages = [int(a) for a in re.findall(r"\b(?:age[s]?|aged)?\s*(\d{1,2})\b", prompt, re.I) if 1 <= int(a) <= 17][:raw_children]
 
@@ -105,14 +103,25 @@ class TravelPlannerService(BaseService):
             geo = DESTINATION_GEO_MAP.get(dest_clean.lower(), {"latitude": 47.3769, "longitude": 8.5417, "address": f"{dest_clean} Central"})
             base_lat, base_lng = geo.get("latitude", 47.3769), geo.get("longitude", 8.5417)
             map_center = {"latitude": base_lat, "longitude": base_lng, "name": dest_clean, "address": geo.get("address", dest_clean)}
-            cfg = getattr(self.client, "config", None)
-            is_test_mode = bool(getattr(cfg, "test_mode", False)) if cfg else False
+            cfg, is_test_mode = getattr(self.client, "config", None), bool(getattr(getattr(self.client, "config", None), "test_mode", False))
 
         with StepLogger.step(2, 6, "Live Component Pricing & Availability", f"Origin: {origin_code}, Dest: {dest_upper}"):
             top_3_bundles, component_pricing, _ = fetch_live_component_pricing(
                 origin=origin_code, destination=dest_upper, departure_date=start_date, return_date=end_date,
-                passengers_count=passengers_count, rooms=rooms_calculated, driver_age=driver_age, include_flights=include_flights, is_test=is_test_mode,
+                passengers_count=passengers_count, rooms=rooms_calculated, driver_age=driver_age, include_flights=include_flights, is_test=is_test_mode, client=self.client, prompt=prompt,
             )
+            disc_s, disc_e = component_pricing.get("discovered_start_date"), component_pricing.get("discovered_end_date")
+            if include_flights and disc_s and not has_fixed_dates:
+                start_date = disc_s
+                start_dt = datetime.strptime(start_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                if disc_e:
+                    end_date = disc_e
+                    try:
+                        d_span = (datetime.strptime(disc_e, "%Y-%m-%d") - datetime.strptime(disc_s, "%Y-%m-%d")).days
+                        if d_span > 0:
+                            duration_days = d_span
+                    except Exception:
+                        pass
             outbound_dep, outbound_arr = component_pricing.get("outbound_departure_time", "08:30 AM" if is_road_trip else "06:30 AM"), component_pricing.get("outbound_arrival_time", "04:30 PM" if is_road_trip else "12:30 PM")
             return_dep, return_arr = component_pricing.get("return_departure_time", "10:00 AM" if is_road_trip else "05:00 PM"), component_pricing.get("return_arrival_time", "06:00 PM" if is_road_trip else "11:00 PM")
 
@@ -125,7 +134,7 @@ class TravelPlannerService(BaseService):
                 include_hotels=include_hotels, include_cars=include_cars, include_trains=include_trains,
                 include_buses=include_buses, include_attractions=include_attractions, include_activities=include_activities,
                 include_seasonal_attractions=include_seasonal_attractions, include_seasonal_activities=include_seasonal_activities,
-                is_road_trip=is_road_trip, is_cruise=is_cruise, is_fly_and_drive=is_fly_and_drive,
+                is_road_trip=is_road_trip, is_cruise=is_cruise,
                 outbound_dep=outbound_dep, outbound_arr=outbound_arr, return_dep=return_dep, return_arr=return_arr,
             )
 
@@ -161,12 +170,7 @@ class TravelPlannerService(BaseService):
                 )
             else:
                 c_lbl = "PostgreSQL" if is_from_postgres else "Redis"
-                print(f"[CACHE HIT: {c_lbl.upper()}] Pre-generated {duration_days}-day itinerary retrieved from {c_lbl} for '{dest_clean}' (<5ms).")
-                print(f"[INTERPOLATION: DATES] Interpolating calendar dates {start_date} to {end_date} across all daily modules.")
-                if include_flights:
-                    print(f"[INTERPOLATION: FLIGHTS] Interpolating live flight pricing (${component_pricing.get('flight_cost', 0):.2f}) and schedule slots ({outbound_dep}-{outbound_arr} / {return_dep}-{return_arr}).")
-                elif is_road_trip:
-                    print(f"[INTERPOLATION: ROAD TRIP] Interpolating road trip driving timeline ({outbound_dep} departure, {return_arr} return).")
+                print(f"[CACHE HIT: {c_lbl.upper()}] Pre-generated {duration_days}-day itinerary from {c_lbl} for '{dest_clean}'. Dates: {start_date} to {end_date}.")
 
         daily_itinerary, map_pins, all_highlights = [], [], []
         city_hotel_registry, current_overnight_hotel = {}, ""
@@ -205,27 +209,22 @@ class TravelPlannerService(BaseService):
                         c_norm = str(c_loc).lower().split(",")[0].strip()
                         raw_hn = re.sub(r"^(check-in at|check in at|check into|stay at|hotel)\s+", "", act_name or "", flags=re.I).strip()
                         if raw_hn and len(raw_hn) > 3:
-                            day_checkin_hotel = raw_hn
-                            current_overnight_hotel = raw_hn
+                            day_checkin_hotel = current_overnight_hotel = raw_hn
                             if c_norm not in city_hotel_registry:
                                 city_hotel_registry[c_norm] = raw_hn
                             elif raw_hn != city_hotel_registry[c_norm]:
-                                act_enriched["name"] = re.sub(re.escape(raw_hn), city_hotel_registry[c_norm], act_name or "", flags=re.I)
-                                act_enriched["title"] = act_enriched["name"]
-                                day_checkin_hotel = city_hotel_registry[c_norm]
-                                current_overnight_hotel = city_hotel_registry[c_norm]
+                                act_enriched["name"] = act_enriched["title"] = re.sub(re.escape(raw_hn), city_hotel_registry[c_norm], act_name or "", flags=re.I)
+                                day_checkin_hotel = current_overnight_hotel = city_hotel_registry[c_norm]
 
-                    is_car_pickup = any(k in aname_l or k in adetails_l for k in [
-                        "pickup rental", "rental car pickup", "collect your rental", "pick up rental", "rental vehicle pickup"
-                    ])
+                    is_car_pickup = any(k in aname_l or k in adetails_l for k in ["pickup rental", "rental car pickup", "collect your rental", "pick up rental", "rental vehicle pickup"])
                     if include_cars and d_num == 1 and is_car_pickup:
                         continue
-                    is_car_return = any(k in aname_l or k in adetails_l for k in [
-                        "return rental", "drop off rental", "rental car return", "drop-off rental", "rental vehicle return"
-                    ]) or (d_num == duration_days and any(k in aname_l for k in ["arrive in ", "arrival in "]) and "rental" in adetails_l)
+                    is_car_return = any(k in aname_l or k in adetails_l for k in ["return rental", "drop off rental", "rental car return", "drop-off rental", "rental vehicle return"]) or (d_num == duration_days and any(k in aname_l for k in ["arrive in ", "arrival in "]) and "rental" in adetails_l)
                     if include_cars and d_num == duration_days and is_car_return:
                         continue
-                    # On final return day of road trip, omit shopping and activities after 05:30 PM
+                    is_flight_act = any(k in aname_l or k in adetails_l for k in ["flight from", "flight to", "fly from", "fly to", "flight arrival", "flight departure", "board flight", "catch flight", "direct flight to"]) or act_enriched.get("travel_mode") == "flight"
+                    if include_flights and is_flight_act:
+                        continue
                     if (is_road_trip or not include_flights) and d_num == duration_days and (act_enriched.get("category", "").lower() == "shopping" or "shopping" in aname_l or parse_time_to_minutes(act_enriched) >= 1050):
                         continue
                     items.append(act_enriched)
@@ -272,10 +271,10 @@ class TravelPlannerService(BaseService):
             trip_summary.update(ins_fields)
             resp_orig, resp_dest = (origin_code.upper(), dest_upper.upper()) if include_flights else (origin_clean, dest_clean)
             trip_summary["origin"], trip_summary["destination"] = resp_orig, resp_dest
-            if include_flights: trip_summary["airline"] = trip_summary["airline_name"] = airline_name
-            if "flights" in trip_summary and isinstance(trip_summary["flights"], dict):
-                trip_summary["flights"]["origin"], trip_summary["flights"]["destination"] = resp_orig, resp_dest
-                if include_flights: trip_summary["flights"]["airline"] = trip_summary["flights"]["airline_name"] = airline_name
+            if include_flights:
+                trip_summary["airline"] = trip_summary["airline_name"] = airline_name
+                if isinstance(trip_summary.get("flights"), dict):
+                    trip_summary["flights"]["origin"], trip_summary["flights"]["destination"], trip_summary["flights"]["airline"], trip_summary["flights"]["airline_name"] = resp_orig, resp_dest, airline_name, airline_name
             for b in bundles_out: b["origin"], b["destination"] = resp_orig, resp_dest
             meta_data = {
                 "type": "planner", "title": classification["trip_category_display"], "trip_title": classification["trip_category_display"],
@@ -294,5 +293,5 @@ class TravelPlannerService(BaseService):
             save_llm_debug_output("final_response", response_payload, identifier=dest_clean)
             if self.cache and self.cache.enabled and modular_key:
                 self.cache.set(modular_key, response_payload, ttl_seconds=3600 * 24)
+            return response_payload
 
-        return response_payload

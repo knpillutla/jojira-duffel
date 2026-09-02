@@ -122,6 +122,7 @@ class DuffelConfig:
     retry_backoff_factor: float = 0.5
     retry_backoff_max: float = 10.0
     retry_status_codes: Optional[list[int]] = None
+    rate_limit_delay_seconds: float = 0.25
     config_file: str = "config.json"
     system_prompts_file: str = "system_prompts.json"
     system_prompts: Optional[dict[str, str]] = None
@@ -314,8 +315,15 @@ class DuffelConfig:
                     self.retry_backoff_max = float(cfg_data["retry_backoff_max"])
                 if "retry_status_codes" in cfg_data and isinstance(cfg_data["retry_status_codes"], list):
                     self.retry_status_codes = [int(c) for c in cfg_data["retry_status_codes"]]
+                if "rate_limit_delay_seconds" in cfg_data and cfg_data["rate_limit_delay_seconds"] is not None:
+                    self.rate_limit_delay_seconds = float(cfg_data["rate_limit_delay_seconds"])
 
         # 2. Apply environment variable overrides
+        if os.environ.get("RATE_LIMIT_DELAY_SECONDS"):
+            try:
+                self.rate_limit_delay_seconds = float(os.environ["RATE_LIMIT_DELAY_SECONDS"])
+            except Exception:
+                pass
         is_local_mode = (target_file_path and "local" in target_file_path.name.lower()) or self.environment == "local"
 
         if not self.api_token or os.environ.get("DUFFEL_API_TOKEN"):

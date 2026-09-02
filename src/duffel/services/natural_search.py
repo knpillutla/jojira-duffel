@@ -98,7 +98,17 @@ class NaturalSearchService(BaseService):
                 "results": [],
             }
 
-        # Check for max 30 days date range window limit
+        # Check for max 30 days limit on duration or flexible search window
+        req_dur = int(intent.get("duration_days") or intent.get("duration") or 0)
+        if req_dur > 30:
+            return {
+                "status": "error",
+                "error": "duration_exceeded",
+                "message": f"Trip duration of {req_dur} days exceeds the maximum allowed limit of 30 days. Please select 30 days or less.",
+                "total_results": 0,
+                "results": [],
+            }
+
         from_d_str = intent.get("from_date") or departure_date
         to_d_str = intent.get("to_date") or return_date
         if from_d_str and to_d_str:

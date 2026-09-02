@@ -245,35 +245,6 @@ def build_hotel_checkin_item(
     }
 
 
-def fetch_live_component_pricing(**kwargs) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
-    """Mock/Live pricing aggregator for flights, hotels, and rental cars."""
-    orig = str(kwargs.get("origin") or "").upper().strip()
-    dest = str(kwargs.get("destination") or "").upper().strip()
-    if dest in ["LHR", "LGW"] or orig in ["LHR", "LGW"]:
-        air = "British Airways"
-    elif dest in ["CDG", "ORY"] or orig in ["CDG", "ORY"]:
-        air = "Air France"
-    elif dest in ["DXB"] or orig in ["DXB"]:
-        air = "Emirates"
-    elif dest in ["HND", "NRT"] or orig in ["HND", "NRT"]:
-        air = "All Nippon Airways (ANA)"
-    elif orig in ["DFW", "MIA", "CLT"] or dest in ["DFW", "MIA", "CLT"]:
-        air = "American Airlines"
-    elif orig in ["ORD", "EWR", "SFO", "IAH"] or dest in ["ORD", "EWR", "SFO", "IAH"]:
-        air = "United Airlines"
-    else:
-        air = "Delta Air Lines"
+from .pricing import fetch_live_component_pricing
 
-    comp_pricing = {
-        "flight_cost": 250.0,
-        "airline": air,
-        "airline_name": air,
-        "hotel_cost_per_night": 140.0,
-        "car_cost_total": 180.0,
-        "outbound_departure_time": "08:30 AM",
-        "outbound_arrival_time": "12:30 PM",
-        "return_departure_time": "05:00 PM",
-        "return_arrival_time": "09:00 PM",
-    }
-    return [], comp_pricing, {"source": "live"}
 

@@ -355,10 +355,26 @@ class PromptExtractor:
             except Exception:
                 pass
 
-        # If no dates are specified in input: start date = today + 15, end date = today + 15 + duration (default 4)
-        if not from_date and not dep_date:
-            now_base = datetime.now()
-            default_dur = int(duration) if (duration is not None and int(duration) > 0) else 4
+        # Check if user specified a month without an explicit day (e.g. "in december", "during october")
+        m_month = re.search(r"\b(?:in|during|for)\s+(january|february|march|april|may|june|july|august|september|october|november|december)\b", text)
+        has_day_num = bool(re.search(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}\b|\b\d{1,2}\s+(?:st|nd|rd|th)?\s+(?:of\s+)?(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b", text))
+        if m_month and not has_day_num:
+            month_num = datetime.strptime(m_month.group(1), "%B").month
+            now_dt = datetime.now()
+            yr = now_dt.year + 1 if month_num < now_dt.month else now_dt.year
+            last_day = calendar.monthrange(yr, month_num)[1]
+            from_date = f"{yr:04d}-{month_num:02d}-01"
+            to_date = f"{yr:04d}-{month_num:02d}-{last_day:02d}"
+            dep_date = from_date
+            ret_date = to_date
+            duration = int(duration) if (duration is not None and int(duration) > 0) else 7
+
+        # If no explicit calendar dates in input: default start date = today + 15, end date = today + 15 + duration
+        now_base = datetime.now()
+        today_str = now_base.strftime("%Y-%m-%d")
+        has_cal_date = bool(re.search(r"\b(20\d{2}|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{1,2}/\d{1,2})\b", text))
+        if not has_cal_date and (not from_date or from_date <= today_str) and "today" not in text and "tonight" not in text and "now" not in text:
+            default_dur = int(duration) if (duration is not None and int(duration) > 0) else 7
             duration = default_dur
             start_dt = now_base + timedelta(days=15)
             end_dt = now_base + timedelta(days=15 + default_dur)
@@ -366,12 +382,14 @@ class PromptExtractor:
             to_date = end_dt.strftime("%Y-%m-%d")
             dep_date = from_date
             ret_date = to_date
-            if slices and isinstance(slices[0], dict) and not slices[0].get("departure_date"):
+            if slices and isinstance(slices[0], dict):
                 slices[0]["departure_date"] = from_date
 
         is_explicit_one_way = any(w in text for w in ["one way", "oneway", "single"])
         if is_explicit_one_way:
             trip_type = "one_way"
+        elif any(w in text for w in ["trip", "vacation", "holiday", "highlights", "round trip", "return"]) or duration:
+            trip_type = "round_trip"
         elif from_date and to_date and not trip_type and ("between" in text or " to " in text):
             trip_type = "round_trip"
 
@@ -598,7 +616,9 @@ class PromptExtractor:
             "driver_age": car_info.get("driver_age", 30),
             "interests": [],
             "duration_days": duration,
-            "slices": [s.to_dict() if hasattr(s, "to_dict") else s for s in slices],
+            "slices": [s.to_dict() if hasattr(s, "to_dict") else s for s in (
+                slices + ([{"origin": destination, "destination": origin, "departure_date": resolved_ret_date}] if (resolved_trip_type != "one_way" and resolved_ret_date and len(slices) == 1 and origin and destination) else [])
+            )],
         }
 
         # Check if key parameters are missing or unmapped, and call LLM pre-processing enrichment
@@ -699,7 +719,7 @@ class PromptExtractor:
                 for m_str, d_str, y_str in ordinal_dates:
                     try:
                         m_num = datetime.strptime(m_str[:3], "%b").month
-                        y_num = int(y_str) if y_str else datetime.now().year
+                        y_num = int(y_str) if y_str else (datetime.now().year + 1 if m_num < datetime.now().month else datetime.now().year)
                         d_num = int(d_str)
                         dates.append(f"{y_num:04d}-{m_num:02d}-{d_num:02d}")
                     except Exception:
@@ -712,7 +732,8 @@ class PromptExtractor:
             )
             if month_match:
                 month_number = datetime.strptime(month_match.group(1), "%B").month
-                year = int(month_match.group(2) or datetime.now().year)
+                now_dt = datetime.now()
+                year = int(month_match.group(2)) if month_match.group(2) else (now_dt.year + 1 if month_number < now_dt.month else now_dt.year)
                 dates = [f"{year:04d}-{month_number:02d}-01"]
                 extracted["target_return_date"] = (
                     f"{year:04d}-{month_number:02d}-{calendar.monthrange(year, month_number)[1]:02d}"
@@ -883,7 +904,7 @@ class PromptExtractor:
         return None
 
     @staticmethod
-    def _normalize_flight_result(result: dict[str, Any]) -> dict[str, Any]:
+    def _normalize_flight_result(result: dict[str, Any], prompt: Optional[str] = None) -> dict[str, Any]:
         """Normalize provider output to the field names and enum values used by the CLI."""
         normalized = dict(result)
         slices = normalized.get("slices") or []
@@ -902,15 +923,32 @@ class PromptExtractor:
         if not to_date and len(slices) > 1 and isinstance(slices[1], dict):
             to_date = slices[1].get("departure_date")
 
-        if not slices and normalized.get("origin") and normalized.get("destination"):
-            normalized["slices"] = [{
-                "origin": normalized["origin"],
-                "destination": normalized["destination"],
-                "departure_date": from_date
-            }]
-            slices = normalized["slices"]
-
         duration = normalized.get("duration") if normalized.get("duration") is not None else normalized.get("duration_days")
+        p_str = (prompt or str(result.get("prompt") or "")).lower()
+        now_base = datetime.now()
+        today_str = now_base.strftime("%Y-%m-%d")
+
+        # Check if user specified a month without an explicit day (e.g. "in december", "during october")
+        m_month = re.search(r"\b(?:in|during|for)\s+(january|february|march|april|may|june|july|august|september|october|november|december)\b", p_str)
+        has_day_num = bool(re.search(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}\b|\b\d{1,2}\s+(?:st|nd|rd|th)?\s+(?:of\s+)?(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b", p_str))
+        if m_month and not has_day_num:
+            month_num = datetime.strptime(m_month.group(1), "%B").month
+            yr = now_base.year + 1 if month_num < now_base.month else now_base.year
+            last_day = calendar.monthrange(yr, month_num)[1]
+            from_date = f"{yr:04d}-{month_num:02d}-01"
+            to_date = f"{yr:04d}-{month_num:02d}-{last_day:02d}"
+            duration = int(duration) if (duration is not None and int(duration) > 0) else 7
+
+        # Check if dates were omitted from user prompt or defaulted to today without user asking for today
+        has_calendar_date = bool(re.search(r"\b(20\d{2}|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{1,2}/\d{1,2})\b", p_str))
+        if not has_calendar_date and (not from_date or from_date <= today_str):
+            if "today" not in p_str and "tonight" not in p_str and "now" not in p_str:
+                default_dur = int(duration) if (duration is not None and int(duration) > 0) else 7
+                duration = default_dur
+                start_dt = now_base + timedelta(days=15)
+                end_dt = start_dt + timedelta(days=default_dur)
+                from_date = start_dt.strftime("%Y-%m-%d")
+                to_date = end_dt.strftime("%Y-%m-%d")
 
         if from_date and to_date and duration is None:
             try:
@@ -930,23 +968,55 @@ class PromptExtractor:
                 pass
 
         raw_trip_type = str(normalized.get("trip_type") or "").lower().replace("-", "_").replace(" ", "_")
-        normalized["trip_type"] = {
-            "oneway": "one_way",
-            "one_way": "one_way",
-            "single": "one_way",
-            "roundtrip": "round_trip",
-            "round_trip": "round_trip",
-            "multicity": "multi_city",
-            "multi_city": "multi_city",
-        }.get(raw_trip_type, normalized.get("trip_type") or ("round_trip" if (from_date and to_date) else "one_way"))
+        is_explicit_one_way = any(w in p_str for w in ["one way", "oneway", "single"]) or raw_trip_type in ["oneway", "one_way", "single"]
+        if is_explicit_one_way and not any(w in p_str for w in ["trip", "vacation", "holiday", "highlights"]):
+            normalized["trip_type"] = "one_way"
+        elif any(w in p_str for w in ["trip", "vacation", "holiday", "highlights", "round trip", "return"]) or duration:
+            normalized["trip_type"] = "round_trip"
+        else:
+            normalized["trip_type"] = {
+                "oneway": "one_way",
+                "one_way": "one_way",
+                "single": "one_way",
+                "roundtrip": "round_trip",
+                "round_trip": "round_trip",
+                "multicity": "multi_city",
+                "multi_city": "multi_city",
+            }.get(raw_trip_type, "round_trip" if (from_date and to_date) else "one_way")
 
-        if normalized.get("trip_type") == "one_way" and not (from_date and to_date and "between" in str(result).lower()):
+        if normalized.get("trip_type") == "one_way" and not (from_date and to_date and "between" in p_str):
             normalized["target_return_date"] = None
             normalized["to_date"] = None
             if isinstance(normalized.get("slices"), list) and len(normalized["slices"]) > 1:
                 normalized["slices"] = [normalized["slices"][0]]
         else:
             normalized["target_return_date"] = to_date
+            normalized["to_date"] = to_date
+
+        if not slices and normalized.get("origin") and normalized.get("destination"):
+            normalized["slices"] = [{
+                "origin": normalized["origin"],
+                "destination": normalized["destination"],
+                "departure_date": from_date
+            }]
+            if normalized.get("trip_type") != "one_way" and to_date:
+                normalized["slices"].append({
+                    "origin": normalized["destination"],
+                    "destination": normalized["origin"],
+                    "departure_date": to_date
+                })
+            slices = normalized["slices"]
+        elif slices and isinstance(slices[0], dict):
+            slices[0]["departure_date"] = from_date
+            if normalized.get("trip_type") != "one_way":
+                if len(slices) > 1 and isinstance(slices[1], dict):
+                    slices[1]["departure_date"] = to_date
+                elif normalized.get("origin") and normalized.get("destination") and to_date:
+                    slices.append({
+                        "origin": normalized["destination"],
+                        "destination": normalized["origin"],
+                        "departure_date": to_date
+                    })
 
         min_price = normalized.get("min_price")
         max_price = normalized.get("max_price")
@@ -1027,13 +1097,18 @@ class PromptExtractor:
         import json
         from urllib.request import Request, urlopen
 
-        today = datetime.now().strftime("%Y-%m-%d")
+        today_dt = datetime.now()
+        today = today_dt.strftime("%Y-%m-%d")
+        def_from = (today_dt + timedelta(days=15)).strftime("%Y-%m-%d")
+        def_to = (today_dt + timedelta(days=22)).strftime("%Y-%m-%d")
         instruction = (
             f"Today is {today}. Extract the flight request as JSON only.\n"
             "STRICT RULES:\n"
-            "1. trip_type: MUST be 'one_way' if user explicitly says 'one way', 'oneway', or 'single' (even if two dates or date range are specified). MUST be 'round_trip' if user requests roundtrip/return or specifies two dates without saying one way. MUST be 'multi_city' for multiple destinations.\n"
-            "2. IATA CODES & SLICES: Resolve all city names strictly to 3-letter IATA airport codes in uppercase (e.g. 'Calgary' -> 'YYC', 'Atlanta' -> 'ATL', 'Columbus' -> 'CMH', 'Paris' -> 'CDG', 'London' -> 'LHR', 'New York' -> 'JFK', 'Zurich' -> 'ZRH'). Set top-level 'origin' to departure IATA code, top-level 'destination' to arrival IATA code, and populate 'slices': [{'origin': 'ATL', 'destination': 'CMH', 'departure_date': 'YYYY-MM-DD'}]. NEVER return city names or empty slices.\n"
-            "3. DATES & DURATION: Extract 'from_date' (YYYY-MM-DD start date), 'to_date' (YYYY-MM-DD end date), and 'duration_days' (integer duration of trip in days).\n"
+            "1. trip_type: MUST be 'one_way' if user explicitly says 'one way', 'oneway', or 'single'. If user requests a trip, vacation, holiday, highlights, or specifies duration (e.g. '4-day trip', 'weekend trip', 'highlights trip') without saying 'one way', trip_type MUST be 'round_trip'. MUST be 'multi_city' for multiple destinations.\n"
+            "2. IATA CODES & SLICES: Resolve all city names strictly to 3-letter IATA airport codes in uppercase (e.g. 'Calgary' -> 'YYC', 'Atlanta' -> 'ATL', 'Columbus' -> 'CMH', 'Paris' -> 'CDG', 'London' -> 'LHR', 'New York' -> 'JFK', 'Zurich' -> 'ZRH', 'Boston' -> 'BOS', 'San Francisco' -> 'SFO'). Set top-level 'origin' to departure IATA code, top-level 'destination' to arrival IATA code, and populate 'slices': [{'origin': 'ATL', 'destination': 'CMH', 'departure_date': 'YYYY-MM-DD'}]. NEVER return city names or empty slices.\n"
+            f"3. DATES & DURATION: Extract 'from_date' (YYYY-MM-DD start date), 'to_date' (YYYY-MM-DD end date), and 'duration_days' (integer duration of trip in days).\n"
+            f"- IF NO DATES ARE IN THE PROMPT: You MUST default to a 7-day trip with 'from_date': '{def_from}', 'to_date': '{def_to}', and 'duration_days': 7 (or if user requested N days, from_date is '{def_from}' and to_date is from_date + N days). NEVER default departure to today!\n"
+            f"- IF A MONTH IS SPECIFIED WITHOUT A DAY (e.g. 'in december', 'in october'): Set 'from_date' to the 1st of that month ('YYYY-MM-01') and 'to_date' to the last day of that month ('YYYY-MM-31') with 'duration_days': 7 (or specified duration). DO NOT pick an arbitrary single day!\n"
             "4. PRICE RANGE: Extract 'min_price' (float or null) and 'max_price' (float or null) if user specifies budget or price limits.\n"
             "5. AIRLINES: Set 'preferred_airline', 'included_airlines', and 'excluded_airlines' ONLY if user explicitly names a recognized airline or alliance (e.g. 'Delta', 'United', 'American', 'British Airways'). NEVER treat date strings like 'on sep 8' or prepositions as airlines! Set to null or empty array if no airline is explicitly requested.\n"
             "6. STOPOVERS & BREAKS: If user requests a stay in a destination for N days (e.g. 'for 21 days in Hyderabad') with a break in an intermediate city (e.g. 'with a 1 week break in London'), add the break duration (+7 days) to the destination stay duration so the total trip length is 28 days: Slice 1: ATL -> LHR on start date (Oct 1); Slice 2: LHR -> HYD 7 days later (Oct 8); Slice 3: HYD -> ATL 21 days after arriving in HYD (Oct 29, total 28 days from start). Set trip_type: 'multi_city'.\n"
@@ -1076,7 +1151,7 @@ class PromptExtractor:
             content = response_data["choices"][0]["message"]["content"]
             result = json.loads(content)
             if isinstance(result, dict):
-                normalized = PromptExtractor._normalize_flight_result(result)
+                normalized = PromptExtractor._normalize_flight_result(result, prompt=prompt)
                 meta = {
                     "engine": f"LLM Extractor (OpenAI - {model_name})",
                     "llm_used": True,
@@ -1111,13 +1186,18 @@ class PromptExtractor:
         from urllib.parse import quote
         from urllib.request import Request, urlopen
 
-        today = datetime.now().strftime("%Y-%m-%d")
+        today_dt = datetime.now()
+        today = today_dt.strftime("%Y-%m-%d")
+        def_from = (today_dt + timedelta(days=15)).strftime("%Y-%m-%d")
+        def_to = (today_dt + timedelta(days=22)).strftime("%Y-%m-%d")
         instruction = (
             f"Extract this flight request as JSON. Today is {today}.\n"
             "STRICT RULES:\n"
-            "1. trip_type: MUST be 'one_way' if user explicitly says 'one way', 'oneway', or 'single'. MUST be 'round_trip' for roundtrip/return. MUST be 'multi_city' for stopovers or multi-city breaks.\n"
-            "2. IATA CODES & SLICES: Resolve city names strictly to 3-letter IATA codes in uppercase (e.g. 'Atlanta' -> 'ATL', 'Columbus' -> 'CMH'). Set top-level 'origin', 'destination', and 'slices': [{'origin': 'ATL', 'destination': 'CMH', 'departure_date': 'YYYY-MM-DD'}].\n"
-            "3. DATES & DURATION: Extract 'from_date', 'to_date', and 'duration_days'.\n"
+            "1. trip_type: MUST be 'one_way' if user explicitly says 'one way', 'oneway', or 'single'. If user requests a trip, vacation, holiday, highlights, or specifies duration (e.g. '4-day trip', 'weekend trip', 'highlights trip') without saying 'one way', trip_type MUST be 'round_trip'. MUST be 'multi_city' for stopovers or multi-city breaks.\n"
+            "2. IATA CODES & SLICES: Resolve city names strictly to 3-letter IATA codes in uppercase (e.g. 'Atlanta' -> 'ATL', 'Columbus' -> 'CMH', 'Boston' -> 'BOS', 'San Francisco' -> 'SFO'). Set top-level 'origin', 'destination', and 'slices': [{'origin': 'ATL', 'destination': 'CMH', 'departure_date': 'YYYY-MM-DD'}].\n"
+            f"3. DATES & DURATION: Extract 'from_date' (YYYY-MM-DD start date), 'to_date' (YYYY-MM-DD end date), and 'duration_days' (integer duration of trip in days).\n"
+            f"- IF NO DATES ARE IN THE PROMPT: You MUST default to a 7-day trip with 'from_date': '{def_from}', 'to_date': '{def_to}', and 'duration_days': 7 (or if user requested N days, from_date is '{def_from}' and to_date is from_date + N days). NEVER default departure to today!\n"
+            f"- IF A MONTH IS SPECIFIED WITHOUT A DAY (e.g. 'in december', 'in october'): Set 'from_date' to the 1st of that month ('YYYY-MM-01') and 'to_date' to the last day of that month ('YYYY-MM-31') with 'duration_days': 7 (or specified duration). DO NOT pick an arbitrary single day!\n"
             "4. PRICE RANGE: Extract 'min_price' and 'max_price'.\n"
             "5. AIRLINES: Set 'preferred_airline', 'included_airlines', and 'excluded_airlines' ONLY if user explicitly names a recognized airline (e.g. 'Delta', 'United'). NEVER treat date strings like 'sep 8' as airlines.\n"
             "6. STOPOVERS & BREAKS: If user requests a destination stay for N days with a break in an intermediate city (+7 days), sum stay + break duration for total trip length (28 days). Set trip_type: 'multi_city' and populate 'slices' array with sequential flight legs.\n"
@@ -1156,7 +1236,7 @@ class PromptExtractor:
             response_text = response_data["candidates"][0]["content"]["parts"][0]["text"]
             result = json.loads(response_text)
             if isinstance(result, dict) and isinstance(result.get("slices"), list):
-                normalized = PromptExtractor._normalize_flight_result(result)
+                normalized = PromptExtractor._normalize_flight_result(result, prompt=prompt)
                 meta = {
                     "engine": f"LLM Extractor (Gemini - {gemini_model})",
                     "llm_used": True,

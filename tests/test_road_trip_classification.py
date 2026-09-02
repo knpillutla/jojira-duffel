@@ -24,21 +24,6 @@ class TestRoadTripClassification(unittest.TestCase):
         self.assertFalse(res["include_flights"])
         self.assertEqual(res["trip_type"], "road_trip")
 
-    def test_fly_and_drive_param_forces_flights_true(self):
-        """When fly_and_drive is True, include_flights must be True."""
-        res = classify_travel_scope_and_type(
-            prompt="4 day trip from atlanta to orlando",
-            resolved_origin="atlanta",
-            dest_clean="orlando",
-            include_flights=False,
-            include_cars=True,
-            fly_and_drive=True,
-        )
-        self.assertTrue(res["is_fly_and_drive"])
-        self.assertTrue(res["include_flights"])
-        self.assertFalse(res["is_road_trip"])
-        self.assertEqual(res["trip_type"], "fly_and_drive")
-
     def test_domestic_respects_include_flights_true(self):
         """Domestic trip with include_flights=True and no road_trip flag retains flights."""
         res = classify_travel_scope_and_type(
@@ -53,15 +38,14 @@ class TestRoadTripClassification(unittest.TestCase):
         self.assertFalse(res["is_road_trip"])
         self.assertEqual(res["trip_type"], "vacation_travel")
 
-    def test_schema_accepts_road_trip_and_fly_and_drive(self):
-        """ItineraryPlannerRequest schema accepts road_trip and fly_and_drive."""
+    def test_schema_accepts_road_trip_and_no_fly_and_drive(self):
+        """ItineraryPlannerRequest schema accepts road_trip and rejects/omits fly_and_drive."""
         req = ItineraryPlannerRequest(
             prompt="Trip to Orlando",
             road_trip=True,
-            fly_and_drive=False,
         )
         self.assertTrue(req.road_trip)
-        self.assertFalse(req.fly_and_drive)
+        self.assertNotIn("fly_and_drive", req.model_fields)
 
     def test_cache_insights_metadata(self):
         """Verify build_execution_and_cache_insights generates correct flags and insights list."""

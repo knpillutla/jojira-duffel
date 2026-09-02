@@ -176,6 +176,12 @@
     "address": "Atlanta ATL Airport, USA",
     "name": "Atlanta ATL Airport"
   },
+  "ATLANTA": {
+    "latitude": 33.749,
+    "longitude": -84.388,
+    "address": "Atlanta, GA, USA",
+    "name": "Downtown Atlanta"
+  },
   "ORD": {
     "latitude": 41.9742,
     "longitude": -87.9073,
@@ -187,6 +193,36 @@
     "longitude": -81.3081,
     "address": "Orlando MCO Airport, USA",
     "name": "Orlando MCO Airport"
+  },
+  "ORLANDO": {
+    "latitude": 28.5383,
+    "longitude": -81.3792,
+    "address": "Orlando, FL, USA",
+    "name": "Downtown Orlando"
+  },
+  "VALDOSTA": {
+    "latitude": 30.8327,
+    "longitude": -83.2785,
+    "address": "Valdosta, GA, USA",
+    "name": "Valdosta City Centre"
+  },
+  "MACON": {
+    "latitude": 32.8407,
+    "longitude": -83.6324,
+    "address": "Macon, GA, USA",
+    "name": "Macon City Centre"
+  },
+  "GAINESVILLE": {
+    "latitude": 29.6516,
+    "longitude": -82.3248,
+    "address": "Gainesville, FL, USA",
+    "name": "Gainesville City Centre"
+  },
+  "SAVANNAH": {
+    "latitude": 32.0809,
+    "longitude": -81.0912,
+    "address": "Savannah, GA, USA",
+    "name": "Savannah Historic District"
   },
   "HNL": {
     "latitude": 21.3245,
@@ -5819,5 +5855,11 @@
     "longitude": -62.7267278,
     "address": "Corporación Venezolana de Guayana, Carrera Caruachi, Parroquia Universidad, Municipio Caroní, Bolívar, 8050, Venezuela",
     "name": "Cvg"
+  },
+  "HYD": {
+    "latitude": 17.2311636,
+    "longitude": 78.4317834,
+    "address": "Rajiv Gandhi International Airport, T1 Departure Dr Opposite, Balapur mandal, Ranga Reddy, Telangana, 509218, India",
+    "name": "HYD"
   }
 }

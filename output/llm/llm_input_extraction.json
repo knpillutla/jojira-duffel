@@ -1,25 +1,28 @@
 {
-  "prompt": "4 day trip from atlanta to newyork in october",
+  "prompt": "atl to hyd",
   "model": "gpt-4o-mini",
   "raw_response": {
     "trip_type": "round_trip",
     "origin": "ATL",
-    "destination": "JFK",
+    "destination": "HYD",
     "slices": [
       {
         "origin": "ATL",
-        "destination": "JFK",
-        "departure_date": "2026-10-01"
+        "destination": "HYD",
+        "departure_date": "2026-09-17"
       },
       {
-        "origin": "JFK",
+        "origin": "HYD",
         "destination": "ATL",
-        "departure_date": "2026-10-05"
+        "departure_date": "2026-09-24"
       }
     ],
-    "from_date": "2026-10-01",
-    "to_date": "2026-10-05",
-    "duration_days": 4,
+    "departure_date": "2026-09-17",
+    "return_date": "2026-09-24",
+    "target_return_date": null,
+    "from_date": "2026-09-17",
+    "to_date": "2026-09-24",
+    "duration_days": 7,
     "min_price": null,
     "max_price": null,
     "cabin_class": null,
@@ -36,22 +39,25 @@
   "normalized": {
     "trip_type": "round_trip",
     "origin": "ATL",
-    "destination": "JFK",
+    "destination": "HYD",
     "slices": [
       {
         "origin": "ATL",
-        "destination": "JFK",
-        "departure_date": "2026-10-01"
+        "destination": "HYD",
+        "departure_date": "2026-09-17"
       },
       {
-        "origin": "JFK",
+        "origin": "HYD",
         "destination": "ATL",
-        "departure_date": "2026-10-05"
+        "departure_date": "2026-09-24"
       }
     ],
-    "from_date": "2026-10-01",
-    "to_date": "2026-10-05",
-    "duration_days": 4,
+    "departure_date": "2026-09-17",
+    "return_date": "2026-09-24",
+    "target_return_date": "2026-09-24",
+    "from_date": "2026-09-17",
+    "to_date": "2026-09-24",
+    "duration_days": 7,
     "min_price": null,
     "max_price": null,
     "cabin_class": null,
@@ -64,9 +70,6 @@
       "favorite_cuisines": [],
       "dietary_restrictions": []
     },
-    "target_return_date": "2026-10-05",
-    "departure_date": "2026-10-01",
-    "return_date": "2026-10-05",
     "meal_preferences": [],
     "favorite_cuisines": [],
     "dietary_restrictions": []

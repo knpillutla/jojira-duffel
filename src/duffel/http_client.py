@@ -121,13 +121,18 @@ class HTTPClient:
         req_timeout = timeout if timeout is not None else getattr(self.config, "timeout", 120.0)
 
         for attempt in range(1, total_attempts + 1):
-            # Throttle request rate if a 429 rate limit was recently encountered (max 1 call/sec)
+            # Throttle request rate if a 429 rate limit was recently encountered
+            throttle_delay = float(getattr(self.config, "rate_limit_delay_seconds", 0.25) or 0.25)
             with self._lock:
                 last_429 = getattr(self, "_last_429_time", 0.0)
             if last_429 > 0:
                 since_429 = time.time() - last_429
-                if since_429 < 1.0:
-                    time.sleep(1.0 - since_429)
+                if since_429 < throttle_delay:
+                    pause = throttle_delay - since_429
+                    print(f"[DUFFEL RATE THROTTLE] Pausing {pause:.2f}s before dispatching next API call (rate_limit_delay: {throttle_delay}s)...", flush=True)
+                    time.sleep(pause)
+                    with self._lock:
+                        self._current_delayed_calls = getattr(self, "_current_delayed_calls", 0) + 1
 
             if self.config.debug:
                 logger.debug("[DUFFEL API REQUEST] %s %s (Attempt %d/%d)", method.upper(), url, attempt, total_attempts)
@@ -196,12 +201,13 @@ class HTTPClient:
                         base_delay = min(backoff_max, backoff_factor * (2 ** (attempt - 1)))
                         delay = random.uniform(0.5 * base_delay, base_delay)
 
-                    # Enforce a 1.0 second minimum backoff floor for 429 Rate Limit Exceeded
+                    # Enforce configured minimum backoff floor for 429 Rate Limit Exceeded
                     if err.code == 429:
-                        delay = max(1.0, delay if delay is not None else 1.0)
+                        min_floor = float(getattr(self.config, "rate_limit_delay_seconds", 0.25) or 0.25)
+                        delay = max(min_floor, delay if delay is not None else min_floor)
                         msg = (
                             f"[DUFFEL 429 RATE LIMIT BACKOFF] HTTP 429 Rate Limit Exceeded (ratelimit-reset: {retry_after or 'N/A'}). "
-                            f"Throttling execution to 1 call per second (pausing {delay:.2f}s before retry {attempt}/{total_attempts - 1})... "
+                            f"Throttling execution (pausing {delay:.2f}s before retry {attempt}/{total_attempts - 1})... "
                             f"(Idempotency Key: {req_headers.get('Duffel-Idempotency-Key', 'N/A')})"
                         )
                     else:
@@ -307,13 +313,10 @@ class HTTPClient:
         except Exception:
             message = error_body or message
 
-        if status_code == 401:
-            raise DuffelAuthenticationError(message, status_code, errors, parsed_body)
-        elif status_code == 404:
-            raise DuffelNotFoundError(message, status_code, errors, parsed_body)
-        elif status_code == 422:
-            raise DuffelValidationError(message, status_code, errors, parsed_body)
-        elif status_code == 429:
-            raise DuffelRateLimitError(message, status_code, errors, parsed_body)
-        else:
-            raise DuffelAPIError(message, status_code, errors, parsed_body)
+        exc_cls = {
+            401: DuffelAuthenticationError,
+            404: DuffelNotFoundError,
+            422: DuffelValidationError,
+            429: DuffelRateLimitError,
+        }.get(status_code, DuffelAPIError)
+        raise exc_cls(message, status_code, errors, parsed_body)

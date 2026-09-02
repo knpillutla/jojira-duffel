@@ -1376,7 +1376,7 @@ class FlightsService(BaseService):
             end_dep_dt = base_dep_dt + timedelta(days=flex_days)
             curr_dep = start_dep_dt
             while curr_dep <= end_dep_dt:
-                if curr_dep >= now_dt:
+                if curr_dep.date() >= now_dt.date():
 
                     dep_str = curr_dep.strftime("%Y-%m-%d")
                     if dep_str not in seen_pairs:
@@ -1407,7 +1407,7 @@ class FlightsService(BaseService):
 
             curr_dep = start_dep_dt
             while curr_dep <= end_ret_dt - timedelta(days=min_duration_days):
-                if curr_dep >= now_dt:
+                if curr_dep.date() >= now_dt.date():
                     dep_str = curr_dep.strftime("%Y-%m-%d")
                     for dur in range(min_duration_days, max_duration_days + 1):
                         ret_d = curr_dep + timedelta(days=dur)

@@ -11,6 +11,7 @@ from typing import Any, Optional
 
 from ..cli.parser import PromptExtractor
 from ..models.common import CabinClass, Passenger
+from ..timing import StepLogger
 from .base import BaseService
 
 
@@ -50,7 +51,16 @@ class AISearchService(BaseService):
         # Step 1: Extract intent using LLM
         prompt = (prompt or "").lower().strip()
         user_loc = overrides.get("user_location")
-        intent = PromptExtractor.extract_natural_intent(prompt, user_location=user_loc)
+        with StepLogger.step(1, 4, "Prompt Intent Extraction & Normalization", f"Query: {prompt[:35]}..."):
+            intent = PromptExtractor.extract_natural_intent(prompt, user_location=user_loc)
+
+        print("\n[EXTRACTED LLM INTENT JSON]:", flush=True)
+        try:
+            print(json.dumps(intent, indent=2, default=str), flush=True)
+        except Exception:
+            print(intent, flush=True)
+        print("-" * 60, flush=True)
+
         selected_types = overrides.get("selected_types") or intent.get("selected_types") or ["flights"]
         
         # Normalize types to lowercase
@@ -72,7 +82,7 @@ class AISearchService(BaseService):
 
 
         now_dt = datetime.now()
-        default_dur = int(intent.get("duration_days") or intent.get("duration") or 4)
+        default_dur = int(intent.get("duration_days") or intent.get("duration") or 7)
         def_dep = (now_dt + timedelta(days=15)).strftime("%Y-%m-%d")
         def_ret = (now_dt + timedelta(days=15 + default_dur)).strftime("%Y-%m-%d")
 
@@ -153,7 +163,16 @@ class AISearchService(BaseService):
                 },
             }
 
-        # Check for max 30 days date range window limit
+        # Check for max 30 days limit on duration or flexible search window
+        req_dur = int(intent.get("duration_days") or intent.get("duration") or 0)
+        if req_dur > 30:
+            err_msg = f"Trip duration of {req_dur} days exceeds the maximum allowed limit of 30 days. Please select 30 days or less."
+            return {
+                "status": "error", "error": "duration_exceeded", "message": err_msg,
+                "meta_data": {"type": "ai_search", "search_type": selected_types[0] if selected_types else "flights", "prompt": prompt, "parsed_intent": intent, "error": err_msg},
+                "data": {"ai_summary": f"Cannot complete search: {err_msg}", "category_highlights": {}, "search_type": selected_types[0] if selected_types else "flights", "total_items": 0, "offers": [], "top_bundles": [], "raw_data": {}},
+            }
+
         from_d_str = intent.get("from_date") or departure_date
         to_d_str = intent.get("to_date") or return_date
         if from_d_str and to_d_str:
@@ -228,49 +247,49 @@ class AISearchService(BaseService):
         hash_key = hashlib.md5(hash_input.encode("utf-8")).hexdigest()[:6]
         cache_key = f"duffel:ai:search:{hash_key}"
         
-        # Check cache
-        if self.cache and self.cache.enabled and not force_refresh:
-            cached_res = self.cache.get(cache_key)
-            if cached_res and isinstance(cached_res, dict):
-                print(f"\n[+] TIER-1 AI SEARCH CACHE HIT for key: {cache_key}\n")
-                return cached_res
-        
-        # Step 2: Route based on number of types
+        # Step 2: Route Resolution & Cache Lookup
+        with StepLogger.step(2, 4, "Route Geo-Resolution & Cache Lookup", f"Origin: {origin}, Dest: {destination}"):
+            if self.cache and self.cache.enabled and not force_refresh:
+                cached_res = self.cache.get(cache_key)
+                if cached_res and isinstance(cached_res, dict):
+                    print(f"\n[+] TIER-1 AI SEARCH CACHE HIT for key: {cache_key}\n")
+                    return cached_res
+
+        # Step 3: Live Component Search & Duffel Pricing
         num_types = len(selected_types)
-        
-        if num_types == 1:
-            service_type = selected_types[0]
-            search_type = service_type
-            result = self._execute_single_service(
-                service_type=service_type,
-                origin=origin,
-                destination=destination,
-                departure_date=departure_date,
-                return_date=return_date,
-                passengers_count=passengers_count,
-                cabin_class=cabin_class,
-                rooms=rooms,
-                driver_age=driver_age,
-                favorite_airline=fav_airline,
-                force_refresh=force_refresh,
-                prompt=prompt,
-                intent=intent,
-            )
-        else:
-            search_type = "bundle"
-            result = self._execute_bundle_search(
-                selected_types=selected_types,
-                origin=origin,
-                destination=destination,
-                departure_date=departure_date,
-                return_date=return_date,
-                passengers_count=passengers_count,
-                cabin_class=cabin_class,
-                rooms=rooms,
-                driver_age=driver_age,
-                force_refresh=force_refresh,
-                prompt=prompt,
-            )
+        search_type = selected_types[0] if num_types == 1 else "bundle"
+        with StepLogger.step(3, 4, "Live Component Search & Duffel Pricing", f"Type: {search_type}, Window: {departure_date} to {return_date}"):
+            if num_types == 1:
+                service_type = selected_types[0]
+                result = self._execute_single_service(
+                    service_type=service_type,
+                    origin=origin,
+                    destination=destination,
+                    departure_date=departure_date,
+                    return_date=return_date,
+                    passengers_count=passengers_count,
+                    cabin_class=cabin_class,
+                    rooms=rooms,
+                    driver_age=driver_age,
+                    favorite_airline=fav_airline,
+                    force_refresh=force_refresh,
+                    prompt=prompt,
+                    intent=intent,
+                )
+            else:
+                result = self._execute_bundle_search(
+                    selected_types=selected_types,
+                    origin=origin,
+                    destination=destination,
+                    departure_date=departure_date,
+                    return_date=return_date,
+                    passengers_count=passengers_count,
+                    cabin_class=cabin_class,
+                    rooms=rooms,
+                    driver_age=driver_age,
+                    force_refresh=force_refresh,
+                    prompt=prompt,
+                )
 
         # Build geo location metadata
         try:
@@ -304,11 +323,10 @@ class AISearchService(BaseService):
         raw_data = res_dict.get("data", res_dict)
         items = raw_data.get("offers") or raw_data.get("results") or raw_data.get("top_bundles") or raw_data.get("packages") or raw_data.get("bundles") or []
 
-
-
-
-        highlights = self._synthesize_highlights(items, search_type)
-        ai_summary = self._generate_ai_summary(prompt, search_type, items, highlights, destination)
+        # Step 4: Highlights Synthesis & Result Packaging
+        with StepLogger.step(4, 4, "Highlights Synthesis & Result Packaging", f"{len(items)} Items Processed"):
+            highlights = self._synthesize_highlights(items, search_type)
+            ai_summary = self._generate_ai_summary(prompt, search_type, items, highlights, destination)
 
         def _is_ns(item: Any) -> bool:
             o = item.get("flight_offer") if isinstance(item, dict) and "flight_offer" in item else item

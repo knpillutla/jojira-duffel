@@ -80,7 +80,6 @@ class ItineraryPlannerRequest(BaseModel):
     include_seasonal_attractions: bool = Field(True, description="Whether to include local seasonal attractions (e.g., festivals, foliage, markets)")
     include_seasonal_activities: bool = Field(True, description="Whether to include seasonal events and regional experiences")
     road_trip: Optional[bool] = Field(None, description="Whether the trip is a road trip. If True, internally sets include_flights to False")
-    fly_and_drive: Optional[bool] = Field(None, description="Whether the trip is Fly & Drive. If True, includes flights and car rental")
 
 
     origin: Optional[str] = Field(None, description="Origin airport IATA code e.g. 'ATL'")
